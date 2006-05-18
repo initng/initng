@@ -1,0 +1,9 @@
+          name : nge
+        author : Jimmy Wennlund <jimmy.wennlund@gmail.com>
+  contributors : 
+      commands : 
+       options : 
+   description : This plugin opens up an eventsocket where it sends
+                 event data in xml like protocol, that users can listen
+		 on to see whats going on with initng. This connection
+		 is a one way socket, no commands can be sent in it.

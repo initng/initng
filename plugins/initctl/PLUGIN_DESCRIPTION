@@ -1,0 +1,10 @@
+          name : initctl
+        author : Jimmy Wennlund <jimmy.wennlund@gmail.com>
+  contributors : 
+      commands : 
+       options : 
+   description : This plugin is an emulation layer for sysvinit
+                 halt, reboot or tellinit commands, so initng will
+		 also react to them, if you dont have sysvinit installed
+		 this plugin is compleatly usless, please use initngs own 
+		 rebot or halt scripts if possible.

@@ -1,0 +1,11 @@
+initng-usplash
+
+How to use:
+
+Compile and install initng-usplash to /sbin
+
+Change gentoo line from init=/sbin/initng to init=/sbin/initng-usplash vga=791 splash
+
+This only works with ubuntu supported splash initrd images.
+
+/Jimmy.

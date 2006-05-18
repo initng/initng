@@ -1,0 +1,8 @@
+          name : stdout
+        author : Neuron <neuron@hollowtube.mine.nu>
+  contributors : Jimmy Wennlund <jimmy.wennlund@gmail.com>
+      commands : 
+       options : stdout, stderr, stdall, stdin
+   description : This plugins redirect the output to a file or socket/pipe
+                 before launching, if you redirecting output away from initng
+		 it wont be printed, or get in the logs, or history.

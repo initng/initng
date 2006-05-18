@@ -1,0 +1,10 @@
+          name : find
+        author : Jimmy Wennlund <jimmy.wennlund@gmail.com>
+  contributors : 
+      commands : 
+       options : 
+   description : When starting a new service initng, usually needs the full/service/path/to
+                 and will fail when not found, this plugin will search the /etc/initng dir,
+		 so ngc -u to will automaticly start "full/service/path/to"
+		 find plugin also support an alias file where you can put in complatly strange
+		 conversations like ngc -u animals/cow will start "animals/pig" :-)

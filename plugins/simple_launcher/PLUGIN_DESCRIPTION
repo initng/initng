@@ -1,0 +1,7 @@
+          name : simple_launcher
+        author : Jimmy Wennlund <jimmy.wennlund@gmail.com>
+  contributors : 
+      commands : 
+       options : exec, exec_path, exec_args
+   description : This launcher is more simple then launching a script,
+                 This one simple launches an executable with right enviroments.

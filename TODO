@@ -1,0 +1,35 @@
+
+Internal variables must have a name, to be able to be reloaded after ngc -c, how will we make sure
+the user wont try to set it, and hide it? 
+
+Rewrite initng_depend_start_deps_met, to not use dep_on, instead open NEED, USE, REQUIRE string, and check it that way, becouse its more safe.
+
+The i parser shud not only know '=' but '+=' and '=+' or maby '=-' to reset a multistring variable.
+
+Add need deps like need = (daemon/sysvlog || daemon/syslogd);
+
+UP_CHECK hook is not ever checked or called, fix.
+
+[DONE] Move all selinux stuff to an own selinux plugin.
+
+[DONE] add nge events, percentage, and kill notice, when a process dies nge shud know.
+
+Fix the xml parser.
+
+create ngc5 with an shiny new xml data backend.
+
+dbus work, for a dbusc plugin.
+
+finish cron plugin.
+
+write inetd plugin.
+
+Fix devices/printer like services.
+
+Fix net/eth0 like services
+
+[DONE] Make test/*/* work.
+
+a service that stops becouse the dependency stoped, will atomaticly be started again when the dep is up again.
+
+Make reload plugin, save sys_state, and current runlevel and more static global stuff. Maby we can call ngc -c, when system is stopping or starting without problems.

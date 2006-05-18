@@ -1,0 +1,6 @@
+          name : fmon
+        author : Jimmy Wennlund <jimmy.wennlund@gmail.com>
+  contributors : 
+      commands : 
+       options : 
+   description : If plugins or initng or any .i file used is changed, this plugin make sure initng will notice.

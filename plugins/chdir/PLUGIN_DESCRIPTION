@@ -1,0 +1,7 @@
+          name : chdir
+        author : Jimmy Wennlund <jimmy.wennlund@gmail.com>
+  contributors : 
+      commands : 
+       options : chdir
+   description : Change current workdir before current launch
+                 code is executed.

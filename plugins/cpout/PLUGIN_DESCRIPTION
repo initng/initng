@@ -1,0 +1,9 @@
+          name : cpout - Color Print OUTput
+        author : Jimmy Wennlund <jimmy.wennlund@gmail.com>
+  contributors : 
+      commands : 
+       options : 
+  cmd_line_opt : quiet_when_up
+   description : This plugin show errormessages, status changes,
+                 service output and system state changes directly
+		 on the console, by a colorfull output.

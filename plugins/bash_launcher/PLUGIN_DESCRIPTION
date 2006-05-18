@@ -1,0 +1,7 @@
+          name : bash_launcher
+        author : Jimmy Wennlund <jimmy.wennlund@gmail.com>
+  contributors : Daniel Malmgren
+      commands : 
+       options : script, script_opts, selinux_context
+   description : This enables to launch a service with a shell
+                 script attached inside the .i file.

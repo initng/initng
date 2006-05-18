@@ -1,0 +1,294 @@
+/*
+ * Initng, a next generation sysvinit replacement.
+ * Copyright (C) 2006 Jimmy Wennlund <jimmy.wennlund@gmail.com>
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+
+#include <initng.h>
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/poll.h>
+#include <fcntl.h>
+#include <string.h>
+#include <time.h>
+#include <signal.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <errno.h>
+#include <sys/socket.h>
+#include <sys/un.h>
+#include <assert.h>
+#include <dirent.h>
+
+#include <initng_global.h>
+#include <initng_active_state.h>
+#include <initng_active_db.h>
+#include <initng_process_db.h>
+#include <initng_service_cache.h>
+#include <initng_handler.h>
+#include <initng_active_db.h>
+#include <initng_toolbox.h>
+#include <initng_plugin_hook.h>
+#include <initng_load_module.h>
+#include <initng_plugin_callers.h>
+#include <initng_error.h>
+#include <initng_plugin.h>
+#include <initng_static_states.h>
+#include <initng_control_command.h>
+
+#include <initng-paths.h>
+
+/* the standard intotify headers */
+#include "inotify.h"
+#include "inotify-syscalls.h"
+
+INITNG_PLUGIN_MACRO;
+
+/* static functions */
+static void initng_reload(void);
+static void filemon_event(f_module_h * from, e_fdw what);
+
+/* this plugin file descriptor we add to monitor */
+f_module_h fdh = { &filemon_event, FDW_READ, -1 };
+
+/* Saved to be closed later on */
+int plugins_watch = -1;
+int initng_watch = -1;
+int i_watch = -1;
+
+/* This function trys to reload initng if reload plugin is loaded */
+static void initng_reload(void)
+{
+	/* get the command */
+	s_command *reload = initng_command_find_by_command_id('c');
+
+	/* if found */
+	if (reload && reload->u.void_command_call)
+	{
+		/* execute */
+		(*reload->u.void_command_call) (NULL);
+	}
+}
+
+
+/* called by fd hook, when there is data */
+void filemon_event(f_module_h * from, e_fdw what)
+{
+
+	/* this is overkill, we wont get 1024 events */
+#define EVENT_SIZE (sizeof(struct inotify_event))
+#define BUF_LEN (1024 * (EVENT_SIZE + 16))
+
+	int len = 0;
+	int i = 0;
+	char buf[BUF_LEN];
+
+	/* read events */
+	len = read(from->fds, buf, BUF_LEN);
+
+	/* if error */
+	if (len < 0)
+	{
+		F_("fmon read error\n");
+		return;
+	}
+
+	/* handle all */
+	while (i < len)
+	{
+		struct inotify_event *event;
+
+		event = (struct inotify_event *) &buf[i];
+
+		/*printf("wd=%d, mask=%u, cookie=%u, len=%u\n",
+		   event->wd, event->mask, event->cookie, event->len);
+		   if(event->len)
+		   printf("name: %s\n", event->name); */
+
+
+		if (event->mask & IN_MODIFY)
+		{
+			/* check if its a plugin modified */
+			if (event->wd == plugins_watch && event->len
+				&& strstr(event->name, ".so"))
+			{
+				W_("Plugin /lib/initng/%s have been changed, reloading initng.\n", event->name);
+
+				/* sleep 1 seconds, maby more files will be modified in short */
+				sleep(1);
+
+				/* hot-reload initng */
+				initng_reload();
+
+				return;
+			}
+
+			/* check if its initng binary modified */
+			if (event->wd == initng_watch && event->len
+				&& strcmp(event->name, "/sbin/initng") == 0)
+			{
+				W_("/sbin/initng modified, reloading initng.\n");
+
+				/* sleep 1 seconds, maby more files will be modified in short */
+				sleep(1);
+
+				/* hot-reload initng */
+				initng_reload();
+
+				return;
+			}
+
+
+			/* else - if there is service_cache content free it */
+			if (!list_empty(&g.service_cache.list))
+			{
+				W_("Source file \"%s\" changed, flushing file cache.\n",
+				   event->len ? event->name : "unkown");
+				initng_service_cache_free_all();
+			}
+
+		}
+
+		i += EVENT_SIZE + event->len;
+	}
+}
+
+
+static int mon_dir(const char *dir)
+{
+	DIR *path;
+	struct dirent *dir_e;
+	struct stat fstat;
+	char file[256];
+
+	/*printf("add watch: %s\n", dir); */
+
+	/* monitor /etc/initng */
+	if (inotify_add_watch(fdh.fds, dir, IN_MODIFY) < 0)
+	{
+		F_("Fail to monitor \"%s\"\n", dir);
+		return (FALSE);
+	}
+
+	path = opendir(dir);
+	if (!path)
+		return (FALSE);
+
+	/* Walk thru all files in dir */
+	while ((dir_e = readdir(path)))
+	{
+		/* skip dirs/files starting with a . */
+		if (dir_e->d_name[0] == '.')
+			continue;
+
+		/* set up full path */
+		strncpy(file, dir, 40);
+		strcat(file, "/");
+		strcat(file, dir_e->d_name);
+
+		/* get the stat of that file */
+		if (stat(file, &fstat) != 0)
+		{
+			printf("File %s failed stat errno: %s\n", file, strerror(errno));
+			continue;
+		}
+
+		/* if it is a dir */
+		if (S_ISDIR(fstat.st_mode))
+		{
+			mon_dir(file);
+			/* continue while loop */
+			continue;
+		}
+	}
+	closedir(path);
+	return (FALSE);
+}
+
+
+int module_init(int api_version)
+{
+	if (api_version != API_VERSION)
+	{
+		F_("This module is compiled for api_version %i version and initng is compiled on %i version, won't load this module!\n", API_VERSION, api_version);
+		return (FALSE);
+	}
+
+	/* zero globals */
+	fdh.fds = -1;
+
+	/* initziate file monitor */
+	fdh.fds = inotify_init();
+
+	/* check so it succeded */
+	if (fdh.fds < 0)
+	{
+		F_("Fail start file monitoring\n");
+		return (FALSE);
+	}
+
+	/* monitor initng plugins */
+	plugins_watch = inotify_add_watch(fdh.fds, "/lib/initng", IN_MODIFY);
+
+	/* check so it succeded */
+	if (plugins_watch < 0)
+	{
+		F_("Fail to monitor \"/lib/initng\"\n");
+		return (FALSE);
+	}
+
+	/* monitor initng binary */
+	initng_watch = inotify_add_watch(fdh.fds, "/sbin/initng", IN_MODIFY);
+
+	/* check so it succeded */
+	if (initng_watch < 0)
+	{
+		F_("Fail to monitor \"/sbin/initng\"\n");
+		return (FALSE);
+	}
+
+	mon_dir("/etc/initng");
+
+	/* add this hook */
+	initng_plugin_hook_register(&g.FDWATCHERS, 30, &fdh);
+
+	/* printf("Now monitoring...\n"); */
+
+	return (TRUE);
+}
+
+
+void module_unload(void)
+{
+	/* remove watchers */
+	inotify_rm_watch(fdh.fds, plugins_watch);
+	inotify_rm_watch(fdh.fds, initng_watch);
+
+	/* close sockets */
+	close(fdh.fds);
+
+	/* remove hooks */
+	initng_plugin_hook_unregister(&g.FDWATCHERS, &fdh);
+}
+
+	/*
+	 * m_h *mod = NULL;
+	 * while_module_db(mod)
+	 * {
+	 *  mod->module_filename;
+	 *  }
+	 */

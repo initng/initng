@@ -1,0 +1,10 @@
+          name : interactive
+        author : Jimmy Wennlund <jimmy.wennlund@gmail.com>
+  contributors : 
+      commands : 
+       options : 
+  cmd_line_opt : interactive
+        states : INTERACTIVELY_DISABLED
+   description : When initng is started with interactive on the kernel line, and
+                 this plugin is loaded, the user will get an Yes/No question to
+		 this service or not on every service, good if a service locks boot.

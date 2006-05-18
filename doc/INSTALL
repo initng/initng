@@ -1,0 +1,119 @@
+Installation Instructions
+*************************
+
+For the most up-to-date installation instructions, please refer to the initng
+wiki: http://www.initng.org/wiki/Installation
+
+As of version 0.6.1, GNU autotools has been completely replaced with CMake.
+Autotools is NO LONGER SUPPORTED and will more likely than not, if it will
+compile at all, leave you with a semi-functional initng installation.
+
+
+SYSTEM REQUIREMENTS
+===================
+* A computer running linux (support for BSD-based operating systems is under
+development) on one of the following architectures: alpha, amd64, hppa, i386,
+ia64, m68k, mips, mipsel, ppc, sparc.
+* GNU GCC 3.4.x, 4.0.x or 4.1.x
+* CMake 2.2.0 or newer
+* ncurses development libs
+
+
+COMPILING INITNG
+================
+To avoid any potential problems during compilation, you need to create a
+'build' directory for compiled code after unpacking the tarball.
+
+--Release versions
+# tar zxvf initng-version.tar.gz
+# cd initng-version
+# mkdir build
+# cd build
+
+--SVN Trunk
+# svn co https://svn.initng.org/initng/trunk initng
+# cd initng
+# mkdir build
+# cd build
+
+Run cmake (replaces ./configure).  Note if you need to manually disable plugins
+it can be done here.
+
+# cmake .. [-DPLUGIN_NAME={ON|OFF}]
+(PLUGIN_NAME will be of the form BUILD_NGCS)
+
+To faciliate easier selection of plugins, cmake offers an ncurses-based menu,
+which is accessed with 'ccmake'
+
+# ccmake ..
+
+To compile initng, run 'make' in the usual manner
+
+# make
+
+Obtain root priveledges in the standard manner for your distribution, and run
+'make install' to install initng.
+
+# make install
+
+
+Install initng-ifiles before continuing
+
+
+CONFIGURING INITNG
+==================
+
+1: Bootloader
+-------------
+
+LILO:
+Edit lilo.conf and add the 'append' line shown below.
+
+  image = /boot/vmlinuz
+    root = /dev/hda6
+    label = linux-initng
+    append = "init=/sbin/initng"
+    read-only
+
+GRUB:
+Edit /boot/grub/grub.conf and add init=/sbin/initng to the kernel entry
+
+  title linux-initng
+  root (hd0,1)
+  kernel /vmlinuz root=/dev/hda6 init=/sbin/initng
+
+Grub also allows options specifying a runlevel, and optionally disabling one
+service from the bootloader.
+
+  title linux-initng runlevel:single +system/modules -net/lo
+  root (hd1,0)
+  kernel /kernel-2.6.16-gentoo-r1 root=/dev/sda2 init=/sbin/initng \
+        runlevel:single +system/modules -net/lo
+
+
+2: Daemons and Services
+-----------------------
+
+If you are installing initng for the first time, you can use
+gen_system_runlevel to automatically generate the default runlevel based on
+installed applications.
+
+# gen_system_runlevel -all
+
+To add services to runlevels, you can edit the two runlevelk files with your
+favourite text editor: (note 'system' is technically no longer counted as a
+runlevel, you can still edit it this way, but do exercise caution)
+
+# vi /etc/initng/default.runlevel
+# vi /etc/initng/system.virtual
+
+Alternately, ng-update has been provided to make the process easier.  For
+example, to start sound on boot and save/restore mixer settings at shutdown/
+boot, you would run:
+
+# ng-update add system/alsasound default
+# ng-update add system/alsasound/mixerstate default
+
+Or to run hdparm:
+
+# ng-update add system/hdparm default

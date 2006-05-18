@@ -1,0 +1,8 @@
+          name : history
+        author : Jimmy Wennlund <jimmy.wennlund@gmail.com>
+  contributors : 
+      commands : 
+       options : log, show_history
+   description : This file put up a history db, with all events, process output
+                 service state change, and saves it to the memory.
+		 This plugin will make initng take a lot of memory, be aware.

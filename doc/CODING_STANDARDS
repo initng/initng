@@ -1,0 +1,25 @@
+Syntax and indentation
+----------------------
+
+Some tips:
+
+* Please use 4 spaces to indent code blocks, not tabs.
+* Curly braces stand on their own.
+* Be generous with whitespace.
+* Single line blocks do not require braces.
+
+If you use indent, use these parameters:
+indent -sob -bad -bap -bbb -bl -bli0 -nce -cli4 -cbi4 -ss -npcs -nprs -npsl -i4 -lp -nut -fc1 -c45 -nsob *.[ch]
+
+
+For .ii-files:
+
+* Please use a tab for indenting (you can resize the width of tabs in your editor).  Spaces are dirty, using tabs here allows consistency.
+* Curly braces stand stands behind the function. (POSIX).
+* Comments should take the form "# comment" not just "#comment", as "#if" is an ifile processor statement.
+* #ifd, #elsed and other ifile processor tags should not be indented.
+* Scripts should be indented. (usually with 2 tabs.)
+* Variables should be in braces: ${var}.  This is both for clarity, and to prevent problems parsing the script.
+* Every executable must be prefixed and suffixed with '@', as @/usr/bin/foo@.  Note the 'echo' statement does not.
+* Script must be POSIX-compliant. We want initng to run everywhere.  Can be tested with bash or other POSIX-compliat shells.
+* All services/daemons must never depend on system/initial.  Set dependency to system/bootmisc.

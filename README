@@ -1,0 +1,177 @@
+Next Generation Init System ( initng )
+======================================
+
+Contents
+--------
+1    Introduction
+  1.1   Developers
+2    Initng: An Overview
+  2.1   The Next Generation Control (ngc)
+3    How to get initng
+  3.1   How to Install
+  3.2   Caveats/Known Issues
+4    Terms of Licensing
+5    Development
+
+
+
+1 Introduction
+--------------
+
+Initng is a full replacement of the old and in many ways deprecated sysvinit
+tool. It is designed with speed in mind, doing as much as possible
+asynchronously. In other words: It will boot your unix-system much faster, and
+give you more control and statistics over your system.
+
+The basic premise is that startup commands can be launched as soon as their
+dependencies are met. This limits the effect of bottlenecks like I/O operations;
+while one program is performing I/O, another can be utilizing the processor.
+Initng tracks the individual service dependencies in its configuration files. 
+
+It is designed to use a minimum of system resources and to boot your system
+quickly and safely.
+
+
+Website:        http://www.initng.org
+Mailing list:   http://www.initng.org/wiki/Contact_Lists
+
+
+This package currently includes:
+
+- initng       sysvinit replacement; handles system & service control
+- ngc          an application for controlling initng
+- plugins      initng uses plugins to provide some functions
+
+
+1.1 Developers
+--------------
+
+If you find this little piece of software useful, please email me
+<jimmy.wennlund@gmail.com> with some feedback.
+
+
+* Jimmy Wennlund <jimmy.wennlund@gmail.com>
+
+  I am the original author of the initng project, which was created in my spare
+time and mostly for fun. I live in Sweden, outside Uppsala. 
+
+
+
+2 Initng: An Overview
+---------------------
+
+On boot, initng will be started as the first process (pid = 1) by the kernel.
+At first, initng will parse configuration files located in /etc/initng for
+critical information such as runlevel and service data. After that, all services
+required by the default runlevel will be started as soon as their dependencies
+are met, allowing services to run in parallel.  This asynchronous execution can
+dramatically improve boot time by better utilizing the system resources
+(especially in the case of multiprocessor systems).
+
+Service monitoring is also available, automatically respawing daemons that die
+without being explicitly shutdown, a critical feature for server systems that
+require constant uptime.
+
+The system gives complete control over how your system boots in the traditional
+services and runlevels model.  Startup status is presented in a percentile
+fashion, as well as the launch time for each individual service.  This allows
+easier tracking of what services add the most time to startup.
+
+Another feature is the "really warm reboot". Using 'ngc -x' will bring down all
+services and soft reboot your system, from user level in only a few seconds.
+
+
+2.1 The Next Generation Control (ngc)
+-------------------------------------
+
+Using the included ngc control program to communicate with initng in a two-way
+communication, checking the status of all services, browse history, bring
+services up and down, reboot or halt, and change runlevels.
+
+Executing 'ngc -h' will display the command's help and description.
+
+
+
+3 How to get initng
+-------------------
+
+For now, a test or relay first beta is located at http://jw.dyndns.org/initng/.
+You are free to test AT YOUR OWN RISK! REMEMBER, this is a beta release
+and many new features that are on the TODO list are not yet fixed.
+
+
+3.1 How to Install
+-----------------
+
+1. Download the latest version from here (http://jw.dyndns.org/initng/).
+
+2. Unzip the tarball, enter the directory, and install as super-user
+
+    # tar -zxvf initng-<version>.tar.gz
+    # cd initng-<version>
+	# cmake
+    # make install
+
+3. Instruct your bootloader to use the initng instead of the traditional 'init'
+
+    WARNING: initng is beta software, and must be used with caution. However,
+    it can be installed side-by-side with init. It is recommended that you
+    duplicate the relevant blocks of your bootloader configuration to add the
+    above changes. That is, copy your existing entry (eg, the one labeled
+    "linux") to a new section (say, "linux-initng") before you add the "init="
+    line. This way you can always boot with the original (default) init.
+
+* LILO
+    Edit lilo.conf and add the line append="init=/sbin/initng" after the
+    image specifier. 
+
+    # Sample LILO entry
+    image = /boot/vmlinuz-2.6.9
+      root = /dev/hda6
+      label = linux-initng
+      append = "init=/sbin/initng"
+      read-only
+
+
+* GRUB
+    Edit /etc/grub/grub.conf and append init=/sbin/initng to the image specifier
+
+    # Sample GRUB entry
+    title  linux-initng
+    kernel (hd0,1)/vmlinuz root=/dev/hda6 init=/sbin/initng
+
+
+[Note: 'make uninstall' is available]
+
+
+
+3.2 Caveats/Known Issues
+------------------------
+
+initng is beta software - expect incomplete features and possible instability.
+Use this piece of software with care; it is not yet recommended for use on
+production platforms.
+
+This program controls many low level systems, including partition related
+services.  Back up your data before you use it.
+
+
+4 Terms of Licensing
+--------------------
+
+The full package is licensed under the GNU Public License (GPL) version 2,
+released in June of 1991.  The full text of the GPL is located in this package
+and can be retireved from http://www.gnu.org/copyleft/gpl.html in a variety of
+formats.
+
+
+
+5 Development
+-------------
+
+Contact the mailing list: http://jw.dyndns.org/mailman/listinfo/initng
+
+Jimmy Wennlund
+	<jimmy.wennlund@gmail.com>
+	+46 737 623932
+
