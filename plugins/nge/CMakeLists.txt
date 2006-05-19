@@ -19,6 +19,4 @@ INSTALL_TARGETS(${SBIN_INSTALL_DIR} nge_raw)
 
 INSTALL_FILES(${INCLUDE_INSTALL_DIR}/initng FILES libngeclient.h initng_nge.h)
 
-ADD_LIBRARY(sngeclient STATIC libngeclient.c)
-SET_TARGET_PROPERTIES(sngeclient PROPERTIES VERSION 0.0.0 SOVERSION 0)
-INSTALL_TARGETS(${LIB_INSTALL_DIR} sngeclient)
+ADD_LIBRARY(ngeclient_static STATIC libngeclient.c)
