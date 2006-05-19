@@ -63,7 +63,7 @@ int main(int argc, char *argv[]);
  * mprintf, a sprintf clone that automaticly mallocs the string
  * and new content to same string applys after that content.
  */
-int usplash(const char *format, ...)
+static int usplash(const char *format, ...)
 {
 	va_list arg;				/* used for the variable lists */
 
@@ -295,7 +295,7 @@ int main(int argc, char *argv[])
 	if (fork_pid != 0)
 	{
 		/* Now make sure this is not a fork */
-		char *initng_path = "/sbin/initng";
+		char initng_path[] = "/sbin/initng";
 
 		argv[0] = initng_path;
 		execve(argv[0], argv, environ);

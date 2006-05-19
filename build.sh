@@ -51,7 +51,7 @@ fi
 if [ $? -eq 0 ] ; then
 	echo "Installation successful."
 	echo "Reloading of initng is strongly recommended."
-	echo "I can reload initng (via ngc -R) for you, type [yes|no]:"
+	echo "I can reload initng (via ngc -R) for you [yes|no]:"
 	read answer
 	if [ x$answer == x"yes" ] ; then
 		echo "**** Reloading initng ****"
@@ -71,7 +71,11 @@ fi
 
 if [ $? -eq 0 ] ; then
 	# Calling count_me.sh from within the build directory (config.h)
-	../count_me.sh
+	echo "Do you want to be counted as user of initng [yes|no]:"
+	read answer
+	if [ x$answer == x"yes" ] ; then
+		../count_me.sh
+	fi
 	cleanup
 else
 	cleanup
