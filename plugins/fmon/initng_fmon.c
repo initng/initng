@@ -153,12 +153,16 @@ void filemon_event(f_module_h * from, e_fdw what)
 			}
 
 
-			/* else - if there is service_cache content free it */
-			if (!list_empty(&g.service_cache.list))
+			/* check if there are any data file updated */
+			if(strstr(event->name, ".i") || strstr(event->name, ".runlevel") || strstr(event->name, ".virtual"))
 			{
-				W_("Source file \"%s\" changed, flushing file cache.\n",
-				   event->len ? event->name : "unkown");
-				initng_service_cache_free_all();
+				/* if cache is not cleared */
+				if (!list_empty(&g.service_cache.list))
+				{
+					W_("Source file \"%s\" changed, flushing file cache.\n",
+				 	  event->len ? event->name : "unkown");
+					initng_service_cache_free_all();
+				}
 			}
 
 		}
