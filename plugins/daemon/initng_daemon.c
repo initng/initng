@@ -233,7 +233,7 @@ s_entry DAEMON_STOPS_BADLY = { "daemon_stops_badly", SET, &TYPE_DAEMON,
  */
 
 /* Last time respawning, so it wont respawn to mutch */
-s_entry INTERNAL_LAST_RESPAWN = { NULL, INT, &TYPE_DAEMON, NULL };
+s_entry INTERNAL_LAST_RESPAWN = { "internal_last_respawn", INT, &TYPE_DAEMON, NULL };
 
 
 /*

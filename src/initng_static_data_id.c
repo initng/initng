@@ -39,7 +39,7 @@ s_entry REQUIRE = { "require", STRINGS, NULL, "Need to be up, fail if not found.
 s_entry FROM_FILE = { "from_file", STRING, NULL, NULL };
 s_entry ENV = { "env", VARIABLE_STRING, NULL, "Sets an environmental variable."
 };
-s_entry RESTARTING = { NULL, SET, NULL, NULL };
+s_entry RESTARTING = { "internal_restarting", SET, NULL, NULL };
 
 /*
  * add some default options, that is needed by core, and should
