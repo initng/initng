@@ -126,7 +126,7 @@ void filemon_event(f_module_h * from, e_fdw what)
 			if (event->wd == plugins_watch && event->len
 				&& strstr(event->name, ".so"))
 			{
-				W_("Plugin /lib/initng/%s have been changed, reloading initng.\n", event->name);
+				W_("Plugin %s/%s has been changed, reloading initng.\n", INITNG_PLUGIN_DIR, event->name);
 
 				/* sleep 1 seconds, maby more files will be modified in short */
 				sleep(1);
@@ -246,12 +246,12 @@ int module_init(int api_version)
 	}
 
 	/* monitor initng plugins */
-	plugins_watch = inotify_add_watch(fdh.fds, "/lib/initng", IN_MODIFY);
+	plugins_watch = inotify_add_watch(fdh.fds, INITNG_PLUGIN_DIR, IN_MODIFY);
 
 	/* check so it succeded */
 	if (plugins_watch < 0)
 	{
-		F_("Fail to monitor \"/lib/initng\"\n");
+		F_("Fail to monitor \"%s\"\n", INITNG_PLUGIN_DIR);
 		return (FALSE);
 	}
 
@@ -289,10 +289,3 @@ void module_unload(void)
 	initng_plugin_hook_unregister(&g.FDWATCHERS, &fdh);
 }
 
-	/*
-	 * m_h *mod = NULL;
-	 * while_module_db(mod)
-	 * {
-	 *  mod->module_filename;
-	 *  }
-	 */
