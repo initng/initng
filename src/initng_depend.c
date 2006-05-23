@@ -131,7 +131,7 @@ int initng_any_depends_on(active_db_h * service)
 {
 	active_db_h *current = NULL;
 
-	printf("initng_any_depends_on(%s);\n", service->name);
+	D_("initng_any_depends_on(%s);\n", service->name);
 
 	while_active_db(current)
 	{
@@ -145,13 +145,13 @@ int initng_any_depends_on(active_db_h * service)
 			/* if current depends on service */
 			if (initng_depend_deep(current, service) == TRUE)
 			{
-				printf("Service %s depends on %s\n", current->name,
+				D_("Service %s depends on %s\n", current->name,
 					   service->name);
 				return (TRUE);
 			}
 		}
 	}
-	printf("None found depending on %s.\n", service->name);
+	D_("None found depending on %s.\n", service->name);
 	return (FALSE);
 }
 
@@ -277,84 +277,130 @@ int initng_depend_up_check(active_db_h * service)
  */
 int initng_depend_start_dep_met(active_db_h * service, int verbose)
 {
-	s_call *current, *s = NULL;
-	active_db_h *currentA = NULL;
+	active_db_h *dep = NULL;
+	s_data *current = NULL;
+	char *str = NULL;
+	int count=0;
+	s_call *currentH, *s = NULL;
 	int ret;
-	int i = 0;
 
+	assert(service);
+	assert(service->name);
 
-	/* only do this check if it has not been done before */
-	if (service->depend_cache == 0)
+	/* walk all possible entrys, use get_next with NULL becouse we want both REQUIRE, NEED and USE */
+	while((current = get_next(NULL, service, current)))
 	{
-
-		/*
-		 *    Check so all deps, that needs service, is up.
-		 */
-		while_active_db(currentA)
+		/* only intreseted in two types */
+		if(current->type != &REQUIRE && current->type != &NEED && current->type != &USE)
+			continue;
+		
+		/* to be sure */
+		if(!current->t.s)
+			continue;
+		
+		/* this is a cache, that meens that calling this function over and over again, we dont make
+		 * two checks on same entry */	
+		count++;
+		if(service->depend_cache >= count)
 		{
-			if (currentA == service)
-				continue;
-
-			/* if current is not one that it depends on continue */
-			if (initng_depend(service, currentA) == FALSE)
-				continue;
-
-			/* If this service depends on me, it wont wait for it */
-			/* This is EXPRIMENTAL */
-			if (initng_depend(currentA, service) == TRUE)
-				continue;
-
-
-			/* if service dep on is starting, wait a bit */
-			if (IS_STARTING(currentA))
+			D_("Dep %s is ok allredy for %s.\n", current->t.s, service->name);
+			continue;
+		}
+		
+			
+		/* tell the user what we got */
+#ifdef DEBUG
+		if(current->type == &REQUIRE)
+			D_(" %s requires %s\n", service->name, current->t.s);
+		else if(current->type == &NEED)
+			D_(" %s needs %s\n", service->name, current->t.s);
+		else if(current->type == &USE)
+			D_(" %s uses %s\n", service->name, current->t.s);
+#endif
+		
+		/* fix the variables */
+		if(!(str = fix_variables(current->t.s, service)))
+			continue;
+		
+		/* look if it exits already */
+		if(!(dep = initng_active_db_find_by_name(str)))
+		{
+			if(current->type == &USE)
 			{
-				if (verbose)
-				{
-					F_("Could not start service %s because it depends on service %s that is still starting.\n", service->name, currentA->name);
-				}
-				return (FALSE);
+				/* if its not yet found, and i dont care */
+				fix_free(str, current->t.s);
+				continue;
 			}
-
-			/* if service failed, return that */
-			if (IS_FAILED(currentA))
-			{
-				if (verbose)
-				{
-					F_("Could not start service %s because it depends on service %s that is failed.\n", service->name, currentA->name);
-				}
-				return (FAIL);
-			}
-
-			/* if its marked down, and not starting, start it */
-			/*if (IS_DOWN(currentA))
-			   {
-			   initng_handler_start_service(currentA);
-			   return (FALSE);
-			   } */
-
-			/* if its not starting or up, return FAIL */
-			if (!IS_UP(currentA))
-			{
-				F_("Could not start service %s because it depends on service %s has state %s\n", service->name, currentA->name, currentA->current_state->state_name);
-				return (FALSE);
-			}
+			else if (current->type == &REQUIRE)
+			{	
+				F_("%s required dep \"%s\" could not start!\n", service->name,
+			   		str);
+				initng_common_mark_service(service, &REQ_NOT_FOUND);
+				/* if its not yet found, this dep is not reached */
+				fix_free(str, current->t.s);
+				return(FALSE);
+			} else { /* NEED */
+				/* if its not yet found, this dep is not reached */
+				fix_free(str, current->t.s);
+				return(FALSE);
+			}			
 		}
 
-		service->depend_cache++;
+		/* if service dep on is starting, wait a bit */
+		if (IS_STARTING(dep))
+		{
+			if (verbose)
+			{
+				F_("Could not start service %s because it depends on service %s that is still starting.\n", service->name, dep->name);
+			}
+			fix_free(str, current->t.s);
+			return (FALSE);
+		}
+
+		/* if service failed, return that */
+		if (IS_FAILED(dep))
+		{
+			if (verbose)
+			{
+				F_("Could not start service %s because it depends on service %s that is failed.\n", service->name, dep->name);
+			}
+			fix_free(str, current->t.s);
+			return (FAIL);
+		}
+
+		/* if its marked down, and not starting, start it */
+		/*if (IS_DOWN(dep))
+		  {
+		   initng_handler_start_service(dep);
+			fix_free(str, current->t.s);
+		   return (FALSE);
+		  } */
+
+		/* if its not starting or up, return FAIL */
+		if (!IS_UP(dep))
+		{
+			F_("Could not start service %s because it depends on service %s has state %s\n", service->name, dep->name, dep->current_state->state_name);
+			fix_free(str, current->t.s);
+			return (FALSE);
+		}
+
+		/* GOT HERE MEENS THAT ITS OK */
+		service->depend_cache=count;
+		D_("Dep %s is ok for %s.\n", current->t.s, service->name);
+		/* continue; */
 	}
-
-
+	
 	/* run the global plugin dep check */
-	while_list_safe(current, &g.START_DEP_MET, s)
+	while_list_safe(currentH, &g.START_DEP_MET, s)
 	{
 		/* This is check number i */
-		i++;
+		count++;
 
 		/* Only run this check if it has not been run before */
-		if (service->depend_cache > i)
+		if (service->depend_cache >= count)
 			continue;
 
-		if ((ret = (*current->c.start_dep_met) (service)) < TRUE)
+		if ((ret = (*currentH->c.start_dep_met) (service)) < TRUE)
 		{
 			if (verbose)
 			{
@@ -364,9 +410,12 @@ int initng_depend_start_dep_met(active_db_h * service, int verbose)
 		}
 
 		/* if this succeds, count up one, so test wont be run again */
-		service->depend_cache++;
+		service->depend_cache=count;
 	}
 
+	D_("dep met for %s\n", service->name);
+
+	/* reset the count cache */
 	service->depend_cache = 0;
 	return (TRUE);
 }
@@ -474,7 +523,6 @@ int initng_depend_stop_dep_met(active_db_h * service, int verbose)
  */
 int initng_depend_start_deps(active_db_h * service)
 {
-	const char *tmp = NULL;
 	active_db_h *dep = NULL;
 	s_data *current = NULL;
 	char *str = NULL;
@@ -482,12 +530,24 @@ int initng_depend_start_deps(active_db_h * service)
 	assert(service);
 	assert(service->name);
 
-	/* TODO, make REQUIRE and NEED one while loop, using active_db_get_next to save cpu-time */
-
-	/* start every REQUIRED service */
-	while ((tmp = get_next_string(&REQUIRE, service, &current)))
+	/* walk all possible entrys, use get_next with NULL becouse we want both REQUIRE and NEED */
+	while((current = get_next(NULL, service, current)))
 	{
-		str = fix_variables(tmp, service);
+		/* only intreseted in two types */
+		if(current->type != &REQUIRE && current->type != &NEED)
+			continue;
+		
+		/* to be sure */
+		if(!current->t.s)
+			continue;
+			
+		/* tell the user what we got */
+		/* D_(" %s %s %s\n", service->name, current->type == &REQUIRE ? "requires" : "needs", current->t.s); */
+		
+		/* fix the variables */
+		if(!(str = fix_variables(current->t.s, service)))
+			continue;
+		
 		/* look if it exits already */
 		if ((dep = initng_active_db_find_by_name(str)))
 		{
@@ -495,46 +555,30 @@ int initng_depend_start_deps(active_db_h * service)
 			if (IS_DOWN(dep))
 				initng_handler_start_service(dep);
 			D_("No need to LOAD %s, it is already loaded!\n", str);
-			fix_free(str, tmp);
+			fix_free(str, current->t.s);
 			continue;
 		}
 
-		/* OKAY, start the service. This is a REQUIRED service so fail if not found. */
-
+		/* if we where not succeded to start this new one */
 		if (!initng_handler_start_new_service_named(str))
 		{
-			F_("%s required dep \"%s\" could not start!\n", service->name,
-			   str);
-			initng_common_mark_service(service, &REQ_NOT_FOUND);
-			fix_free(str, tmp);
-			return (FALSE);
+			/* if its NEED */
+			if(current->type == &NEED)
+			{
+				W_("service \"%s\" needs service \"%s\", that could not be found!\n", service->name, str);
+				fix_free(str, current->t.s);
+				
+			/* else its REQUIRE */
+			} else {
+				
+				F_("%s required dep \"%s\" could not start!\n", service->name,
+			   		str);
+				initng_common_mark_service(service, &REQ_NOT_FOUND);
+				fix_free(str, current->t.s);
+				return (FALSE);
+			}
 		}
-
-		fix_free(str, tmp);
-	}
-
-	/* start every NEEDED service */
-	current = NULL;
-	while ((tmp = get_next_string(&NEED, service, &current)))
-	{
-		str = fix_variables(tmp, service);
-		/* look if it exits already */
-		if ((dep = initng_active_db_find_by_name(str)))
-		{
-			/* start service if down */
-			if (IS_DOWN(dep))
-				initng_handler_start_service(dep);
-			D_("No need to LOAD %s, it is already loaded!\n", str);
-			fix_free(str, tmp);
-			continue;
-		}
-
-		/* OKAY, start the service */
-
-		if (!initng_handler_start_new_service_named(str))
-			W_("service \"%s\" needs service \"%s\", that could not be found!\n", service->name, str);
-
-		fix_free(str, tmp);
+		
 	}
 
 	/* if we got here, its a sucess */
