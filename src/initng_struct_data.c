@@ -33,24 +33,12 @@
 
 static void d_dfree(s_data * current);
 
-/* gives an error message and return if type is not set */
-#define RETURN_TYPE_CHECK(ret) \
-    /* check so that data entry exists */ \
-    if (!type) \
-    { \
-        F_("Type cant be zero!\n"); \
-        return (ret); \
-    }
-
 /* if this is an alias variable type, walk to find the correct one */
 #define ALIAS_WALK \
     /* this might be an alias */ \
     while (type->opt_type == ALIAS && type->alias) \
         type = type->alias;
 
-/* check if vn exists, that its correct */
-#define VN_MATCH(vnc, vnt) \
-    (!vnc || !vnt || strcasecmp(vnc, vnt)==0)
 
 #define IT(x) (type->opt_type == x || type->opt_type == (x + 50))
 
@@ -66,8 +54,6 @@ s_data *d_get_next_var(s_entry * type, const char *vn, data_head * head,
 	struct list_head *place = NULL;
 	s_data *current = NULL;
 
-	RETURN_TYPE_CHECK(NULL);
-
 	ALIAS_WALK;
 
 	/*
@@ -77,7 +63,7 @@ s_data *d_get_next_var(s_entry * type, const char *vn, data_head * head,
 	 */
 #ifdef HURT_ME
 	/* Check that vn is sent, when needed */
-	if (!vn && type->opt_type >= 50)
+	if (!vn && type && type->opt_type >= 50)
 	{
 		F_("The vn variable is missing for a type %i (%s): %s!\n",
 		   type->opt_type, type->opt_name);
@@ -85,7 +71,7 @@ s_data *d_get_next_var(s_entry * type, const char *vn, data_head * head,
 	}
 
 	/* check that vn is not set, when not needed */
-	if (vn && type->opt_type < 50)
+	if (vn && type && type->opt_type < 50)
 	{
 		F_("The vn %s is set, but not needed for type %i, %s\n", vn,
 		   type->opt_type, type->opt_name);
@@ -124,7 +110,7 @@ s_data *d_get_next_var(s_entry * type, const char *vn, data_head * head,
 		}
 
 		/* Make sure the string variable name matches if set */
-		if (current->type == type && VN_MATCH(current->vn, vn))
+		if ((type && current->type == type ) && (!current->vn || !vn || strcasecmp(current->vn, vn)==0))
 		{
 			return (current);
 		}
