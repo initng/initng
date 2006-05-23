@@ -39,36 +39,67 @@ typedef struct active_type active_db_h;
 /* the active service struct */
 struct active_type
 {
-	/* identification */
-	char *name;
-	stype_h *type;
+	/***** IDENTIFICATION ***********/
+	char *name;     /* the name of this service */
+	stype_h *type;  /* the service type */
 
-	/* service data */
-	service_cache_h *from_service;
-
-	/* current state */
+	/******* STATE ******************/
+	
+	/*
+	 * current state.
+	 * This pointer point to a a_state_h struct containing
+	 * info in what state the service is in currelty, also 
+	 * is a timepoint saved in here when the service got that state.
+	 */
 	a_state_h *current_state;
 	struct timeval time_current_state;	/* the time got current state */
 
-	/* last    state */
+	/*
+	 * Last state
+	 * Here initng saves a pointer to the last state that this
+	 * service have before changing the state pointed by service->current_state
+	 * also a timepoint when the service got that state is saved.
+	 */
 	a_state_h *last_state;
 	struct timeval time_last_state;	/* the time got last state */
 
-	/* Rough  state */
+	/*
+	 * Rough state
+	 * The rought state is normally, UP, DOWN, STARTING...
+	 * Thie current rough state can by found by service->current_stata->is
+	 * here is the last rough time, and a timepoint saved.
+	 */
 	e_is last_rought_state;
-	struct timeval last_rought_time;
+	struct timeval last_rought_time; /* the time got last rught state */
 
-	/* processes */
+	/******** SUB_OBJECTS ***********/
+	/* list of system processes that are connected to this service */
 	process_h processes;
 
-	/* list container, for data */
+	/* a pointer to the entry in service_cache_db that matches our service */
+	service_cache_h *from_service;
+	
+	/*
+	 * list of data
+	 * Storage for all dynamic variables that are set to this
+	 * service, this data struct also sets a resurvice pointer to
+	 * the data_head of the service_chache object pointed by abow,
+	 * so if the variable is not fund in this list, it searched in
+	 * the from_service->data list too.
+	 */
 	data_head data;
+
+	/******** VARIABLES *************/
 
 	/* Alarm, the current state alarm is run when this time passes */
 	time_t alarm;
 
+	/******* TEMPORARY STUFF ********/
+
 	/* depend cache - Optimization to speed up UP_DEPS_CHECK */
 	int depend_cache;
+
+	/******* LIST_HEADS *************/
 
 	/* the list */
 	struct list_head list;
