@@ -552,6 +552,10 @@ static void timeout_SERVICE_START_RUN(active_db_h * service)
 {
 	process_h *process = NULL;
 
+	/* if NEVER_KILL is set, dont bother */
+	if (is(&NEVER_KILL, service))
+		return;
+
 	W_("Timeout for start process, service %s.  Killing this process now.\n",
 	   service->name);
 
@@ -580,6 +584,10 @@ static void timeout_SERVICE_START_RUN(active_db_h * service)
 static void timeout_SERVICE_STOP_RUN(active_db_h * service)
 {
 	process_h *process = NULL;
+
+	/* if NEVER_KILL is set, dont bother */
+	if (is(&NEVER_KILL, service))
+		return;
 
 	W_("Timeout for stop process, service %s.   Killing this process now.\n",
 	   service->name);
