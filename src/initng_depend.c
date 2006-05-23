@@ -416,12 +416,7 @@ int initng_depend_stop_dep_met(active_db_h * service, int verbose)
 	s_call *current, *s = NULL;
 	active_db_h *currentA = NULL;
 	int ret;
-	int i = 0;
-
-
-	/* only do this check if it has not been done before */
-	if (service->depend_cache == 0)
-	{
+	int count = 0;
 
 		/*
 		 *    Check so all deps, that needs service, is down.
@@ -429,6 +424,13 @@ int initng_depend_stop_dep_met(active_db_h * service, int verbose)
 		 */
 		while_active_db(currentA)
 		{
+			count++;
+			if(service->depend_cache >= count)
+				continue;
+				
+			/* temporary increase depend_cache - will degrese before reutrn (FALSE)*/
+			service->depend_cache++;
+				
 			if (currentA == service)
 				continue;
 
@@ -471,19 +473,17 @@ int initng_depend_stop_dep_met(active_db_h * service, int verbose)
 			   initng_handler_stop_service(currentA); */
 
 			/* no, the dependency are not met YET */
+			service->depend_cache--;
 			return (FALSE);
 		}
-		service->depend_cache++;
-	}
+	
 
 	/* run the global plugin dep check */
 	while_list_safe(current, &g.STOP_DEP_MET, s)
 	{
-		/* This is check number i */
-		i++;
-
 		/* This counts how many test thats have succeded before */
-		if (service->depend_cache > i)
+		count++;
+		if (service->depend_cache >= count)
 			continue;
 
 		if ((ret = (*current->c.stop_dep_met) (service)) != TRUE)
@@ -496,7 +496,7 @@ int initng_depend_stop_dep_met(active_db_h * service, int verbose)
 		}
 
 		/* count this check so it wont be run again */
-		service->depend_cache++;
+		service->depend_cache=count;
 	}
 
 	service->depend_cache = 0;
