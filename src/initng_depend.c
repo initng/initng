@@ -155,52 +155,38 @@ int initng_any_depends_on(active_db_h * service)
 	return (FALSE);
 }
 
-/* standard dep check */
+/* standard dep check , does service depends on check? */
 static int dep_on(active_db_h * service, active_db_h * check)
 {
-	const char *string = NULL;
-	char *str = NULL;
 	s_data *current = NULL;
+	char *str = NULL;
 
 	assert(service);
+	assert(service->name);
 	assert(check);
+	assert(check->name);
 
-	/* check if "service" requires "check" */
-	while ((string = get_next_string(&REQUIRE, service, &current)))
+	/* walk all possible entrys, use get_next with NULL becouse we want both REQUIRE and NEED */
+	while((current = get_next(NULL, service, current)))
 	{
-		str = fix_variables(string, service);
-		if (strcmp(string, check->name) == 0)
+		/* only intreseted in two types */
+		if(current->type != &REQUIRE && current->type != &NEED && current->type != &USE)
+			continue;
+		
+		/* to be sure */
+		if(!current->t.s)
+			continue;
+					
+		/* fix the variables */
+		if(!(str = fix_variables(current->t.s, service)))
+			continue;
+		
+		if(strcmp(str, check->name)==0)
 		{
-			fix_free(str, string);
-			return (TRUE);
+			fix_free(current->t.s, str);
+			return(TRUE);
 		}
-		fix_free(str, string);
-	}
-
-	/* check if "service" needs "check" */
-	current = NULL;
-	while ((string = get_next_string(&NEED, service, &current)))
-	{
-		str = fix_variables(string, service);
-		if (strcmp(str, check->name) == 0)
-		{
-			fix_free(str, string);
-			return (TRUE);
-		}
-		fix_free(str, string);
-	}
-
-	/* check if "service" uses "check" */
-	current = NULL;
-	while ((string = get_next_string(&USE, service, &current)))
-	{
-		str = fix_variables(string, service);
-		if (strcmp(string, check->name) == 0)
-		{
-			fix_free(str, string);
-			return (TRUE);
-		}
-		fix_free(str, string);
+		fix_free(current->t.s, str);
 	}
 
 	/* No, it did not */
@@ -338,7 +324,7 @@ int initng_depend_start_dep_met(active_db_h * service, int verbose)
 				initng_common_mark_service(service, &REQ_NOT_FOUND);
 				/* if its not yet found, this dep is not reached */
 				fix_free(str, current->t.s);
-				return(FALSE);
+				return(FAIL);
 			} else { /* NEED */
 				/* if its not yet found, this dep is not reached */
 				fix_free(str, current->t.s);
@@ -565,9 +551,9 @@ int initng_depend_start_deps(active_db_h * service)
 			/* if its NEED */
 			if(current->type == &NEED)
 			{
-				W_("service \"%s\" needs service \"%s\", that could not be found!\n", service->name, str);
+				D_("service \"%s\" needs service \"%s\", that could not be found!\n", service->name, str);
 				fix_free(str, current->t.s);
-				
+				continue;
 			/* else its REQUIRE */
 			} else {
 				
@@ -578,7 +564,8 @@ int initng_depend_start_deps(active_db_h * service)
 				return (FALSE);
 			}
 		}
-		
+		fix_free(str, current->t.s);
+		/* continue ; */
 	}
 
 	/* if we got here, its a sucess */
