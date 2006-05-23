@@ -540,7 +540,7 @@ int module_init(int api_version)
 /* user might fore that we dont use any color */
 #ifndef FORCE_NOCOLOR
 	/* enable color only on terminals */
-	if (isatty(output->_fileno))
+	if (isatty(fileno(output)))
 		color += 1;							/* if this is -1 from abow, this will be zero now */
 	else
 #endif
