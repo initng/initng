@@ -156,6 +156,27 @@ void filemon_event(f_module_h * from, e_fdw what)
 			/* check if there are any data file updated */
 			if(strstr(event->name, ".i") || strstr(event->name, ".runlevel") || strstr(event->name, ".virtual"))
 			{
+				/* zap failing services using this file */
+				{
+					active_db_h *active = NULL;
+					active_db_h *safe = NULL;
+					const char *fn;
+					while_active_db_safe(active, safe)
+					{
+						/* if we got a string from FROM_FILE */
+						if((fn=get_string(&FROM_FILE, active)) &&
+						/* and we found the file in that string */
+						strstr(fn, event->name) &&
+						/* and the service is marked FAILED */
+						IS_FAILED(active))
+						{
+							W_("Zapping %s becouse the source %s has changed, and it might work again.\n", active->name, event->name);
+								initng_active_db_unregister(active);
+								initng_active_db_free(active);
+						}
+					}
+				}
+				
 				/* if cache is not cleared */
 				if (!list_empty(&g.service_cache.list))
 				{
@@ -163,6 +184,8 @@ void filemon_event(f_module_h * from, e_fdw what)
 				 	  event->len ? event->name : "unkown");
 					initng_service_cache_free_all();
 				}
+				
+				
 			}
 
 		}
