@@ -183,10 +183,10 @@ static int dep_on(active_db_h * service, active_db_h * check)
 		
 		if(strcmp(str, check->name)==0)
 		{
-			fix_free(current->t.s, str);
+			fix_free(str, current->t.s);
 			return(TRUE);
 		}
-		fix_free(current->t.s, str);
+		fix_free(str, current->t.s);
 	}
 
 	/* No, it did not */
@@ -309,7 +309,7 @@ int initng_depend_start_dep_met(active_db_h * service, int verbose)
 			continue;
 		
 		/* look if it exits already */
-		if(!(dep = initng_active_db_find_by_name(str)))
+		if(!(dep = initng_active_db_find_by_exact_name(str)))
 		{
 			if(current->type == &USE)
 			{
@@ -515,6 +515,11 @@ int initng_depend_start_deps(active_db_h * service)
 
 	assert(service);
 	assert(service->name);
+#ifdef DEBUG
+	D_("initng_depend_start_deps(%s);\n", service->name);
+	if(!service->from_service)
+		D_(" ** Data not loaded for %s!\n", service->name);
+#endif
 
 	/* walk all possible entrys, use get_next with NULL becouse we want both REQUIRE and NEED */
 	while((current = get_next(NULL, service, current)))
@@ -528,23 +533,28 @@ int initng_depend_start_deps(active_db_h * service)
 			continue;
 			
 		/* tell the user what we got */
-		/* D_(" %s %s %s\n", service->name, current->type == &REQUIRE ? "requires" : "needs", current->t.s); */
+		D_(" %s %s %s\n", service->name, current->type == &REQUIRE ? "requires" : "needs", current->t.s);
 		
 		/* fix the variables */
 		if(!(str = fix_variables(current->t.s, service)))
 			continue;
 		
 		/* look if it exits already */
-		if ((dep = initng_active_db_find_by_name(str)))
+		if ((dep = initng_active_db_find_by_exact_name(str)))
 		{
+			D_("No need to LOAD \"%s\" == \"%s\", state %s it is already loaded!\n", str, dep->name, dep->current_state->state_name);
 			/* start the service if its down */
 			if (IS_DOWN(dep))
+			{
+				D_("Service %s is down, starting.\n", dep->name);
 				initng_handler_start_service(dep);
-			D_("No need to LOAD %s, it is already loaded!\n", str);
+			}
+			
 			fix_free(str, current->t.s);
 			continue;
 		}
 
+		D_("Starting new_service becouse not found: %s\n", str);
 		/* if we where not succeded to start this new one */
 		if (!initng_handler_start_new_service_named(str))
 		{
@@ -567,6 +577,8 @@ int initng_depend_start_deps(active_db_h * service)
 		fix_free(str, current->t.s);
 		/* continue ; */
 	}
+
+	D_("initng_depend_start_deps(%s): DONE-TRUE\n", service->name);
 
 	/* if we got here, its a sucess */
 	return (TRUE);

@@ -57,6 +57,7 @@ static service_cache_h *parse_file(char *filetoparse,
 	char *w = NULL;
 	char *a = NULL;
 	char *w_depends = NULL;
+	D_("parse_file(%s, %s);\n", filetoparse, runlevel_name);
 
 	/* allocate a new service */
 	if (!(n_service = initng_service_cache_new(runlevel_name, type)))
@@ -129,6 +130,7 @@ static service_cache_h *initng_rl_parser(const char *runlevel_name)
 
 
 	assert(runlevel_name);
+	D_("initng_rl_parser(%s);", runlevel_name);
 
 	/* make sure service type RUNLEVEL is set */
 	if (!TYPE_RUNLEVEL)

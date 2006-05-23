@@ -321,8 +321,8 @@ active_db_h *initng_handler_start_new_service_named(const char *service)
 			   to_load->name);
 			return (to_load);
 		}
-
 	}
+
 	/* else try create and load a new service */
 	else if (!(to_load = initng_common_load_to_active(service)))
 	{
