@@ -36,7 +36,7 @@ static void d_dfree(s_data * current);
 /* if this is an alias variable type, walk to find the correct one */
 #define ALIAS_WALK \
     /* this might be an alias */ \
-    while (type->opt_type == ALIAS && type->alias) \
+    while (type && type->opt_type == ALIAS && type->alias) \
         type = type->alias;
 
 
