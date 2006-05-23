@@ -110,7 +110,7 @@ s_data *d_get_next_var(s_entry * type, const char *vn, data_head * head,
 		}
 
 		/* Make sure the string variable name matches if set */
-		if ((type && current->type == type ) && (!current->vn || !vn || strcasecmp(current->vn, vn)==0))
+		if ((!type || current->type == type ) && (!current->vn || !vn || strcasecmp(current->vn, vn)==0))
 		{
 			return (current);
 		}
