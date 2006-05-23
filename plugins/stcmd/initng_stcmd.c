@@ -216,21 +216,32 @@ static int cmd_start_on_new(char *arg)
 static int cmd_free_service(char *arg)
 {
 	active_db_h *apt = NULL;
+	active_db_h *safe = NULL;
+	int ret = FALSE;
 
-	if (!arg)
-		return (FALSE);
-
-	if (!(apt = initng_active_db_find_in_name(arg)))
-		return (FALSE);
-
-	initng_active_db_unregister(apt);
-	initng_active_db_free(apt);
-
+	/* check if we got an service */
+	if ( arg && (apt = initng_active_db_find_in_name(arg)))
+	{
+		/* zap found */
+		initng_active_db_unregister(apt);
+		initng_active_db_free(apt);
+		ret = TRUE;
+	} else {
+		/* zap all that is marked FAIL */
+		while_active_db_safe(apt, safe)
+		{
+			if(IS_FAILED(apt))
+			{
+				initng_active_db_unregister(apt);
+				initng_active_db_free(apt);
+				ret=TRUE;
+			}
+		}
+	}
+	
 	/* also flush file cache */
 	cmd_reload(arg);
-
-	/* return happily */
-	return (TRUE);
+	return(ret);
 }
 
 
