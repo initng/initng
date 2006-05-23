@@ -1,35 +1,46 @@
 
-Internal variables must have a name, to be able to be reloaded after ngc -c, how will we make sure
-the user wont try to set it, and hide it? 
-
-Rewrite initng_depend_start_deps_met, to not use dep_on, instead open NEED, USE, REQUIRE string, and check it that way, becouse its more safe.
-
-The i parser shud not only know '=' but '+=' and '=+' or maby '=-' to reset a multistring variable.
-
-Add need deps like need = (daemon/sysvlog || daemon/syslogd);
+These thing is my (jimmys) private todo list.
+They are arranged in my priority, but i got a werry little time to code right now, i am
+working overtime to pay my living you know, so dont expect mutch soon.
 
 UP_CHECK hook is not ever checked or called, fix.
+
+Make reload plugin, save sys_state,
+	and current runlevel and more static global stuff.
+	Maby we can call ngc -c, when system is stopping or starting without problems.
+
+Add need deps like need = (daemon/sysvlog || daemon/syslogd), needs core rewrite too.
+
+The i parser shud not only know '=' but '+=' and '=+' or maby '=-' to reset a multistring variable, needs core rewrite.
+
+a service that stops becouse the dependency stoped,
+	will atomaticly be started again when the dep is up again.
+	Need to rewrite pars of core to make this nice?
+
+dbus work, for a dbusc plugin. [BIG_TASK]
+
+Fix devices/printer like services, maby using hal? [BIG_TASK]
+
+Fix the/A xml parser. [BIG_TASK]
+
+create ngc5 with an shiny new xml data backend. [BIG_TASK]
+
+finish cron plugin. [BIG_TASK]
+
+write inetd plugin. [BIG_TASK]
+
+
+[DONE] Internal variables must have a name, to be able to be reloaded after ngc -c, how will we make sure
+
+[DONE] the user wont try to set it, and hide it? all options starting with "internal_" is hidden from ngc -O.
+
+[DONE] Rewrite initng_depend_start_deps_met, to not use dep_on, instead open NEED, USE, REQUIRE string, and check it that way, becouse its more safe.
 
 [DONE] Move all selinux stuff to an own selinux plugin.
 
 [DONE] add nge events, percentage, and kill notice, when a process dies nge shud know.
 
-Fix the xml parser.
-
-create ngc5 with an shiny new xml data backend.
-
-dbus work, for a dbusc plugin.
-
-finish cron plugin.
-
-write inetd plugin.
-
-Fix devices/printer like services.
-
-Fix net/eth0 like services
+[DONE] Fix device/eth0 like services
 
 [DONE] Make test/*/* work.
 
-a service that stops becouse the dependency stoped, will atomaticly be started again when the dep is up again.
-
-Make reload plugin, save sys_state, and current runlevel and more static global stuff. Maby we can call ngc -c, when system is stopping or starting without problems.
