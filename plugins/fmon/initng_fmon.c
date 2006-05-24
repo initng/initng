@@ -175,7 +175,6 @@ void filemon_event(f_module_h * from, e_fdw what)
 						IS_FAILED(active))
 						{
 							W_("Zapping %s becouse the source %s has changed, and it might work again.\n", active->name, event->name);
-								initng_active_db_unregister(active);
 								initng_active_db_free(active);
 						}
 					}

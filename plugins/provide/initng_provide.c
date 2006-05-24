@@ -179,7 +179,6 @@ static void remove_virtual_service(const char *name)
 		/* TODO: test the following code; initng crashes and free()
 		 *       complains about invalid pointer.
 		 *    NOTE: probably becouse d_get_int_var with an var name, that cant be free (vhar *) "count".
-		 * initng_active_db_unregister(vserv);
 		 * initng_active_db_free(vserv);
 		 */
 	}

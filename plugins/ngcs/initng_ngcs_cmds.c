@@ -590,7 +590,6 @@ static void ngcs_cmd_zap(ngcs_request * req)
 		return;
 	}
 
-	initng_active_db_unregister(apt);
 	initng_active_db_free(apt);
 
 	/* also flush file cache */

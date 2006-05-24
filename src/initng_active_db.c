@@ -330,8 +330,6 @@ void initng_active_db_free_all(void)
 
 	while_active_db_safe(current, safe)
 	{
-		assert(current->name);
-		list_del(&current->list);
 		initng_active_db_free(current);
 	}
 }
@@ -549,7 +547,6 @@ void initng_active_db_clean_down(void)
 			if (!IS_DOWN(current))
 				continue;
 
-			list_del(&current->list);
 			initng_active_db_free(current);
 		}
 	}

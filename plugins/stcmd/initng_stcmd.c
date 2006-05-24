@@ -223,7 +223,6 @@ static int cmd_free_service(char *arg)
 	if ( arg && (apt = initng_active_db_find_in_name(arg)))
 	{
 		/* zap found */
-		initng_active_db_unregister(apt);
 		initng_active_db_free(apt);
 		ret = TRUE;
 	} else {
@@ -232,7 +231,6 @@ static int cmd_free_service(char *arg)
 		{
 			if(IS_FAILED(apt))
 			{
-				initng_active_db_unregister(apt);
 				initng_active_db_free(apt);
 				ret=TRUE;
 			}

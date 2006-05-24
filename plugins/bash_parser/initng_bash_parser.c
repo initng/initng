@@ -205,13 +205,43 @@ static void bp_get_variable(bp_rep * rep, const char * service, const char * var
 }
 static void bp_done(bp_rep * rep, const char * service)
 {
-	printf("bp_done(%s)\n", service);
-
-	rep->success = TRUE;
+	active_db_h * active = initng_active_db_find_by_exact_name(service);
+	if(!active)
+	{
+		strcpy(rep->message, "Service not found.");
+		rep->success = FALSE;
+		return;
+	}
+	
+	if(active->current_state != &PARSING)
+	{
+		strcpy(rep->message, "Service is not in PARSING state, cant start.");
+		rep->success = FALSE;
+		return;
+	}
+	
+	printf("Now starting: %s\n", service);
+	rep->success = initng_handler_start_service(active);
 	return;
 }
 static void bp_abort(bp_rep * rep, const char * service)
 {
+	active_db_h * active = initng_active_db_find_by_exact_name(service);
+	if(!active)
+	{
+		strcpy(rep->message, "Service not found.");
+		rep->success = FALSE;
+		return;
+	}
+	
+	if(active->current_state != &PARSING)
+	{
+		strcpy(rep->message, "Service is not in PARSING state, cant start.");
+		rep->success = FALSE;
+		return;
+	}
+	
+	
 	printf("bp_abort(%s)\n", service);
 
 	rep->success = TRUE;
