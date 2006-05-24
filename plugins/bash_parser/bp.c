@@ -50,11 +50,14 @@ char *message;
 
 int main(int argc, char **argv)
 {
-	int t = bp_new_active("service", "test");
-	printf("Sent new active \"service\", \"test\"\n  result: %s\n  message: \"%s\"\n", t==TRUE ? "success" : "failure", message);
+	int t = bp_new_active("service", "bash_test");
+	printf("Sent new active \"service\", \"bash_test\"\n  result: %s\n", t==TRUE ? "success" : "failure");
 	
 	if(message)
+	{
+		printf("  message: \"%s\"\n", message);
 		free(message);
+	}
 		
 	exit(t);
 }

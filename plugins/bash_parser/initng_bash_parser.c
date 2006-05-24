@@ -66,6 +66,8 @@ static void bp_get_variable(bp_rep * rep, const char * service, const char * var
 
 #define SOCKET_4_ROOTPATH "/dev/initng"
 
+a_state_h PARSING = { "PARSING", "This is service is parsing by bash_parser.", IS_DOWN, NULL, NULL, NULL };
+
 
 /*
    In the Linux implementation, sockets which are visible in the file system
@@ -141,7 +143,40 @@ static void bp_handle_client(int fd)
 
 static void bp_new_active(bp_rep * rep, const char * type, const char *service)
 {
+	active_db_h * new_active;
+	stype_h * stype;
 	printf("bp_new_active(%s, %s)\n", type, service);
+	
+	/* find service type */
+	stype = initng_service_type_get_by_name(type);
+	if(!stype)
+	{
+		strcpy(rep->message, "Unable to find servicetype.");
+		rep->success = FALSE;
+		return;
+	}
+	
+	/* create new service */
+	new_active=initng_active_db_new(service);
+	if(!new_active)
+	{
+		strcpy(rep->message, "Unable to create new service.");
+		rep->success = FALSE;
+		return;
+	}
+	
+	/* set type */
+	new_active->type = stype;
+	new_active->current_state = &PARSING;
+	
+	/* register it */
+	if(!initng_active_db_register(new_active))
+	{
+		strcpy(rep->message, "Unableto register new service, maby duplet?");
+		rep->success = FALSE;
+		return;
+	}
+	
 	
 	rep->success = TRUE;
 	return;
@@ -364,7 +399,7 @@ int module_init(int api_version)
 	D_("adding hook, that will reopen socket, for every started service.\n");
 	initng_plugin_hook_register(&g.FDWATCHERS, 30, &bpf);
 	initng_plugin_hook_register(&g.SIGNAL, 50, &bp_check_socket);
-
+	initng_active_state_register(&PARSING);
 
 	/* do the first socket directly */
 	bp_open_socket();
@@ -385,4 +420,5 @@ void module_unload(void)
 	/* remove hooks */
 	initng_plugin_hook_unregister(&g.FDWATCHERS, &bpf);
 	initng_plugin_hook_unregister(&g.SIGNAL, &bp_check_socket);
+	initng_active_state_unregister(&PARSING);
 }
