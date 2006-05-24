@@ -30,6 +30,8 @@ typedef enum
 	NEW_ACTIVE = 1,
 	SET_VARIABLE = 2,
 	GET_VARIABLE = 3,
+	DONE = 4,
+	ABORT = 5,
 } bp_req_type;
 	
 
@@ -60,6 +62,18 @@ typedef struct
 			char service[101];	/* Service to get option from */
 			char variable[101]; /* The variable try to get */
 		} get_variable;
+		
+		/* parsing done, now start it */
+		struct
+		{
+			char service[101];	/* the service that is done parsing */
+		} done;
+		
+		/* abort parsing, and clear service */
+		struct
+		{
+			char service[101];	/* name of service to abort */
+		} abort;
 	} u;
 } bp_req;
 

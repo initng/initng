@@ -63,6 +63,8 @@ static void bp_check_socket(int signal);
 static void bp_new_active(bp_rep * rep, const char * type, const char * service);
 static void bp_set_variable(bp_rep * rep, const char * service, const char * variable, const char * value);
 static void bp_get_variable(bp_rep * rep, const char * service, const char * variable);
+static void bp_done(bp_rep * rep, const char * service);
+static void bp_abort(bp_rep * rep, const char * service);
 
 #define SOCKET_4_ROOTPATH "/dev/initng"
 
@@ -133,6 +135,12 @@ static void bp_handle_client(int fd)
 			bp_get_variable(&rep, req.u.get_variable.service,
 								  req.u.get_variable.variable);
 			break;
+		case DONE:
+			bp_done(&rep, req.u.done.service);
+			break;
+		case ABORT:
+			bp_abort(&rep, req.u.abort.service);
+			break;
 		default:
 			break;
 	}
@@ -191,6 +199,20 @@ static void bp_set_variable(bp_rep * rep, const char * service, const char * var
 static void bp_get_variable(bp_rep * rep, const char * service, const char * variable)
 {
 	printf("bp_get_variable(%s, %s)\n", service, variable);
+
+	rep->success = TRUE;
+	return;
+}
+static void bp_done(bp_rep * rep, const char * service)
+{
+	printf("bp_done(%s)\n", service);
+
+	rep->success = TRUE;
+	return;
+}
+static void bp_abort(bp_rep * rep, const char * service)
+{
+	printf("bp_abort(%s)\n", service);
 
 	rep->success = TRUE;
 	return;
