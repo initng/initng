@@ -191,14 +191,126 @@ static void bp_new_active(bp_rep * rep, const char * type, const char *service)
 }
 static void bp_set_variable(bp_rep * rep, const char * service, const char * variable, const char * value)
 {
+	s_entry * type;
+	active_db_h * active = initng_active_db_find_by_exact_name(service);
 	printf("bp_set_variable(%s, %s, %s)\n", service, variable, value);
+	if(!active)
+	{
+		strcpy(rep->message, "Service not found.");
+		rep->success = FALSE;
+		return;
+	}
+	
+	if(active->current_state != &PARSING)
+	{
+		strcpy(rep->message, "Please dont edit finished services.");
+		rep->success = FALSE;
+		return;
+	}
+
+	type = initng_service_data_type_find(variable);
+	if(!type)
+	{
+		strcpy(rep->message, "Variable entry not found.");
+		rep->success = FALSE;
+		return;
+	}
+	
+	switch(type->opt_type)
+	{
+		case STRING:
+		case VARIABLE_STRING:
+			set_string(type, active, i_strndup(value,1024));
+			printf("string type");
+			break;
+		case STRINGS:
+		case VARIABLE_STRINGS:
+			set_another_string(type, active, i_strndup(value, 1024));
+			printf("strings type");
+			break;
+		case SET:
+		case VARIABLE_SET:
+			printf("set type");
+			set(type, active);
+			break;
+		case INT:
+		case VARIABLE_INT:
+			set_int(type, active, atoi(value));
+			printf("int type");
+			break;
+		default:
+			strcpy(rep->message, "Unknown data type.");
+			rep->success = FALSE;
+			return;
+	}
+
 
 	rep->success = TRUE;
 	return;
 }
 static void bp_get_variable(bp_rep * rep, const char * service, const char * variable)
 {
+	s_entry * type;
+	active_db_h * active = initng_active_db_find_by_exact_name(service);
 	printf("bp_get_variable(%s, %s)\n", service, variable);
+	if(!active)
+	{
+		strcpy(rep->message, "Service not found.");
+		rep->success = FALSE;
+		return;
+	}
+	
+	type = initng_service_data_type_find(variable);
+	if(!type)
+	{
+		strcpy(rep->message, "Variable entry not found.");
+		rep->success = FALSE;
+		return;
+	}
+
+	/* depening on data type */
+	switch(type->opt_type)
+	{
+		case STRING:
+		case VARIABLE_STRING:
+			strncpy(rep->message, get_string(type, active), 1024);
+			break;
+		case STRINGS:
+		case VARIABLE_STRINGS:
+			/* todo, will only return one */
+			{
+				s_data *itt=NULL;
+				const char *tmp=NULL;
+				while((tmp=get_next_string(type, active, &itt)))
+				{
+					if(!rep->message[0])
+					{
+						strcpy(rep->message, tmp);
+						continue;
+					}
+					strcat(rep->message, " ");
+					strncat(rep->message, tmp, 1024);
+				}
+			}
+			break;
+		case SET:
+		case VARIABLE_SET:
+			if(is(type, active))
+			{
+				rep->success = TRUE;
+			} else {
+				rep->success = FALSE;
+			}
+			return;
+		case INT:
+		case VARIABLE_INT:
+			sprintf(rep->message, "%i", get_int(type, active));
+			break;
+		default:
+			strcpy(rep->message, "Unknown data type.");
+			rep->success = FALSE;
+			return;
+	}
 
 	rep->success = TRUE;
 	return;

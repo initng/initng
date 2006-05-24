@@ -53,7 +53,7 @@ typedef struct
 		{
 			char service[101];	/* Service to set option to */
 			char variable[101]; /* The variable try to set */
-			char value[1024];	/* The option value trying to set */
+			char value[1025];	/* The option value trying to set */
 		} set_variable;
 	
 		/* get value */
@@ -80,7 +80,7 @@ typedef struct
 typedef struct
 {
 	int success;			/* mainly TRUE or FALSE */
-	char message[1024];		/* used for transporting a string to the client */
+	char message[1025];		/* used for transporting a string to the client */
 } bp_rep;
 
 #endif

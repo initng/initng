@@ -46,21 +46,142 @@
 
 int bp_send(bp_req * to_send);
 int bp_new_active(const char * type, const char * service);
+int bp_abort(const char * service);
+int bp_done(const char * service);
+int bp_get_variable(const char * service, const char * varname);
+int bp_set_variable(const char * service, const char * varname, const char * value);
 char *message;
+
+
 
 int main(int argc, char **argv)
 {
-	int t = bp_new_active("service", "bash_test");
-	printf("Sent new active \"service\", \"bash_test\"\n  result: %s\n", t==TRUE ? "success" : "failure");
+	int status = 99;
+	
+	/* cut path or so from name */
+	char *argv0 = strrchr(argv[0], '/');
+	if(!argv0)
+		argv0=argv[0];
+	if(argv0[0]=='/')
+		argv0++;
+		
+	/* printf("argc: %i argv[0]: %s :: %s\n", argc, argv[0], argv0); */
+
+	/* for 3 variables options */
+	switch(argc)
+	{
+		case 2:
+			if(strcmp(argv0, "abort")==0 ||
+			   strcmp(argv0, "iabort")==0)
+			{
+				status = bp_abort(argv[1]);
+				break;
+			}
+			if(strcmp(argv0, "done")==0 ||
+			   strcmp(argv0, "idone")==0)
+			{
+			 	status = bp_done(argv[1]);
+				break;
+			}
+			break;
+		case 3:
+			if(strcmp(argv0, "get")==0 ||
+			   strcmp(argv0, "iget")==0)
+			{
+				status = bp_get_variable(argv[1], argv[2]);
+				break;
+			}
+			if(strcmp(argv0, "register")==0 ||
+			   strcmp(argv0, "iregister")==0)
+			{
+				status = bp_new_active(argv[1], argv[2]);
+				break;
+			}
+			break;
+		case 4:
+			if (strcmp(argv0, "set")==0 ||
+		         strcmp(argv0, "iset")==0)
+			{
+				status = bp_set_variable(argv[1], argv[2], argv[3]);
+				break;
+			}
+			break;
+	}
+	
+	/* if still 99, print usage */
+	if(status == 99)
+	{
+		printf("Avaible commands:\n");
+		printf("./idone     <service>\n");
+		printf("./iabort    <service>\n");
+		printf("./iget      <service> <variable>\n");
+		printf("./iregister <type>    <name>\n");
+		printf("./iset      <service> <variable> <value>\n");
+		exit(status);
+	}
 	
 	if(message)
 	{
-		printf("  message: \"%s\"\n", message);
+		printf("%s\n", message);
 		free(message);
 	}
-		
-	exit(t);
+	
+	/* invert result */
+	exit(status == TRUE ? 0 : 1);
 }
+
+int bp_abort(const char * service)
+{
+	/* the request to send */
+	bp_req to_send;
+	memset(&to_send, 0, sizeof(bp_req));
+	
+	to_send.request = ABORT;
+
+	strncpy(to_send.u.abort.service, service, 100);
+
+	return(bp_send(&to_send));
+}
+int bp_done(const char * service)
+{
+	/* the request to send */
+	bp_req to_send;
+	memset(&to_send, 0, sizeof(bp_req));
+	
+	to_send.request = DONE;
+
+	strncpy(to_send.u.done.service, service, 100);
+
+	return(bp_send(&to_send));
+}
+int bp_get_variable(const char * service, const char * varname)
+{
+	/* the request to send */
+	bp_req to_send;
+	memset(&to_send, 0, sizeof(bp_req));
+	
+	to_send.request = GET_VARIABLE;
+
+	strncpy(to_send.u.get_variable.service, service, 100);
+	strncpy(to_send.u.get_variable.variable, varname, 100);
+
+	return(bp_send(&to_send));
+}
+int bp_set_variable(const char * service, const char * varname, const char * value)
+{
+	/* the request to send */
+	bp_req to_send;
+	memset(&to_send, 0, sizeof(bp_req));
+	
+	to_send.request = SET_VARIABLE;
+
+	strncpy(to_send.u.set_variable.service, service, 100);
+	strncpy(to_send.u.set_variable.variable, varname, 100);
+	strncpy(to_send.u.set_variable.value, value, 1024);
+
+	return(bp_send(&to_send));
+}
+
 
 int bp_new_active(const char * type, const char * service)
 {
@@ -69,7 +190,7 @@ int bp_new_active(const char * type, const char * service)
 	memset(&to_send, 0, sizeof(bp_req));
 	
 	to_send.request = NEW_ACTIVE;
-	strncpy(to_send.u.new_active.type, type, 50);
+	strncpy(to_send.u.new_active.type, type, 40);
 	strncpy(to_send.u.new_active.service, service, 100);
 	
 	return(bp_send(&to_send));
