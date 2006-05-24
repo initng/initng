@@ -51,6 +51,8 @@
 
 #include <initng-paths.h>
 
+#include "initng_bash_parser.h"
+
 INITNG_PLUGIN_MACRO;
 
 static void bp_incomming(f_module_h * from, e_fdw what);
@@ -58,10 +60,12 @@ static void bp_closesock(void);
 static void bp_handle_client(int fd);
 static int  bp_open_socket(void);
 static void bp_check_socket(int signal);
+static void bp_new_active(bp_rep * rep, const char * type, const char * service);
+static void bp_set_variable(bp_rep * rep, const char * service, const char * variable, const char * value);
+static void bp_get_variable(bp_rep * rep, const char * service, const char * variable);
 
 #define SOCKET_4_ROOTPATH "/dev/initng"
 
-#include "initng_bash_parser.h"
 
 /*
    In the Linux implementation, sockets which are visible in the file system
@@ -79,20 +83,9 @@ static void bp_check_socket(int signal);
 struct stat sock_stat;
 f_module_h bpf = { &bp_incomming, FDW_READ, -1 };
 
-static void bp_closesock(void)
-{
-	/* Check if we need to remove hooks */
-	if (bpf.fds < 0)
-		return;
-	D_("bp_closesock %d\n", bpf.fds);
-
-	/* close socket and set to 0 */
-	close(bpf.fds);
-	bpf.fds = -1;
-}
-
 #define RSCV() (TEMP_FAILURE_RETRY(recv(fd, &req, sizeof(bp_req), 0)) == (signed) sizeof(bp_req))
-#define SEND() send(fd, &rep, sizeof(bp_rep), 0)
+#define SEND() (send(fd, &rep, sizeof(bp_rep), 0) == (signed) sizeof(bp_rep))
+
 
 static void bp_handle_client(int fd)
 {
@@ -106,26 +99,68 @@ static void bp_handle_client(int fd)
 	if (!RSCV())
 	{
 		F_("Could not read incomming bash_parser req.\n");
+		strcpy(rep.message, "Unable to read request");
+		rep.success = FALSE;
+		SEND();
+		return;
+	}
+	printf("Got a request: ver: %i, type: %i\n", req.version, req.request);
+
+	/* check protocol version match */
+	if(req.version != BASH_PARSER_VERSION)
+	{
+		strcpy(rep.message, "Bad protocol version");
 		rep.success = FALSE;
 		SEND();
 		return;
 	}
 
-	rep.success = TRUE;
+	/* handle by request type */
+	switch(req.request)
+	{
+		case NEW_ACTIVE:
+			bp_new_active(&rep, req.u.new_active.type,
+								req.u.new_active.service);
+			break;
+		case SET_VARIABLE:
+			bp_set_variable(&rep, req.u.set_variable.service,
+								  req.u.set_variable.variable,
+								  req.u.set_variable.value);
+			break;
+		case GET_VARIABLE:
+			bp_get_variable(&rep, req.u.get_variable.service,
+								  req.u.get_variable.variable);
+			break;
+		default:
+			break;
+	}
+	
+	/* send the reply */
 	SEND();
 }
 
-#ifdef RECV
-	/* use file descriptor, because fread hangs here? */
-	if (TEMP_FAILURE_RETRY(recv(fd, &header, sizeof(read_header), 0)) <
-		(signed) sizeof(read_header))
-	{
-		F_("Could not read header.\n");
-		return;
-	}
-		send(fd, result, sizeof(result_desc), 0);
-#endif
+static void bp_new_active(bp_rep * rep, const char * type, const char *service)
+{
+	printf("bp_new_active(%s, %s)\n", type, service);
 	
+	rep->success = TRUE;
+	return;
+}
+static void bp_set_variable(bp_rep * rep, const char * service, const char * variable, const char * value)
+{
+	printf("bp_set_variable(%s, %s, %s)\n", service, variable, value);
+
+	rep->success = TRUE;
+	return;
+}
+static void bp_get_variable(bp_rep * rep, const char * service, const char * variable)
+{
+	printf("bp_get_variable(%s, %s)\n", service, variable);
+
+	rep->success = TRUE;
+	return;
+}
+
 
 /* called by fd hook, when data is no socket */
 void bp_incomming(f_module_h * from, e_fdw what)
@@ -298,6 +333,19 @@ static void bp_check_socket(int signal)
 	D_("Socket ok.\n");
 	return;
 }
+
+static void bp_closesock(void)
+{
+	/* Check if we need to remove hooks */
+	if (bpf.fds < 0)
+		return;
+	D_("bp_closesock %d\n", bpf.fds);
+
+	/* close socket and set to 0 */
+	close(bpf.fds);
+	bpf.fds = -1;
+}
+
 
 
 int module_init(int api_version)

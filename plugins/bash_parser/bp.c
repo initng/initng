@@ -65,7 +65,6 @@ int bp_new_active(const char * type, const char * service)
 	bp_req to_send;
 	memset(&to_send, 0, sizeof(bp_req));
 	
-	to_send.version = BASH_PARSER_VERSION;
 	to_send.request = NEW_ACTIVE;
 	strncpy(to_send.u.new_active.type, type, 50);
 	strncpy(to_send.u.new_active.service, service, 100);
@@ -83,6 +82,8 @@ int bp_send(bp_req * to_send)
 	bp_rep rep;
 	memset(&rep, 0, sizeof(bp_rep));
 
+	assert(to_send);
+	to_send->version = BASH_PARSER_VERSION;
 
 	/* Create the socket. */
 	sock = socket(PF_UNIX, SOCK_STREAM, 0);
@@ -110,9 +111,12 @@ int bp_send(bp_req * to_send)
 
 		fcntl(sock, F_SETFL, cur | O_NONBLOCK);
 	}
+	
+	/* make a quick sleep */
+	usleep(200);
 
 	/* send the request */
-	if(send(sock, &to_send, sizeof(bp_req), 0) < (signed) sizeof(bp_req))
+	if(send(sock, to_send, sizeof(bp_req), 0) < (signed) sizeof(bp_req))
 	{
 		message = strdup("Unable to send the request.");
 		return(FALSE);
