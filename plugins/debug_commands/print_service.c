@@ -290,11 +290,12 @@ static void active_db_print_u(active_db_h * s, char **string)
 
 	list_for_each_entry(tmp, &(s->data.head.list), list)
 	{
+		print_sdata(tmp, string);
 	}
 
 	if (s->from_service)
 	{
-		mprintf(string, "\tservice_db opts:\n");
+		mprintf(string, "\tservice_cache opts:\n");
 		tmp = NULL;
 		list_for_each_entry(tmp, &(s->from_service->data.head.list), list)
 		{
