@@ -45,6 +45,7 @@ INSTALL_FILES(${INCLUDE_INSTALL_DIR}/initng FILES initng-paths.h)
 
 OPTION(BUILD_ALSO "Build also plugin" ON)
 OPTION(BUILD_BASH_LAUNCHER "Build bash_launcher plugin" ON)
+OPTION(BUILD_BASH_PARSER "Build bash_parser plugin" ON)
 OPTION(BUILD_CHDIR "Build chdir plugin" ON)
 OPTION(BUILD_CHROOT "Build chroot plugin" ON)
 OPTION(BUILD_CONFLICT "Build conflict plugin" ON)
