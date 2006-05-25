@@ -88,7 +88,7 @@ struct stat sock_stat;
 f_module_h bpf = { &bp_incomming, FDW_READ, -1 };
 
 #define RSCV() (TEMP_FAILURE_RETRY(recv(fd, &req, sizeof(bp_req), 0)) == (signed) sizeof(bp_req))
-#define SEND() (send(fd, &rep, sizeof(bp_rep), 0) == (signed) sizeof(bp_rep))
+#define SEND() send(fd, &rep, sizeof(bp_rep), 0)
 
 
 static void bp_handle_client(int fd)
