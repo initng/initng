@@ -4,4 +4,12 @@ ADD_LIBRARY(bash_parser MODULE initng_bash_parser.c)
 INSTALL_TARGETS(${LIB_INSTALL_DIR}/initng bash_parser)
 
 ADD_EXECUTABLE(bp bp.c)
+SET_TARGET_PROPERTIES(bp PROPERTIES POST_INSTALL_SCRIPT
+	${CMAKE_CURRENT_SOURCE_DIR}/create_links.cmake)
+INSTALL_TARGETS(${LIB_INSTALL_DIR}/ibin bp)
+
 ADD_EXECUTABLE(runiscript runiscript.c)
+INSTALL_TARGETS(${SBIN_INSTALL_DIR} runiscript)
+
+INSTALL_PROGRAMS(${LIB_INSTALL_DIR}/ibin FILES runiscript.sh)
+

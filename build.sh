@@ -5,9 +5,6 @@ cleanup() {
 	rm -rf build
 }
 
-# Are we root?
-id=`id -u`
-
 echo "**** Creating the build directory ****"
 if [ -d build/ ] ; then
 	rm -rf build
@@ -37,7 +34,7 @@ fi
 if [ $? -eq 0 ] ; then
 	echo "Compilation successful."
 	echo "**** Installing project ****"
-	if [ $id -eq 0 ] ; then
+	if [ $UID -eq 0 ] ; then
 		make install
 	else	
 		echo "root privileges required."
@@ -55,7 +52,7 @@ if [ $? -eq 0 ] ; then
 	read answer
 	if [ x$answer = x"yes" ] ; then
 		echo "**** Reloading initng ****"
-		if [ $id -eq 0 ] ; then
+		if [ $UID -eq 0 ] ; then
 			ngc -R
 		else
 			echo "root privileges required."

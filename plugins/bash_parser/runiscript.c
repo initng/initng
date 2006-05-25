@@ -81,9 +81,9 @@ int main(int argc, char *argv[])
 	
 	
 	/* now call the bash script */
-	execve("/sbin/runiscript.sh", new_argv, environ);
+	execve("/lib/ibin/runiscript.sh", new_argv, environ);
 	
 	/* Newer get here */
-	printf("error exeuting /sbin/runiscript.sh\n");
+	printf("error exeuting /lib/ibin/runiscript.sh\n");
 	exit(3);
 }
