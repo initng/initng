@@ -70,7 +70,6 @@ static void bp_abort(bp_rep * rep, const char * service);
 
 a_state_h PARSING = { "PARSING", "This is service is parsing by bash_parser.", IS_DOWN, NULL, NULL, NULL };
 
-
 /*
    In the Linux implementation, sockets which are visible in the file system
    honour the permissions of the directory they are in.  Their owner, group
@@ -156,7 +155,8 @@ static void bp_new_active(bp_rep * rep, const char * type, const char *service)
 	active_db_h * new_active;
 	stype_h * stype;
 	D_("bp_new_active(%s, %s)\n", type, service);
-	
+
+
 	/* find service type */
 	stype = initng_service_type_get_by_name(type);
 	if(!stype)
@@ -166,28 +166,25 @@ static void bp_new_active(bp_rep * rep, const char * type, const char *service)
 		return;
 	}
 	
-	/* create new service */
-	new_active=initng_active_db_new(service);
+	/* look for existing */
+	new_active = initng_active_db_find_by_exact_name(service);
+	
+	/* check for duplet, not parsing */
+	if(new_active && new_active->current_state != &PARSING)
+	{
+		strcpy(rep->message, "Duplet found.");
+		rep->success = FALSE;
+		return;
+	}
+	
 	if(!new_active)
 	{
-		strcpy(rep->message, "Unable to create new service.");
+		strcpy(rep->message, "Did not find entry to modify.");
 		rep->success = FALSE;
 		return;
 	}
 	
-	/* set type */
-	new_active->type = stype;
-	new_active->current_state = &PARSING;
-	new_active->from_service = &NO_CACHE;
-	
-	/* register it */
-	if(!initng_active_db_register(new_active))
-	{
-		strcpy(rep->message, "Unableto register new service, maby duplet?");
-		rep->success = FALSE;
-		return;
-	}
-	
+	new_active->type=stype;
 	
 	rep->success = TRUE;
 	return;
@@ -360,6 +357,14 @@ static void bp_done(bp_rep * rep, const char * service)
 		return;
 	}
 	
+	/* check that type is set */
+	if(!active->type)
+	{
+		strcpy(rep->message, "Type not set, please run iregister type service\n");
+		rep->success = FALSE;
+		return;
+	}
+	
 	if(active->current_state != &PARSING)
 	{
 		strcpy(rep->message, "Service is not in PARSING state, cant start.");
@@ -367,7 +372,7 @@ static void bp_done(bp_rep * rep, const char * service)
 		return;
 	}
 	
-	rep->success = TRUE;
+	rep->success = initng_handler_start_service(active);
 	return;
 }
 static void bp_abort(bp_rep * rep, const char * service)
@@ -579,6 +584,55 @@ static void bp_closesock(void)
 	bpf.fds = -1;
 }
 
+static active_db_h *create_new_active(const char * name)
+{
+	char file[1024] = SCRIPT_PATH "/";
+	struct stat fstat;
+	active_db_h * new_active;
+
+	/* check if initfile exists */
+	strncat(file, name, 1020 - strlen(SCRIPT_PATH));
+	if(stat(file, &fstat) != 0)
+	{
+		/* file not found */
+		return(NULL);
+	}
+
+	/* create new service */
+	new_active=initng_active_db_new(name);
+	if(!new_active)
+		return(NULL);
+
+	/* set type */
+	new_active->current_state = &PARSING;
+	new_active->from_service = &NO_CACHE;
+	
+	/* register it */
+	if(!initng_active_db_register(new_active))
+	{
+		initng_active_db_free(new_active);
+		return(NULL);
+	}
+	
+	/* start parse process */
+	/* TODO, shud not this process be an initng_fork?? */
+	if(fork()==0)
+	{
+		char *av[3];
+		char *e[] = { NULL };
+		av[0]=i_calloc(255, sizeof(char));
+		strcpy(av[0], SCRIPT_PATH "/");
+		strcat(av[0], name);
+		av[1]=i_strdup("internal_setup");
+		av[2]=NULL;
+		
+		execve(av[0], av, e);
+		_exit(10);
+	}
+	
+	/* return the newly created */
+	return(new_active);
+}
 
 
 int module_init(int api_version)
@@ -602,6 +656,7 @@ int module_init(int api_version)
 	D_("adding hook, that will reopen socket, for every started service.\n");
 	initng_plugin_hook_register(&g.FDWATCHERS, 30, &bpf);
 	initng_plugin_hook_register(&g.SIGNAL, 50, &bp_check_socket);
+	initng_plugin_hook_register(&g.NEW_ACTIVE, 50, &create_new_active);
 	initng_active_state_register(&PARSING);
 
 	/* do the first socket directly */
@@ -610,12 +665,9 @@ int module_init(int api_version)
 	return (TRUE);
 }
 
-
 void module_unload(void)
 {
 	D_("module_unload(ngc2);\n");
-	if (g.i_am != I_AM_INIT && g.i_am != I_AM_FAKE_INIT)
-		return;
 
 	/* close open sockets */
 	bp_closesock();
@@ -623,5 +675,6 @@ void module_unload(void)
 	/* remove hooks */
 	initng_plugin_hook_unregister(&g.FDWATCHERS, &bpf);
 	initng_plugin_hook_unregister(&g.SIGNAL, &bp_check_socket);
+	initng_plugin_hook_unregister(&g.NEW_ACTIVE, &create_new_active);
 	initng_active_state_unregister(&PARSING);
 }

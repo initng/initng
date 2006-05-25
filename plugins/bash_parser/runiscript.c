@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
 	char *servname;
 	char *new_argv[24];
 
-#ifdef DEBUG
+#ifdef DEBUG_EXTRA
 	{ /* for debug */
 		int i;
 		printf("%i args: \n", argc);
