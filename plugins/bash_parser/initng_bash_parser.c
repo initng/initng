@@ -95,7 +95,7 @@ static void bp_handle_client(int fd)
 {
 	bp_req req;
 	bp_rep rep;
-	printf("Got connection\n");
+	D_("Got connection\n");
 	memset(&req, 0, sizeof(bp_req));
 	memset(&rep, 0, sizeof(bp_rep));
 
@@ -108,7 +108,7 @@ static void bp_handle_client(int fd)
 		SEND();
 		return;
 	}
-	printf("Got a request: ver: %i, type: %i\n", req.version, req.request);
+	D_("Got a request: ver: %i, type: %i\n", req.version, req.request);
 
 	/* check protocol version match */
 	if(req.version != BASH_PARSER_VERSION)
@@ -155,7 +155,7 @@ static void bp_new_active(bp_rep * rep, const char * type, const char *service)
 {
 	active_db_h * new_active;
 	stype_h * stype;
-	printf("bp_new_active(%s, %s)\n", type, service);
+	D_("bp_new_active(%s, %s)\n", type, service);
 	
 	/* find service type */
 	stype = initng_service_type_get_by_name(type);
@@ -211,7 +211,7 @@ static void bp_set_variable(bp_rep * rep, const char * service, const char * var
 		return;
 	}
 	
-	printf("bp_set_variable(%s, %s, %s, %s)\n", service, vartype, varname, value);
+	D_("bp_set_variable(%s, %s, %s, %s)\n", service, vartype, varname, value);
 	if(!active)
 	{
 		strcpy(rep->message, "Service not found.");
@@ -239,22 +239,22 @@ static void bp_set_variable(bp_rep * rep, const char * service, const char * var
 		case STRING:
 		case VARIABLE_STRING:
 			set_string_var(type, varname ? i_strdup(varname) : NULL, active, i_strdup(value));
-			printf("string type - %s %s\n", type->opt_name, value);
+			D_("string type - %s %s\n", type->opt_name, value);
 			break;
 		case STRINGS:
 		case VARIABLE_STRINGS:
 			set_another_string_var(type, varname ? i_strdup(varname) : NULL, active, i_strdup(value));
-			printf("strings type\n");
+			D_("strings type\n");
 			break;
 		case SET:
 		case VARIABLE_SET:
-			printf("set type\n");
+			D_("set type\n");
 			set_var(type, varname ? i_strdup(varname) : NULL , active);
 			break;
 		case INT:
 		case VARIABLE_INT:
 			set_int_var(type, varname ? i_strdup(varname) : NULL, active, atoi(value));
-			printf("int type\n");
+			D_("int type\n");
 			break;
 		default:
 			strcpy(rep->message, "Unknown data type.");
@@ -284,7 +284,7 @@ static void bp_get_variable(bp_rep * rep, const char * service, const char * var
 		return;
 	}
 
-	printf("bp_get_variable(%s, %s, %s)\n", service, vartype, varname);
+	D_("bp_get_variable(%s, %s, %s)\n", service, vartype, varname);
 	if(!active)
 	{
 		strcpy(rep->message, "Service not found.");
@@ -367,8 +367,7 @@ static void bp_done(bp_rep * rep, const char * service)
 		return;
 	}
 	
-	printf("Now starting: %s\n", service);
-	rep->success = initng_handler_start_service(active);
+	rep->success = TRUE;
 	return;
 }
 static void bp_abort(bp_rep * rep, const char * service)
@@ -389,7 +388,7 @@ static void bp_abort(bp_rep * rep, const char * service)
 	}
 	
 	
-	printf("bp_abort(%s)\n", service);
+	D_("bp_abort(%s)\n", service);
 
 	rep->success = TRUE;
 	return;

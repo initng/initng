@@ -83,6 +83,7 @@ typedef struct
 	s_call DUMP_ACTIVE_DB;		/* Asks for a plugin willing to dump the acytive_db */
 	s_call RELOAD_ACTIVE_DB;	/* Asks for a plugin willing to reload the active_db from a dump */
 	s_call DEP_ON;				/* Called when a function tries to find out a service dependency */
+	s_call NEW_ACTIVE;			/* Called when initng trys to resolve a nonexistive service to start */
 
 	/* new ones */
 	s_call IS_CHANGE;			/* Called when the rough state of a service changes */

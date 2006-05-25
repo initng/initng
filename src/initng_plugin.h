@@ -67,7 +67,7 @@ typedef union
 	int (*start_dep_met) (active_db_h * service);
 	int (*stop_dep_met) (active_db_h * service);
 	int (*up_met) (active_db_h * service);
-
+	active_db_h *(*new_active) (const char * name);
 } uc __attribute__ ((__transparent_union__));
 
 

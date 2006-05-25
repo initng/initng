@@ -3,7 +3,7 @@
 setup()
 {
     iregister service $SERVICE
-    iset $SERVICE need = "checkroot mountroot"
+    #iset $SERVICE need = "checkroot mountroot"
 	reg_start
 	reg_stop
     idone $SERVICE

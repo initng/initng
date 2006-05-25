@@ -25,6 +25,7 @@
 #include "initng_system_states.h"
 #include <stdarg.h>
 
+active_db_h *initng_plugin_create_new_active(const char *name);
 int initng_plugin_callers_handle_killed(active_db_h * s, process_h * p);
 void initng_plugin_callers_compensate_time(int t);
 void initng_plugin_callers_signal(int signal);

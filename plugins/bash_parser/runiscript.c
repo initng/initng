@@ -30,13 +30,15 @@ int main(int argc, char *argv[])
 	char *servname;
 	char *new_argv[24];
 
+#ifdef DEBUG
 	{ /* for debug */
 		int i;
 		printf("%i args: \n", argc);
 		for(i=0;argv[i];i++)
 			printf("argv[%i]: %s\n", i, argv[i]);
 	}
-	
+#endif
+
 	/* check to no of arguments */
 	if(argc != 3)
 	{

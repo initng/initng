@@ -44,7 +44,7 @@
 
 #include "initng_handler.h"
 #include "initng_kill_handler.h"
-
+#include "initng_plugin_callers.h"
 #include "initng_static_data_id.h"
 #include "initng_static_states.h"
 
@@ -321,21 +321,36 @@ active_db_h *initng_handler_start_new_service_named(const char *service)
 			   to_load->name);
 			return (to_load);
 		}
+		
+		/* okay, now start it */
+		initng_handler_start_service(to_load);
+
+		return (to_load);
+		
+	}
+
+	/* get from hook */	
+	if ((to_load = initng_plugin_create_new_active(service)))
+	{
+		/* okay, now start it */
+		initng_handler_start_service(to_load);
+
+		return (to_load);
 	}
 
 	/* else try create and load a new service */
-	else if (!(to_load = initng_common_load_to_active(service)))
+	if ((to_load = initng_common_load_to_active(service)))
 	{
+		/* okay, now start it */
+		initng_handler_start_service(to_load);
 
-		/* the function calling this function will print out an error */
-		D_("Unable to load active for service %s\n", service);
-		return (NULL);
+		return (to_load);
 	}
 
-	/* okay, now start it */
-	initng_handler_start_service(to_load);
+	/* the function calling this function will print out an error */
+	D_("Unable to load active for service %s\n", service);
+	return (NULL);
 
-	return (to_load);
 }
 
 /* enter a new runlevel */

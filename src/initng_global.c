@@ -125,6 +125,7 @@ void initng_global_new(int argc, char *argv[], char *env[], h_i_am i_am)
 	INIT_LIST_HEAD(&g.START_DEP_MET.list);
 	INIT_LIST_HEAD(&g.STOP_DEP_MET.list);
 	INIT_LIST_HEAD(&g.UP_MET.list);
+	INIT_LIST_HEAD(&g.NEW_ACTIVE.list);
 
 	/*
 	 * default global variables - cleared by memset above
