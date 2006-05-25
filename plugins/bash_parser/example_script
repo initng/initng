@@ -20,6 +20,7 @@ start()
 
 stop()
 {
+	echo "Stopping $SERVICE here"
     rm /etc/issue
     exit 0
 }
