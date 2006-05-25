@@ -48,6 +48,8 @@
 #include <initng_plugin.h>
 #include <initng_static_states.h>
 #include <initng_control_command.h>
+#include <initng_fork.h>
+#include <initng_common.h>
 
 #include <initng-paths.h>
 
@@ -66,9 +68,16 @@ static void bp_get_variable(bp_rep * rep, const char * service, const char * var
 static void bp_done(bp_rep * rep, const char * service);
 static void bp_abort(bp_rep * rep, const char * service);
 
+static void handle_killed(active_db_h * service, process_h * process);
+
 #define SOCKET_4_ROOTPATH "/dev/initng"
 
 a_state_h PARSING = { "PARSING", "This is service is parsing by bash_parser.", IS_DOWN, NULL, NULL, NULL };
+a_state_h PARSE_FAIL = { "PARSE_FAIL", "This parse process failed.", IS_FAILED, NULL, NULL, NULL };
+
+/* put null to the kill_handler here */
+ptype_h parse = { "parse-process", &handle_killed };
+stype_h unset = { "unset", "Service type is not set yet, are still parsing.", FALSE, NULL, NULL, NULL };
 
 /*
    In the Linux implementation, sockets which are visible in the file system
@@ -358,7 +367,7 @@ static void bp_done(bp_rep * rep, const char * service)
 	}
 	
 	/* check that type is set */
-	if(!active->type)
+	if(!active->type || active->type == &unset)
 	{
 		strcpy(rep->message, "Type not set, please run iregister type service\n");
 		rep->success = FALSE;
@@ -584,11 +593,26 @@ static void bp_closesock(void)
 	bpf.fds = -1;
 }
 
+static void handle_killed(active_db_h * service, process_h * process)
+{
+	/* if process returned exit 1 or abow, set fail */
+	if(WEXITSTATUS(process->r_code)>0)
+	{
+		initng_common_mark_service(service, &PARSE_FAIL);
+		initng_process_db_free(process);
+		return;
+	}
+	
+	initng_process_db_free(process);
+	initng_handler_start_service(service);
+}
+
 static active_db_h *create_new_active(const char * name)
 {
 	char file[1024] = SCRIPT_PATH "/";
 	struct stat fstat;
 	active_db_h * new_active;
+	process_h * process;
 
 	/* check if initfile exists */
 	strncat(file, name, 1020 - strlen(SCRIPT_PATH));
@@ -606,6 +630,7 @@ static active_db_h *create_new_active(const char * name)
 	/* set type */
 	new_active->current_state = &PARSING;
 	new_active->from_service = &NO_CACHE;
+	new_active->type = &unset;
 	
 	/* register it */
 	if(!initng_active_db_register(new_active))
@@ -614,13 +639,18 @@ static active_db_h *create_new_active(const char * name)
 		return(NULL);
 	}
 	
+	/* create the process */
+	process=initng_process_db_new(&parse);
+	
+	/* bound to service */
+	add_process(process, new_active);
+	
 	/* start parse process */
-	/* TODO, shud not this process be an initng_fork?? */
-	if(fork()==0)
+	if(initng_fork(new_active, process)==0)
 	{
 		char *av[3];
 		char *e[] = { NULL };
-		av[0]=i_calloc(255, sizeof(char));
+		av[0]=i_calloc(50 + strlen(name), sizeof(char));
 		strcpy(av[0], SCRIPT_PATH "/");
 		strcat(av[0], name);
 		av[1]=i_strdup("internal_setup");
@@ -643,11 +673,6 @@ int module_init(int api_version)
 		F_("This module is compiled for api_version %i version and initng is compiled on %i version, won't load this module!\n", API_VERSION, api_version);
 		return (FALSE);
 	}
-	if(g.i_am == I_AM_INIT)
-	{
-		F_("Dont use for real yet.");
-		return(FALSE);
-	}
 
 	/* zero globals */
 	bpf.fds = -1;
@@ -658,6 +683,7 @@ int module_init(int api_version)
 	initng_plugin_hook_register(&g.SIGNAL, 50, &bp_check_socket);
 	initng_plugin_hook_register(&g.NEW_ACTIVE, 50, &create_new_active);
 	initng_active_state_register(&PARSING);
+	initng_active_state_register(&PARSE_FAIL);
 
 	/* do the first socket directly */
 	bp_open_socket();
@@ -677,4 +703,5 @@ void module_unload(void)
 	initng_plugin_hook_unregister(&g.SIGNAL, &bp_check_socket);
 	initng_plugin_hook_unregister(&g.NEW_ACTIVE, &create_new_active);
 	initng_active_state_unregister(&PARSING);
+	initng_active_state_unregister(&PARSE_FAIL);
 }

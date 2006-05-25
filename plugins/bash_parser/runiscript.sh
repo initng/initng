@@ -58,7 +58,7 @@ reg_daemon() {
 #echo "SERVICE: $SERVICE"
 #echo "COMMAND: $COMMAND"
 
-echo "Sourcing $SERVICE_FILE"
+#echo "Sourcing $SERVICE_FILE"
 source $SERVICE_FILE
 
 #Make sure the ibins are in path

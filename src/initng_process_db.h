@@ -100,4 +100,8 @@ process_h *initng_process_db_get_by_pid(pid_t pid, active_db_h * service);
 void initng_process_db_clear_freed(active_db_h * service);
 ptype_h *initng_process_db_ptype_find(const char *name);
 
+/* add the process to our service */
+#define add_process(pss, sss) list_add(&(pss)->list, &(sss)->processes.list);
+
+
 #endif
