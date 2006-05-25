@@ -95,6 +95,7 @@ void filemon_event(f_module_h * from, e_fdw what)
 
 	int len = 0;
 	int i = 0;
+	char *tmp;
 	char buf[BUF_LEN];
 
 	/* read events */
@@ -154,7 +155,7 @@ void filemon_event(f_module_h * from, e_fdw what)
 
 
 			/* check if there are any data file updated */
-			if(strstr(event->name, ".i") || strstr(event->name, ".runlevel") || strstr(event->name, ".virtual"))
+			if(((tmp=strstr(event->name, ".i")) && tmp[2]=='\0') || strstr(event->name, ".runlevel") || strstr(event->name, ".virtual"))
 			{
 				/* if cache is not cleared */
 				if (!list_empty(&g.service_cache.list))
