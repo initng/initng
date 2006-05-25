@@ -48,8 +48,8 @@ int bp_send(bp_req * to_send);
 int bp_new_active(const char * type, const char * service);
 int bp_abort(const char * service);
 int bp_done(const char * service);
-int bp_get_variable(const char * service, const char * varname);
-int bp_set_variable(const char * service, const char * varname, const char * value);
+int bp_get_variable(const char * service, const char * vartype, const char * varname);
+int bp_set_variable(const char * service, const char * vartype, const char * varname, const char * value);
 char *message;
 
 
@@ -67,16 +67,19 @@ int main(int argc, char **argv)
 		
 	/* printf("argc: %i argv[0]: %s :: %s\n", argc, argv[0], argv0); */
 
-	/* for 3 variables options */
+	/* Sort by the number of arguments */
 	switch(argc)
 	{
 		case 2:
+			/* abort service */
 			if(strcmp(argv0, "abort")==0 ||
 			   strcmp(argv0, "iabort")==0)
 			{
 				status = bp_abort(argv[1]);
 				break;
 			}
+			
+			/* done service */
 			if(strcmp(argv0, "done")==0 ||
 			   strcmp(argv0, "idone")==0)
 			{
@@ -84,13 +87,17 @@ int main(int argc, char **argv)
 				break;
 			}
 			break;
+			
 		case 3:
+			/* get service chdir */
 			if(strcmp(argv0, "get")==0 ||
 			   strcmp(argv0, "iget")==0)
 			{
-				status = bp_get_variable(argv[1], argv[2]);
+				status = bp_get_variable(argv[1], argv[2], NULL);
 				break;
 			}
+			
+			/* register service_type test */
 			if(strcmp(argv0, "register")==0 ||
 			   strcmp(argv0, "iregister")==0)
 			{
@@ -98,13 +105,37 @@ int main(int argc, char **argv)
 				break;
 			}
 			break;
+			
 		case 4:
-			if (strcmp(argv0, "set")==0 ||
-		         strcmp(argv0, "iset")==0)
+			/* get service exec start */
+			if(strcmp(argv0, "get")==0 ||
+			   strcmp(argv0, "iget")==0)
 			{
-				status = bp_set_variable(argv[1], argv[2], argv[3]);
+				status = bp_get_variable(argv[1], argv[2], argv[3]);
 				break;
 			}
+			break;
+			
+		case 5:
+			/* set service chdir = /root */
+			if (argv[3][0] == '=' && (strcmp(argv0, "set")==0 ||
+		         strcmp(argv0, "iset")==0))
+			{
+				status = bp_set_variable(argv[1], argv[2], NULL, argv[4]);
+				break;
+			}
+			break;
+
+		case 6:
+			/* set service exec start = /bin/true */
+			if (argv[4][0] == '=' && (strcmp(argv0, "set")==0 ||
+		         strcmp(argv0, "iset")==0))
+			{
+				status = bp_set_variable(argv[1], argv[2], argv[3], argv[5]);
+				break;
+			}
+			break;
+		default:
 			break;
 	}
 	
@@ -154,7 +185,7 @@ int bp_done(const char * service)
 
 	return(bp_send(&to_send));
 }
-int bp_get_variable(const char * service, const char * varname)
+int bp_get_variable(const char * service, const char * vartype, const char * varname)
 {
 	/* the request to send */
 	bp_req to_send;
@@ -163,11 +194,13 @@ int bp_get_variable(const char * service, const char * varname)
 	to_send.request = GET_VARIABLE;
 
 	strncpy(to_send.u.get_variable.service, service, 100);
-	strncpy(to_send.u.get_variable.variable, varname, 100);
+	strncpy(to_send.u.get_variable.vartype, vartype, 100);
+	if(varname)
+		strncpy(to_send.u.get_variable.varname, varname, 100);
 
 	return(bp_send(&to_send));
 }
-int bp_set_variable(const char * service, const char * varname, const char * value)
+int bp_set_variable(const char * service, const char * vartype, const char * varname, const char * value)
 {
 	/* the request to send */
 	bp_req to_send;
@@ -176,7 +209,11 @@ int bp_set_variable(const char * service, const char * varname, const char * val
 	to_send.request = SET_VARIABLE;
 
 	strncpy(to_send.u.set_variable.service, service, 100);
-	strncpy(to_send.u.set_variable.variable, varname, 100);
+	strncpy(to_send.u.set_variable.vartype, vartype, 100);
+	
+	if(varname)
+		strncpy(to_send.u.set_variable.varname, varname, 100);
+		
 	strncpy(to_send.u.set_variable.value, value, 1024);
 
 	return(bp_send(&to_send));

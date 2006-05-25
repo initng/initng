@@ -22,6 +22,7 @@
 
 #define BASH_PARSER_VERSION 1
 #define SOCKET_PATH "/dev/initng/bp"
+#define SCRIPT_PATH "/etc/init"
 
 /* incomming type */
 typedef enum
@@ -52,7 +53,8 @@ typedef struct
 		struct
 		{
 			char service[101];	/* Service to set option to */
-			char variable[101]; /* The variable try to set */
+			char vartype[101]; /* The variable try to set */
+			char varname[101];  /* The local variable name */
 			char value[1025];	/* The option value trying to set */
 		} set_variable;
 	
@@ -60,7 +62,8 @@ typedef struct
 		struct
 		{
 			char service[101];	/* Service to get option from */
-			char variable[101]; /* The variable try to get */
+			char vartype[101]; /* The variable try to get */
+			char varname[101];	/* The local varname */
 		} get_variable;
 		
 		/* parsing done, now start it */

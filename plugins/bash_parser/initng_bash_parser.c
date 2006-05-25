@@ -61,8 +61,8 @@ static void bp_handle_client(int fd);
 static int  bp_open_socket(void);
 static void bp_check_socket(int signal);
 static void bp_new_active(bp_rep * rep, const char * type, const char * service);
-static void bp_set_variable(bp_rep * rep, const char * service, const char * variable, const char * value);
-static void bp_get_variable(bp_rep * rep, const char * service, const char * variable);
+static void bp_set_variable(bp_rep * rep, const char * service, const char * vartype, const char * varname, const char * value);
+static void bp_get_variable(bp_rep * rep, const char * service, const char * vartype, const char * varname);
 static void bp_done(bp_rep * rep, const char * service);
 static void bp_abort(bp_rep * rep, const char * service);
 
@@ -128,12 +128,14 @@ static void bp_handle_client(int fd)
 			break;
 		case SET_VARIABLE:
 			bp_set_variable(&rep, req.u.set_variable.service,
-								  req.u.set_variable.variable,
+								  req.u.set_variable.vartype,
+								  req.u.set_variable.varname,
 								  req.u.set_variable.value);
 			break;
 		case GET_VARIABLE:
 			bp_get_variable(&rep, req.u.get_variable.service,
-								  req.u.get_variable.variable);
+								  req.u.get_variable.vartype,
+								  req.u.get_variable.varname);
 			break;
 		case DONE:
 			bp_done(&rep, req.u.done.service);
@@ -176,6 +178,7 @@ static void bp_new_active(bp_rep * rep, const char * type, const char *service)
 	/* set type */
 	new_active->type = stype;
 	new_active->current_state = &PARSING;
+	new_active->from_service = &NO_CACHE;
 	
 	/* register it */
 	if(!initng_active_db_register(new_active))
@@ -189,11 +192,26 @@ static void bp_new_active(bp_rep * rep, const char * type, const char *service)
 	rep->success = TRUE;
 	return;
 }
-static void bp_set_variable(bp_rep * rep, const char * service, const char * variable, const char * value)
+static void bp_set_variable(bp_rep * rep, const char * service, const char * vartype, const char * varname, const char * value)
 {
 	s_entry * type;
 	active_db_h * active = initng_active_db_find_by_exact_name(service);
-	printf("bp_set_variable(%s, %s, %s)\n", service, variable, value);
+	
+	/* This one is not required */
+	if(strlen(varname) <1)
+		varname=NULL;
+	
+	/* but these are */
+	if(strlen(service) < 1 ||
+	   strlen(vartype) < 1 ||
+	   strlen(value) < 1)
+	{
+		strcpy(rep->message, "Variables missing.");
+		rep->success = FALSE;
+		return;
+	}
+	
+	printf("bp_set_variable(%s, %s, %s, %s)\n", service, vartype, varname, value);
 	if(!active)
 	{
 		strcpy(rep->message, "Service not found.");
@@ -208,7 +226,7 @@ static void bp_set_variable(bp_rep * rep, const char * service, const char * var
 		return;
 	}
 
-	type = initng_service_data_type_find(variable);
+	type = initng_service_data_type_find(vartype);
 	if(!type)
 	{
 		strcpy(rep->message, "Variable entry not found.");
@@ -220,23 +238,23 @@ static void bp_set_variable(bp_rep * rep, const char * service, const char * var
 	{
 		case STRING:
 		case VARIABLE_STRING:
-			set_string(type, active, i_strndup(value,1024));
-			printf("string type");
+			set_string_var(type, varname ? i_strdup(varname) : NULL, active, i_strdup(value));
+			printf("string type - %s %s\n", type->opt_name, value);
 			break;
 		case STRINGS:
 		case VARIABLE_STRINGS:
-			set_another_string(type, active, i_strndup(value, 1024));
-			printf("strings type");
+			set_another_string_var(type, varname ? i_strdup(varname) : NULL, active, i_strdup(value));
+			printf("strings type\n");
 			break;
 		case SET:
 		case VARIABLE_SET:
-			printf("set type");
-			set(type, active);
+			printf("set type\n");
+			set_var(type, varname ? i_strdup(varname) : NULL , active);
 			break;
 		case INT:
 		case VARIABLE_INT:
-			set_int(type, active, atoi(value));
-			printf("int type");
+			set_int_var(type, varname ? i_strdup(varname) : NULL, active, atoi(value));
+			printf("int type\n");
 			break;
 		default:
 			strcpy(rep->message, "Unknown data type.");
@@ -248,11 +266,25 @@ static void bp_set_variable(bp_rep * rep, const char * service, const char * var
 	rep->success = TRUE;
 	return;
 }
-static void bp_get_variable(bp_rep * rep, const char * service, const char * variable)
+static void bp_get_variable(bp_rep * rep, const char * service, const char * vartype, const char * varname)
 {
 	s_entry * type;
 	active_db_h * active = initng_active_db_find_by_exact_name(service);
-	printf("bp_get_variable(%s, %s)\n", service, variable);
+
+	/* This one is not required */
+	if(strlen(varname) <1)
+		varname=NULL;
+	
+	/* but these are */
+	if(strlen(service) < 1 ||
+	   strlen(vartype) < 1)
+	{
+		strcpy(rep->message, "Variables missing.");
+		rep->success = FALSE;
+		return;
+	}
+
+	printf("bp_get_variable(%s, %s, %s)\n", service, vartype, varname);
 	if(!active)
 	{
 		strcpy(rep->message, "Service not found.");
@@ -260,7 +292,7 @@ static void bp_get_variable(bp_rep * rep, const char * service, const char * var
 		return;
 	}
 	
-	type = initng_service_data_type_find(variable);
+	type = initng_service_data_type_find(vartype);
 	if(!type)
 	{
 		strcpy(rep->message, "Variable entry not found.");
@@ -273,7 +305,7 @@ static void bp_get_variable(bp_rep * rep, const char * service, const char * var
 	{
 		case STRING:
 		case VARIABLE_STRING:
-			strncpy(rep->message, get_string(type, active), 1024);
+			strncpy(rep->message, get_string_var(type, varname, active), 1024);
 			break;
 		case STRINGS:
 		case VARIABLE_STRINGS:
@@ -281,7 +313,7 @@ static void bp_get_variable(bp_rep * rep, const char * service, const char * var
 			{
 				s_data *itt=NULL;
 				const char *tmp=NULL;
-				while((tmp=get_next_string(type, active, &itt)))
+				while((tmp=get_next_string_var(type, varname, active, &itt)))
 				{
 					if(!rep->message[0])
 					{
@@ -295,7 +327,7 @@ static void bp_get_variable(bp_rep * rep, const char * service, const char * var
 			break;
 		case SET:
 		case VARIABLE_SET:
-			if(is(type, active))
+			if(is_var(type, varname, active))
 			{
 				rep->success = TRUE;
 			} else {
@@ -304,7 +336,10 @@ static void bp_get_variable(bp_rep * rep, const char * service, const char * var
 			return;
 		case INT:
 		case VARIABLE_INT:
-			sprintf(rep->message, "%i", get_int(type, active));
+			{
+			 	int var = get_int_var(type, varname, active);
+				sprintf(rep->message, "%i", var);
+			}
 			break;
 		default:
 			strcpy(rep->message, "Unknown data type.");
@@ -554,6 +589,11 @@ int module_init(int api_version)
 	{
 		F_("This module is compiled for api_version %i version and initng is compiled on %i version, won't load this module!\n", API_VERSION, api_version);
 		return (FALSE);
+	}
+	if(g.i_am == I_AM_INIT)
+	{
+		F_("Dont use for real yet.");
+		return(FALSE);
 	}
 
 	/* zero globals */
