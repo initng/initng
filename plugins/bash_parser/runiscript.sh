@@ -40,12 +40,17 @@ setup() {
 }
 
 reg_start() {
-	iset $SERVICE exec start = "$SERVICE_FILE start"
+	iset $SERVICE exec start = "$SERVICE_FILE internal_start"
 	return 0
 }
 
 reg_stop() {
-	iset $SERVICE exec stop = "$SERVICE_FILE stop"
+	iset $SERVICE exec stop = "$SERVICE_FILE internal_stop"
+	return 0
+}
+
+reg_daemon() {
+	iset $SERVICE exec daemon = "$SERVICE_FILE internal_daemon"
 	return 0
 }
 
@@ -61,18 +66,34 @@ export PATH=/lib/ibin:$PATH
 
 case "${COMMAND}" in
 	stop)
-			stop
+			ngc -d $SERVICE
 			exit $?
 		;;
 	start)
+			ngc -u $SERVICE
+			exit $?
+		;;
+	status)
+			ngc -s $SERVICE
+			exit $?
+		;;
+	zap)
+			ngc -z $SERVICE
+			exit $?
+		;;
+	internal_start)
 			start
 			exit $?
 		;;
-	daemon)
+	internal_stop)
+			stop
+			exit $?
+		;;
+	internal_daemon)
 			daemon
 			exit $?
 		;;
-	setup)
+	parse)
 			setup
 			exit $?
 		;;
