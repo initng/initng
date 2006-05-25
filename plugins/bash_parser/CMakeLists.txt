@@ -4,3 +4,4 @@ ADD_LIBRARY(bash_parser MODULE initng_bash_parser.c)
 INSTALL_TARGETS(${LIB_INSTALL_DIR}/initng bash_parser)
 
 ADD_EXECUTABLE(bp bp.c)
+ADD_EXECUTABLE(runiscript runiscript.c)

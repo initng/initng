@@ -1,17 +1,20 @@
-** example script **
-
-#!/bin/bash
+#!/sbin/runiscript
 
 setup()
 {
-    iregister_service bootmisc
-    iset bootmisc need "checkroot mountroot"
-    idone bootmisc
+    iregister service $SERVICE
+    iset $SERVICE need = "checkroot mountroot"
+	reg_start
+	reg_stop
+    idone $SERVICE
 }
 
 start()
 {
+	echo "Starting $SERVICE"
     echo "init3g v0.0.1" > /etc/issue
+	echo "env:"
+	/usr/bin/env
     exit 0
 }
 
@@ -20,5 +23,3 @@ stop()
     rm /etc/issue
     exit 0
 }
-
-** end example script **
