@@ -1,0 +1,24 @@
+** example script **
+
+#!/bin/bash
+
+setup()
+{
+    iregister_service bootmisc
+    iset bootmisc need "checkroot mountroot"
+    idone bootmisc
+}
+
+start()
+{
+    echo "init3g v0.0.1" > /etc/issue
+    exit 0
+}
+
+stop()
+{
+    rm /etc/issue
+    exit 0
+}
+
+** end example script **
