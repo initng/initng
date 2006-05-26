@@ -2,10 +2,16 @@
 
 setup()
 {
+	# register new service type, the $SERVICE will be "example" here.
     iregister service $SERVICE
+
     #iset $SERVICE need = "checkroot mountroot"
-	reg_start
-	reg_stop
+	
+	# These 2 lines will be macro defined in the future.
+	iset $SERVICE exec start = "$SERVICE_FILE internal_start"
+	iset $SERVICE exec stop = "$SERVICE_FILE internal_stop"
+	
+	# Tell initng this service is done parsing.
     idone $SERVICE
 }
 

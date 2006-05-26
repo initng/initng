@@ -60,13 +60,17 @@ INITNG_PLUGIN_MACRO;
 static void bp_incomming(f_module_h * from, e_fdw what);
 static void bp_closesock(void);
 static void bp_handle_client(int fd);
-static int  bp_open_socket(void);
+static int bp_open_socket(void);
 static void bp_check_socket(int signal);
-static void bp_new_active(bp_rep * rep, const char * type, const char * service);
-static void bp_set_variable(bp_rep * rep, const char * service, const char * vartype, const char * varname, const char * value);
-static void bp_get_variable(bp_rep * rep, const char * service, const char * vartype, const char * varname);
-static void bp_done(bp_rep * rep, const char * service);
-static void bp_abort(bp_rep * rep, const char * service);
+static void bp_new_active(bp_rep * rep, const char *type,
+						  const char *service);
+static void bp_set_variable(bp_rep * rep, const char *service,
+							const char *vartype, const char *varname,
+							const char *value);
+static void bp_get_variable(bp_rep * rep, const char *service,
+							const char *vartype, const char *varname);
+static void bp_done(bp_rep * rep, const char *service);
+static void bp_abort(bp_rep * rep, const char *service);
 
 static void handle_killed(active_db_h * service, process_h * process);
 
@@ -103,6 +107,7 @@ static void bp_handle_client(int fd)
 {
 	bp_req req;
 	bp_rep rep;
+
 	D_("Got connection\n");
 	memset(&req, 0, sizeof(bp_req));
 	memset(&rep, 0, sizeof(bp_rep));
@@ -119,7 +124,7 @@ static void bp_handle_client(int fd)
 	D_("Got a request: ver: %i, type: %i\n", req.version, req.request);
 
 	/* check protocol version match */
-	if(req.version != BASH_PARSER_VERSION)
+	if (req.version != BASH_PARSER_VERSION)
 	{
 		strcpy(rep.message, "Bad protocol version");
 		rep.success = FALSE;
@@ -128,22 +133,22 @@ static void bp_handle_client(int fd)
 	}
 
 	/* handle by request type */
-	switch(req.request)
+	switch (req.request)
 	{
 		case NEW_ACTIVE:
 			bp_new_active(&rep, req.u.new_active.type,
-								req.u.new_active.service);
+						  req.u.new_active.service);
 			break;
 		case SET_VARIABLE:
 			bp_set_variable(&rep, req.u.set_variable.service,
-								  req.u.set_variable.vartype,
-								  req.u.set_variable.varname,
-								  req.u.set_variable.value);
+							req.u.set_variable.vartype,
+							req.u.set_variable.varname,
+							req.u.set_variable.value);
 			break;
 		case GET_VARIABLE:
 			bp_get_variable(&rep, req.u.get_variable.service,
-								  req.u.get_variable.vartype,
-								  req.u.get_variable.varname);
+							req.u.get_variable.vartype,
+							req.u.get_variable.varname);
 			break;
 		case DONE:
 			bp_done(&rep, req.u.done.service);
@@ -154,78 +159,79 @@ static void bp_handle_client(int fd)
 		default:
 			break;
 	}
-	
+
 	/* send the reply */
 	SEND();
 }
 
-static void bp_new_active(bp_rep * rep, const char * type, const char *service)
+static void bp_new_active(bp_rep * rep, const char *type, const char *service)
 {
-	active_db_h * new_active;
-	stype_h * stype;
+	active_db_h *new_active;
+	stype_h *stype;
+
 	D_("bp_new_active(%s, %s)\n", type, service);
 
 
 	/* find service type */
 	stype = initng_service_type_get_by_name(type);
-	if(!stype)
+	if (!stype)
 	{
 		strcpy(rep->message, "Unable to find servicetype.");
 		rep->success = FALSE;
 		return;
 	}
-	
+
 	/* look for existing */
 	new_active = initng_active_db_find_by_exact_name(service);
-	
+
 	/* check for duplet, not parsing */
-	if(new_active && new_active->current_state != &PARSING)
+	if (new_active && new_active->current_state != &PARSING)
 	{
 		strcpy(rep->message, "Duplet found.");
 		rep->success = FALSE;
 		return;
 	}
-	
-	if(!new_active)
+
+	if (!new_active)
 	{
 		strcpy(rep->message, "Did not find entry to modify.");
 		rep->success = FALSE;
 		return;
 	}
-	
-	new_active->type=stype;
-	
+
+	new_active->type = stype;
+
 	rep->success = TRUE;
 	return;
 }
-static void bp_set_variable(bp_rep * rep, const char * service, const char * vartype, const char * varname, const char * value)
+static void bp_set_variable(bp_rep * rep, const char *service,
+							const char *vartype, const char *varname,
+							const char *value)
 {
-	s_entry * type;
-	active_db_h * active = initng_active_db_find_by_exact_name(service);
-	
+	s_entry *type;
+	active_db_h *active = initng_active_db_find_by_exact_name(service);
+
 	/* This one is not required */
-	if(strlen(varname) <1)
-		varname=NULL;
-	
+	if (strlen(varname) < 1)
+		varname = NULL;
+
 	/* but these are */
-	if(strlen(service) < 1 ||
-	   strlen(vartype) < 1 ||
-	   strlen(value) < 1)
+	if (strlen(service) < 1 || strlen(vartype) < 1 || strlen(value) < 1)
 	{
 		strcpy(rep->message, "Variables missing.");
 		rep->success = FALSE;
 		return;
 	}
-	
+
 	D_("bp_set_variable(%s, %s, %s, %s)\n", service, vartype, varname, value);
-	if(!active)
+	if (!active)
 	{
 		strcpy(rep->message, "Service not found.");
 		rep->success = FALSE;
 		return;
 	}
-	
-	if(active->current_state != &PARSING)
+
+	if (active->current_state != &PARSING)
 	{
 		strcpy(rep->message, "Please dont edit finished services.");
 		rep->success = FALSE;
@@ -233,33 +239,36 @@ static void bp_set_variable(bp_rep * rep, const char * service, const char * var
 	}
 
 	type = initng_service_data_type_find(vartype);
-	if(!type)
+	if (!type)
 	{
 		strcpy(rep->message, "Variable entry not found.");
 		rep->success = FALSE;
 		return;
 	}
-	
-	switch(type->opt_type)
+
+	switch (type->opt_type)
 	{
 		case STRING:
 		case VARIABLE_STRING:
-			set_string_var(type, varname ? i_strdup(varname) : NULL, active, i_strdup(value));
+			set_string_var(type, varname ? i_strdup(varname) : NULL, active,
+						   i_strdup(value));
 			D_("string type - %s %s\n", type->opt_name, value);
 			break;
 		case STRINGS:
 		case VARIABLE_STRINGS:
-			set_another_string_var(type, varname ? i_strdup(varname) : NULL, active, i_strdup(value));
+			set_another_string_var(type, varname ? i_strdup(varname) : NULL,
+								   active, i_strdup(value));
 			D_("strings type\n");
 			break;
 		case SET:
 		case VARIABLE_SET:
 			D_("set type\n");
-			set_var(type, varname ? i_strdup(varname) : NULL , active);
+			set_var(type, varname ? i_strdup(varname) : NULL, active);
 			break;
 		case INT:
 		case VARIABLE_INT:
-			set_int_var(type, varname ? i_strdup(varname) : NULL, active, atoi(value));
+			set_int_var(type, varname ? i_strdup(varname) : NULL, active,
+						atoi(value));
 			D_("int type\n");
 			break;
 		default:
@@ -272,18 +281,18 @@ static void bp_set_variable(bp_rep * rep, const char * service, const char * var
 	rep->success = TRUE;
 	return;
 }
-static void bp_get_variable(bp_rep * rep, const char * service, const char * vartype, const char * varname)
+static void bp_get_variable(bp_rep * rep, const char *service,
+							const char *vartype, const char *varname)
 {
-	s_entry * type;
-	active_db_h * active = initng_active_db_find_by_exact_name(service);
+	s_entry *type;
+	active_db_h *active = initng_active_db_find_by_exact_name(service);
 
 	/* This one is not required */
-	if(strlen(varname) <1)
-		varname=NULL;
-	
+	if (strlen(varname) < 1)
+		varname = NULL;
+
 	/* but these are */
-	if(strlen(service) < 1 ||
-	   strlen(vartype) < 1)
+	if (strlen(service) < 1 || strlen(vartype) < 1)
 	{
 		strcpy(rep->message, "Variables missing.");
 		rep->success = FALSE;
@@ -291,15 +300,15 @@ static void bp_get_variable(bp_rep * rep, const char * service, const char * var
 	}
 
 	D_("bp_get_variable(%s, %s, %s)\n", service, vartype, varname);
-	if(!active)
+	if (!active)
 	{
 		strcpy(rep->message, "Service not found.");
 		rep->success = FALSE;
 		return;
 	}
-	
+
 	type = initng_service_data_type_find(vartype);
-	if(!type)
+	if (!type)
 	{
 		strcpy(rep->message, "Variable entry not found.");
 		rep->success = FALSE;
@@ -307,21 +316,24 @@ static void bp_get_variable(bp_rep * rep, const char * service, const char * var
 	}
 
 	/* depening on data type */
-	switch(type->opt_type)
+	switch (type->opt_type)
 	{
 		case STRING:
 		case VARIABLE_STRING:
-			strncpy(rep->message, get_string_var(type, varname, active), 1024);
+			strncpy(rep->message, get_string_var(type, varname, active),
+					1024);
 			break;
 		case STRINGS:
 		case VARIABLE_STRINGS:
 			/* todo, will only return one */
 			{
-				s_data *itt=NULL;
-				const char *tmp=NULL;
-				while((tmp=get_next_string_var(type, varname, active, &itt)))
+				s_data *itt = NULL;
+				const char *tmp = NULL;
+
+				while ((tmp =
+						get_next_string_var(type, varname, active, &itt)))
 				{
-					if(!rep->message[0])
+					if (!rep->message[0])
 					{
 						strcpy(rep->message, tmp);
 						continue;
@@ -333,17 +345,20 @@ static void bp_get_variable(bp_rep * rep, const char * service, const char * var
 			break;
 		case SET:
 		case VARIABLE_SET:
-			if(is_var(type, varname, active))
+			if (is_var(type, varname, active))
 			{
 				rep->success = TRUE;
-			} else {
+			}
+			else
+			{
 				rep->success = FALSE;
 			}
 			return;
 		case INT:
 		case VARIABLE_INT:
 			{
-			 	int var = get_int_var(type, varname, active);
+				int var = get_int_var(type, varname, active);
+
 				sprintf(rep->message, "%i", var);
 			}
 			break;
@@ -356,52 +371,55 @@ static void bp_get_variable(bp_rep * rep, const char * service, const char * var
 	rep->success = TRUE;
 	return;
 }
-static void bp_done(bp_rep * rep, const char * service)
+static void bp_done(bp_rep * rep, const char *service)
 {
-	active_db_h * active = initng_active_db_find_by_exact_name(service);
-	if(!active)
+	active_db_h *active = initng_active_db_find_by_exact_name(service);
+
+	if (!active)
 	{
 		strcpy(rep->message, "Service not found.");
 		rep->success = FALSE;
 		return;
 	}
-	
+
 	/* check that type is set */
-	if(!active->type || active->type == &unset)
+	if (!active->type || active->type == &unset)
 	{
-		strcpy(rep->message, "Type not set, please run iregister type service\n");
+		strcpy(rep->message,
+			   "Type not set, please run iregister type service\n");
 		rep->success = FALSE;
 		return;
 	}
-	
-	if(active->current_state != &PARSING)
+
+	if (active->current_state != &PARSING)
 	{
 		strcpy(rep->message, "Service is not in PARSING state, cant start.");
 		rep->success = FALSE;
 		return;
 	}
-	
+
 	rep->success = initng_handler_start_service(active);
 	return;
 }
-static void bp_abort(bp_rep * rep, const char * service)
+static void bp_abort(bp_rep * rep, const char *service)
 {
-	active_db_h * active = initng_active_db_find_by_exact_name(service);
-	if(!active)
+	active_db_h *active = initng_active_db_find_by_exact_name(service);
+
+	if (!active)
 	{
 		strcpy(rep->message, "Service not found.");
 		rep->success = FALSE;
 		return;
 	}
-	
-	if(active->current_state != &PARSING)
+
+	if (active->current_state != &PARSING)
 	{
 		strcpy(rep->message, "Service is not in PARSING state, cant start.");
 		rep->success = FALSE;
 		return;
 	}
-	
-	
+
+
 	D_("bp_abort(%s)\n", service);
 
 	rep->success = TRUE;
@@ -596,72 +614,72 @@ static void bp_closesock(void)
 static void handle_killed(active_db_h * service, process_h * process)
 {
 	/* if process returned exit 1 or abow, set fail */
-	if(WEXITSTATUS(process->r_code)>0)
+	if (WEXITSTATUS(process->r_code) > 0)
 	{
 		initng_common_mark_service(service, &PARSE_FAIL);
 		initng_process_db_free(process);
 		return;
 	}
-	
+
 	initng_process_db_free(process);
 	initng_handler_start_service(service);
 }
 
-static active_db_h *create_new_active(const char * name)
+static active_db_h *create_new_active(const char *name)
 {
 	char file[1024] = SCRIPT_PATH "/";
 	struct stat fstat;
-	active_db_h * new_active;
-	process_h * process;
+	active_db_h *new_active;
+	process_h *process;
 
 	/* check if initfile exists */
 	strncat(file, name, 1020 - strlen(SCRIPT_PATH));
-	if(stat(file, &fstat) != 0)
+	if (stat(file, &fstat) != 0)
 	{
 		/* file not found */
-		return(NULL);
+		return (NULL);
 	}
 
 	/* create new service */
-	new_active=initng_active_db_new(name);
-	if(!new_active)
-		return(NULL);
+	new_active = initng_active_db_new(name);
+	if (!new_active)
+		return (NULL);
 
 	/* set type */
 	new_active->current_state = &PARSING;
 	new_active->from_service = &NO_CACHE;
 	new_active->type = &unset;
-	
+
 	/* register it */
-	if(!initng_active_db_register(new_active))
+	if (!initng_active_db_register(new_active))
 	{
 		initng_active_db_free(new_active);
-		return(NULL);
+		return (NULL);
 	}
-	
+
 	/* create the process */
-	process=initng_process_db_new(&parse);
-	
+	process = initng_process_db_new(&parse);
+
 	/* bound to service */
 	add_process(process, new_active);
-	
+
 	/* start parse process */
-	if(initng_fork(new_active, process)==0)
+	if (initng_fork(new_active, process) == 0)
 	{
 		char *av[3];
 		char *e[] = { NULL };
-		av[0]=i_calloc(50 + strlen(name), sizeof(char));
+		av[0] = i_calloc(50 + strlen(name), sizeof(char));
 		strcpy(av[0], SCRIPT_PATH "/");
 		strcat(av[0], name);
-		av[1]=i_strdup("internal_setup");
-		av[2]=NULL;
-		
+		av[1] = i_strdup("internal_setup");
+		av[2] = NULL;
+
 		execve(av[0], av, e);
 		_exit(10);
 	}
-	
+
 	/* return the newly created */
-	return(new_active);
+	return (new_active);
 }
 
 

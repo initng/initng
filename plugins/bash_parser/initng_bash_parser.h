@@ -34,7 +34,7 @@ typedef enum
 	DONE = 4,
 	ABORT = 5,
 } bp_req_type;
-	
+
 
 typedef struct
 {
@@ -43,35 +43,35 @@ typedef struct
 	union
 	{
 		/* new active */
-		struct 
+		struct
 		{
 			char type[41];		/* What service type this is */
 			char service[101];	/* New service name */
 		} new_active;
-		
+
 		/* set value */
 		struct
 		{
 			char service[101];	/* Service to set option to */
-			char vartype[101]; /* The variable try to set */
-			char varname[101];  /* The local variable name */
+			char vartype[101];	/* The variable try to set */
+			char varname[101];	/* The local variable name */
 			char value[1025];	/* The option value trying to set */
 		} set_variable;
-	
+
 		/* get value */
 		struct
 		{
 			char service[101];	/* Service to get option from */
-			char vartype[101]; /* The variable try to get */
+			char vartype[101];	/* The variable try to get */
 			char varname[101];	/* The local varname */
 		} get_variable;
-		
+
 		/* parsing done, now start it */
 		struct
 		{
 			char service[101];	/* the service that is done parsing */
 		} done;
-		
+
 		/* abort parsing, and clear service */
 		struct
 		{
@@ -82,8 +82,8 @@ typedef struct
 
 typedef struct
 {
-	int success;			/* mainly TRUE or FALSE */
-	char message[1025];		/* used for transporting a string to the client */
+	int success;				/* mainly TRUE or FALSE */
+	char message[1025];			/* used for transporting a string to the client */
 } bp_rep;
 
 #endif

@@ -45,11 +45,13 @@
 #include "initng_bash_parser.h"
 
 int bp_send(bp_req * to_send);
-int bp_new_active(const char * type, const char * service);
-int bp_abort(const char * service);
-int bp_done(const char * service);
-int bp_get_variable(const char * service, const char * vartype, const char * varname);
-int bp_set_variable(const char * service, const char * vartype, const char * varname, const char * value);
+int bp_new_active(const char *type, const char *service);
+int bp_abort(const char *service);
+int bp_done(const char *service);
+int bp_get_variable(const char *service, const char *vartype,
+					const char *varname);
+int bp_set_variable(const char *service, const char *vartype,
+					const char *varname, const char *value);
 char *message;
 
 
@@ -57,69 +59,66 @@ char *message;
 int main(int argc, char **argv)
 {
 	int status = 99;
-	
+
 	/* cut path or so from name */
 	char *argv0 = strrchr(argv[0], '/');
-	if(!argv0)
-		argv0=argv[0];
-	if(argv0[0]=='/')
+
+	if (!argv0)
+		argv0 = argv[0];
+	if (argv0[0] == '/')
 		argv0++;
-		
+
 	/* printf("argc: %i argv[0]: %s :: %s\n", argc, argv[0], argv0); */
 
 	/* Sort by the number of arguments */
-	switch(argc)
+	switch (argc)
 	{
 		case 2:
 			/* abort service */
-			if(strcmp(argv0, "abort")==0 ||
-			   strcmp(argv0, "iabort")==0)
+			if (strcmp(argv0, "abort") == 0 || strcmp(argv0, "iabort") == 0)
 			{
 				status = bp_abort(argv[1]);
 				break;
 			}
-			
+
 			/* done service */
-			if(strcmp(argv0, "done")==0 ||
-			   strcmp(argv0, "idone")==0)
+			if (strcmp(argv0, "done") == 0 || strcmp(argv0, "idone") == 0)
 			{
-			 	status = bp_done(argv[1]);
+				status = bp_done(argv[1]);
 				break;
 			}
 			break;
-			
+
 		case 3:
 			/* get service chdir */
-			if(strcmp(argv0, "get")==0 ||
-			   strcmp(argv0, "iget")==0)
+			if (strcmp(argv0, "get") == 0 || strcmp(argv0, "iget") == 0)
 			{
 				status = bp_get_variable(argv[1], argv[2], NULL);
 				break;
 			}
-			
+
 			/* register service_type test */
-			if(strcmp(argv0, "register")==0 ||
-			   strcmp(argv0, "iregister")==0)
+			if (strcmp(argv0, "register") == 0 ||
+				strcmp(argv0, "iregister") == 0)
 			{
 				status = bp_new_active(argv[1], argv[2]);
 				break;
 			}
 			break;
-			
+
 		case 4:
 			/* get service exec start */
-			if(strcmp(argv0, "get")==0 ||
-			   strcmp(argv0, "iget")==0)
+			if (strcmp(argv0, "get") == 0 || strcmp(argv0, "iget") == 0)
 			{
 				status = bp_get_variable(argv[1], argv[2], argv[3]);
 				break;
 			}
 			break;
-			
+
 		case 5:
 			/* set service chdir = /root */
-			if (argv[3][0] == '=' && (strcmp(argv0, "set")==0 ||
-		         strcmp(argv0, "iset")==0))
+			if (argv[3][0] == '=' && (strcmp(argv0, "set") == 0 ||
+									  strcmp(argv0, "iset") == 0))
 			{
 				status = bp_set_variable(argv[1], argv[2], NULL, argv[4]);
 				break;
@@ -128,8 +127,8 @@ int main(int argc, char **argv)
 
 		case 6:
 			/* set service exec start = /bin/true */
-			if (argv[4][0] == '=' && (strcmp(argv0, "set")==0 ||
-		         strcmp(argv0, "iset")==0))
+			if (argv[4][0] == '=' && (strcmp(argv0, "set") == 0 ||
+									  strcmp(argv0, "iset") == 0))
 			{
 				status = bp_set_variable(argv[1], argv[2], argv[3], argv[5]);
 				break;
@@ -138,9 +137,9 @@ int main(int argc, char **argv)
 		default:
 			break;
 	}
-	
+
 	/* if still 99, print usage */
-	if(status == 99)
+	if (status == 99)
 	{
 		printf("Avaible commands:\n");
 		printf("./idone     <service>\n");
@@ -150,87 +149,94 @@ int main(int argc, char **argv)
 		printf("./iset      <service> <variable> <value>\n");
 		exit(status);
 	}
-	
-	if(message)
+
+	if (message)
 	{
 		printf("%s\n", message);
 		free(message);
 	}
-	
+
 	/* invert result */
 	exit(status == TRUE ? 0 : 1);
 }
 
-int bp_abort(const char * service)
+int bp_abort(const char *service)
 {
 	/* the request to send */
 	bp_req to_send;
+
 	memset(&to_send, 0, sizeof(bp_req));
-	
+
 	to_send.request = ABORT;
 
 	strncpy(to_send.u.abort.service, service, 100);
 
-	return(bp_send(&to_send));
+	return (bp_send(&to_send));
 }
-int bp_done(const char * service)
+int bp_done(const char *service)
 {
 	/* the request to send */
 	bp_req to_send;
+
 	memset(&to_send, 0, sizeof(bp_req));
-	
+
 	to_send.request = DONE;
 
 	strncpy(to_send.u.done.service, service, 100);
 
-	return(bp_send(&to_send));
+	return (bp_send(&to_send));
 }
-int bp_get_variable(const char * service, const char * vartype, const char * varname)
+int bp_get_variable(const char *service, const char *vartype,
+					const char *varname)
 {
 	/* the request to send */
 	bp_req to_send;
+
 	memset(&to_send, 0, sizeof(bp_req));
-	
+
 	to_send.request = GET_VARIABLE;
 
 	strncpy(to_send.u.get_variable.service, service, 100);
 	strncpy(to_send.u.get_variable.vartype, vartype, 100);
-	if(varname)
+	if (varname)
 		strncpy(to_send.u.get_variable.varname, varname, 100);
 
-	return(bp_send(&to_send));
+	return (bp_send(&to_send));
 }
-int bp_set_variable(const char * service, const char * vartype, const char * varname, const char * value)
+int bp_set_variable(const char *service, const char *vartype,
+					const char *varname, const char *value)
 {
 	/* the request to send */
 	bp_req to_send;
+
 	memset(&to_send, 0, sizeof(bp_req));
-	
+
 	to_send.request = SET_VARIABLE;
 
 	strncpy(to_send.u.set_variable.service, service, 100);
 	strncpy(to_send.u.set_variable.vartype, vartype, 100);
-	
-	if(varname)
+
+	if (varname)
 		strncpy(to_send.u.set_variable.varname, varname, 100);
-		
+
 	strncpy(to_send.u.set_variable.value, value, 1024);
 
-	return(bp_send(&to_send));
+	return (bp_send(&to_send));
 }
 
 
-int bp_new_active(const char * type, const char * service)
+int bp_new_active(const char *type, const char *service)
 {
 	/* the request to send */
 	bp_req to_send;
+
 	memset(&to_send, 0, sizeof(bp_req));
-	
+
 	to_send.request = NEW_ACTIVE;
 	strncpy(to_send.u.new_active.type, type, 40);
 	strncpy(to_send.u.new_active.service, service, 100);
-	
-	return(bp_send(&to_send));
+
+	return (bp_send(&to_send));
 }
 
 /* Open, Send, Close */
@@ -239,8 +245,10 @@ int bp_send(bp_req * to_send)
 	int sock = -1;
 	int len;
 	struct sockaddr_un sockname;
+
 	/* the reply from initng */
 	bp_rep rep;
+
 	memset(&rep, 0, sizeof(bp_rep));
 
 	assert(to_send);
@@ -272,35 +280,35 @@ int bp_send(bp_req * to_send)
 
 		fcntl(sock, F_SETFL, cur | O_NONBLOCK);
 	}
-	
+
 	/* make a quick sleep */
 	usleep(200);
 
 	/* send the request */
-	if(send(sock, to_send, sizeof(bp_req), 0) < (signed) sizeof(bp_req))
+	if (send(sock, to_send, sizeof(bp_req), 0) < (signed) sizeof(bp_req))
 	{
 		message = strdup("Unable to send the request.");
-		return(FALSE);
+		return (FALSE);
 	}
-	
+
 	/* do a short sleep to give initng a chanse to reply */
 	usleep(200);
 
 	/* get the reply */
-	if((TEMP_FAILURE_RETRY(recv(sock, &rep, sizeof(bp_rep), 0)) < (signed) sizeof(bp_rep)))
+	if ((TEMP_FAILURE_RETRY(recv(sock, &rep, sizeof(bp_rep), 0)) <
+		 (signed) sizeof(bp_rep)))
 	{
 		message = strdup("Did not get any reply.");
 		return (FALSE);
 	}
-	
+
 	/* close the socket */
 	close(sock);
-	
+
 	/* if initng leave us a message, save it */
-	if(strlen(rep.message)>1)
-		message=strdup(rep.message);
-		
+	if (strlen(rep.message) > 1)
+		message = strdup(rep.message);
+
 	/* return happily */
 	return (rep.success);
 }
-
