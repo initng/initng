@@ -49,7 +49,11 @@ int main(int argc, char *argv[])
 	/* replace startin '.' with full path */
 	if(argv[1][0] == '.')
 	{
-		getcwd(path, 1024);
+	        if(!getcwd(path, 1024))
+	        {
+	              printf("error exeuting /lib/ibin/runiscript.sh\n");
+		      exit(3);
+      	        }
 		strncat(path, &argv[1][1], 1024 - strlen(path));
 	} else {
 		strncpy(path, argv[1], 1024);
