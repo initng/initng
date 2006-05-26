@@ -65,22 +65,6 @@ source $SERVICE_FILE
 export PATH=/lib/ibin:$PATH
 
 case "${COMMAND}" in
-	stop)
-			ngc -d $SERVICE
-			exit $?
-		;;
-	start)
-			ngc -u $SERVICE
-			exit $?
-		;;
-	status)
-			ngc -s $SERVICE
-			exit $?
-		;;
-	zap)
-			ngc -z $SERVICE
-			exit $?
-		;;
 	internal_start)
 			start
 			exit $?

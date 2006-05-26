@@ -69,6 +69,52 @@ int main(int argc, char *argv[])
 	/* cut service name from the last '/' found in service path */
 	servname=strrchr(path, '/')+1;
 	/*printf("servname: %s\n", servname);*/
+
+	/* check if these are direct commands, then use ngc */
+	if(strcmp(argv[1], "start")==0)
+	{
+		new_argv[0]=strdup("/sbin/ngc");
+		new_argv[1]=strdup("--start");
+		new_argv[1]=strdup(servname);
+		new_argv[2]=NULL;
+		execve(new_argv[0], new_argv, environ);
+		exit(30);
+	}
+	if(strcmp(argv[1], "stop")==0)
+	{
+		new_argv[0]=strdup("/sbin/ngc");
+		new_argv[1]=strdup("--stop");
+		new_argv[1]=strdup(servname);
+		new_argv[2]=NULL;
+		execve(new_argv[0], new_argv, environ);
+		exit(31);
+	}
+	if(strcmp(argv[1], "zap")==0)
+	{
+		new_argv[0]=strdup("/sbin/ngc");
+		new_argv[1]=strdup("--zap");
+		new_argv[1]=strdup(servname);
+		new_argv[2]=NULL;
+		execve(new_argv[0], new_argv, environ);
+		exit(32);
+	}
+	if(strcmp(argv[1], "status")==0)
+	{
+		new_argv[0]=strdup("/sbin/ngc");
+		new_argv[1]=strdup("--status");
+		new_argv[1]=strdup(servname);
+		new_argv[2]=NULL;
+		execve(new_argv[0], new_argv, environ);
+		exit(33);
+	}
+	/* end check */
+	
+	/* check if command is valid */
+	if(strncmp(argv[1], "internal_", 9)!=0)
+	{
+		printf("Bad command\n");
+		exit(3); 
+	}
 	
 	/* set up new argv */
 	new_argv[0]=strdup("/bin/bash");
