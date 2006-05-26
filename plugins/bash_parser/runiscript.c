@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
 	/*printf("servname: %s\n", servname);*/
 
 	/* check if these are direct commands, then use ngc */
-	if(strcmp(argv[1], "start")==0)
+	if(strcmp(argv[2], "start")==0)
 	{
 		new_argv[0]=strdup("/sbin/ngc");
 		new_argv[1]=strdup("--start");
@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
 		execve(new_argv[0], new_argv, environ);
 		exit(30);
 	}
-	if(strcmp(argv[1], "stop")==0)
+	if(strcmp(argv[2], "stop")==0)
 	{
 		new_argv[0]=strdup("/sbin/ngc");
 		new_argv[1]=strdup("--stop");
@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
 		execve(new_argv[0], new_argv, environ);
 		exit(31);
 	}
-	if(strcmp(argv[1], "zap")==0)
+	if(strcmp(argv[2], "zap")==0)
 	{
 		new_argv[0]=strdup("/sbin/ngc");
 		new_argv[1]=strdup("--zap");
@@ -98,7 +98,7 @@ int main(int argc, char *argv[])
 		execve(new_argv[0], new_argv, environ);
 		exit(32);
 	}
-	if(strcmp(argv[1], "status")==0)
+	if(strcmp(argv[2], "status")==0)
 	{
 		new_argv[0]=strdup("/sbin/ngc");
 		new_argv[1]=strdup("--status");
@@ -110,18 +110,38 @@ int main(int argc, char *argv[])
 	/* end check */
 	
 	/* check if command is valid */
-	if(strncmp(argv[1], "internal_", 9)!=0)
+	if(strncmp(argv[2], "internal_", 9)!=0)
 	{
 		printf("Bad command\n");
 		exit(3); 
 	}
 	
+	/* set up the bash script to run */
+	char script[1024];
+	strcpy(script, "#/bin/bash\n");
+	strcat(script, &argv[2][9]);
+	strcat(script, "() {\n");
+	strcat(script, "echo \"ERROR: ");
+	strcat(script, servname);
+	strcat(script, " command ");
+	strcat(script, &argv[2][9]);
+	strcat(script, " not found.\"\n");
+	strcat(script, "return 0\n}\n");
+	strcat(script, "export PATH=/lib/ibin:$PATH\n");
+	strcat(script, "source ");
+	strcat(script, path);
+	strcat(script,"\n");
+	strcat(script, &argv[2][9]);
+	strcat(script,"\nexit $?\n");
+	
+	
+	/* printf("strlen script: %i : \n\"%s\"\n", strlen(script), script); */
+	
 	/* set up new argv */
 	new_argv[0]=strdup("/bin/bash");
-	new_argv[1]=strdup(path);
-	new_argv[2]=strdup(servname);
-	new_argv[3]=strdup(argv[2]);
-	new_argv[4]=NULL;
+	new_argv[1]=strdup("-c");
+	new_argv[2]=script;
+	new_argv[3]=NULL;
 
 	/* set up the environments */
 	setenv("SERVICE_FILE", strdup(path), 1);
@@ -130,10 +150,11 @@ int main(int argc, char *argv[])
 	setenv("THE_RIGHT_WAY", "TRUE", 1);
 	
 	
+	/*printf("\nexecuting...\n\n");*/
 	/* now call the bash script */
-	execve("/lib/ibin/runiscript.sh", new_argv, environ);
+	execve(new_argv[0], new_argv, environ);
 	
 	/* Newer get here */
-	printf("error exeuting /lib/ibin/runiscript.sh\n");
+	printf("error exeuting /bin/bash.\n");
 	exit(3);
 }
