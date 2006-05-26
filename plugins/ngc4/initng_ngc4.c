@@ -1326,11 +1326,11 @@ s_command HELP_ALL = { 'H', "help_all", PAYLOAD_COMMAND, STANDARD_COMMAND, NO_OP
 	{(void *) &cmd_help_all}, "Print out verbose list of all commands."
 };
 
-s_command SERVICES = { 's', "services", PAYLOAD_COMMAND, STANDARD_COMMAND, USES_OPT,
+s_command SERVICES = { 's', "status", PAYLOAD_COMMAND, STANDARD_COMMAND, USES_OPT,
 	{(void *) &cmd_services}, "Print all services."
 };
 
-s_command ALL_SERVICES = { 'S', "allservices", PAYLOAD_COMMAND, HIDDEN_COMMAND, NO_OPT,
+s_command ALL_SERVICES = { 'S', "allservice", PAYLOAD_COMMAND, HIDDEN_COMMAND, NO_OPT,
 	{(void *) &cmd_all_services}, "Print all servics, even hidden ones."
 };
 
