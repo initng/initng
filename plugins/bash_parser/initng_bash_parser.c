@@ -636,8 +636,18 @@ static active_db_h *create_new_active(const char *name)
 	strncat(file, name, 1020 - strlen(SCRIPT_PATH));
 	if (stat(file, &fstat) != 0)
 	{
-		/* file not found */
+#if 0 /* Gentoo support disabled for now - doesn't work properly yet */
+		strcpy(file, "/etc/init.d/");
+		strncat(file, name, 1020 - strlen("/etc/init.d/"));
+		
+		if(stat(file, &fstat) != 0)
+		{
+			/* file not found */
+			return (NULL);
+		}
+#else
 		return (NULL);
+#endif
 	}
 
 	/* create new service */
@@ -668,9 +678,7 @@ static active_db_h *create_new_active(const char *name)
 	{
 		char *av[3];
 		char *e[] = { NULL };
-		av[0] = i_calloc(50 + strlen(name), sizeof(char));
-		strcpy(av[0], SCRIPT_PATH "/");
-		strcat(av[0], name);
+		av[0] = file;
 		av[1] = i_strdup("internal_setup");
 		av[2] = NULL;
 

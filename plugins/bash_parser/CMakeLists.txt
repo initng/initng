@@ -11,5 +11,8 @@ INSTALL_TARGETS(${LIB_INSTALL_DIR}/ibin bp)
 ADD_EXECUTABLE(runiscript runiscript.c)
 INSTALL_TARGETS(${SBIN_INSTALL_DIR} runiscript)
 
+ADD_EXECUTABLE(gentoo_runscript gentoo_runscript.c)
+INSTALL_TARGETS(${SBIN_INSTALL_DIR} gentoo_runscript)
+
 INSTALL_PROGRAMS(${SYSCONF_INSTALL_DIR}/init FILES example)
 
