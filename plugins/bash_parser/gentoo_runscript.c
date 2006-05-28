@@ -161,7 +161,6 @@ int main(int argc, char *argv[])
 	{
 		strcat(script,
 		       "export PATH=/lib/ibin:$PATH\n");
-		strcat(script, "fail() { echo \"$@\"; exit 1; }\n");
 		strcat(script, "[[ ${RC_GOT_FUNCTIONS} != \"yes\" ]] && source /sbin/functions.sh\n");
 		strcat(script, "[ -f /etc/conf.d/");
 		strcat(script, servname);
@@ -169,13 +168,13 @@ int main(int argc, char *argv[])
 		strcat(script, servname);
 		strcat(script, "\nsource ");
 		strcat(script, path);
-		strcat(script, " || fail source\n");
-		strcat(script, "iregister service $SERVICE || fail iregister\n");
-		strcat(script, "need() { iset $SERVICE need = \"$*\" || fail iset need; }\n");
-		strcat(script, "use() { iset $SERVICE use = \"$*\"|| fail iset use; }\n");
+		strcat(script, " || exit $?\n");
+		strcat(script, "iregister service $SERVICE || exit $?\n");
+		strcat(script, "need() { iset $SERVICE need = \"$*\" || exit $?; }\n");
+		strcat(script, "use() { iset $SERVICE use = \"$*\"|| exit $?; }\n");
 		strcat(script, "depend\n");
-		strcat(script, "iset $SERVICE exec start = \"$SERVICE_FILE internal_start\" || fail iset exec start\n");
-		strcat(script, "for i in stop $opts; do if typeset -F \"${x}\" &>/dev/null ; then iset $SERVICE exec $i = \"$SERVICE_FILE internal_$i\" || fail iset exec $i; fi; done\n");
+		strcat(script, "iset $SERVICE exec start = \"$SERVICE_FILE internal_start\" || exit $?\n");
+		strcat(script, "for i in stop $opts; do if typeset -F \"$i\" &>/dev/null ; then iset $SERVICE exec $i = \"$SERVICE_FILE internal_$i\" || exit $?; echo $i; fi; done\n");
 		strcat(script, "idone $SERVICE || exit $?\n");
 	}
 	else
