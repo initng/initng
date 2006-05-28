@@ -56,6 +56,7 @@ typedef struct cmd_res_s
 		{
 			int in_present;
 			int mode;
+			int got_svcs;
 		} svc_watch;
 	} d;
 	struct list_head list;
@@ -155,6 +156,7 @@ void svc_watch_cb(ngcs_svc_evt_hook * hook, void *userdata,
 			maybe_printf("%s", event->r.output);
 			break;
 		case NGCS_SVC_EVT_STATE:
+			res->d.svc_watch.got_svcs = 1;
 			switch (res->d.svc_watch.mode)
 			{
 				case WATCH_START:
@@ -272,7 +274,8 @@ void docmd(char *cmd, char *arg)
 
 	if (strcmp(cmd, "--watch") == 0)
 	{
-		res->d.svc_watch.in_present = 0;
+		res->d.svc_watch.in_present = 0; 
+		res->d.svc_watch.got_svcs = 0;
 		res->d.svc_watch.mode = WATCH_NORMAL;
 		if (ngcs_watch_service(cconn, arg, NGCS_WATCH_OUTPUT |
 							   NGCS_WATCH_STATUS, svc_watch_cb, res) == NULL)
@@ -291,6 +294,7 @@ void docmd(char *cmd, char *arg)
 	else if (strcmp(cmd, "--status") == 0 || strcmp(cmd, "-s") == 0)
 	{
 		res->d.svc_watch.in_present = 0;
+		res->d.svc_watch.got_svcs = 0;
 		res->d.svc_watch.mode = WATCH_STATUS;
 		if (ngcs_watch_service(cconn, arg, NGCS_CURRENT_STATUS,
 							   svc_watch_cb, res) == NULL)
@@ -309,6 +313,7 @@ void docmd(char *cmd, char *arg)
 	else if (strcmp(cmd, "--start") == 0 || strcmp(cmd, "-u") == 0)
 	{
 		res->d.svc_watch.in_present = 0;
+		res->d.svc_watch.got_svcs = 0;
 		res->d.svc_watch.mode = WATCH_START;
 		if (ngcs_start_stop(cconn, "start", arg, svc_watch_cb, res) == NULL)
 		{
@@ -326,6 +331,7 @@ void docmd(char *cmd, char *arg)
 	else if (strcmp(cmd, "--stop") == 0 || strcmp(cmd, "-d") == 0)
 	{
 		res->d.svc_watch.in_present = 0;
+		res->d.svc_watch.got_svcs = 0;
 		res->d.svc_watch.mode = WATCH_STOP;
 		if (ngcs_start_stop(cconn, "stop", arg, svc_watch_cb, res) == NULL)
 		{
