@@ -697,6 +697,7 @@ int module_init(int api_version)
 	memset(&sock_stat, 0, sizeof(sock_stat));
 
 	D_("adding hook, that will reopen socket, for every started service.\n");
+	initng_process_db_ptype_register(&parse);
 	initng_plugin_hook_register(&g.FDWATCHERS, 30, &bpf);
 	initng_plugin_hook_register(&g.SIGNAL, 50, &bp_check_socket);
 	initng_plugin_hook_register(&g.NEW_ACTIVE, 50, &create_new_active);
@@ -717,6 +718,7 @@ void module_unload(void)
 	bp_closesock();
 
 	/* remove hooks */
+	initng_process_db_ptype_unregister(&parse);
 	initng_plugin_hook_unregister(&g.FDWATCHERS, &bpf);
 	initng_plugin_hook_unregister(&g.SIGNAL, &bp_check_socket);
 	initng_plugin_hook_unregister(&g.NEW_ACTIVE, &create_new_active);

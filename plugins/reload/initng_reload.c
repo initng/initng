@@ -195,7 +195,11 @@ static int read_file(const char *filename)
 
 				/* check so it was found */
 				if (strcmp(entry.process[pnr].ptype, pt->name) != 0)
+				{
+					F_("Unknown process type %s\n", entry.process[pnr].ptype);
+					pnr++;
 					continue;
+				}
 
 				/* allocate the process */
 				process = initng_process_db_new(pt);
