@@ -5,7 +5,7 @@ INSTALL_TARGETS(${LIB_INSTALL_DIR}/initng bash_parser)
 
 ADD_EXECUTABLE(bp bp.c)
 SET_TARGET_PROPERTIES(bp PROPERTIES POST_INSTALL_SCRIPT
-	${CMAKE_CURRENT_SOURCE_DIR}/create_links.cmake)
+	${CMAKE_CURRENT_BINARY_DIR}/create_links.cmake)
 INSTALL_TARGETS(${LIB_INSTALL_DIR}/ibin bp)
 
 ADD_EXECUTABLE(runiscript runiscript.c)
@@ -14,5 +14,9 @@ INSTALL_TARGETS(${SBIN_INSTALL_DIR} runiscript)
 ADD_EXECUTABLE(gentoo_runscript gentoo_runscript.c)
 INSTALL_TARGETS(${SBIN_INSTALL_DIR} gentoo_runscript)
 
-INSTALL_PROGRAMS(${SYSCONF_INSTALL_DIR}/init FILES example)
+INSTALL_PROGRAMS(${SYSCONF_INSTALL_DIR}/initng FILES example)
 
+CONFIGURE_FILE(
+	"${CMAKE_CURRENT_SOURCE_DIR}/create_links.cmake.in"
+	"${CMAKE_CURRENT_BINARY_DIR}/create_links.cmake"
+	IMMEDIATE @ONLY)
