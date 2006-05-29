@@ -1,0 +1,24 @@
+MESSAGE("-- Creating links")
+SET(TARGETS
+	ngdcs
+)
+
+IF("@BUILD_NGC4@" STREQUAL "OFF")
+SET(TARGETS
+	ngdcs
+	ngc
+	ngdc
+	ngstart
+	ngstop
+	ngreboot
+	nghalt
+	ngzap
+	ngrestart
+	ngstatus
+)
+ENDIF("@BUILD_NGC4@" STREQUAL "OFF")
+
+FOREACH(target ${TARGETS})
+	EXEC_PROGRAM(ln $ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/sbin
+		ARGS -sf ngcs ${target})
+ENDFOREACH(target)
