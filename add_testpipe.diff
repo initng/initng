@@ -95,7 +95,7 @@ Index: src/initng_fd.c
  		}
  	}
  
-@@ -429,6 +435,24 @@
+@@ -429,6 +435,34 @@
  				if (retval == 0)
  					return;
  			}
@@ -105,6 +105,8 @@ Index: src/initng_fd.c
 +			{
 +				char b[1025];
 +				int ii;
++				
++				printf("service %s test_pipe[%i] set, \n" ,currentA->name, currentP->test_pipe[0]);
 +				D_("Will read test from %s->test on fd #%i\n",
 +				   currentA->name, currentP->test_pipe[0]);
 +				ii= read(currentP->test_pipe[0], b, 1024);
@@ -113,6 +115,14 @@ Index: src/initng_fd.c
 +					b[ii]='\0';
 +					printf("got: %s\n",b);
 +				}
++				
++				if(ii==0) /* EOF */
++				{
++					close(currentP->test_pipe[0]);
++					currentP->test_pipe[0]=-1;
++				}
++					
++				
 +				retval--;
 +				if(retval == 0) 
 +					return;
