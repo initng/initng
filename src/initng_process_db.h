@@ -44,6 +44,48 @@ typedef enum
 	P_FREE = 1,
 } e_pst;
 
+/* the types that can be set to a pipe list */
+typedef enum
+{
+	PIPE_UNKNOWN = 0,
+	PIPE_STDOUT = 1,
+	PIPE_STDIN = 2,
+	PIPE_CTRL_OUT = 3,
+	PIPE_CTRL_IN = 4,
+} e_pipet;
+
+typedef enum
+{
+	UNKNOWN_PIPE = 0,
+	OUT_PIPE = 1,
+	IN_PIPE = 2,
+	BUFFERED_OUT_PIPE = 3
+} e_dir;
+
+/* the pipe identifier */
+typedef struct
+{
+	/* this array contains the pipe fds */
+	int pipe[2];
+	
+	/* Whats this type?, this will be a pointer to a struct in the future */
+	e_pipet pipet;
+	
+	/* The direction of the stream, an OUTPUT or INPUT ?? */
+	e_dir dir;
+	
+	/* If targets set (max 10) the fd are duped after fork to match targets */
+	int targets[10];
+	
+	/* If this pipe is a BUFFERED_OUT_PIPE stor a buffer here */
+	char *buffer;				/* stdout buffer ## THE BEGINNING ## */
+	int buffer_allocated;		/* chars right now allocated for this buffer */
+	int buffer_len;				/* the count of chars from the beginning in buffer right now */	
+	
+	/* The list entry */
+	struct list_head list;
+} pipe_h;
+
 struct t_process_h
 {
 	ptype_h *pt;
@@ -55,10 +97,11 @@ struct t_process_h
 	 * example exit_code = WEXITSTATUS(process->r_code);
 	 */
 	int r_code;
-	int out_pipe[2];			/* pipes of process */
-	char *buffer;				/* stdout buffer ## THE BEGINNING ## */
-	int buffer_allocated;		/* chars right now allocated for this buffer */
-	int buffer_len;				/* the count of chars from the beginning in buffer right now */
+	
+	/* This is a list of pipes open to this process */
+	pipe_h pipes;
+	
+	/* small mark, this process are not freed directly this will be set to P_FREE */
 	e_pst pst;
 
 	struct list_head list;		/* this process should be in a list */
@@ -103,5 +146,9 @@ ptype_h *initng_process_db_ptype_find(const char *name);
 /* add the process to our service */
 #define add_process(pss, sss) list_add(&(pss)->list, &(sss)->processes.list);
 
+/* used for browing pipes */
+#define add_pipe(PIPE, PROCESS) list_add(&(PIPE)->list, &(PROCESS)->pipes.list);
+#define while_pipes(CURRENT, PROCESS) list_for_each_entry_prev(CURRENT, &(PROCESS)->pipes.list, list)
+#define while_pipes_safe(CURRENT, PROCESS, SAFE) list_for_each_entry_prev_safe(CURRENT, SAFE, &(PROCESS)->pipes.list, list)
 
 #endif

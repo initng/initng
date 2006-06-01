@@ -93,16 +93,16 @@ static void initng_fd_plugin_readpipe(active_db_h * service,
  * This function is called when data is polled below,
  * or when a process is freed ( with flush_buffer set)
  */
-void initng_fd_process_read_input(active_db_h * service, process_h * p)
+void initng_fd_process_read_input(active_db_h * service, process_h * p, pipe_h * pi)
 {
-	int old_content_offset = p->buffer_len;
+	int old_content_offset = pi->buffer_len;
 	int read_ret = 0;
 	char *tmp;
 
 	D_("\ninitng_fd_process_read_input(%s, %s, %i);\n", service->name,
 	   p->pt->name);
 
-	if (p->out_pipe[0] <= 0)
+	if (pi->pipe[0] <= 0)
 	{
 		F_("FIFO, can't be read! NOT OPEN!\n");
 		return;
@@ -112,13 +112,13 @@ void initng_fd_process_read_input(active_db_h * service, process_h * p)
 	 * if this are not set to out_pipe, if there is nothing to read. read() will block.
 	 * initng and sit down waiting for input.
 	 */
-	if (!p->buffer)
+	if (!pi->buffer)
 	{
 		/* initziate buffer fnctl */
 		int fd_flags;
 
-		fd_flags = fcntl(p->out_pipe[0], F_GETFL, 0);
-		fcntl(p->out_pipe[0], F_SETFL, fd_flags | O_NONBLOCK);
+		fd_flags = fcntl(pi->pipe[0], F_GETFL, 0);
+		fcntl(pi->pipe[0], F_SETFL, fd_flags | O_NONBLOCK);
 	}
 
 	/* read data from process, and continue again after a interrupt */
@@ -129,27 +129,27 @@ void initng_fd_process_read_input(active_db_h * service, process_h * p)
 		/* OBSERVE, i_realloc may change the path to the data, so dont set buffer_pos to early */
 
 		/* Make sure there is room for 100 more chars */
-		D_("left: %i > %i\n", p->buffer_len + 100, p->buffer_allocated);
-		if (p->buffer_len + 100 >= p->buffer_allocated)
+		D_("left: %i > %i\n", pi->buffer_len + 100, pi->buffer_allocated);
+		if (pi->buffer_len + 100 >= pi->buffer_allocated)
 		{
 			/* do a realloc */
-			D_("Changing size of buffer %p to: %i\n", p->buffer,
-			   p->buffer_allocated + 100 + 1);
-			tmp = i_realloc(p->buffer,
-							(p->buffer_allocated + 100 + 1) * sizeof(char));
+			D_("Changing size of buffer %p to: %i\n", pi->buffer,
+			   pi->buffer_allocated + 100 + 1);
+			tmp = i_realloc(pi->buffer,
+							(pi->buffer_allocated + 100 + 1) * sizeof(char));
 
 			/* make sure realloc suceeded */
 			if (tmp)
 			{
-				D_("p->buffer changes from %p to %p.\n", p->buffer, tmp);
-				p->buffer = tmp;
-				p->buffer_allocated += 100;
+				D_("pi->buffer changes from %p to %p.\n", pi->buffer, tmp);
+				pi->buffer = tmp;
+				pi->buffer_allocated += 100;
 
 				/*
 				 * make sure it nulls, specially when i_realloc is run for the verry first time
 				 * and maby there is nothing to get by read
 				 */
-				p->buffer[p->buffer_len] = '\0';
+				pi->buffer[pi->buffer_len] = '\0';
 			}
 			else
 			{
@@ -160,7 +160,7 @@ void initng_fd_process_read_input(active_db_h * service, process_h * p)
 
 		/* read the data */
 		D_("Reading 100 chars.\n");
-		read_ret = read(p->out_pipe[0], &p->buffer[p->buffer_len], 100);
+		read_ret = read(pi->pipe[0], &pi->buffer[pi->buffer_len], 100);
 		/*printf("read_ret = %i  : \"%.100s\"\n", read_ret, read_pos); */
 
 		/* make sure read does not return -1 */
@@ -168,10 +168,10 @@ void initng_fd_process_read_input(active_db_h * service, process_h * p)
 			break;
 
 		/* increase buffer_len */
-		p->buffer_len += read_ret;
+		pi->buffer_len += read_ret;
 
 		/* make sure its nulled at end */
-		p->buffer[p->buffer_len] = '\0';
+		pi->buffer[pi->buffer_len] = '\0';
 	}
 	/* if read_ret == 100, it migit be more to read, or it got interrupted. */
 	while (read_ret >= 100 || errno == EINTR);
@@ -179,19 +179,19 @@ void initng_fd_process_read_input(active_db_h * service, process_h * p)
 
 
 	/* make sure there is any */
-	if (p->buffer_len > old_content_offset)
+	if (pi->buffer_len > old_content_offset)
 	{
 		/* let all plugin take part of data */
-		initng_fd_plugin_readpipe(service, p, p->buffer + old_content_offset);
+		initng_fd_plugin_readpipe(service, p, pi->buffer + old_content_offset);
 	}
 
 	/*if empty, dont waist memory */
-	if (p->buffer_len == 0 && p->buffer)
+	if (pi->buffer_len == 0 && pi->buffer)
 	{
-		free(p->buffer);
-		p->buffer = NULL;
-		p->buffer_allocated = 0;
-		p->buffer_len = 0;
+		free(pi->buffer);
+		pi->buffer = NULL;
+		pi->buffer_allocated = 0;
+		pi->buffer_len = 0;
 	}
 
 
@@ -202,40 +202,40 @@ void initng_fd_process_read_input(active_db_h * service, process_h * p)
 	if (read_ret == 0)
 	{
 		D_("Closing fifos for %s.\n", service->name);
-		if (p->out_pipe[0] > 0)
-			close(p->out_pipe[0]);
-		if (p->out_pipe[1] > 0)
-			close(p->out_pipe[1]);
-		p->out_pipe[0] = -1;
-		p->out_pipe[1] = -1;
+		if (pi->pipe[0] > 0)
+			close(pi->pipe[0]);
+		if (pi->pipe[1] > 0)
+			close(pi->pipe[1]);
+		pi->pipe[0] = -1;
+		pi->pipe[1] = -1;
 
 		/* else, realloc to exact size */
-		if (p->buffer && p->buffer_allocated > (p->buffer_len + 1))
+		if (pi->buffer && pi->buffer_allocated > (pi->buffer_len + 1))
 		{
-			tmp = i_realloc(p->buffer, (p->buffer_len + 1) * sizeof(char));
+			tmp = i_realloc(pi->buffer, (pi->buffer_len + 1) * sizeof(char));
 			if (tmp)
 			{
-				p->buffer = tmp;
-				p->buffer_allocated = p->buffer_len;
+				pi->buffer = tmp;
+				pi->buffer_allocated = pi->buffer_len;
 			}
 		}
 		return;
 	}
 
 	/* if buffer reached 10000 chars */
-	if (p->buffer_len > 10000)
+	if (pi->buffer_len > 10000)
 	{
 		/* copy the last 9000 chars to start */
-		memmove(p->buffer, &p->buffer[p->buffer_len - 9000],
+		memmove(pi->buffer, &pi->buffer[pi->buffer_len - 9000],
 				9000 * sizeof(char));
 		/* rezise the buffer - leave some expansion space! */
-		tmp = i_realloc(p->buffer, 9501 * sizeof(char));
+		tmp = i_realloc(pi->buffer, 9501 * sizeof(char));
 
 		/* make sure realloc suceeded */
 		if (tmp)
 		{
-			p->buffer = tmp;
-			p->buffer_allocated = 9500;
+			pi->buffer = tmp;
+			pi->buffer_allocated = 9500;
 		}
 		else
 		{
@@ -244,8 +244,8 @@ void initng_fd_process_read_input(active_db_h * service, process_h * p)
 
 		/* Even if realloc failed, the buffer is still valid
 		   and we've still reduced the length of its contents */
-		p->buffer_len = 9000;				/* shortened by 1000 chars */
-		p->buffer[9000] = '\0';				/* shortened by 1000 chars */
+		pi->buffer_len = 9000;				/* shortened by 1000 chars */
+		pi->buffer[9000] = '\0';				/* shortened by 1000 chars */
 	}
 }
 
@@ -277,6 +277,7 @@ void initng_fd_plugin_poll(int timeout)
 	active_db_h *currentA, *qA;
 	s_call *currentC, *qC;
 	process_h *currentP, *qP;
+	pipe_h * current_pipe;
 
 	/* initialization */
 	S_;
@@ -321,10 +322,16 @@ void initng_fd_plugin_poll(int timeout)
 		currentP = NULL;
 		while_processes(currentP, currentA)
 		{
-			if (currentP->out_pipe[0] > 2)
+			current_pipe = NULL;
+			while_pipes(current_pipe, currentP)
 			{
-				FD_SET(currentP->out_pipe[0], &readset);
-				added++;
+				if ((current_pipe->dir == OUT_PIPE || 
+					 current_pipe->dir == BUFFERED_OUT_PIPE) && 
+					current_pipe->pipe[0] > 2)
+				{
+					FD_SET(current_pipe->pipe[0], &readset);
+					added++;
+				}
 			}
 		}
 	}
@@ -416,18 +423,27 @@ void initng_fd_plugin_poll(int timeout)
 		/* and all the processes */
 		while_processes_safe(currentP, qP, currentA)
 		{
-			/* if matching */
-			if (currentP->out_pipe[0] > 2
-				&& FD_ISSET(currentP->out_pipe[0], &readset))
+			current_pipe = NULL;
+			
+			/* check if this fd is a pipe bound to a process */
+			while_pipes(current_pipe, currentP)
 			{
-				D_("Will read from %s->start_process on fd #%i\n",
-				   currentA->name, currentP->out_pipe[0]);
-				/* Do the actual read from pipe */
-				initng_fd_process_read_input(currentA, currentP);
-				/* Found match, that means we need to look for one less, if we've found all we should then return */
-				retval--;
-				if (retval == 0)
-					return;
+				/* if this pipe is a process output pipe, and the pipe are opend, and if
+				 * there is data on it */
+				if((current_pipe->dir == OUT_PIPE || current_pipe->dir == BUFFERED_OUT_PIPE)&& current_pipe->pipe[0] > 2 &&
+					FD_ISSET(current_pipe->pipe[0], &readset))
+				{
+					D_("Will read from %s->start_process on fd #%i\n",
+				   		currentA->name, current_pipe->pipe[0]);
+					
+					/* Do the actual read from pipe */
+					initng_fd_process_read_input(currentA, currentP, current_pipe);
+					
+					/* Found match, that means we need to look for one less, if we've found all we should then return */
+					retval--;
+					if (retval == 0)
+						return;
+				}
 			}
 		}
 	}

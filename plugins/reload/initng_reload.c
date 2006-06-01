@@ -72,14 +72,24 @@ static int fd_used_by_service(int fd)
 	while_active_db(service)
 	{
 		process_h *process = NULL;
-
+	
 		while_processes(process, service)
 		{
-			if (process->out_pipe[0] == fd)
+			pipe_h * current_pipe = NULL;
+			while_pipes(current_pipe, process)
 			{
-				W_("Wont close fd %i, used by service \"%s\"\n", fd,
-				   service->name);
-				return (TRUE);
+				if((current_pipe->dir == OUT_PIPE || current_pipe->dir == BUFFERED_OUT_PIPE) && current_pipe->pipe[0] == fd)
+				{
+					W_("Wont close output_pipe fd %i, used by service \"%s\"\n", fd,
+				   		service->name);
+					return (TRUE);
+				}
+				else if (current_pipe->dir == IN_PIPE && current_pipe->pipe[1] == fd)
+				{
+					W_("Wont close input_pipe fd %i, used by service \"%s\"\n", fd,
+				   		service->name);
+					return (TRUE);
+				}
 			}
 		}
 	}
@@ -208,12 +218,24 @@ static int read_file(const char *filename)
 
 				/* fill the data */
 				process->pid = entry.process[pnr].pid;
-				process->out_pipe[0] = entry.process[pnr].stdout1;
-				process->out_pipe[1] = entry.process[pnr].stdout2;
+				
+				{
+					pipe_h *op = i_calloc(1, sizeof(pipe_h));
+					if(!op)
+					{
+						free(process);
+						continue;
+					}
+					
+					op->pipe[0] = entry.process[pnr].stdout1;
+					op->pipe[1] = entry.process[pnr].stdout2;
+					op->dir = BUFFERED_OUT_PIPE;
+					op->pipet = PIPE_STDOUT;
+					op->targets[0]=1;
+					op->targets[1]=2;
+					add_pipe(op, process);
+				}
 				process->r_code = entry.process[pnr].rcode;
-
-				/* allocate a new output buffer for this process */
-				process->buffer = NULL;
 
 				/* add this process to the list */
 				list_add(&process->list, &new_entry->processes.list);
@@ -290,6 +312,7 @@ static int write_file(const char *filename)
 	active_db_h *current, *q = NULL;
 	data_save_struct entry;
 	process_h *process = NULL;
+	pipe_h *current_pipe = NULL;
 	int i;
 	int pnr = 0;
 	s_data *c_d = NULL;
@@ -334,8 +357,17 @@ static int write_file(const char *filename)
 			strncpy(entry.process[pnr].ptype, process->pt->name,
 					MAX_PTYPE_STRING_LEN);
 			entry.process[pnr].pid = process->pid;
-			entry.process[pnr].stdout1 = process->out_pipe[0];
-			entry.process[pnr].stdout2 = process->out_pipe[1];
+			
+			current_pipe=NULL;	
+			while_pipes(current_pipe, process)
+			{
+				entry.process[pnr].stdout1 = current_pipe->pipe[0];
+				entry.process[pnr].stdout2 = current_pipe->pipe[1];
+				
+				/* TODO, add them all! */
+				break;
+			}
+				
 			entry.process[pnr].rcode = process->r_code;
 			pnr++;
 			if (pnr >= MAX_PROCESSES)

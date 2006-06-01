@@ -43,6 +43,30 @@
 #include "initng_fork.h"
 
 
+/*
+ * This function creates a new pipe, and creates a new
+ * pipe struct entry.
+ */
+static pipe_h * pipe_new(e_pipet type, e_dir dir)
+{
+	pipe_h * pipe_struct = i_calloc(1, sizeof(pipe_h));
+	if(!pipe_struct)
+		return(NULL);
+	
+	if(pipe(pipe_struct->pipe) != 0)
+	{
+		F_("Failed adding pipe ! %s\n", strerror(errno));
+		free(pipe_struct);
+		return(NULL);
+	}
+	
+	/* set the type */
+	pipe_struct->pipet = type;
+	pipe_struct->dir = dir;
+		
+	/* return the pointer */
+	return(pipe_struct);
+}
 
 pid_t initng_fork(active_db_h * service, process_h * process)
 {
@@ -50,25 +74,51 @@ pid_t initng_fork(active_db_h * service, process_h * process)
 	pid_t pid_fork;				/* pid got from fork() */
 	int try_count = 0;			/* Count tryings */
 	s_call *current = NULL;
+	pipe_h * current_pipe = NULL; /* used while walking */
+	pipe_h * safe = NULL;
 
 	assert(service);
 	assert(process);
-
-	/* open pipe */
-	if (pipe(process->out_pipe) != 0)
+	
+	/* close all existing pipes first */
+	while_pipes_safe(current_pipe, process, safe)
 	{
-		F_("Failed adding pipe ! %s\n", strerror(errno));
-		return (-1);
+		list_del(&current_pipe->list);
+		if(current_pipe->buffer)
+			free(current_pipe->buffer);
+		free(current_pipe);
 	}
-
-	/* alloc buffer */
-	if (process->buffer)
+	
+	/* create the output pipe */
+	current_pipe = pipe_new(PIPE_STDOUT, BUFFERED_OUT_PIPE);
+	if(current_pipe)
 	{
-		free(process->buffer);
-		process->buffer = NULL;
-		process->buffer_allocated = 0;
+		/* we want this pipe to get fd 1 and 2 in the fork */
+		current_pipe->targets[0]=STDOUT_FILENO;
+		current_pipe->targets[1]=STDERR_FILENO;
+		add_pipe(current_pipe, process);
 	}
-
+	
+	/* create the control in pipe */
+	current_pipe = pipe_new(PIPE_CTRL_IN, IN_PIPE);
+	if(current_pipe)
+	{
+		/* we want this pipe to get fd 3, in the fork */
+		current_pipe->targets[0]=3;
+		add_pipe(current_pipe, process);
+	}
+	
+	/* create the control out pipe */
+	current_pipe = pipe_new(PIPE_CTRL_OUT, BUFFERED_OUT_PIPE);
+	if(current_pipe)
+	{
+		/* we want this pipe to get fd 4, in the fork */
+		current_pipe->targets[0]=4;
+		add_pipe(current_pipe, process);
+	}
+	
+	/* reset, used for walking later */
+	current_pipe = NULL;
 
 	/* Try to fork 30 times */
 	while ((pid_fork = fork()) == -1)
@@ -112,25 +162,32 @@ pid_t initng_fork(active_db_h * service, process_h * process)
 			 * the other are mapped to STDOUT and STDERR.
 			 */
 
-			/* close stdin/stdout/stderr */
-			/*close(STDIN_FILENO); */
-			close(STDOUT_FILENO);
-			close(STDERR_FILENO);
-
-			/* Duplicate stdout and stderr to the stdout[1] */
-			dup2(process->out_pipe[1], STDOUT_FILENO);
-			dup2(process->out_pipe[1], STDERR_FILENO);
-
-			/* set stdin, stdout, and stderr, that is should not be closed, if this child do execve() */
-			fcntl(STDIN_FILENO, F_SETFD, 0);
-			fcntl(STDOUT_FILENO, F_SETFD, 0);
-			fcntl(STDERR_FILENO, F_SETFD, 0);
-
-			/* Close the sides of the pipes we don't need, as we're in fork we won't need this part. */
-			if (process->out_pipe[0] > 0)
-				close(process->out_pipe[0]);
-			process->out_pipe[0] = -1;
-
+			/* walk thru all the added pipes */
+			while_pipes(current_pipe, process)
+			{
+				int i;
+				
+				/* for every target */
+				for(i=0; current_pipe->targets[i]>0 && i<10;i++)
+				{
+					/* close any conflicting one */
+					close(current_pipe->targets[i]);
+					
+					if(current_pipe->dir == OUT_PIPE || current_pipe->dir == BUFFERED_OUT_PIPE)
+					{
+						/* duplicate the new target right */
+						dup2(current_pipe->pipe[1], current_pipe->targets[i]);
+					}
+					else if (current_pipe->dir == IN_PIPE)
+					{
+						/* duplicate the input pipe instead */
+						dup2(current_pipe->pipe[0], current_pipe->targets[i]);
+					}		
+					
+					/* IMPORTANT Tell the os not to close the new target on execve */
+					fcntl(current_pipe->targets[i], F_SETFD, 0);
+				}
+			}
 		}
 
 		/* There might be plug-ins that will work here */
@@ -144,13 +201,6 @@ pid_t initng_fork(active_db_h * service, process_h * process)
 			}
 		}
 
-		/* close all open fds, except STDIN, STDOUT, STDERR (0, 1, 2) */
-		{
-			int i;
-
-			for (i = 3; i <= 1013; i++)
-				close(i);
-		}
 
 		/* TODO, what does this do? */
 		if (g.i_am == I_AM_INIT)
@@ -163,11 +213,26 @@ pid_t initng_fork(active_db_h * service, process_h * process)
 	}
 	else
 	{
+	
+		/* walk all pipes and close all remote sides of pipes */
+		while_pipes(current_pipe, process)
+		{
+			if(current_pipe->dir == OUT_PIPE || current_pipe->dir == BUFFERED_OUT_PIPE)
+			{
+				if(current_pipe->pipe[1] > 0)
+					close(current_pipe->pipe[1]);
+				current_pipe->pipe[1]=-1;
+			}
+			/* close the OUTPUT end */
+			else if(current_pipe->dir == IN_PIPE)
+			{
+				if(current_pipe->pipe[0] > 0)
+					close(current_pipe->pipe[0]);
+				current_pipe->pipe[0]=-1;
+			}
+		}
 
-		/* close the receiving end on pipe, on parent */
-		if (process->out_pipe[1] > 0)
-			close(process->out_pipe[1]);
-		process->out_pipe[1] = -1;
+		/* set process->pid if lucky */
 		if (pid_fork > 0)
 		{
 			process->pid = pid_fork;

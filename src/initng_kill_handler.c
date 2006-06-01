@@ -55,6 +55,7 @@ void initng_kill_handler_killed_by_pid(pid_t kpid, int r_code)
 	/* The process that got killed */
 	active_db_h *service = NULL;
 	process_h *process = NULL;
+	pipe_h *current_pipe = NULL;
 
 	D_("handle_killed_by_pid(%i);\n", kpid);
 
@@ -86,25 +87,27 @@ void initng_kill_handler_killed_by_pid(pid_t kpid, int r_code)
 	process->r_code = r_code;
 
 
-	/*
-	 * Close the process output fifos to initng.
-	 */
-	if (process->out_pipe[0] > 0)
+	/* close all pipes */
+	while_pipes(current_pipe, process)
 	{
-		/*
-		 * calling initng_process_read_input, Make sure all buffers read, before closing them.
-		 */
-		initng_fd_process_read_input(service, process);
+		if((current_pipe->dir == OUT_PIPE  || current_pipe->dir == BUFFERED_OUT_PIPE)&& current_pipe->pipe[0] > 0)
+		{
+			/*
+			 * calling initng_process_read_input, Make sure all buffers read, before closing them.
+			 */
+			initng_fd_process_read_input(service, process, current_pipe);
 
-		/* now close */
-		close(process->out_pipe[0]);
-		process->out_pipe[0] = 0;
-	}
-	if (process->out_pipe[1] > 0)
-	{
-		close(process->out_pipe[1]);
-		process->out_pipe[1] = 0;
-	}
+			/* now close */
+			close(current_pipe->pipe[0]);
+			current_pipe->pipe[0] = -1;
+		}
+		
+		else if(current_pipe->dir == IN_PIPE && current_pipe->pipe[1] > 0)
+		{
+			close(current_pipe->pipe[1]);
+			current_pipe->pipe[1]= -1;
+		}
+	}	
 
 	/* Check if a plugin wants to override handle_killed behavior */
 	if (initng_plugin_callers_handle_killed(service, process))
