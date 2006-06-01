@@ -43,32 +43,6 @@
 #include "initng_fork.h"
 
 
-/*
- * This function creates a new pipe, and creates a new
- * pipe struct entry.
- */
-static pipe_h *pipe_new(e_pipet type, e_dir dir)
-{
-	pipe_h *pipe_struct = i_calloc(1, sizeof(pipe_h));
-
-	if (!pipe_struct)
-		return (NULL);
-
-	if (pipe(pipe_struct->pipe) != 0)
-	{
-		F_("Failed adding pipe ! %s\n", strerror(errno));
-		free(pipe_struct);
-		return (NULL);
-	}
-
-	/* set the type */
-	pipe_struct->pipet = type;
-	pipe_struct->dir = dir;
-
-	/* return the pointer */
-	return (pipe_struct);
-}
-
 pid_t initng_fork(active_db_h * service, process_h * process)
 {
 	/* This is the real service kicker */
@@ -76,46 +50,18 @@ pid_t initng_fork(active_db_h * service, process_h * process)
 	int try_count = 0;			/* Count tryings */
 	s_call *current = NULL;
 	pipe_h *current_pipe = NULL;	/* used while walking */
-	pipe_h *safe = NULL;
 
 	assert(service);
 	assert(process);
 
-	/* close all existing pipes first */
-	while_pipes_safe(current_pipe, process, safe)
+	/* Create all pipes */
+	while_pipes(current_pipe, process)
 	{
-		list_del(&current_pipe->list);
-		if (current_pipe->buffer)
-			free(current_pipe->buffer);
-		free(current_pipe);
-	}
-
-	/* create the output pipe */
-	current_pipe = pipe_new(PIPE_STDOUT, BUFFERED_OUT_PIPE);
-	if (current_pipe)
-	{
-		/* we want this pipe to get fd 1 and 2 in the fork */
-		current_pipe->targets[0] = STDOUT_FILENO;
-		current_pipe->targets[1] = STDERR_FILENO;
-		add_pipe(current_pipe, process);
-	}
-
-	/* create the control in pipe */
-	current_pipe = pipe_new(PIPE_CTRL_IN, IN_PIPE);
-	if (current_pipe)
-	{
-		/* we want this pipe to get fd 3, in the fork */
-		current_pipe->targets[0] = 3;
-		add_pipe(current_pipe, process);
-	}
-
-	/* create the control out pipe */
-	current_pipe = pipe_new(PIPE_CTRL_OUT, BUFFERED_OUT_PIPE);
-	if (current_pipe)
-	{
-		/* we want this pipe to get fd 4, in the fork */
-		current_pipe->targets[0] = 4;
-		add_pipe(current_pipe, process);
+		if (pipe(current_pipe->pipe) != 0)
+		{
+			F_("Failed adding pipe ! %s\n", strerror(errno));
+			return (-1);
+		}
 	}
 
 	/* reset, used for walking later */

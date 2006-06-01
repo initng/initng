@@ -631,6 +631,7 @@ static active_db_h *create_new_active(const char *name)
 	struct stat fstat;
 	active_db_h *new_active;
 	process_h *process;
+	pipe_h *current_pipe;
 
 	/* check if initfile exists */
 	strncat(file, name, 1020 - strlen(SCRIPT_PATH));
@@ -672,6 +673,24 @@ static active_db_h *create_new_active(const char *name)
 
 	/* bound to service */
 	add_process(process, new_active);
+
+	/* create the control in pipe */
+	current_pipe = pipe_new(PIPE_CTRL_IN, IN_PIPE);
+	if (current_pipe)
+	{
+		/* we want this pipe to get fd 3, in the fork */
+		current_pipe->targets[0] = 3;
+		add_pipe(current_pipe, process);
+	}
+
+	/* create the control out pipe */
+	current_pipe = pipe_new(PIPE_CTRL_OUT, BUFFERED_OUT_PIPE);
+	if (current_pipe)
+	{
+		/* we want this pipe to get fd 4, in the fork */
+		current_pipe->targets[0] = 4;
+		add_pipe(current_pipe, process);
+	}
 
 	/* start parse process */
 	if (initng_fork(new_active, process) == 0)

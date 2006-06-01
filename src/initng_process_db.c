@@ -34,10 +34,32 @@
 
 #include "initng_toolbox.h"
 
+
+
+/*
+ * This function creates a new pipe, and creates a new
+ * pipe struct entry.
+ */
+pipe_h *pipe_new(e_pipet type, e_dir dir)
+{
+	pipe_h *pipe_struct = i_calloc(1, sizeof(pipe_h));
+
+	if (!pipe_struct)
+		return (NULL);
+
+	/* set the type */
+	pipe_struct->pipet = type;
+	pipe_struct->dir = dir;
+
+	/* return the pointer */
+	return (pipe_struct);
+}
+
 /* creates a process_h struct with defaults */
 process_h *initng_process_db_new(ptype_h * type)
 {
 	process_h *new_p = NULL;
+	pipe_h * current_pipe;
 
 	/* allocate a new process entry */
 	new_p = (process_h *) i_calloc(1, sizeof(process_h));	/* Allocate memory for a new process */
@@ -58,7 +80,21 @@ process_h *initng_process_db_new(ptype_h * type)
 	/* Set this to active, so it wont get freed */
 	new_p->pst = P_ACTIVE;
 
+	/* initziate list of pipes, so we can run add_pipe below without segfault */
 	INIT_LIST_HEAD(&new_p->pipes.list);
+
+	/* create the output pipe */
+	current_pipe = pipe_new(PIPE_STDOUT, BUFFERED_OUT_PIPE);
+	if (!current_pipe)
+	{
+		free(new_p);
+		return(NULL);
+	}
+	
+	/* we want this pipe to get fd 1 and 2 in the fork */
+	current_pipe->targets[0] = STDOUT_FILENO;
+	current_pipe->targets[1] = STDERR_FILENO;
+	add_pipe(current_pipe, new_p);
 
 	/* return new process_h pointer */
 	return (new_p);
