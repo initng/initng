@@ -153,8 +153,9 @@ void initng_process_db_clear_freed(active_db_h * service)
 /* function to free a process_h struct */
 void initng_process_db_real_free(process_h * free_this)
 {
-	pipe_h * current_pipe = NULL;
-	pipe_h * current_pipe_safe = NULL;
+	pipe_h *current_pipe = NULL;
+	pipe_h *current_pipe_safe = NULL;
+
 	assert(free_this);
 
 	/* Make sure this entry are not on any list */
@@ -166,15 +167,15 @@ void initng_process_db_real_free(process_h * free_this)
 		list_del(&current_pipe->list);
 
 		/* close all pipes */
-		if(current_pipe->pipe[0] > 0)
+		if (current_pipe->pipe[0] > 0)
 			close(current_pipe->pipe[0]);
-		if(current_pipe->pipe[1] > 0)
-			close(current_pipe->pipe[1]);		
-		
+		if (current_pipe->pipe[1] > 0)
+			close(current_pipe->pipe[1]);
+
 		/* free buffer */
-		if(current_pipe->buffer)
+		if (current_pipe->buffer)
 			free(current_pipe->buffer);
-			
+
 		/* free it */
 		free(current_pipe);
 	}

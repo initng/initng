@@ -47,25 +47,26 @@
  * This function creates a new pipe, and creates a new
  * pipe struct entry.
  */
-static pipe_h * pipe_new(e_pipet type, e_dir dir)
+static pipe_h *pipe_new(e_pipet type, e_dir dir)
 {
-	pipe_h * pipe_struct = i_calloc(1, sizeof(pipe_h));
-	if(!pipe_struct)
-		return(NULL);
-	
-	if(pipe(pipe_struct->pipe) != 0)
+	pipe_h *pipe_struct = i_calloc(1, sizeof(pipe_h));
+
+	if (!pipe_struct)
+		return (NULL);
+
+	if (pipe(pipe_struct->pipe) != 0)
 	{
 		F_("Failed adding pipe ! %s\n", strerror(errno));
 		free(pipe_struct);
-		return(NULL);
+		return (NULL);
 	}
-	
+
 	/* set the type */
 	pipe_struct->pipet = type;
 	pipe_struct->dir = dir;
-		
+
 	/* return the pointer */
-	return(pipe_struct);
+	return (pipe_struct);
 }
 
 pid_t initng_fork(active_db_h * service, process_h * process)
@@ -74,49 +75,49 @@ pid_t initng_fork(active_db_h * service, process_h * process)
 	pid_t pid_fork;				/* pid got from fork() */
 	int try_count = 0;			/* Count tryings */
 	s_call *current = NULL;
-	pipe_h * current_pipe = NULL; /* used while walking */
-	pipe_h * safe = NULL;
+	pipe_h *current_pipe = NULL;	/* used while walking */
+	pipe_h *safe = NULL;
 
 	assert(service);
 	assert(process);
-	
+
 	/* close all existing pipes first */
 	while_pipes_safe(current_pipe, process, safe)
 	{
 		list_del(&current_pipe->list);
-		if(current_pipe->buffer)
+		if (current_pipe->buffer)
 			free(current_pipe->buffer);
 		free(current_pipe);
 	}
-	
+
 	/* create the output pipe */
 	current_pipe = pipe_new(PIPE_STDOUT, BUFFERED_OUT_PIPE);
-	if(current_pipe)
+	if (current_pipe)
 	{
 		/* we want this pipe to get fd 1 and 2 in the fork */
-		current_pipe->targets[0]=STDOUT_FILENO;
-		current_pipe->targets[1]=STDERR_FILENO;
+		current_pipe->targets[0] = STDOUT_FILENO;
+		current_pipe->targets[1] = STDERR_FILENO;
 		add_pipe(current_pipe, process);
 	}
-	
+
 	/* create the control in pipe */
 	current_pipe = pipe_new(PIPE_CTRL_IN, IN_PIPE);
-	if(current_pipe)
+	if (current_pipe)
 	{
 		/* we want this pipe to get fd 3, in the fork */
-		current_pipe->targets[0]=3;
+		current_pipe->targets[0] = 3;
 		add_pipe(current_pipe, process);
 	}
-	
+
 	/* create the control out pipe */
 	current_pipe = pipe_new(PIPE_CTRL_OUT, BUFFERED_OUT_PIPE);
-	if(current_pipe)
+	if (current_pipe)
 	{
 		/* we want this pipe to get fd 4, in the fork */
-		current_pipe->targets[0]=4;
+		current_pipe->targets[0] = 4;
 		add_pipe(current_pipe, process);
 	}
-	
+
 	/* reset, used for walking later */
 	current_pipe = NULL;
 
@@ -166,14 +167,15 @@ pid_t initng_fork(active_db_h * service, process_h * process)
 			while_pipes(current_pipe, process)
 			{
 				int i;
-				
+
 				/* for every target */
-				for(i=0; current_pipe->targets[i]>0 && i<10;i++)
+				for (i = 0; current_pipe->targets[i] > 0 && i < 10; i++)
 				{
 					/* close any conflicting one */
 					close(current_pipe->targets[i]);
-					
-					if(current_pipe->dir == OUT_PIPE || current_pipe->dir == BUFFERED_OUT_PIPE)
+
+					if (current_pipe->dir == OUT_PIPE
+						|| current_pipe->dir == BUFFERED_OUT_PIPE)
 					{
 						/* duplicate the new target right */
 						dup2(current_pipe->pipe[1], current_pipe->targets[i]);
@@ -182,8 +184,8 @@ pid_t initng_fork(active_db_h * service, process_h * process)
 					{
 						/* duplicate the input pipe instead */
 						dup2(current_pipe->pipe[0], current_pipe->targets[i]);
-					}		
-					
+					}
+
 					/* IMPORTANT Tell the os not to close the new target on execve */
 					fcntl(current_pipe->targets[i], F_SETFD, 0);
 				}
@@ -213,22 +215,23 @@ pid_t initng_fork(active_db_h * service, process_h * process)
 	}
 	else
 	{
-	
+
 		/* walk all pipes and close all remote sides of pipes */
 		while_pipes(current_pipe, process)
 		{
-			if(current_pipe->dir == OUT_PIPE || current_pipe->dir == BUFFERED_OUT_PIPE)
+			if (current_pipe->dir == OUT_PIPE
+				|| current_pipe->dir == BUFFERED_OUT_PIPE)
 			{
-				if(current_pipe->pipe[1] > 0)
+				if (current_pipe->pipe[1] > 0)
 					close(current_pipe->pipe[1]);
-				current_pipe->pipe[1]=-1;
+				current_pipe->pipe[1] = -1;
 			}
 			/* close the OUTPUT end */
-			else if(current_pipe->dir == IN_PIPE)
+			else if (current_pipe->dir == IN_PIPE)
 			{
-				if(current_pipe->pipe[0] > 0)
+				if (current_pipe->pipe[0] > 0)
 					close(current_pipe->pipe[0]);
-				current_pipe->pipe[0]=-1;
+				current_pipe->pipe[0] = -1;
 			}
 		}
 

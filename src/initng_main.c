@@ -544,8 +544,9 @@ void initng_main_segfault(void)
 		emergency_output = open("/dev/console", O_WRONLY);
 		if (emergency_output > 0)
 		{
-		        if(write(emergency_output, MESSAGE, sizeof(char) * strlen(MESSAGE)))
-		            ;
+			if (write
+				(emergency_output, MESSAGE, sizeof(char) * strlen(MESSAGE)))
+				;
 			close(emergency_output);
 		}
 		sleep(4);							/*  5 times 4 is 20 seconds */
@@ -557,9 +558,9 @@ void initng_main_segfault(void)
 	emergency_output = open("/dev/console", O_WRONLY);
 	if (emergency_output > 0)
 	{
-	        if(write(emergency_output, LMESSAGE,
-		     sizeof(char) * strlen(LMESSAGE)))
-		          ;
+		if (write(emergency_output, LMESSAGE,
+				  sizeof(char) * strlen(LMESSAGE)))
+			;
 		close(emergency_output);
 	}
 

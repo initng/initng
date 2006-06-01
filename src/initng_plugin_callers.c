@@ -37,18 +37,18 @@
 #include "initng_plugin.h"
 
 
-active_db_h *initng_plugin_create_new_active(const char * name)
+active_db_h *initng_plugin_create_new_active(const char *name)
 {
 	s_call *current, *q = NULL;
-	active_db_h * ret = NULL;
+	active_db_h *ret = NULL;
 
 	while_list_safe(current, &g.NEW_ACTIVE, q)
 	{
-		ret=(*current->c.new_active) (name);
-		if(ret)
-			return(ret);
+		ret = (*current->c.new_active) (name);
+		if (ret)
+			return (ret);
 	}
-	return(NULL);
+	return (NULL);
 }
 
 

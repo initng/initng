@@ -220,26 +220,28 @@ static int cmd_free_service(char *arg)
 	int ret = FALSE;
 
 	/* check if we got an service */
-	if ( arg && (apt = initng_active_db_find_in_name(arg)))
+	if (arg && (apt = initng_active_db_find_in_name(arg)))
 	{
 		/* zap found */
 		initng_active_db_free(apt);
 		ret = TRUE;
-	} else {
+	}
+	else
+	{
 		/* zap all that is marked FAIL */
 		while_active_db_safe(apt, safe)
 		{
-			if(IS_FAILED(apt))
+			if (IS_FAILED(apt))
 			{
 				initng_active_db_free(apt);
-				ret=TRUE;
+				ret = TRUE;
 			}
 		}
 	}
-	
+
 	/* also flush file cache */
 	cmd_reload(arg);
-	return(ret);
+	return (ret);
 }
 
 

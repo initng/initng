@@ -193,7 +193,8 @@ char *service_db_print_all(void)
 
 static void active_db_print_process(process_h * p, char **string)
 {
-	pipe_h * current_pipe = NULL;
+	pipe_h *current_pipe = NULL;
+
 	assert(p);
 	if (p->pst == P_FREE)
 		mprintf(string, "\tOLD    Process: type %s\n", p->pt->name);
@@ -225,36 +226,38 @@ static void active_db_print_process(process_h * p, char **string)
 	while_pipes(current_pipe, p)
 	{
 		int i;
-		switch(current_pipe->dir)
+
+		switch (current_pipe->dir)
 		{
 			case IN_PIPE:
-				mprintf(string, "\t\tINPUT_PIPE read: %i, write: %i remote:", current_pipe->pipe[0],
-					current_pipe->pipe[1]);
+				mprintf(string, "\t\tINPUT_PIPE read: %i, write: %i remote:",
+						current_pipe->pipe[0], current_pipe->pipe[1]);
 				break;
 			case OUT_PIPE:
-				mprintf(string, "\t\tOUTPUT_PIPE read: %i, write: %i remote:", current_pipe->pipe[1],
-					current_pipe->pipe[0]);
+				mprintf(string, "\t\tOUTPUT_PIPE read: %i, write: %i remote:",
+						current_pipe->pipe[1], current_pipe->pipe[0]);
 				break;
 			case BUFFERED_OUT_PIPE:
-				mprintf(string, "\t\tBUFFERED_OUTPUT_PIPE read: %i, write: %i remote:", current_pipe->pipe[1],
-					current_pipe->pipe[0]);
+				mprintf(string,
+						"\t\tBUFFERED_OUTPUT_PIPE read: %i, write: %i remote:",
+						current_pipe->pipe[1], current_pipe->pipe[0]);
 				break;
 			default:
 				continue;
 		}
-				
-		for(i=0;current_pipe->targets[i] > 0 && i<10;i++)
+
+		for (i = 0; current_pipe->targets[i] > 0 && i < 10; i++)
 			mprintf(string, " %i", current_pipe->targets[i]);
-		
+
 		mprintf(string, "\n");
 		if (current_pipe->buffer && current_pipe->buffer_allocated > 0)
 		{
 			mprintf(string,
-				"\t\tBuffer (%i): \n##########  BUFFER  ##########\n%s\n##############################\n",
-				current_pipe->buffer_allocated, current_pipe->buffer);
+					"\t\tBuffer (%i): \n##########  BUFFER  ##########\n%s\n##############################\n",
+					current_pipe->buffer_allocated, current_pipe->buffer);
 		}
 	}
-	
+
 
 }
 

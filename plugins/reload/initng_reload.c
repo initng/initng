@@ -72,22 +72,24 @@ static int fd_used_by_service(int fd)
 	while_active_db(service)
 	{
 		process_h *process = NULL;
-	
+
 		while_processes(process, service)
 		{
-			pipe_h * current_pipe = NULL;
+			pipe_h *current_pipe = NULL;
+
 			while_pipes(current_pipe, process)
 			{
-				if((current_pipe->dir == OUT_PIPE || current_pipe->dir == BUFFERED_OUT_PIPE) && current_pipe->pipe[0] == fd)
+				if ((current_pipe->dir == OUT_PIPE
+					 || current_pipe->dir == BUFFERED_OUT_PIPE)
+					&& current_pipe->pipe[0] == fd)
 				{
-					W_("Wont close output_pipe fd %i, used by service \"%s\"\n", fd,
-				   		service->name);
+					W_("Wont close output_pipe fd %i, used by service \"%s\"\n", fd, service->name);
 					return (TRUE);
 				}
-				else if (current_pipe->dir == IN_PIPE && current_pipe->pipe[1] == fd)
+				else if (current_pipe->dir == IN_PIPE
+						 && current_pipe->pipe[1] == fd)
 				{
-					W_("Wont close input_pipe fd %i, used by service \"%s\"\n", fd,
-				   		service->name);
+					W_("Wont close input_pipe fd %i, used by service \"%s\"\n", fd, service->name);
 					return (TRUE);
 				}
 			}
@@ -218,21 +220,22 @@ static int read_file(const char *filename)
 
 				/* fill the data */
 				process->pid = entry.process[pnr].pid;
-				
+
 				{
 					pipe_h *op = i_calloc(1, sizeof(pipe_h));
-					if(!op)
+
+					if (!op)
 					{
 						free(process);
 						continue;
 					}
-					
+
 					op->pipe[0] = entry.process[pnr].stdout1;
 					op->pipe[1] = entry.process[pnr].stdout2;
 					op->dir = BUFFERED_OUT_PIPE;
 					op->pipet = PIPE_STDOUT;
-					op->targets[0]=1;
-					op->targets[1]=2;
+					op->targets[0] = 1;
+					op->targets[1] = 2;
 					add_pipe(op, process);
 				}
 				process->r_code = entry.process[pnr].rcode;
@@ -344,7 +347,7 @@ static int write_file(const char *filename)
 		memset(&entry, 0, sizeof entry);
 		strncpy(entry.name, current->name, MAX_SERVICE_NAME_STRING_LEN);
 		strncpy(entry.state, current->current_state->state_name, 100);
-		if(current->type)
+		if (current->type)
 			strncpy(entry.type, current->type->name, 100);
 		memcpy(&entry.time_current_state, &current->time_current_state,
 			   sizeof(struct timeval));
@@ -357,17 +360,17 @@ static int write_file(const char *filename)
 			strncpy(entry.process[pnr].ptype, process->pt->name,
 					MAX_PTYPE_STRING_LEN);
 			entry.process[pnr].pid = process->pid;
-			
-			current_pipe=NULL;	
+
+			current_pipe = NULL;
 			while_pipes(current_pipe, process)
 			{
 				entry.process[pnr].stdout1 = current_pipe->pipe[0];
 				entry.process[pnr].stdout2 = current_pipe->pipe[1];
-				
+
 				/* TODO, add them all! */
 				break;
 			}
-				
+
 			entry.process[pnr].rcode = process->r_code;
 			pnr++;
 			if (pnr >= MAX_PROCESSES)

@@ -93,7 +93,8 @@ static void initng_fd_plugin_readpipe(active_db_h * service,
  * This function is called when data is polled below,
  * or when a process is freed ( with flush_buffer set)
  */
-void initng_fd_process_read_input(active_db_h * service, process_h * p, pipe_h * pi)
+void initng_fd_process_read_input(active_db_h * service, process_h * p,
+								  pipe_h * pi)
 {
 	int old_content_offset = pi->buffer_len;
 	int read_ret = 0;
@@ -182,7 +183,8 @@ void initng_fd_process_read_input(active_db_h * service, process_h * p, pipe_h *
 	if (pi->buffer_len > old_content_offset)
 	{
 		/* let all plugin take part of data */
-		initng_fd_plugin_readpipe(service, p, pi->buffer + old_content_offset);
+		initng_fd_plugin_readpipe(service, p,
+								  pi->buffer + old_content_offset);
 	}
 
 	/*if empty, dont waist memory */
@@ -245,7 +247,7 @@ void initng_fd_process_read_input(active_db_h * service, process_h * p, pipe_h *
 		/* Even if realloc failed, the buffer is still valid
 		   and we've still reduced the length of its contents */
 		pi->buffer_len = 9000;				/* shortened by 1000 chars */
-		pi->buffer[9000] = '\0';				/* shortened by 1000 chars */
+		pi->buffer[9000] = '\0';			/* shortened by 1000 chars */
 	}
 }
 
@@ -277,7 +279,7 @@ void initng_fd_plugin_poll(int timeout)
 	active_db_h *currentA, *qA;
 	s_call *currentC, *qC;
 	process_h *currentP, *qP;
-	pipe_h * current_pipe;
+	pipe_h *current_pipe;
 
 	/* initialization */
 	S_;
@@ -325,8 +327,8 @@ void initng_fd_plugin_poll(int timeout)
 			current_pipe = NULL;
 			while_pipes(current_pipe, currentP)
 			{
-				if ((current_pipe->dir == OUT_PIPE || 
-					 current_pipe->dir == BUFFERED_OUT_PIPE) && 
+				if ((current_pipe->dir == OUT_PIPE ||
+					 current_pipe->dir == BUFFERED_OUT_PIPE) &&
 					current_pipe->pipe[0] > 2)
 				{
 					FD_SET(current_pipe->pipe[0], &readset);
@@ -424,21 +426,24 @@ void initng_fd_plugin_poll(int timeout)
 		while_processes_safe(currentP, qP, currentA)
 		{
 			current_pipe = NULL;
-			
+
 			/* check if this fd is a pipe bound to a process */
 			while_pipes(current_pipe, currentP)
 			{
 				/* if this pipe is a process output pipe, and the pipe are opend, and if
 				 * there is data on it */
-				if((current_pipe->dir == OUT_PIPE || current_pipe->dir == BUFFERED_OUT_PIPE)&& current_pipe->pipe[0] > 2 &&
-					FD_ISSET(current_pipe->pipe[0], &readset))
+				if ((current_pipe->dir == OUT_PIPE
+					 || current_pipe->dir == BUFFERED_OUT_PIPE)
+					&& current_pipe->pipe[0] > 2
+					&& FD_ISSET(current_pipe->pipe[0], &readset))
 				{
 					D_("Will read from %s->start_process on fd #%i\n",
-				   		currentA->name, current_pipe->pipe[0]);
-					
+					   currentA->name, current_pipe->pipe[0]);
+
 					/* Do the actual read from pipe */
-					initng_fd_process_read_input(currentA, currentP, current_pipe);
-					
+					initng_fd_process_read_input(currentA, currentP,
+												 current_pipe);
+
 					/* Found match, that means we need to look for one less, if we've found all we should then return */
 					retval--;
 					if (retval == 0)

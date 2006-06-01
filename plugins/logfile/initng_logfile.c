@@ -51,7 +51,7 @@ static int program_output(active_db_h * service, process_h * x,
 	assert(x);
 
 	/*D_("%s process fd: # %i, %i, service %s, have something to say\n",
-	   x->pt->name, x->out_pipe[0], x->out_pipe[1], service->name);*/
+	   x->pt->name, x->out_pipe[0], x->out_pipe[1], service->name); */
 
 	/* get the filename */
 	filename = get_string(&LOGFILE, service);

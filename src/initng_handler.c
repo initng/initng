@@ -321,15 +321,15 @@ active_db_h *initng_handler_start_new_service_named(const char *service)
 			   to_load->name);
 			return (to_load);
 		}
-		
+
 		/* okay, now start it */
 		initng_handler_start_service(to_load);
 
 		return (to_load);
-		
+
 	}
 
-	/* get from hook */	
+	/* get from hook */
 	if ((to_load = initng_plugin_create_new_active(service)))
 	{
 		return (to_load);

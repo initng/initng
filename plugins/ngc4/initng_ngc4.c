@@ -1047,7 +1047,7 @@ static void cmd_options(char *arg, s_payload * payload)
 		payload->p = (option_row *) i_calloc(1, sizeof(option_row));
 		memset(payload->p, 0, sizeof(option_row));
 		option_row *row = payload->p;
-		
+
 		row->dt = OPTION_ROW;
 		strncpy(row->n, arg, 100);
 		strcpy(row->d, "NOT_FOUND");
@@ -1082,7 +1082,7 @@ static void cmd_options(char *arg, s_payload * payload)
 			continue;
 
 		/* if the names starts with "internal" its no value here */
-		if(strncasecmp(current->opt_name, "internal", 8) == 0)
+		if (strncasecmp(current->opt_name, "internal", 8) == 0)
 			continue;
 
 		row->dt = OPTION_ROW;

@@ -39,12 +39,13 @@ typedef struct active_type active_db_h;
 /* the active service struct */
 struct active_type
 {
+
 	/***** IDENTIFICATION ***********/
-	char *name;     /* the name of this service */
-	stype_h *type;  /* the service type */
+	char *name;					/* the name of this service */
+	stype_h *type;				/* the service type */
 
 	/******* STATE ******************/
-	
+
 	/*
 	 * current state.
 	 * This pointer point to a a_state_h struct containing
@@ -70,7 +71,7 @@ struct active_type
 	 * here is the last rough time, and a timepoint saved.
 	 */
 	e_is last_rought_state;
-	struct timeval last_rought_time; /* the time got last rught state */
+	struct timeval last_rought_time;	/* the time got last rught state */
 
 	/******** SUB_OBJECTS ***********/
 	/* list of system processes that are connected to this service */
@@ -78,7 +79,7 @@ struct active_type
 
 	/* a pointer to the entry in service_cache_db that matches our service */
 	service_cache_h *from_service;
-	
+
 	/*
 	 * list of data
 	 * Storage for all dynamic variables that are set to this

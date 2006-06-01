@@ -57,6 +57,7 @@ static service_cache_h *parse_file(char *filetoparse,
 	char *w = NULL;
 	char *a = NULL;
 	char *w_depends = NULL;
+
 	D_("parse_file(%s, %s);\n", filetoparse, runlevel_name);
 
 	/* allocate a new service */

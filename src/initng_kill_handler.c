@@ -90,7 +90,9 @@ void initng_kill_handler_killed_by_pid(pid_t kpid, int r_code)
 	/* close all pipes */
 	while_pipes(current_pipe, process)
 	{
-		if((current_pipe->dir == OUT_PIPE  || current_pipe->dir == BUFFERED_OUT_PIPE)&& current_pipe->pipe[0] > 0)
+		if ((current_pipe->dir == OUT_PIPE
+			 || current_pipe->dir == BUFFERED_OUT_PIPE)
+			&& current_pipe->pipe[0] > 0)
 		{
 			/*
 			 * calling initng_process_read_input, Make sure all buffers read, before closing them.
@@ -101,13 +103,13 @@ void initng_kill_handler_killed_by_pid(pid_t kpid, int r_code)
 			close(current_pipe->pipe[0]);
 			current_pipe->pipe[0] = -1;
 		}
-		
-		else if(current_pipe->dir == IN_PIPE && current_pipe->pipe[1] > 0)
+
+		else if (current_pipe->dir == IN_PIPE && current_pipe->pipe[1] > 0)
 		{
 			close(current_pipe->pipe[1]);
-			current_pipe->pipe[1]= -1;
+			current_pipe->pipe[1] = -1;
 		}
-	}	
+	}
 
 	/* Check if a plugin wants to override handle_killed behavior */
 	if (initng_plugin_callers_handle_killed(service, process))

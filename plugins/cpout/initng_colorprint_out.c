@@ -537,7 +537,7 @@ int module_init(int api_version)
 
 	}
 
-/* user might fore that we dont use any color */
+	/* user might fore that we dont use any color */
 #ifndef FORCE_NOCOLOR
 	/* enable color only on terminals */
 	if (isatty(fileno(output)))

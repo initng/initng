@@ -67,21 +67,21 @@ typedef struct
 {
 	/* this array contains the pipe fds */
 	int pipe[2];
-	
+
 	/* Whats this type?, this will be a pointer to a struct in the future */
 	e_pipet pipet;
-	
+
 	/* The direction of the stream, an OUTPUT or INPUT ?? */
 	e_dir dir;
-	
+
 	/* If targets set (max 10) the fd are duped after fork to match targets */
 	int targets[10];
-	
+
 	/* If this pipe is a BUFFERED_OUT_PIPE stor a buffer here */
 	char *buffer;				/* stdout buffer ## THE BEGINNING ## */
 	int buffer_allocated;		/* chars right now allocated for this buffer */
-	int buffer_len;				/* the count of chars from the beginning in buffer right now */	
-	
+	int buffer_len;				/* the count of chars from the beginning in buffer right now */
+
 	/* The list entry */
 	struct list_head list;
 } pipe_h;
@@ -97,10 +97,10 @@ struct t_process_h
 	 * example exit_code = WEXITSTATUS(process->r_code);
 	 */
 	int r_code;
-	
+
 	/* This is a list of pipes open to this process */
 	pipe_h pipes;
-	
+
 	/* small mark, this process are not freed directly this will be set to P_FREE */
 	e_pst pst;
 

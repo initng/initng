@@ -43,15 +43,18 @@ int main(int argc, char *argv[])
 	}
 #endif
 
-	if((fd = open("/proc/1/cmdline",O_RDONLY)) >= 0) {
-		if(read(fd, buf, 6) == 6) {
-			if(strncmp(buf,"initng",6) == 0)
+	if ((fd = open("/proc/1/cmdline", O_RDONLY)) >= 0)
+	{
+		if (read(fd, buf, 6) == 6)
+		{
+			if (strncmp(buf, "initng", 6) == 0)
 				is_initng = 1;
 		}
 		close(fd);
 	}
 
-	if(!is_initng) {
+	if (!is_initng)
+	{
 		execve("/sbin/runscript_orig", new_argv, environ);
 		fprintf(stderr, "Couldn't exec /sbin/runscript_orig\n");
 		exit(42);
@@ -64,7 +67,7 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
-	
+
 
 	/* replace startin '.' with full path */
 	if (argv[1][0] == '.')
@@ -90,7 +93,7 @@ int main(int argc, char *argv[])
 
 	/* cut service name from the last '/' found in service path */
 	servname = strdup(strrchr(path, '/') + 1);
-	if(strncmp(servname, "net.", 4) == 0)
+	if (strncmp(servname, "net.", 4) == 0)
 		servname[3] = '/';
 	/*printf("servname: %s\n", servname); */
 
@@ -136,10 +139,10 @@ int main(int argc, char *argv[])
 	/* check if command is valid */
 	if (strncmp(argv[2], "internal_", 9) != 0)
 	{
-		if(strcmp(argv[2]+9, "start") == 0 ||
-		   strcmp(argv[2]+9, "stop") == 0 ||
-		   strcmp(argv[2]+9, "daemon") == 0 ||
-		   strcmp(argv[2]+9, "kill") == 0)
+		if (strcmp(argv[2] + 9, "start") == 0 ||
+			strcmp(argv[2] + 9, "stop") == 0 ||
+			strcmp(argv[2] + 9, "daemon") == 0 ||
+			strcmp(argv[2] + 9, "kill") == 0)
 		{
 			printf("Bad command\n");
 			exit(3);
@@ -155,13 +158,13 @@ int main(int argc, char *argv[])
 
 	/* set up the bash script to run */
 	char script[1024];			/* plenty of space */
-	
+
 	strcpy(script, "#/bin/bash\n");
-	if(strcmp(argv[2],"internal_setup") == 0) 
+	if (strcmp(argv[2], "internal_setup") == 0)
 	{
+		strcat(script, "export PATH=/lib/ibin:$PATH\n");
 		strcat(script,
-		       "export PATH=/lib/ibin:$PATH\n");
-		strcat(script, "[[ ${RC_GOT_FUNCTIONS} != \"yes\" ]] && source /sbin/functions.sh\n");
+			   "[[ ${RC_GOT_FUNCTIONS} != \"yes\" ]] && source /sbin/functions.sh\n");
 		strcat(script, "[ -f /etc/conf.d/");
 		strcat(script, servname);
 		strcat(script, " ] && source /etc/conf.d/");
@@ -170,11 +173,14 @@ int main(int argc, char *argv[])
 		strcat(script, path);
 		strcat(script, " || exit $?\n");
 		strcat(script, "iregister service $SERVICE || exit $?\n");
-		strcat(script, "need() { iset $SERVICE need = \"$*\" || exit $?; }\n");
+		strcat(script,
+			   "need() { iset $SERVICE need = \"$*\" || exit $?; }\n");
 		strcat(script, "use() { iset $SERVICE use = \"$*\"|| exit $?; }\n");
 		strcat(script, "depend\n");
-		strcat(script, "iset $SERVICE exec start = \"$SERVICE_FILE internal_start\" || exit $?\n");
-		strcat(script, "for i in stop $opts; do if typeset -F \"$i\" &>/dev/null ; then iset $SERVICE exec $i = \"$SERVICE_FILE internal_$i\" || exit $?; echo $i; fi; done\n");
+		strcat(script,
+			   "iset $SERVICE exec start = \"$SERVICE_FILE internal_start\" || exit $?\n");
+		strcat(script,
+			   "for i in stop $opts; do if typeset -F \"$i\" &>/dev/null ; then iset $SERVICE exec $i = \"$SERVICE_FILE internal_$i\" || exit $?; echo $i; fi; done\n");
 		strcat(script, "idone $SERVICE || exit $?\n");
 	}
 	else
@@ -185,8 +191,9 @@ int main(int argc, char *argv[])
 		strcat(script, " command ");
 		strcat(script, &argv[2][9]);
 		strcat(script,
-		       " not found.\"\nreturn 1\n}\nexport PATH=/lib/ibin:$PATH\n");
-		strcat(script, "[[ ${RC_GOT_FUNCTIONS} != \"yes\" ]] && source /sbin/functions.sh\n");		
+			   " not found.\"\nreturn 1\n}\nexport PATH=/lib/ibin:$PATH\n");
+		strcat(script,
+			   "[[ ${RC_GOT_FUNCTIONS} != \"yes\" ]] && source /sbin/functions.sh\n");
 		strcat(script, "[ -f /etc/conf.d/");
 		strcat(script, servname);
 		strcat(script, " ] && source /etc/conf.d/");

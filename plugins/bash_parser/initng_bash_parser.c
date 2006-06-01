@@ -636,11 +636,11 @@ static active_db_h *create_new_active(const char *name)
 	strncat(file, name, 1020 - strlen(SCRIPT_PATH));
 	if (stat(file, &fstat) != 0)
 	{
-#if 0 /* Gentoo support disabled for now - doesn't work properly yet */
+#if 0										/* Gentoo support disabled for now - doesn't work properly yet */
 		strcpy(file, "/etc/init.d/");
 		strncat(file, name, 1020 - strlen("/etc/init.d/"));
-		
-		if(stat(file, &fstat) != 0)
+
+		if (stat(file, &fstat) != 0)
 		{
 			/* file not found */
 			return (NULL);

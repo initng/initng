@@ -127,7 +127,8 @@ void filemon_event(f_module_h * from, e_fdw what)
 			if (event->wd == plugins_watch && event->len
 				&& strstr(event->name, ".so"))
 			{
-				W_("Plugin %s/%s has been changed, reloading initng.\n", INITNG_PLUGIN_DIR, event->name);
+				W_("Plugin %s/%s has been changed, reloading initng.\n",
+				   INITNG_PLUGIN_DIR, event->name);
 
 				/* sleep 1 seconds, maby more files will be modified in short */
 				sleep(1);
@@ -155,38 +156,41 @@ void filemon_event(f_module_h * from, e_fdw what)
 
 
 			/* check if there are any data file updated */
-			if(((tmp=strstr(event->name, ".i")) && tmp[2]=='\0') || strstr(event->name, ".runlevel") || strstr(event->name, ".virtual"))
+			if (((tmp = strstr(event->name, ".i")) && tmp[2] == '\0')
+				|| strstr(event->name, ".runlevel")
+				|| strstr(event->name, ".virtual"))
 			{
 				/* if cache is not cleared */
 				if (!list_empty(&g.service_cache.list))
 				{
-				
-				/* zap failing services using this file */
-				{
-					active_db_h *active = NULL;
-					active_db_h *safe = NULL;
-					const char *fn;
-					while_active_db_safe(active, safe)
+
+					/* zap failing services using this file */
 					{
-						/* if we got a string from FROM_FILE */
-						if((fn=get_string(&FROM_FILE, active)) &&
-						/* and we found the file in that string */
-						strstr(fn, event->name) &&
-						/* and the service is marked FAILED */
-						IS_FAILED(active))
+						active_db_h *active = NULL;
+						active_db_h *safe = NULL;
+						const char *fn;
+
+						while_active_db_safe(active, safe)
 						{
-							W_("Zapping %s becouse the source %s has changed, and it might work again.\n", active->name, event->name);
+							/* if we got a string from FROM_FILE */
+							if ((fn = get_string(&FROM_FILE, active)) &&
+								/* and we found the file in that string */
+								strstr(fn, event->name) &&
+								/* and the service is marked FAILED */
+								IS_FAILED(active))
+							{
+								W_("Zapping %s becouse the source %s has changed, and it might work again.\n", active->name, event->name);
 								initng_active_db_free(active);
+							}
 						}
 					}
-				}
-				
+
 					W_("Source file \"%s\" changed, flushing file cache.\n",
-				 	  event->len ? event->name : "unkown");
+					   event->len ? event->name : "unkown");
 					initng_service_cache_free_all();
 				}
-				
-				
+
+
 			}
 
 		}
@@ -312,4 +316,3 @@ void module_unload(void)
 	/* remove hooks */
 	initng_plugin_hook_unregister(&g.FDWATCHERS, &fdh);
 }
-

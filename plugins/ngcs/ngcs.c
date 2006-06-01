@@ -274,7 +274,7 @@ void docmd(char *cmd, char *arg)
 
 	if (strcmp(cmd, "--watch") == 0)
 	{
-		res->d.svc_watch.in_present = 0; 
+		res->d.svc_watch.in_present = 0;
 		res->d.svc_watch.got_svcs = 0;
 		res->d.svc_watch.mode = WATCH_NORMAL;
 		if (ngcs_watch_service(cconn, arg, NGCS_WATCH_OUTPUT |

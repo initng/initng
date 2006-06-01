@@ -105,7 +105,7 @@ static char *cmd_print_fds(char *arg)
 	active_db_h *currentA;
 	s_call *currentC;
 	process_h *currentP;
-	pipe_h * current_pipe;
+	pipe_h *current_pipe;
 	int i;
 
 	for (i = 0; i < 1024; i++)
@@ -132,10 +132,12 @@ static char *cmd_print_fds(char *arg)
 				current_pipe = NULL;
 				while_pipes(current_pipe, currentP)
 				{
-					if(current_pipe->pipe[0] == i || current_pipe->pipe[1] == i)
+					if (current_pipe->pipe[0] == i
+						|| current_pipe->pipe[1] == i)
 					{
-						mprintf(&string, " %i: Used service: %s, process: %s\n", i,
-							currentA->name, currentP->pt->name);
+						mprintf(&string,
+								" %i: Used service: %s, process: %s\n", i,
+								currentA->name, currentP->pt->name);
 					}
 				}
 			}

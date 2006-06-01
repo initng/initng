@@ -348,7 +348,7 @@ void ngcs_client_dispatch(ngcs_cli_conn * cconn)
 {
 	ngcs_cli_req *req, *next;
 
-	if(cconn->conn != NULL)
+	if (cconn->conn != NULL)
 		ngcs_conn_dispatch(cconn->conn);
 
 	list_for_each_entry_safe(req, next, &cconn->resps.list, list)
