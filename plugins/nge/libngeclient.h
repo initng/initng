@@ -38,24 +38,6 @@ typedef enum
 	PROCESS_KILLED = 10,
 } e_state_type;
 
-
-/* old code
-   void (*service_state_change) (nge_event * event, char *service, e_is is,
-   char *state_name);
-   void (*system_state_change) (nge_event * event, h_sys_state state);
-   void (*service_output) (nge_event * event, char *service, char *process,
-   char *output);
-   void (*err_msg) (nge_event * event, e_mt mt, char *file, char *func,
-   int line, char *message);
-   void (*connect) (nge_event * event, int pver, char *initng_version);
-   void (*disconnect) (nge_event * event);
-   void (*ping) (nge_event * event);
-   void (*initial_service_state) (nge_event * event, char *service, e_is is,
-   char *state_name);
-   void (*initial_system_state) (nge_event * event, h_sys_state state);
-   void (*initial_state_finished) (nge_event * event);
- */
-
 typedef struct
 {
 	/* standard variables to have */

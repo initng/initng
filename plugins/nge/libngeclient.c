@@ -642,7 +642,6 @@ nge_event *get_next_event(nge_connection * c, int block)
 	/* check that its anything there after the long poll */
 	if (c->read_buffer == NULL || c->read_buffer_len < 1)
 	{
-		ngeclient_error = "Even after a long poll, there was no data.";
 		return (NULL);
 	}
 
