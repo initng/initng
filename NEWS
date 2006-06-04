@@ -2,15 +2,15 @@ Version History:
 ---------------
 2006/04/18
 initng-0.6.7 Never been so good (Part 4)
-	* the whole code which was LGPL by accidentisnow GPL again
-	* Added netdev plugin, network interfaces can now be used like need = device/eth0;
+	* Code listed by accident under the LGPL is now GPL again
+	* Added netdev plugin, network interfaces can now be specified using need = device/eth0;
 	* Added fmon plugin, if initng sources are modified, initng will notice.
 	* Plugin paths are saved in initng core for monitoring.
 	* killalli5 has been improved with an ignore list, tries not to kill initng services.
-	* initng-usplash, now proper usplash support with ubuntu.
+	* initng-usplash plugin now provides proper usplash support with ubuntu.
 	* Plugins are now loaded in alpabetical order, might prevent bugs when the order is random, also easier to test.
 	* New version check when loading plugins, hopefully no more problems where stale plugins in /lib/initng* prevented your computer from booting.
-	* Thanks to fmon plugin, hopefully problems mounting / read only due to a kernel bug is fixed, read wiki FAQ for more info about this bug.
+	* Thanks to fmon plugin, hopefully problems mounting / read only due to a kernel bug are fixed, read wiki FAQ for more info about this bug.
 	* nge plugin now gives some more info to the listeners.
 	* nge protocol version bumped.
 	* add cpout_nocolors to initline if you dont like ansi colors on screen.
