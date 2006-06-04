@@ -116,7 +116,7 @@ int st_cmp(char **string, const char *to_cmp)
  * line with "this is one word", it will i_strdup it, and
  * add word length on string pointer
  */
-char *st_dup_next_word(char **string)
+char *st_dup_next_word(const char **string)
 {
 	char *td = NULL;
 	int i = 0;

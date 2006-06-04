@@ -62,7 +62,7 @@
     while ((s)[0] == ' ' || (s)[0] == '\t') (s)++;
 
 int st_cmp(char **string, const char *to_cmp);
-char *st_dup_next_word(char **string);
+char *st_dup_next_word(const char **string);
 char *st_dup_line(char **string);
 
 

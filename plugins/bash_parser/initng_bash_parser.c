@@ -50,6 +50,7 @@
 #include <initng_control_command.h>
 #include <initng_fork.h>
 #include <initng_common.h>
+#include <initng_string_tools.h>
 
 #include <initng-paths.h>
 
@@ -267,8 +268,14 @@ static void bp_set_variable(bp_rep * rep, const char *service,
 			break;
 		case STRINGS:
 		case VARIABLE_STRINGS:
-			set_another_string_var(type, varname ? i_strdup(varname) : NULL,
-								   active, i_strdup(value));
+			{
+				char *new_st = NULL;
+				while((new_st=st_dup_next_word(&value)))
+				{
+					set_another_string_var(type, varname ? i_strdup(varname) : NULL,
+								   active, new_st);
+				}
+			}
 			D_("strings type\n");
 			break;
 		case SET:

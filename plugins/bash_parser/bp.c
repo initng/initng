@@ -74,6 +74,13 @@ int main(int argc, char **argv)
 	/*if(service)
 		printf("SERVICE: %s\n", service);*/
 
+	{
+		int i;
+		printf(" **||** ");
+		for(i=0; argv[i]; i++)
+			printf("%s ", argv[i]);
+		printf("\n");
+	}
 	/* printf("argc: %i argv[0]: %s :: %s\n", argc, argv[0], argv0); */
 
 	/* Sort by the number of arguments */
