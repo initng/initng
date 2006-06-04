@@ -239,10 +239,10 @@ int bp_new_active(const char *type, const char *service)
 	return (bp_send(&to_send));
 }
 
-/* Open, Send, Close */
+/* Open, Send, Read, Close */
 int bp_send(bp_req * to_send)
 {
-	int sock = -1;
+	int sock = 3;  /* testing fd 3, that is the oficcial pipe to initng for this communication */
 	int len;
 	struct sockaddr_un sockname;
 
@@ -254,26 +254,31 @@ int bp_send(bp_req * to_send)
 	assert(to_send);
 	to_send->version = BASH_PARSER_VERSION;
 
-	/* Create the socket. */
-	sock = socket(PF_UNIX, SOCK_STREAM, 0);
-	if (sock < 0)
+	/* check if we can use fd 3 to talk to initng */
+	if(fcntl(sock, F_GETFD)<0)
 	{
-		message = strdup("Failed to init socket.");
-		return (FALSE);
+	
+		/* ELSE Create new socket. */
+		sock = socket(PF_UNIX, SOCK_STREAM, 0);
+		if (sock < 0)
+		{
+			message = strdup("Failed to init socket.");
+			return (FALSE);
+		}
+
+		/* Bind a name to the socket. */
+		sockname.sun_family = AF_UNIX;
+		strcpy(sockname.sun_path, SOCKET_PATH);
+		len = strlen(SOCKET_PATH) + sizeof(sockname.sun_family);
+
+		if (connect(sock, (struct sockaddr *) &sockname, len) < 0)
+		{
+			close(sock);
+			message = strdup("Error connecting to socket");
+			return (FALSE);
+		}
 	}
-
-	/* Bind a name to the socket. */
-	sockname.sun_family = AF_UNIX;
-	strcpy(sockname.sun_path, SOCKET_PATH);
-	len = strlen(SOCKET_PATH) + sizeof(sockname.sun_family);
-
-	if (connect(sock, (struct sockaddr *) &sockname, len) < 0)
-	{
-		close(sock);
-		message = strdup("Error connecting to socket");
-		return (FALSE);
-	}
-
+	
 	/* Put it not to block, waiting for more data on rscv */
 	{
 		int cur = fcntl(sock, F_GETFL, 0);
@@ -302,8 +307,9 @@ int bp_send(bp_req * to_send)
 		return (FALSE);
 	}
 
-	/* close the socket */
-	close(sock);
+	/* close the socket, if its an own created one */
+	if(sock != 3)
+		close(sock);
 
 	/* if initng leave us a message, save it */
 	if (strlen(rep.message) > 1)

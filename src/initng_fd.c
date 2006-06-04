@@ -266,6 +266,7 @@ void initng_fd_process_read_input(active_db_h * service, process_h * p,
 	}
 }
 
+#define STILL_OPEN(fd) (fcntl(fd, F_GETFD)>=0)
 
 /*
  * FILEDESCRIPTORPOLLNG
@@ -321,6 +322,14 @@ void initng_fd_plugin_poll(int timeout)
 			continue;
 		if (!currentC->c.fdh->call_module)
 			continue;
+		
+		/* This is a expensive test, but better safe then sorry */
+		if(!STILL_OPEN(currentC->c.fdh->fds))
+		{
+			W_("%i is not open anymore.\n", currentC->c.fdh->fds);
+			currentC->c.fdh->fds=-1;
+			continue;
+		}
 
 		/*D_("adding fd #%i, from an call_db.\n", current->c.fdh->fds); */
 		if (currentC->c.fdh->what & FDW_READ)
@@ -346,6 +355,15 @@ void initng_fd_plugin_poll(int timeout)
 					 current_pipe->dir == BUFFERED_OUT_PIPE) &&
 					current_pipe->pipe[0] > 2)
 				{
+					/* expensive test to make sure the pipe is open, before adding */
+					if(!STILL_OPEN(current_pipe->pipe[0]))
+					{
+						W_("%i is not open anymore.\n", current_pipe->pipe[0]);
+						current_pipe->pipe[0]=-1;
+						continue;
+					}
+						
+				
 					FD_SET(current_pipe->pipe[0], &readset);
 					added++;
 				}
@@ -353,6 +371,15 @@ void initng_fd_plugin_poll(int timeout)
 				if (current_pipe->dir == IN_AND_OUT_PIPE &&
 				    current_pipe->pipe[1] > 2)
 				{
+					/* expensive test to make sure the pipe is open, before adding */
+					if(!STILL_OPEN(current_pipe->pipe[1]))
+					{
+						W_("%i is not open anymore.\n", current_pipe->pipe[1]);
+						current_pipe->pipe[1]=-1;
+						continue;
+					}
+
+
 					FD_SET(current_pipe->pipe[1], &readset);
 					added++;
 				}
@@ -360,6 +387,15 @@ void initng_fd_plugin_poll(int timeout)
 				if (current_pipe->dir == IN_PIPE &&
 				    current_pipe->pipe[1] > 2)
 				{
+					/* expensive test to make sure the pipe is open, before adding */
+					if(!STILL_OPEN(current_pipe->pipe[1]))
+					{
+						W_("%i is not open anymore.\n", current_pipe->pipe[1]);
+						current_pipe->pipe[1]=-1;
+						continue;
+					}
+
+
 					FD_SET(current_pipe->pipe[1], &writeset);
 					added++;
 				}
@@ -515,6 +551,11 @@ void initng_fd_plugin_poll(int timeout)
 
 			}
 		}
+	}
+	
+	if(retval!=0)
+	{
+		F_("There is a missed pipe or fd that we missed to poll!\n");
 	}
 
 	return;

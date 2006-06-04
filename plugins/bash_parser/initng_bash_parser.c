@@ -99,7 +99,7 @@ stype_h unset = { "unset", "Service type is not set yet, are still parsing.", FA
 struct stat sock_stat;
 f_module_h bpf = { &bp_incomming, FDW_READ, -1 };
 
-#define RSCV() (TEMP_FAILURE_RETRY(recv(fd, &req, sizeof(bp_req), 0)) == (signed) sizeof(bp_req))
+#define RSCV() (TEMP_FAILURE_RETRY(recv(fd, &req, sizeof(bp_req), 0)))
 #define SEND() send(fd, &rep, sizeof(bp_rep), 0)
 
 
@@ -107,13 +107,24 @@ static void bp_handle_client(int fd)
 {
 	bp_req req;
 	bp_rep rep;
+	int r;
 
 	D_("Got connection\n");
 	memset(&req, 0, sizeof(bp_req));
 	memset(&rep, 0, sizeof(bp_rep));
 
 	/* use file descriptor, because fread hangs here? */
-	if (!RSCV())
+	r=RSCV();
+	
+	/* make sure it has not closed */
+	if(r==0)
+	{
+		/*printf("Closing %i.\n", fd);*/
+		close(fd);
+		return;
+	}
+		
+	if (r != (signed) sizeof(bp_req))
 	{
 		F_("Could not read incomming bash_parser req.\n");
 		strcpy(rep.message, "Unable to read request");
@@ -632,7 +643,7 @@ static active_db_h *create_new_active(const char *name)
 	active_db_h *new_active;
 	process_h *process;
 	pipe_h *current_pipe;
-	printf("create_new_active(%s);\n", name);
+	/*printf("create_new_active(%s);\n", name);*/
 
 	/* check if initfile exists */
 	strncat(file, name, 1020 - strlen(SCRIPT_PATH));
@@ -703,11 +714,8 @@ static active_db_h *create_new_active(const char *name)
 
 static int get_pipe(active_db_h * service, process_h * process, pipe_h * pi)
 {
-	char buffer[1025];
-	int r;
-	
-	printf("Got and get_pipe: %s, %i, %i\n", service->name, pi->dir, pi->targets[0]);
-	
+	/*printf("get_pipe(%s, %i, %i);\n", service->name, pi->dir, pi->targets[0]);*/
+
 	/* extra check */
 	if(pi->dir != IN_AND_OUT_PIPE)
 		return(FALSE);
@@ -715,24 +723,11 @@ static int get_pipe(active_db_h * service, process_h * process, pipe_h * pi)
 	/* the pipe we opened was on fd 3 */
 	if(pi->targets[0] != 3)
 		return(FALSE);
-		
-	r=read(pi->pipe[1], buffer, 1024);
+
+	/* handle the client in the same way, as a fifo connected one */
+	bp_handle_client(pi->pipe[1]);
 	
-	
-	/* if the other side closed the connection ... */
-	if(r==0)
-	{
-		close(pi->pipe[1]);
-		pi->pipe[1]=-1;
-	}
-	
-	if(r>0)
-	{
-		/* terminate end, read does not do that */
-		buffer[r]='\0';	
-		printf("LOOK: \"%s\"\n", buffer);
-	}
-	
+	/* return happy */
 	return(TRUE);
 }
 
@@ -751,7 +746,7 @@ int module_init(int api_version)
 
 	D_("adding hook, that will reopen socket, for every started service.\n");
 	initng_process_db_ptype_register(&parse);
-	initng_plugin_hook_register(&g.FDWATCHERS, 30, &bpf);
+	/*initng_plugin_hook_register(&g.FDWATCHERS, 30, &bpf);*/
 	initng_plugin_hook_register(&g.SIGNAL, 50, &bp_check_socket);
 	initng_plugin_hook_register(&g.NEW_ACTIVE, 50, &create_new_active);
 	initng_plugin_hook_register(&g.PIPE_WATCHER, 30, &get_pipe);
@@ -773,7 +768,7 @@ void module_unload(void)
 
 	/* remove hooks */
 	initng_process_db_ptype_unregister(&parse);
-	initng_plugin_hook_unregister(&g.FDWATCHERS, &bpf);
+	/* initng_plugin_hook_unregister(&g.FDWATCHERS, &bpf);*/
 	initng_plugin_hook_unregister(&g.SIGNAL, &bp_check_socket);
 	initng_plugin_hook_unregister(&g.NEW_ACTIVE, &create_new_active);
 	initng_plugin_hook_unregister(&g.PIPE_WATCHER, &get_pipe);
