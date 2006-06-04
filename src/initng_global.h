@@ -72,7 +72,7 @@ typedef struct
 	s_call ADDITIONAL_PARSE;	/* Called after a service been parsed, and extra parsing may exist */
 	s_call SWATCHERS;			/* Called when system state changes */
 	s_call FDWATCHERS;			/* Called when initng open file descriptors receive data */
-	s_call BUFFER_WATCHER;		/* Called when a service has some output, that initng received */
+	s_call BUFFER_WATCHER;		/* Called when a service have outputed, and initng have filled its output buffer. */
 	s_call SIGNAL;				/* Called when initng rescives a signal, like SIGHUP */
 	s_call MAIN;				/* Called every main loop */
 	s_call A_FORK;				/* Called after a process forks to start */
@@ -84,6 +84,7 @@ typedef struct
 	s_call RELOAD_ACTIVE_DB;	/* Asks for a plugin willing to reload the active_db from a dump */
 	s_call DEP_ON;				/* Called when a function tries to find out a service dependency */
 	s_call NEW_ACTIVE;			/* Called when initng trys to resolve a nonexistive service to start */
+	s_call PIPE_WATCHER;		/* watch pipes for communication */
 
 	/* new ones */
 	s_call IS_CHANGE;			/* Called when the rough state of a service changes */

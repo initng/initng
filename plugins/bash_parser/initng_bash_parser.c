@@ -632,6 +632,7 @@ static active_db_h *create_new_active(const char *name)
 	active_db_h *new_active;
 	process_h *process;
 	pipe_h *current_pipe;
+	printf("create_new_active(%s);\n", name);
 
 	/* check if initfile exists */
 	strncat(file, name, 1020 - strlen(SCRIPT_PATH));
@@ -709,6 +710,38 @@ static active_db_h *create_new_active(const char *name)
 	return (new_active);
 }
 
+static int get_pipe(active_db_h * service, process_h * process, pipe_h * pi)
+{
+	char buffer[1025];
+	int r;
+	
+	/* extra check */
+	if(pi->dir != OUT_PIPE)
+		return(FALSE);
+
+	/* the pipe we opened was on fd 3 */
+	if(pi->targets[0] != 3)
+		return(FALSE);
+		
+	r=read(pi->pipe[0], buffer, 1024);
+	
+	
+	/* if the other side closed the connection ... */
+	if(r==0)
+	{
+		close(pi->pipe[0]);
+		pi->pipe[0]=-1;
+	}
+	
+	if(r>0)
+	{
+		/* terminate end, read does not do that */
+		buffer[r]='\0';	
+		printf("LOOK: \"%s\"\n", buffer);
+	}
+	
+	return(TRUE);
+}
 
 int module_init(int api_version)
 {
@@ -728,6 +761,7 @@ int module_init(int api_version)
 	initng_plugin_hook_register(&g.FDWATCHERS, 30, &bpf);
 	initng_plugin_hook_register(&g.SIGNAL, 50, &bp_check_socket);
 	initng_plugin_hook_register(&g.NEW_ACTIVE, 50, &create_new_active);
+	initng_plugin_hook_register(&g.PIPE_WATCHER, 30, &get_pipe);
 	initng_active_state_register(&PARSING);
 	initng_active_state_register(&PARSE_FAIL);
 
@@ -749,6 +783,7 @@ void module_unload(void)
 	initng_plugin_hook_unregister(&g.FDWATCHERS, &bpf);
 	initng_plugin_hook_unregister(&g.SIGNAL, &bp_check_socket);
 	initng_plugin_hook_unregister(&g.NEW_ACTIVE, &create_new_active);
+	initng_plugin_hook_unregister(&g.PIPE_WATCHER, &get_pipe);
 	initng_active_state_unregister(&PARSING);
 	initng_active_state_unregister(&PARSE_FAIL);
 }

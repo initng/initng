@@ -924,7 +924,7 @@ static void cmd_start(char *arg, s_payload * payload)
 	row->dt = ACTIVE_ROW;
 
 	/* argument required */
-	if (!arg || strlen(arg) < 2)
+	if (!arg || strlen(arg) < 1)
 	{
 		strcpy(row->state, "NOT_FOUND");
 		row->is = IS_FAILED;

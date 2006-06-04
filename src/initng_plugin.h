@@ -50,6 +50,7 @@ typedef union
 	void (*swatcher) (h_sys_state state);
 	int (*buffer_watcher) (active_db_h * service, process_h * process, pipe_h * pi,
 						char *buffer_pos);
+	int (*pipe_watcher) (active_db_h * service, process_h * process, pipe_h * pi);
 	int (*launch) (active_db_h * service, process_h * process,
 				   const char *exec_name);
 	int (*af_launcher) (active_db_h * service, process_h * process);

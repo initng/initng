@@ -89,6 +89,21 @@ static void initng_fd_plugin_readpipe(active_db_h * service,
 }
 
 
+/* if there is data incomming in a pipe, tell the plugins */
+static int initng_fd_pipe(active_db_h * service, process_h * process, pipe_h * pi)
+{
+	s_call *current = NULL;
+
+	while_list(current, &g.PIPE_WATCHER)
+	{
+		if ((*current->c.pipe_watcher) (service, process, pi) == TRUE)
+			return(TRUE);
+	}
+
+	return(FALSE);
+}
+
+
 /*
  * This function is called when data is polled below,
  * or when a process is freed ( with flush_buffer set)
@@ -334,6 +349,13 @@ void initng_fd_plugin_poll(int timeout)
 					FD_SET(current_pipe->pipe[0], &readset);
 					added++;
 				}
+				
+				if (current_pipe->dir == IN_PIPE &&
+				    current_pipe->pipe[1] > 2)
+				{
+					FD_SET(current_pipe->pipe[1], &writeset);
+					added++;
+				}
 			}
 		}
 	}
@@ -452,7 +474,7 @@ void initng_fd_plugin_poll(int timeout)
 				   current_pipe->pipe[0] > 2 &&
 				   FD_ISSET(current_pipe->pipe[0], &readset))
 				{
-					D_("TODO, call pipe watchers...\n");
+					initng_fd_pipe(currentA, currentP, current_pipe);
 
 					/* Found match, that means we need to look for one less, if we've found all we should then return */
 					retval--;
@@ -460,6 +482,19 @@ void initng_fd_plugin_poll(int timeout)
 						return;
 				}
 					
+
+				if(current_pipe->dir == IN_PIPE &&
+				   current_pipe->pipe[1] > 2 &&
+				   FD_ISSET(current_pipe->pipe[1], &writeset))
+				{
+					initng_fd_pipe(currentA, currentP, current_pipe);
+
+					/* Found match, that means we need to look for one less, if we've found all we should then return */
+					retval--;
+					if (retval == 0)
+						return;
+				}
+
 			}
 		}
 	}
