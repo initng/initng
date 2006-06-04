@@ -122,6 +122,14 @@ int main(int argc, char **argv)
 					status = bp_new_active(argv[1], service);
 					break;
 				}
+
+				/* iset <service> test */
+				if (strcmp(argv0, "set") == 0 ||
+										  strcmp(argv0, "iset") == 0)
+				{
+					status = bp_set_variable(service, argv[1], NULL, NULL);
+					break;
+				}
 				break;
 
 			case 3:
@@ -131,6 +139,15 @@ int main(int argc, char **argv)
 					status = bp_get_variable(service, argv[1], argv[2]);
 					break;
 				}
+
+				/* iset <service> var test */
+				if (strcmp(argv0, "set") == 0 ||
+										  strcmp(argv0, "iset") == 0)
+				{
+					status = bp_set_variable(service, argv[1], argv[2], NULL);
+					break;
+				}
+
 				break;
 
 			case 4:
@@ -193,6 +210,14 @@ int main(int argc, char **argv)
 					status = bp_new_active(argv[1], argv[2]);
 					break;
 				}
+				/* iset <service> test */
+				if (strcmp(argv0, "set") == 0 ||
+										  strcmp(argv0, "iset") == 0)
+				{
+					status = bp_set_variable(argv[1], argv[2], NULL, NULL);
+					break;
+				}
+
 				break;
 
 			case 4:
@@ -202,6 +227,14 @@ int main(int argc, char **argv)
 					status = bp_get_variable(argv[1], argv[2], argv[3]);
 					break;
 				}
+				/* iset <service> var test */
+				if (strcmp(argv0, "set") == 0 ||
+										  strcmp(argv0, "iset") == 0)
+				{
+					status = bp_set_variable(argv[1], argv[2], argv[3], NULL);
+					break;
+				}
+
 				break;
 
 			case 5:
@@ -301,6 +334,7 @@ int bp_set_variable(const char *service, const char *vartype,
 
 	memset(&to_send, 0, sizeof(bp_req));
 
+	printf("bp_set_variable(%s, %s, %s, %s)\n", service, vartype, varname, value);
 	to_send.request = SET_VARIABLE;
 
 	strncpy(to_send.u.set_variable.service, service, 100);
@@ -309,7 +343,8 @@ int bp_set_variable(const char *service, const char *vartype,
 	if (varname)
 		strncpy(to_send.u.set_variable.varname, varname, 100);
 
-	strncpy(to_send.u.set_variable.value, value, 1024);
+	if (value)
+		strncpy(to_send.u.set_variable.value, value, 1024);
 
 	return (bp_send(&to_send));
 }

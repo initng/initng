@@ -223,12 +223,14 @@ static void bp_set_variable(bp_rep * rep, const char *service,
 	s_entry *type;
 	active_db_h *active = initng_active_db_find_by_exact_name(service);
 
-	/* This one is not required */
-	if (strlen(varname) < 1)
+	/* make sure there are filled, or NULL, these variables are not strictly requierd */
+	if (!varname || strlen(varname) < 1)
 		varname = NULL;
+	if (!value || strlen(value) < 1)
+		value = NULL;
 
 	/* but these are */
-	if (strlen(service) < 1 || strlen(vartype) < 1 || strlen(value) < 1)
+	if (strlen(service) < 1 || strlen(vartype) < 1)
 	{
 		strcpy(rep->message, "Variables missing.");
 		rep->success = FALSE;
@@ -256,6 +258,17 @@ static void bp_set_variable(bp_rep * rep, const char *service,
 		strcpy(rep->message, "Variable entry not found.");
 		rep->success = FALSE;
 		return;
+	}
+
+	/* now we now if variable is required or not */
+	if(!value)
+	{
+		if((type->opt_type != SET && type->opt_type != VARIABLE_SET))
+		{
+			strcpy(rep->message, "Value missing.");
+			rep->success = FALSE;
+			return;
+		}
 	}
 
 	switch (type->opt_type)
