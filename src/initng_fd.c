@@ -350,6 +350,13 @@ void initng_fd_plugin_poll(int timeout)
 					added++;
 				}
 				
+				if (current_pipe->dir == IN_AND_OUT_PIPE &&
+				    current_pipe->pipe[1] > 2)
+				{
+					FD_SET(current_pipe->pipe[1], &readset);
+					added++;
+				}
+
 				if (current_pipe->dir == IN_PIPE &&
 				    current_pipe->pipe[1] > 2)
 				{
@@ -482,6 +489,17 @@ void initng_fd_plugin_poll(int timeout)
 						return;
 				}
 					
+				if(current_pipe->dir == IN_AND_OUT_PIPE &&
+				   current_pipe->pipe[1] > 2 &&
+				   FD_ISSET(current_pipe->pipe[1], &readset))
+				{
+					initng_fd_pipe(currentA, currentP, current_pipe);
+
+					/* Found match, that means we need to look for one less, if we've found all we should then return */
+					retval--;
+					if (retval == 0)
+						return;
+				}
 
 				if(current_pipe->dir == IN_PIPE &&
 				   current_pipe->pipe[1] > 2 &&

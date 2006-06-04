@@ -59,7 +59,8 @@ typedef enum
 	UNKNOWN_PIPE = 0,
 	OUT_PIPE = 1,
 	IN_PIPE = 2,
-	BUFFERED_OUT_PIPE = 3
+	BUFFERED_OUT_PIPE = 3,
+	IN_AND_OUT_PIPE = 4,
 } e_dir;
 
 /* the pipe identifier */
