@@ -77,7 +77,8 @@ static void handle_killed(active_db_h * service, process_h * process);
 
 #define SOCKET_4_ROOTPATH "/dev/initng"
 
-a_state_h PARSING = { "PARSING", "This is service is parsing by bash_parser.", IS_DOWN, NULL, NULL, NULL };
+a_state_h PARSING = { "PARSING", "This is service is parsing by bash_parser.", IS_STARTING, NULL, NULL, NULL };
+a_state_h REDY_TO_START = { "REDY_TO_START", "This service is finished loading.", IS_DOWN, NULL, NULL, NULL };
 a_state_h PARSE_FAIL = { "PARSE_FAIL", "This parse process failed.", IS_FAILED, NULL, NULL, NULL };
 
 /* put null to the kill_handler here */
@@ -429,6 +430,10 @@ static void bp_done(bp_rep * rep, const char *service)
 		return;
 	}
 
+	/* must set to a DOWN state, to be able to start */
+	active->current_state=&REDY_TO_START;
+	
+	/* start this service */
 	rep->success = initng_handler_start_service(active);
 	return;
 }
