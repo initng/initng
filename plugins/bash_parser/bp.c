@@ -59,6 +59,7 @@ char *message;
 int main(int argc, char **argv)
 {
 	int status = 99;
+	char *service = NULL;
 
 	/* cut path or so from name */
 	char *argv0 = strrchr(argv[0], '/');
@@ -68,76 +69,158 @@ int main(int argc, char **argv)
 	if (argv0[0] == '/')
 		argv0++;
 
+	service = getenv("SERVICE");
+	
+	/*if(service)
+		printf("SERVICE: %s\n", service);*/
+
 	/* printf("argc: %i argv[0]: %s :: %s\n", argc, argv[0], argv0); */
 
 	/* Sort by the number of arguments */
-	switch (argc)
+
+	/* if service is known, we dont need that in the argline */
+	if (service)
 	{
-		case 2:
-			/* abort service */
-			if (strcmp(argv0, "abort") == 0 || strcmp(argv0, "iabort") == 0)
-			{
-				status = bp_abort(argv[1]);
-				break;
-			}
+		switch (argc)
+		{
+			case 1:
+				/* abort <service> */
+				if (strcmp(argv0, "abort") == 0
+					|| strcmp(argv0, "iabort") == 0)
+				{
+					status = bp_abort(service);
+					break;
+				}
 
-			/* done service */
-			if (strcmp(argv0, "done") == 0 || strcmp(argv0, "idone") == 0)
-			{
-				status = bp_done(argv[1]);
+				/* done <service> */
+				if (strcmp(argv0, "done") == 0 || strcmp(argv0, "idone") == 0)
+				{
+					status = bp_done(service);
+					break;
+				}
 				break;
-			}
-			break;
 
-		case 3:
-			/* get service chdir */
-			if (strcmp(argv0, "get") == 0 || strcmp(argv0, "iget") == 0)
-			{
-				status = bp_get_variable(argv[1], argv[2], NULL);
-				break;
-			}
+			case 2:
+				/* get <service> chdir */
+				if (strcmp(argv0, "get") == 0 || strcmp(argv0, "iget") == 0)
+				{
+					status = bp_get_variable(service, argv[1], NULL);
+					break;
+				}
 
-			/* register service_type test */
-			if (strcmp(argv0, "register") == 0 ||
-				strcmp(argv0, "iregister") == 0)
-			{
-				status = bp_new_active(argv[1], argv[2]);
+				/* register service_type <service> */
+				if (strcmp(argv0, "register") == 0 ||
+					strcmp(argv0, "iregister") == 0)
+				{
+					status = bp_new_active(argv[1], service);
+					break;
+				}
 				break;
-			}
-			break;
 
-		case 4:
-			/* get service exec start */
-			if (strcmp(argv0, "get") == 0 || strcmp(argv0, "iget") == 0)
-			{
-				status = bp_get_variable(argv[1], argv[2], argv[3]);
+			case 3:
+				/* get <service> exec start */
+				if (strcmp(argv0, "get") == 0 || strcmp(argv0, "iget") == 0)
+				{
+					status = bp_get_variable(service, argv[1], argv[2]);
+					break;
+				}
 				break;
-			}
-			break;
 
-		case 5:
-			/* set service chdir = /root */
-			if (argv[3][0] == '=' && (strcmp(argv0, "set") == 0 ||
-									  strcmp(argv0, "iset") == 0))
-			{
-				status = bp_set_variable(argv[1], argv[2], NULL, argv[4]);
+			case 4:
+				/* set <service> chdir = /root */
+				if (argv[2][0] == '=' && (strcmp(argv0, "set") == 0 ||
+										  strcmp(argv0, "iset") == 0))
+				{
+					status = bp_set_variable(service, argv[1], NULL, argv[3]);
+					break;
+				}
 				break;
-			}
-			break;
 
-		case 6:
-			/* set service exec start = /bin/true */
-			if (argv[4][0] == '=' && (strcmp(argv0, "set") == 0 ||
-									  strcmp(argv0, "iset") == 0))
-			{
-				status = bp_set_variable(argv[1], argv[2], argv[3], argv[5]);
+			case 5:
+				/* set <service> exec start = /bin/true */
+				if (argv[3][0] == '=' && (strcmp(argv0, "set") == 0 ||
+										  strcmp(argv0, "iset") == 0))
+				{
+					status = bp_set_variable(service, argv[1], argv[2],
+											 argv[4]);
+					break;
+				}
 				break;
-			}
-			break;
-		default:
-			break;
+			default:
+				break;
+		}
 	}
+	else
+	{
+		switch (argc)
+		{
+			case 2:
+				/* abort service */
+				if (strcmp(argv0, "abort") == 0
+					|| strcmp(argv0, "iabort") == 0)
+				{
+					status = bp_abort(argv[1]);
+					break;
+				}
 
+				/* done service */
+				if (strcmp(argv0, "done") == 0 || strcmp(argv0, "idone") == 0)
+				{
+					status = bp_done(argv[1]);
+					break;
+				}
+				break;
+
+			case 3:
+				/* get service chdir */
+				if (strcmp(argv0, "get") == 0 || strcmp(argv0, "iget") == 0)
+				{
+					status = bp_get_variable(argv[1], argv[2], NULL);
+					break;
+				}
+
+				/* register service_type test */
+				if (strcmp(argv0, "register") == 0 ||
+					strcmp(argv0, "iregister") == 0)
+				{
+					status = bp_new_active(argv[1], argv[2]);
+					break;
+				}
+				break;
+
+			case 4:
+				/* get service exec start */
+				if (strcmp(argv0, "get") == 0 || strcmp(argv0, "iget") == 0)
+				{
+					status = bp_get_variable(argv[1], argv[2], argv[3]);
+					break;
+				}
+				break;
+
+			case 5:
+				/* set service chdir = /root */
+				if (argv[3][0] == '=' && (strcmp(argv0, "set") == 0 ||
+										  strcmp(argv0, "iset") == 0))
+				{
+					status = bp_set_variable(argv[1], argv[2], NULL, argv[4]);
+					break;
+				}
+				break;
+
+			case 6:
+				/* set service exec start = /bin/true */
+				if (argv[4][0] == '=' && (strcmp(argv0, "set") == 0 ||
+										  strcmp(argv0, "iset") == 0))
+				{
+					status = bp_set_variable(argv[1], argv[2], argv[3],
+											 argv[5]);
+					break;
+				}
+				break;
+			default:
+				break;
+		}
+	}
 	/* if still 99, print usage */
 	if (status == 99)
 	{
@@ -242,7 +325,7 @@ int bp_new_active(const char *type, const char *service)
 /* Open, Send, Read, Close */
 int bp_send(bp_req * to_send)
 {
-	int sock = 3;  /* testing fd 3, that is the oficcial pipe to initng for this communication */
+	int sock = 3;				/* testing fd 3, that is the oficcial pipe to initng for this communication */
 	int len;
 	struct sockaddr_un sockname;
 
@@ -255,9 +338,9 @@ int bp_send(bp_req * to_send)
 	to_send->version = BASH_PARSER_VERSION;
 
 	/* check if we can use fd 3 to talk to initng */
-	if(fcntl(sock, F_GETFD)<0)
+	if (fcntl(sock, F_GETFD) < 0)
 	{
-	
+
 		/* ELSE Create new socket. */
 		sock = socket(PF_UNIX, SOCK_STREAM, 0);
 		if (sock < 0)
@@ -278,7 +361,7 @@ int bp_send(bp_req * to_send)
 			return (FALSE);
 		}
 	}
-	
+
 	/* Put it not to block, waiting for more data on rscv */
 	{
 		int cur = fcntl(sock, F_GETFL, 0);
@@ -308,7 +391,7 @@ int bp_send(bp_req * to_send)
 	}
 
 	/* close the socket, if its an own created one */
-	if(sock != 3)
+	if (sock != 3)
 		close(sock);
 
 	/* if initng leave us a message, save it */

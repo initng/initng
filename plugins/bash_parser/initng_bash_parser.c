@@ -114,16 +114,16 @@ static void bp_handle_client(int fd)
 	memset(&rep, 0, sizeof(bp_rep));
 
 	/* use file descriptor, because fread hangs here? */
-	r=RSCV();
-	
+	r = RSCV();
+
 	/* make sure it has not closed */
-	if(r==0)
+	if (r == 0)
 	{
-		/*printf("Closing %i.\n", fd);*/
+		/*printf("Closing %i.\n", fd); */
 		close(fd);
 		return;
 	}
-		
+
 	if (r != (signed) sizeof(bp_req))
 	{
 		F_("Could not read incomming bash_parser req.\n");
@@ -643,7 +643,8 @@ static active_db_h *create_new_active(const char *name)
 	active_db_h *new_active;
 	process_h *process;
 	pipe_h *current_pipe;
-	/*printf("create_new_active(%s);\n", name);*/
+
+	/*printf("create_new_active(%s);\n", name); */
 
 	/* check if initfile exists */
 	strncat(file, name, 1020 - strlen(SCRIPT_PATH));
@@ -714,21 +715,21 @@ static active_db_h *create_new_active(const char *name)
 
 static int get_pipe(active_db_h * service, process_h * process, pipe_h * pi)
 {
-	/*printf("get_pipe(%s, %i, %i);\n", service->name, pi->dir, pi->targets[0]);*/
+	/*printf("get_pipe(%s, %i, %i);\n", service->name, pi->dir, pi->targets[0]); */
 
 	/* extra check */
-	if(pi->dir != IN_AND_OUT_PIPE)
-		return(FALSE);
+	if (pi->dir != IN_AND_OUT_PIPE)
+		return (FALSE);
 
 	/* the pipe we opened was on fd 3 */
-	if(pi->targets[0] != 3)
-		return(FALSE);
+	if (pi->targets[0] != 3)
+		return (FALSE);
 
 	/* handle the client in the same way, as a fifo connected one */
 	bp_handle_client(pi->pipe[1]);
-	
+
 	/* return happy */
-	return(TRUE);
+	return (TRUE);
 }
 
 int module_init(int api_version)
@@ -746,7 +747,7 @@ int module_init(int api_version)
 
 	D_("adding hook, that will reopen socket, for every started service.\n");
 	initng_process_db_ptype_register(&parse);
-	/*initng_plugin_hook_register(&g.FDWATCHERS, 30, &bpf);*/
+	/*initng_plugin_hook_register(&g.FDWATCHERS, 30, &bpf); */
 	initng_plugin_hook_register(&g.SIGNAL, 50, &bp_check_socket);
 	initng_plugin_hook_register(&g.NEW_ACTIVE, 50, &create_new_active);
 	initng_plugin_hook_register(&g.PIPE_WATCHER, 30, &get_pipe);
@@ -768,7 +769,7 @@ void module_unload(void)
 
 	/* remove hooks */
 	initng_process_db_ptype_unregister(&parse);
-	/* initng_plugin_hook_unregister(&g.FDWATCHERS, &bpf);*/
+	/* initng_plugin_hook_unregister(&g.FDWATCHERS, &bpf); */
 	initng_plugin_hook_unregister(&g.SIGNAL, &bp_check_socket);
 	initng_plugin_hook_unregister(&g.NEW_ACTIVE, &create_new_active);
 	initng_plugin_hook_unregister(&g.PIPE_WATCHER, &get_pipe);
