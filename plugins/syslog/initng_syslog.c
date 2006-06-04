@@ -234,7 +234,7 @@ static void syslog_print_system_state(h_sys_state state)
 	return;
 }
 
-static int syslog_fetch_output(active_db_h * service, process_h * process,
+static int syslog_fetch_output(active_db_h * service, process_h * process, pipe_h * pi,
 							   char *buffer_pos)
 {
 	char log[201];
@@ -336,7 +336,7 @@ int module_init(int api_version)
 								&syslog_print_status_change);
 	initng_plugin_hook_register(&g.SWATCHERS, 100,
 								&syslog_print_system_state);
-	initng_plugin_hook_register(&g.PIPEWATCHERS, 100, &syslog_fetch_output);
+	initng_plugin_hook_register(&g.BUFFER_WATCHER, 100, &syslog_fetch_output);
 	initng_plugin_hook_register(&g.ERR_MSG, 50, &syslog_print_error);
 
 	return (TRUE);
@@ -354,7 +354,7 @@ void module_unload(void)
 
 	initng_plugin_hook_unregister(&g.IS_CHANGE, &syslog_print_status_change);
 	initng_plugin_hook_unregister(&g.SWATCHERS, &syslog_print_system_state);
-	initng_plugin_hook_unregister(&g.PIPEWATCHERS, &syslog_fetch_output);
+	initng_plugin_hook_unregister(&g.BUFFER_WATCHER, &syslog_fetch_output);
 	initng_plugin_hook_unregister(&g.ERR_MSG, &syslog_print_error);
 	free_buffert();
 	closelog();

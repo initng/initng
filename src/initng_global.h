@@ -72,7 +72,7 @@ typedef struct
 	s_call ADDITIONAL_PARSE;	/* Called after a service been parsed, and extra parsing may exist */
 	s_call SWATCHERS;			/* Called when system state changes */
 	s_call FDWATCHERS;			/* Called when initng open file descriptors receive data */
-	s_call PIPEWATCHERS;		/* Called when a service has some output, that initng received */
+	s_call BUFFER_WATCHER;		/* Called when a service has some output, that initng received */
 	s_call SIGNAL;				/* Called when initng rescives a signal, like SIGHUP */
 	s_call MAIN;				/* Called every main loop */
 	s_call A_FORK;				/* Called after a process forks to start */

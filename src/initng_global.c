@@ -109,7 +109,7 @@ void initng_global_new(int argc, char *argv[], char *env[], h_i_am i_am)
 	INIT_LIST_HEAD(&g.PARSERS.list);
 	INIT_LIST_HEAD(&g.SWATCHERS.list);
 	INIT_LIST_HEAD(&g.FDWATCHERS.list);
-	INIT_LIST_HEAD(&g.PIPEWATCHERS.list);
+	INIT_LIST_HEAD(&g.BUFFER_WATCHER.list);
 	INIT_LIST_HEAD(&g.SIGNAL.list);
 	INIT_LIST_HEAD(&g.MAIN.list);
 	INIT_LIST_HEAD(&g.A_FORK.list);

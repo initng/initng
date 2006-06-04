@@ -48,7 +48,7 @@ typedef union
 	int (*status_change) (active_db_h * service);
 	service_cache_h *(*parser) (const char *name);
 	void (*swatcher) (h_sys_state state);
-	int (*pipewatcher) (active_db_h * service, process_h * process,
+	int (*buffer_watcher) (active_db_h * service, process_h * process, pipe_h * pi,
 						char *buffer_pos);
 	int (*launch) (active_db_h * service, process_h * process,
 				   const char *exec_name);

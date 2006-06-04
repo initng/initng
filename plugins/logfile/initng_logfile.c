@@ -38,7 +38,7 @@ INITNG_PLUGIN_MACRO;
 
 s_entry LOGFILE = { "logfile", STRING, NULL, "An extra output of service output." };
 
-static int program_output(active_db_h * service, process_h * x,
+static int program_output(active_db_h * service, process_h * x, pipe_h * pi,
 						  char *buffer_pos)
 {
 	const char *filename = NULL;
@@ -98,7 +98,7 @@ int module_init(int api_version)
 
 	initng_service_data_type_register(&LOGFILE);
 
-	initng_plugin_hook_register(&g.PIPEWATCHERS, 30, &program_output);
+	initng_plugin_hook_register(&g.BUFFER_WATCHER, 30, &program_output);
 	return (TRUE);
 }
 
@@ -110,5 +110,5 @@ void module_unload(void)
 
 	initng_service_data_type_unregister(&LOGFILE);
 
-	initng_plugin_hook_unregister(&g.PIPEWATCHERS, &program_output);
+	initng_plugin_hook_unregister(&g.BUFFER_WATCHER, &program_output);
 }

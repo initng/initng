@@ -65,7 +65,7 @@ static int astatus_change(active_db_h * service);
 static void check_socket(int signal);
 static int connect_to_dbus(void);
 static void system_state_change(e_is state);
-static int system_pipe_watchers(active_db_h * service, process_h * process,
+static int system_pipe_watchers(active_db_h * service, process_h * process, pipe_h * pi,
 								char *output);
 static int print_error(e_mt mt, const char *file, const char *func, int line,
 					   const char *format, va_list arg);
@@ -267,7 +267,7 @@ static void system_state_change(e_is state)
 	return;
 }
 
-static int system_pipe_watchers(active_db_h * service, process_h * process,
+static int system_pipe_watchers(active_db_h * service, process_h * process, pipe_h * pi,
 								char *output)
 {
 	DBusMessage *msg;

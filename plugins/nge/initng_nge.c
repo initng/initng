@@ -74,7 +74,7 @@ void send_to_all(const void *buf, size_t len);
 
 static int astatus_change(active_db_h * service);
 static void system_state_change(e_is state);
-static int system_pipe_watchers(active_db_h * service, process_h * process,
+static int system_pipe_watchers(active_db_h * service, process_h * process, pipe_h * pi,
 								char *output);
 static int print_error(e_mt mt, const char *file, const char *func, int line,
 					   const char *format, va_list arg);
@@ -138,7 +138,7 @@ static void close_initiator_socket(void)
 		 */
 		initng_plugin_hook_unregister(&g.ASTATUS_CHANGE, &astatus_change);
 		initng_plugin_hook_unregister(&g.SWATCHERS, &system_state_change);
-		initng_plugin_hook_unregister(&g.PIPEWATCHERS, &system_pipe_watchers);
+		initng_plugin_hook_unregister(&g.BUFFER_WATCHER, &system_pipe_watchers);
 		initng_plugin_hook_unregister(&g.ERR_MSG, &print_error);
 		initng_plugin_hook_unregister(&g.HANDLE_KILLED, &handle_killed);
 
@@ -211,7 +211,7 @@ void event_acceptor(f_module_h * from, e_fdw what)
 		 */
 		initng_plugin_hook_register(&g.ASTATUS_CHANGE, 50, &astatus_change);
 		initng_plugin_hook_register(&g.SWATCHERS, 50, &system_state_change);
-		initng_plugin_hook_register(&g.PIPEWATCHERS, 50,
+		initng_plugin_hook_register(&g.BUFFER_WATCHER, 50,
 									&system_pipe_watchers);
 		initng_plugin_hook_register(&g.ERR_MSG, 50, &print_error);
 		initng_plugin_hook_register(&g.HANDLE_KILLED, 1, &handle_killed);
@@ -509,7 +509,7 @@ static void system_state_change(e_is state)
 	free(buffert);
 }
 
-static int system_pipe_watchers(active_db_h * service, process_h * process,
+static int system_pipe_watchers(active_db_h * service, process_h * process, pipe_h * pi,
 								char *output)
 {
 	char *buffert = NULL;

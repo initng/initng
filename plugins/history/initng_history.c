@@ -338,7 +338,7 @@ static int history_add_values(active_db_h * service)
 	return (TRUE);
 }
 
-static int fetch_output(active_db_h * service, process_h * process,
+static int fetch_output(active_db_h * service, process_h * process, pipe_h * pi,
 						char *buffer_pos)
 {
 	history_h *tmp_e = NULL;
@@ -380,7 +380,7 @@ int module_init(int api_version)
 	initng_plugin_hook_register(&g.ASTATUS_CHANGE, 1000, &history_add_values);
 	initng_plugin_hook_register(&g.COMPENSATE_TIME, 50,
 								&history_db_compensate_time);
-	initng_plugin_hook_register(&g.PIPEWATCHERS, 50, &fetch_output);
+	initng_plugin_hook_register(&g.BUFFER_WATCHER, 50, &fetch_output);
 
 	return (TRUE);
 }
@@ -394,5 +394,5 @@ void module_unload(void)
 	initng_plugin_hook_unregister(&g.ASTATUS_CHANGE, &history_add_values);
 	initng_plugin_hook_unregister(&g.COMPENSATE_TIME,
 								  &history_db_compensate_time);
-	initng_plugin_hook_unregister(&g.PIPEWATCHERS, &fetch_output);
+	initng_plugin_hook_unregister(&g.BUFFER_WATCHER, &fetch_output);
 }

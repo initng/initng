@@ -62,7 +62,7 @@ void initng_fd_close_all(void)
  * be printed to screen anyway.
  */
 static void initng_fd_plugin_readpipe(active_db_h * service,
-									  process_h * process, char *buffer_pos)
+									  process_h * process, pipe_h * pi, char *buffer_pos)
 {
 	s_call *current = NULL;
 	int delivered = FALSE;
@@ -70,10 +70,10 @@ static void initng_fd_plugin_readpipe(active_db_h * service,
 	S_;
 
 
-	while_list(current, &g.PIPEWATCHERS)
+	while_list(current, &g.BUFFER_WATCHER)
 	{
 		D_("Calling pipewatcher plugin.\n");
-		if ((*current->c.pipewatcher) (service, process, buffer_pos) == TRUE)
+		if ((*current->c.buffer_watcher) (service, process, pi, buffer_pos) == TRUE)
 			delivered = TRUE;
 #ifdef DEBUG
 		else
@@ -183,7 +183,7 @@ void initng_fd_process_read_input(active_db_h * service, process_h * p,
 	if (pi->buffer_len > old_content_offset)
 	{
 		/* let all plugin take part of data */
-		initng_fd_plugin_readpipe(service, p,
+		initng_fd_plugin_readpipe(service, p, pi,
 								  pi->buffer + old_content_offset);
 	}
 
@@ -430,14 +430,12 @@ void initng_fd_plugin_poll(int timeout)
 			/* check if this fd is a pipe bound to a process */
 			while_pipes(current_pipe, currentP)
 			{
-				/* if this pipe is a process output pipe, and the pipe are opend, and if
-				 * there is data on it */
-				if ((current_pipe->dir == OUT_PIPE
-					 || current_pipe->dir == BUFFERED_OUT_PIPE)
+				/* if a bufered output pipe is found . */
+				if (current_pipe->dir == BUFFERED_OUT_PIPE
 					&& current_pipe->pipe[0] > 2
 					&& FD_ISSET(current_pipe->pipe[0], &readset))
 				{
-					D_("Will read from %s->start_process on fd #%i\n",
+					D_("BUFFERED_OUT_PIPE: Will read from %s->start_process on fd #%i\n",
 					   currentA->name, current_pipe->pipe[0]);
 
 					/* Do the actual read from pipe */
@@ -449,6 +447,19 @@ void initng_fd_plugin_poll(int timeout)
 					if (retval == 0)
 						return;
 				}
+				
+				if(current_pipe->dir == OUT_PIPE &&
+				   current_pipe->pipe[0] > 2 &&
+				   FD_ISSET(current_pipe->pipe[0], &readset))
+				{
+					D_("TODO, call pipe watchers...\n");
+
+					/* Found match, that means we need to look for one less, if we've found all we should then return */
+					retval--;
+					if (retval == 0)
+						return;
+				}
+					
 			}
 		}
 	}

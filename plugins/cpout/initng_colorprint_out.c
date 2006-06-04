@@ -351,7 +351,7 @@ static void print_system_state(h_sys_state state)
 	D_("print_system_state(): new system state: %i\n", state);
 }
 
-static int print_program_output(active_db_h * service, process_h * x,
+static int print_program_output(active_db_h * service, process_h * x, pipe_h * pi,
 								char *buffer_pos)
 {
 	/*
@@ -565,7 +565,7 @@ int module_init(int api_version)
 	initng_plugin_hook_register(&g.ERR_MSG, 10, &cp_print_error);
 	initng_plugin_hook_register(&g.IS_CHANGE, 80, &print_output);
 	initng_plugin_hook_register(&g.SWATCHERS, 80, &print_system_state);
-	initng_plugin_hook_register(&g.PIPEWATCHERS, 50, &print_program_output);
+	initng_plugin_hook_register(&g.BUFFER_WATCHER, 50, &print_program_output);
 	return (TRUE);
 }
 
@@ -578,7 +578,7 @@ void module_unload(void)
 
 	initng_plugin_hook_unregister(&g.IS_CHANGE, &print_output);
 	initng_plugin_hook_unregister(&g.SWATCHERS, &print_system_state);
-	initng_plugin_hook_unregister(&g.PIPEWATCHERS, &print_program_output);
+	initng_plugin_hook_unregister(&g.BUFFER_WATCHER, &print_program_output);
 	initng_plugin_hook_unregister(&g.ERR_MSG, &cp_print_error);
 	cprintf("  Goodbye\n");
 	fflush(output);
