@@ -334,7 +334,7 @@ int bp_set_variable(const char *service, const char *vartype,
 
 	memset(&to_send, 0, sizeof(bp_req));
 
-	printf("bp_set_variable(%s, %s, %s, %s)\n", service, vartype, varname, value);
+	/* printf("bp_set_variable(%s, %s, %s, %s)\n", service, vartype, varname, value); */
 	to_send.request = SET_VARIABLE;
 
 	strncpy(to_send.u.set_variable.service, service, 100);
