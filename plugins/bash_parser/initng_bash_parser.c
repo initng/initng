@@ -685,7 +685,7 @@ static active_db_h *create_new_active(const char *name)
 	}
 
 	/* create the control out pipe */
-	current_pipe = pipe_new(PIPE_CTRL_OUT, BUFFERED_OUT_PIPE);
+	current_pipe = pipe_new(PIPE_CTRL_OUT, OUT_PIPE);
 	if (current_pipe)
 	{
 		/* we want this pipe to get fd 4, in the fork */
@@ -720,7 +720,7 @@ static int get_pipe(active_db_h * service, process_h * process, pipe_h * pi)
 		return(FALSE);
 
 	/* the pipe we opened was on fd 3 */
-	if(pi->targets[0] != 3)
+	if(pi->targets[0] != 4)
 		return(FALSE);
 		
 	r=read(pi->pipe[0], buffer, 1024);
