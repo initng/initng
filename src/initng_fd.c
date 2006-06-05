@@ -326,7 +326,7 @@ void initng_fd_plugin_poll(int timeout)
 		/* This is a expensive test, but better safe then sorry */
 		if(!STILL_OPEN(currentC->c.fdh->fds))
 		{
-			W_("%i is not open anymore.\n", currentC->c.fdh->fds);
+			D_("%i is not open anymore.\n", currentC->c.fdh->fds);
 			currentC->c.fdh->fds=-1;
 			continue;
 		}
@@ -358,7 +358,7 @@ void initng_fd_plugin_poll(int timeout)
 					/* expensive test to make sure the pipe is open, before adding */
 					if(!STILL_OPEN(current_pipe->pipe[0]))
 					{
-						W_("%i is not open anymore.\n", current_pipe->pipe[0]);
+						D_("%i is not open anymore.\n", current_pipe->pipe[0]);
 						current_pipe->pipe[0]=-1;
 						continue;
 					}
@@ -374,7 +374,7 @@ void initng_fd_plugin_poll(int timeout)
 					/* expensive test to make sure the pipe is open, before adding */
 					if(!STILL_OPEN(current_pipe->pipe[1]))
 					{
-						W_("%i is not open anymore.\n", current_pipe->pipe[1]);
+						D_("%i is not open anymore.\n", current_pipe->pipe[1]);
 						current_pipe->pipe[1]=-1;
 						continue;
 					}
@@ -390,7 +390,7 @@ void initng_fd_plugin_poll(int timeout)
 					/* expensive test to make sure the pipe is open, before adding */
 					if(!STILL_OPEN(current_pipe->pipe[1]))
 					{
-						W_("%i is not open anymore.\n", current_pipe->pipe[1]);
+						D_("%i is not open anymore.\n", current_pipe->pipe[1]);
 						current_pipe->pipe[1]=-1;
 						continue;
 					}
