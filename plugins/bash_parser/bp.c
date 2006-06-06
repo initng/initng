@@ -52,6 +52,7 @@ int bp_abort(char *service, int argc, char **argv);
 int bp_done(char *service, int argc, char **argv);
 int bp_get_variable(char *service, int argc, char **argv);
 int bp_set_variable(char *service, int argc, char **argv);
+int bp_add_exec(char *service, int argc, char **argv);
 char *message;
 
 typedef struct
@@ -71,6 +72,10 @@ command_entry commands[] = {
 	{"iget", &bp_get_variable},
 	{"set", &bp_set_variable},
 	{"iset", &bp_set_variable},
+	{"add_exec", &bp_add_exec},
+	{"iadd_exec", &bp_add_exec},
+	{"exec", &bp_add_exec},
+	{"iexec", &bp_add_exec},
 	{NULL, NULL}
 };
 
@@ -94,8 +99,13 @@ int main(int argc, char **argv)
 	/* allocate a new argv to use */
 	new_argv = calloc(argc + 1, sizeof(char *));
 
-	/* fill it up */
-	new_argv[0] = argv0;
+	/* first is the full path to service file */
+	new_argv[0] = getenv("SERVICE_FILE");
+	if (!new_argv[0])
+	{
+		printf("SERVICE_FILE path is unset!\n");
+		exit(1);
+	}
 
 	/* copy all, but not options */
 	new_argc = 0;
@@ -133,7 +143,7 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-#ifdef DEBUG
+#ifdef DEBUG_EXTRA
 	{
 		printf(" **  %-12s ** ", service);
 		for (i = 0; argv[i]; i++)
@@ -173,6 +183,57 @@ int main(int argc, char **argv)
 
 	/* invert result */
 	exit(status == TRUE ? 0 : 1);
+}
+
+/*
+ * usage: iexec start           will run /etc/init/service internal_start 
+ *        iexec start = dodo    will run /etc/init/service internal_dodo
+ */
+int bp_add_exec(char *service, int argc, char **argv)
+{
+	/* the request to send */
+	bp_req to_send;
+
+	memset(&to_send, 0, sizeof(bp_req));
+	to_send.request = SET_VARIABLE;
+
+	/* "/etc/init/file" */
+	strncpy(to_send.u.set_variable.value, argv[0], 1024);
+
+	/* " internal_" */
+	strncat(to_send.u.set_variable.value, " internal_",
+			1024 - strlen(to_send.u.set_variable.value));
+
+
+	if (argc == 3 && argv[2][0] == '=')
+	{
+
+		/* "dodo" */
+		strncat(to_send.u.set_variable.value, argv[3],
+				1024 - strlen(to_send.u.set_variable.value));
+
+	}
+	else if (argc == 1)
+	{
+
+		/* "start" */
+		strncat(to_send.u.set_variable.value, argv[1],
+				1024 - strlen(to_send.u.set_variable.value));
+
+	}
+	else
+		return (FALSE);
+
+	/* use service */
+	strncpy(to_send.u.get_variable.service, service, 100);
+
+	/* the type is "exec" */
+	strcpy(to_send.u.set_variable.vartype, "exec");
+
+	/* the varname is "start" */
+	strncpy(to_send.u.set_variable.varname, argv[1], 100);
+
+	return (bp_send(&to_send));
 }
 
 int bp_abort(char *service, int argc, char **argv)
@@ -336,6 +397,7 @@ int bp_new_active(char *service, int argc, char **argv)
 
 	/* set the type */
 	strncpy(to_send.u.new_active.type, argv[1], 40);
+	strncpy(to_send.u.new_active.from_file, argv[0], 100);
 
 
 	return (bp_send(&to_send));

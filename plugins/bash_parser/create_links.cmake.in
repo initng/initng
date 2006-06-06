@@ -5,6 +5,7 @@ SET(TARGETS
 	iget
 	iregister
 	iset
+	iexec
 )
 
 FOREACH(target ${TARGETS})

@@ -64,7 +64,7 @@ static void bp_handle_client(int fd);
 static int bp_open_socket(void);
 static void bp_check_socket(int signal);
 static void bp_new_active(bp_rep * rep, const char *type,
-						  const char *service);
+						  const char *service, const char *from_file);
 static void bp_set_variable(bp_rep * rep, const char *service,
 							const char *vartype, const char *varname,
 							const char *value);
@@ -150,7 +150,8 @@ static void bp_handle_client(int fd)
 	{
 		case NEW_ACTIVE:
 			bp_new_active(&rep, req.u.new_active.type,
-						  req.u.new_active.service);
+						  req.u.new_active.service,
+						  req.u.new_active.from_file);
 			break;
 		case SET_VARIABLE:
 			bp_set_variable(&rep, req.u.set_variable.service,
@@ -177,7 +178,8 @@ static void bp_handle_client(int fd)
 	SEND();
 }
 
-static void bp_new_active(bp_rep * rep, const char *type, const char *service)
+static void bp_new_active(bp_rep * rep, const char *type, const char *service,
+						  const char *from_file)
 {
 	active_db_h *new_active;
 	stype_h *stype;
@@ -211,6 +213,8 @@ static void bp_new_active(bp_rep * rep, const char *type, const char *service)
 		rep->success = FALSE;
 		return;
 	}
+
+	set_string(&FROM_FILE, new_active, i_strdup(from_file));
 
 	new_active->type = stype;
 
@@ -767,6 +771,58 @@ static int get_pipe(active_db_h * service, process_h * process, pipe_h * pi)
 	return (TRUE);
 }
 
+#ifdef USE_LOCALEXEC
+static int initng_bash_run(active_db_h * service, process_h * process,
+						   const char *exec_name)
+{
+	pid_t pid_fork;				/* pid got from fork() */
+
+	assert(service);
+	assert(service->name);
+	assert(process);
+	assert(exec_name);
+
+	if ((pid_fork = initng_fork(service, process)) == 0)
+	{
+		struct stat fstat;		/* file stat storage */
+		char *av[3];			/* use only 3 args */
+		char *e[] = { NULL };				/* use an empty environment */
+		char *file;				/* the file to execute from */
+
+		/* get the file path */
+		file = get_string(&FROM_FILE, service);
+
+		/* check that it exists */
+		if (!file || stat(file, &fstat) != 0)
+		{
+			printf("Service file not found.\n");
+			_exit(1);
+		}
+
+		/* execute this */
+		av[0] = file;
+		av[1] = i_calloc(10 + strlen(exec_name), sizeof(char));
+		strcpy(av[1], "internal_");
+		strcat(av[1], exec_name);
+		av[2] = NULL;
+
+		execve(av[0], av, e);
+
+		printf("Error executing!\n");
+		_exit(2);
+	}
+
+	if (pid_fork > 0)
+	{
+		process->pid = pid_fork;
+		return (TRUE);
+	}
+	process->pid = 0;
+	return (FALSE);
+}
+#endif
+
+
 int module_init(int api_version)
 {
 	D_("module_init(ngc2);\n");
@@ -788,7 +844,9 @@ int module_init(int api_version)
 	initng_plugin_hook_register(&g.PIPE_WATCHER, 30, &get_pipe);
 	initng_active_state_register(&PARSING);
 	initng_active_state_register(&PARSE_FAIL);
-
+#ifdef USE_LOCALEXEC
+	initng_plugin_hook_register(&g.LAUNCH, 10, &initng_bash_run);
+#endif
 	/* do the first socket directly */
 	bp_open_socket();
 
@@ -810,4 +868,7 @@ void module_unload(void)
 	initng_plugin_hook_unregister(&g.PIPE_WATCHER, &get_pipe);
 	initng_active_state_unregister(&PARSING);
 	initng_active_state_unregister(&PARSE_FAIL);
+#ifdef USE_LOCALEXEC
+	initng_plugin_hook_unregister(&g.LAUNCH, &initng_bash_run);
+#endif
 }

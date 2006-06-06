@@ -47,6 +47,7 @@ typedef struct
 		{
 			char type[41];		/* What service type this is */
 			char service[101];	/* New service name */
+			char from_file[101];	/* The source file added from */
 		} new_active;
 
 		/* set value */
