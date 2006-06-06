@@ -77,8 +77,6 @@ services and runlevels model.  Startup status is presented in a percentile
 fashion, as well as the launch time for each individual service.  This allows
 easier tracking of what services add the most time to startup.
 
-Another feature is the "really warm reboot". Using 'ngc -x' will bring down all
-services and soft reboot your system, from user level in only a few seconds.
 
 
 2.1 The Next Generation Control (ngc)
@@ -88,7 +86,8 @@ Using the included ngc control program to communicate with initng in a two-way
 communication, checking the status of all services, browse history, bring
 services up and down, reboot or halt, and change runlevels.
 
-Executing 'ngc -h' will display the command's help and description.
+Executing 'ngc -h' will display the command's help and description.  'ngc -H'
+displays extended help.
 
 
 
@@ -103,7 +102,7 @@ and many new features that are on the TODO list are not yet fixed.
 3.1 How to Install
 -----------------
 
-1. Download the latest version from here (http://jw.dyndns.org/initng/).
+1. Download the latest version from www.initng.org
 
 2. Unzip the tarball, enter the directory, and install as super-user
 

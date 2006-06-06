@@ -5,7 +5,7 @@ FAQ: Next Generation Init System (initng)
     NOTE: initng is in heavy development at present and the following may no
     longer apply.  Even this document is likely to undergo major changes.
 
-    For installation instructions see the README.
+    For installation instructions see the INSTALLATION and README files.
 
 
 Contents:
@@ -29,11 +29,17 @@ A: It may be finished booting. Initng doesn't load xdm/gdm/kdm by default,
 Q: How do I load [xdm/gdm/kdm] by default?
 
 A: After the system finished booting, press Alt-F2 to get a login prompt and
-   login as root. Now type
+   login as root. Use ng-update to add the display manager to your runlevel.
 
+# ng-update add daemon/xdm default
 # ng-update add daemon/gdm default
+# ng-update add daemon/kdm default
 
-   to launch gdm on startup.
+   To launch the display manage without rebooting, use ngc.
+
+# ngc -u daemon/xdm
+# ngc -u daemon/gdm
+# ngc -u daemon/kdm
 
 -----
 

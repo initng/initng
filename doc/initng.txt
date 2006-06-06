@@ -20,6 +20,10 @@ Features:
 
 Installing initng:
 
+NOTE: a considerable amount of this information is outdated, see the
+README and INSTALLATION files for the most up to date information
+
+
 For those of you that would like to use portage:
 
     ACCEPT_KEYWORDS="~ARCH" emerge initng 
