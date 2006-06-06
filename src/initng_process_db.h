@@ -148,7 +148,8 @@ ptype_h *initng_process_db_ptype_find(const char *name);
 #define add_process(pss, sss) list_add(&(pss)->list, &(sss)->processes.list);
 
 /* used for browing pipes */
-pipe_h * pipe_new(e_pipet type, e_dir dir);
+pipe_h *pipe_new(e_pipet type, e_dir dir);
+
 #define add_pipe(PIPE, PROCESS) list_add(&(PIPE)->list, &(PROCESS)->pipes.list);
 #define while_pipes(CURRENT, PROCESS) list_for_each_entry_prev(CURRENT, &(PROCESS)->pipes.list, list)
 #define while_pipes_safe(CURRENT, PROCESS, SAFE) list_for_each_entry_prev_safe(CURRENT, SAFE, &(PROCESS)->pipes.list, list)

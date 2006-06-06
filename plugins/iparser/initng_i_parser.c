@@ -421,7 +421,7 @@ static int parse_service_line(char **to_parse, const char *watch_for,
 	/*         |              */
 
 	/* this fetches name, and increase *to_parse */
-	if (!(name = st_dup_next_word((const char **)to_parse)))
+	if (!(name = st_dup_next_word((const char **) to_parse)))
 	{
 		FL_(*to_parse, "Did not get a name!");
 		return (FALSE);
@@ -466,7 +466,7 @@ static int parse_service_line(char **to_parse, const char *watch_for,
 		/* service test : class { */
 		/*                |       */
 
-		if (!(father_name = st_dup_next_word((const char **)to_parse)))
+		if (!(father_name = st_dup_next_word((const char **) to_parse)))
 		{
 			FL_(*to_parse, "Unable to fetch fathername.");
 			free(name);

@@ -59,19 +59,21 @@ pid_t initng_fork(active_db_h * service, process_h * process)
 	/* Create all pipes */
 	while_pipes(current_pipe, process)
 	{
-		if(current_pipe->dir == IN_AND_OUT_PIPE)
+		if (current_pipe->dir == IN_AND_OUT_PIPE)
 		{
-			/*printf("calling socketpair:\n");*/
+			/*printf("calling socketpair:\n"); */
 			/* create an two directional pipe with socketpair */
-			if(socketpair(AF_UNIX, SOCK_STREAM, 0, current_pipe->pipe) < 0)
+			if (socketpair(AF_UNIX, SOCK_STREAM, 0, current_pipe->pipe) < 0)
 			{
 				F_("Fail call socketpair: \"%s\"\n", strerror(errno));
 				return (-1);
 			}
 			/* printf("parent: fd%i fork: fd%i\n", current_pipe->pipe[1], current_pipe->pipe[0]); */
-			
-		} else {
-			/* create an one directional pipe with pipe */	
+
+		}
+		else
+		{
+			/* create an one directional pipe with pipe */
 			if (pipe(current_pipe->pipe) != 0)
 			{
 				F_("Failed adding pipe ! %s\n", strerror(errno));
@@ -150,12 +152,14 @@ pid_t initng_fork(active_db_h * service, process_h * process)
 					else if (current_pipe->dir == IN_AND_OUT_PIPE)
 					{
 						/* in a unidirectional socket, there is pipe[0] that is used in the child */
-						/*printf("dup2(%i, %i);\n", current_pipe->pipe[0], current_pipe->targets[i]);*/
+						/*printf("dup2(%i, %i);\n", current_pipe->pipe[0], current_pipe->targets[i]); */
 						dup2(current_pipe->pipe[0], current_pipe->targets[i]);
-					} else continue;
+					}
+					else
+						continue;
 
 					/* IMPORTANT Tell the os not to close the new target on execve */
-					/*printf("Put non close: fd%i\n", current_pipe->targets[i]);*/
+					/*printf("Put non close: fd%i\n", current_pipe->targets[i]); */
 					fcntl(current_pipe->targets[i], F_SETFD, 0);
 				}
 			}
@@ -202,11 +206,11 @@ pid_t initng_fork(active_db_h * service, process_h * process)
 					close(current_pipe->pipe[0]);
 				current_pipe->pipe[0] = -1;
 			}
-			
+
 			else if (current_pipe->dir == IN_AND_OUT_PIPE)
 			{
 				/* in an unidirectional pipe, pipe[0] is fork, and pipe[1] is parrent */
-				/*printf("parrent closing: fd%i\n", current_pipe->pipe[0]);*/
+				/*printf("parrent closing: fd%i\n", current_pipe->pipe[0]); */
 				if (current_pipe->pipe[0] > 0)
 					close(current_pipe->pipe[0]);
 				current_pipe->pipe[0] = -1;

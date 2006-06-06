@@ -351,8 +351,8 @@ static void print_system_state(h_sys_state state)
 	D_("print_system_state(): new system state: %i\n", state);
 }
 
-static int print_program_output(active_db_h * service, process_h * x, pipe_h * pi,
-								char *buffer_pos)
+static int print_program_output(active_db_h * service, process_h * x,
+								pipe_h * pi, char *buffer_pos)
 {
 	/*
 	   TODO here:

@@ -59,7 +59,7 @@ pipe_h *pipe_new(e_pipet type, e_dir dir)
 process_h *initng_process_db_new(ptype_h * type)
 {
 	process_h *new_p = NULL;
-	pipe_h * current_pipe;
+	pipe_h *current_pipe;
 
 	/* allocate a new process entry */
 	new_p = (process_h *) i_calloc(1, sizeof(process_h));	/* Allocate memory for a new process */
@@ -88,9 +88,9 @@ process_h *initng_process_db_new(ptype_h * type)
 	if (!current_pipe)
 	{
 		free(new_p);
-		return(NULL);
+		return (NULL);
 	}
-	
+
 	/* we want this pipe to get fd 1 and 2 in the fork */
 	current_pipe->targets[0] = STDOUT_FILENO;
 	current_pipe->targets[1] = STDERR_FILENO;

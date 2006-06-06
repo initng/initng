@@ -62,7 +62,8 @@ void initng_fd_close_all(void)
  * be printed to screen anyway.
  */
 static void initng_fd_plugin_readpipe(active_db_h * service,
-									  process_h * process, pipe_h * pi, char *buffer_pos)
+									  process_h * process, pipe_h * pi,
+									  char *buffer_pos)
 {
 	s_call *current = NULL;
 	int delivered = FALSE;
@@ -73,7 +74,8 @@ static void initng_fd_plugin_readpipe(active_db_h * service,
 	while_list(current, &g.BUFFER_WATCHER)
 	{
 		D_("Calling pipewatcher plugin.\n");
-		if ((*current->c.buffer_watcher) (service, process, pi, buffer_pos) == TRUE)
+		if ((*current->c.buffer_watcher) (service, process, pi,
+										  buffer_pos) == TRUE)
 			delivered = TRUE;
 #ifdef DEBUG
 		else
@@ -90,17 +92,18 @@ static void initng_fd_plugin_readpipe(active_db_h * service,
 
 
 /* if there is data incomming in a pipe, tell the plugins */
-static int initng_fd_pipe(active_db_h * service, process_h * process, pipe_h * pi)
+static int initng_fd_pipe(active_db_h * service, process_h * process,
+						  pipe_h * pi)
 {
 	s_call *current = NULL;
 
 	while_list(current, &g.PIPE_WATCHER)
 	{
 		if ((*current->c.pipe_watcher) (service, process, pi) == TRUE)
-			return(TRUE);
+			return (TRUE);
 	}
 
-	return(FALSE);
+	return (FALSE);
 }
 
 
@@ -322,12 +325,12 @@ void initng_fd_plugin_poll(int timeout)
 			continue;
 		if (!currentC->c.fdh->call_module)
 			continue;
-		
+
 		/* This is a expensive test, but better safe then sorry */
-		if(!STILL_OPEN(currentC->c.fdh->fds))
+		if (!STILL_OPEN(currentC->c.fdh->fds))
 		{
 			D_("%i is not open anymore.\n", currentC->c.fdh->fds);
-			currentC->c.fdh->fds=-1;
+			currentC->c.fdh->fds = -1;
 			continue;
 		}
 
@@ -356,26 +359,28 @@ void initng_fd_plugin_poll(int timeout)
 					current_pipe->pipe[0] > 2)
 				{
 					/* expensive test to make sure the pipe is open, before adding */
-					if(!STILL_OPEN(current_pipe->pipe[0]))
+					if (!STILL_OPEN(current_pipe->pipe[0]))
 					{
-						D_("%i is not open anymore.\n", current_pipe->pipe[0]);
-						current_pipe->pipe[0]=-1;
+						D_("%i is not open anymore.\n",
+						   current_pipe->pipe[0]);
+						current_pipe->pipe[0] = -1;
 						continue;
 					}
-						
-				
+
+
 					FD_SET(current_pipe->pipe[0], &readset);
 					added++;
 				}
-				
+
 				if (current_pipe->dir == IN_AND_OUT_PIPE &&
-				    current_pipe->pipe[1] > 2)
+					current_pipe->pipe[1] > 2)
 				{
 					/* expensive test to make sure the pipe is open, before adding */
-					if(!STILL_OPEN(current_pipe->pipe[1]))
+					if (!STILL_OPEN(current_pipe->pipe[1]))
 					{
-						D_("%i is not open anymore.\n", current_pipe->pipe[1]);
-						current_pipe->pipe[1]=-1;
+						D_("%i is not open anymore.\n",
+						   current_pipe->pipe[1]);
+						current_pipe->pipe[1] = -1;
 						continue;
 					}
 
@@ -384,14 +389,14 @@ void initng_fd_plugin_poll(int timeout)
 					added++;
 				}
 
-				if (current_pipe->dir == IN_PIPE &&
-				    current_pipe->pipe[1] > 2)
+				if (current_pipe->dir == IN_PIPE && current_pipe->pipe[1] > 2)
 				{
 					/* expensive test to make sure the pipe is open, before adding */
-					if(!STILL_OPEN(current_pipe->pipe[1]))
+					if (!STILL_OPEN(current_pipe->pipe[1]))
 					{
-						D_("%i is not open anymore.\n", current_pipe->pipe[1]);
-						current_pipe->pipe[1]=-1;
+						D_("%i is not open anymore.\n",
+						   current_pipe->pipe[1]);
+						current_pipe->pipe[1] = -1;
 						continue;
 					}
 
@@ -500,8 +505,7 @@ void initng_fd_plugin_poll(int timeout)
 					&& current_pipe->pipe[0] > 2
 					&& FD_ISSET(current_pipe->pipe[0], &readset))
 				{
-					D_("BUFFERED_OUT_PIPE: Will read from %s->start_process on fd #%i\n",
-					   currentA->name, current_pipe->pipe[0]);
+					D_("BUFFERED_OUT_PIPE: Will read from %s->start_process on fd #%i\n", currentA->name, current_pipe->pipe[0]);
 
 					/* Do the actual read from pipe */
 					initng_fd_process_read_input(currentA, currentP,
@@ -512,22 +516,10 @@ void initng_fd_plugin_poll(int timeout)
 					if (retval == 0)
 						return;
 				}
-				
-				if(current_pipe->dir == OUT_PIPE &&
-				   current_pipe->pipe[0] > 2 &&
-				   FD_ISSET(current_pipe->pipe[0], &readset))
-				{
-					initng_fd_pipe(currentA, currentP, current_pipe);
 
-					/* Found match, that means we need to look for one less, if we've found all we should then return */
-					retval--;
-					if (retval == 0)
-						return;
-				}
-					
-				if(current_pipe->dir == IN_AND_OUT_PIPE &&
-				   current_pipe->pipe[1] > 2 &&
-				   FD_ISSET(current_pipe->pipe[1], &readset))
+				if (current_pipe->dir == OUT_PIPE &&
+					current_pipe->pipe[0] > 2 &&
+					FD_ISSET(current_pipe->pipe[0], &readset))
 				{
 					initng_fd_pipe(currentA, currentP, current_pipe);
 
@@ -537,9 +529,21 @@ void initng_fd_plugin_poll(int timeout)
 						return;
 				}
 
-				if(current_pipe->dir == IN_PIPE &&
-				   current_pipe->pipe[1] > 2 &&
-				   FD_ISSET(current_pipe->pipe[1], &writeset))
+				if (current_pipe->dir == IN_AND_OUT_PIPE &&
+					current_pipe->pipe[1] > 2 &&
+					FD_ISSET(current_pipe->pipe[1], &readset))
+				{
+					initng_fd_pipe(currentA, currentP, current_pipe);
+
+					/* Found match, that means we need to look for one less, if we've found all we should then return */
+					retval--;
+					if (retval == 0)
+						return;
+				}
+
+				if (current_pipe->dir == IN_PIPE &&
+					current_pipe->pipe[1] > 2 &&
+					FD_ISSET(current_pipe->pipe[1], &writeset))
 				{
 					initng_fd_pipe(currentA, currentP, current_pipe);
 
@@ -552,8 +556,8 @@ void initng_fd_plugin_poll(int timeout)
 			}
 		}
 	}
-	
-	if(retval!=0)
+
+	if (retval != 0)
 	{
 		F_("There is a missed pipe or fd that we missed to poll!\n");
 	}

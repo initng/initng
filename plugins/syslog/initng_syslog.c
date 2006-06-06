@@ -234,8 +234,8 @@ static void syslog_print_system_state(h_sys_state state)
 	return;
 }
 
-static int syslog_fetch_output(active_db_h * service, process_h * process, pipe_h * pi,
-							   char *buffer_pos)
+static int syslog_fetch_output(active_db_h * service, process_h * process,
+							   pipe_h * pi, char *buffer_pos)
 {
 	char log[201];
 	int pos = 0;

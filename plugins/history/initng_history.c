@@ -338,8 +338,8 @@ static int history_add_values(active_db_h * service)
 	return (TRUE);
 }
 
-static int fetch_output(active_db_h * service, process_h * process, pipe_h * pi,
-						char *buffer_pos)
+static int fetch_output(active_db_h * service, process_h * process,
+						pipe_h * pi, char *buffer_pos)
 {
 	history_h *tmp_e = NULL;
 
