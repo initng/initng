@@ -191,7 +191,9 @@ static void bp_new_active(bp_rep * rep, const char *type, const char *service,
 	stype = initng_service_type_get_by_name(type);
 	if (!stype)
 	{
-		strcpy(rep->message, "Unable to find servicetype.");
+		strcpy(rep->message, "Unable to find servicetype \"");
+		strncat(rep->message, type, 500);
+		strcat(rep->message, "\" .");
 		rep->success = FALSE;
 		return;
 	}
@@ -207,17 +209,33 @@ static void bp_new_active(bp_rep * rep, const char *type, const char *service,
 		return;
 	}
 
+	/* if not found, create new service */
 	if (!new_active)
 	{
-		strcpy(rep->message, "Did not find entry to modify.");
-		rep->success = FALSE;
-		return;
+		/* create new service */
+		new_active = initng_active_db_new(service);
+		if (!new_active)
+			return;
+
+		/* set type */
+		new_active->current_state = &PARSING;
+		new_active->from_service = &NO_CACHE;
+
+		/* register it */
+		if (!initng_active_db_register(new_active))
+		{
+			initng_active_db_free(new_active);
+			return;
+		}
 	}
 
+	/* save orgin */
 	set_string(&FROM_FILE, new_active, i_strdup(from_file));
 
+	/* set service type */
 	new_active->type = stype;
 
+	/* exit with success */
 	rep->success = TRUE;
 	return;
 }
@@ -251,7 +269,9 @@ static void bp_set_variable(bp_rep * rep, const char *service,
 	D_("bp_set_variable(%s, %s, %s, %s)\n", service, vartype, varname, value);
 	if (!active)
 	{
-		strcpy(rep->message, "Service not found.");
+		strcpy(rep->message, "Service \"");
+		strcat(rep->message, service);
+		strcat(rep->message, "\" not found.");
 		rep->success = FALSE;
 		return;
 	}
@@ -348,7 +368,10 @@ static void bp_get_variable(bp_rep * rep, const char *service,
 	D_("bp_get_variable(%s, %s, %s)\n", service, vartype, varname);
 	if (!active)
 	{
-		strcpy(rep->message, "Service not found.");
+		strcpy(rep->message, "Service \"");
+		
+		strncat(rep->message, service, 500);
+		strcat(rep->message, "\" not found.");
 		rep->success = FALSE;
 		return;
 	}
