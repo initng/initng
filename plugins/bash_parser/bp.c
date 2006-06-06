@@ -133,13 +133,14 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
+#ifdef DEBUG
 	{
-		printf(" **||** ");
+		printf(" **  %-12s ** ", service);
 		for (i = 0; argv[i]; i++)
 			printf("%s ", argv[i]);
 		printf("\n");
 	}
-	
+#endif
 
 	/* LIST THE DB OF COMMANDS AND EXECUTE THE RIGHT ONE */
 	{
