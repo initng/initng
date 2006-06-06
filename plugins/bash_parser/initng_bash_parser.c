@@ -231,9 +231,15 @@ static void bp_set_variable(bp_rep * rep, const char *service,
 		value = NULL;
 
 	/* but these are */
-	if (strlen(service) < 1 || strlen(vartype) < 1)
+	if (strlen(service) < 1)
 	{
-		strcpy(rep->message, "Variables missing.");
+		strcpy(rep->message, "Service missing.");
+		rep->success = FALSE;
+		return;
+	}
+	if (strlen(vartype) < 1)
+	{
+		strcpy(rep->message, "Vartype missing.");
 		rep->success = FALSE;
 		return;
 	}
@@ -256,15 +262,17 @@ static void bp_set_variable(bp_rep * rep, const char *service,
 	type = initng_service_data_type_find(vartype);
 	if (!type)
 	{
-		strcpy(rep->message, "Variable entry not found.");
+		strcpy(rep->message, "Variable entry \"");
+		strcat(rep->message, vartype);
+		strcat(rep->message, "\" not found.");
 		rep->success = FALSE;
 		return;
 	}
 
 	/* now we now if variable is required or not */
-	if(!value)
+	if (!value)
 	{
-		if((type->opt_type != SET && type->opt_type != VARIABLE_SET))
+		if ((type->opt_type != SET && type->opt_type != VARIABLE_SET))
 		{
 			strcpy(rep->message, "Value missing.");
 			rep->success = FALSE;
@@ -284,10 +292,12 @@ static void bp_set_variable(bp_rep * rep, const char *service,
 		case VARIABLE_STRINGS:
 			{
 				char *new_st = NULL;
-				while((new_st=st_dup_next_word(&value)))
+
+				while ((new_st = st_dup_next_word(&value)))
 				{
-					set_another_string_var(type, varname ? i_strdup(varname) : NULL,
-								   active, new_st);
+					set_another_string_var(type,
+										   varname ? i_strdup(varname) : NULL,
+										   active, new_st);
 				}
 			}
 			D_("strings type\n");
@@ -431,8 +441,8 @@ static void bp_done(bp_rep * rep, const char *service)
 	}
 
 	/* must set to a DOWN state, to be able to start */
-	active->current_state=&REDY_TO_START;
-	
+	active->current_state = &REDY_TO_START;
+
 	/* start this service */
 	rep->success = initng_handler_start_service(active);
 	return;

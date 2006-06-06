@@ -30,26 +30,28 @@
 extern char **environ;
 
 /* These commands will be forwarded to /sbin/ngc if issued */
-const char *ngc_args[] = { "start", "stop", "restart", "zap", "status", NULL };
+const char *ngc_args[] = { "start", "stop", "restart", "zap", "status", NULL
+};
 
 /* this lists the commands the service can be executed with directly */
 static void print_usage(void)
 {
-		int i;
-		printf("Usage: /etc/init/service");
-		for(i=0; ngc_args[i]; i++)
-			printf(" <%s>", ngc_args[i]);
-		printf("\n");
+	int i;
+
+	printf("Usage: /etc/init/service");
+	for (i = 0; ngc_args[i]; i++)
+		printf(" <%s>", ngc_args[i]);
+	printf("\n");
 }
 
 /* here is main */
 int main(int argc, char *argv[])
 {
-	char path[1025];  /* the argv[0] is not always the full path, so we make a full path and put in here */
-	char script[1024]; /* plenty of space for the bash script header we crate to execute. */
-	char *new_argv[24]; /* used for execve, 24 arguments is really enoght */
-	char *servname; /* local storage of the service name, cut from / pointing in path abow */
-	struct stat st; /* file stat storage, used to check that files exist */
+	char path[1025];			/* the argv[0] is not always the full path, so we make a full path and put in here */
+	char script[1024];			/* plenty of space for the bash script header we crate to execute. */
+	char *new_argv[24];			/* used for execve, 24 arguments is really enoght */
+	char *servname;				/* local storage of the service name, cut from / pointing in path abow */
+	struct stat st;				/* file stat storage, used to check that files exist */
 
 	/* check to no of arguments */
 	if (argc != 3)
@@ -88,21 +90,22 @@ int main(int argc, char *argv[])
 	}
 
 	/* check that path is correct */
-	if(stat(path, &st)!=0 || !S_ISREG(st.st_mode))
+	if (stat(path, &st) != 0 || !S_ISREG(st.st_mode))
 	{
 		printf("Full path not provided, Guessed path to \"%s\" but no file existed in that place.\n", path);
 		print_usage();
 		exit(2);
 	}
-	
+
 
 	/* cut service name from the last '/' found in service path */
 	servname = strrchr(path, '/') + 1;
-	
+
 	/* check if command shud forward to a ngc command */
 	{
 		int i;
-		for(i=0; ngc_args[i]; i++)
+
+		for (i = 0; ngc_args[i]; i++)
 		{
 
 			/* check if these are direct commands, then use ngc */
@@ -112,13 +115,13 @@ int main(int argc, char *argv[])
 				new_argv[0] = strdup("/sbin/ngc");
 				/* put new_argv = "--start" */
 				new_argv[1] = calloc(strlen(ngc_args[i] + 4), sizeof(char));
-				new_argv[1][0]='-';
-				new_argv[1][1]='-';
+				new_argv[1][0] = '-';
+				new_argv[1][1] = '-';
 				strcat(new_argv[1], ngc_args[i]);
 				/* put service name */
 				new_argv[2] = strdup(servname);
 				new_argv[3] = NULL;
-				
+
 				/* execute this call */
 				execve(new_argv[0], new_argv, environ);
 				printf("/sbin/ngc is missing or invalid.\n");
