@@ -17,10 +17,10 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef BASH_PARSER_H
-#define BASH_PARSER_H
+#ifndef SERVICE_FILE_H
+#define SERVICE_FILE_H
 
-#define BASH_PARSER_VERSION 1
+#define SERVICE_FILE_VERSION 1
 #define SOCKET_PATH "/dev/initng/bp"
 #define SCRIPT_PATH "/etc/init"
 

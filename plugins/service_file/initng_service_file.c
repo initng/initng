@@ -54,7 +54,7 @@
 
 #include <initng-paths.h>
 
-#include "initng_bash_parser.h"
+#include "initng_service_file.h"
 
 INITNG_PLUGIN_MACRO;
 
@@ -77,7 +77,7 @@ static void handle_killed(active_db_h * service, process_h * process);
 
 #define SOCKET_4_ROOTPATH "/dev/initng"
 
-a_state_h PARSING = { "PARSING", "This is service is parsing by bash_parser.", IS_STARTING, NULL, NULL, NULL };
+a_state_h PARSING = { "PARSING", "This is service is parsing by service_file.", IS_STARTING, NULL, NULL, NULL };
 a_state_h REDY_TO_START = { "REDY_TO_START", "This service is finished loading.", IS_DOWN, NULL, NULL, NULL };
 a_state_h PARSE_FAIL = { "PARSE_FAIL", "This parse process failed.", IS_FAILED, NULL, NULL, NULL };
 
@@ -128,7 +128,7 @@ static void bp_handle_client(int fd)
 
 	if (r != (signed) sizeof(bp_req))
 	{
-		F_("Could not read incomming bash_parser req.\n");
+		F_("Could not read incomming service_file req.\n");
 		strcpy(rep.message, "Unable to read request");
 		rep.success = FALSE;
 		SEND();
@@ -137,7 +137,7 @@ static void bp_handle_client(int fd)
 	D_("Got a request: ver: %i, type: %i\n", req.version, req.request);
 
 	/* check protocol version match */
-	if (req.version != BASH_PARSER_VERSION)
+	if (req.version != SERVICE_FILE_VERSION)
 	{
 		strcpy(rep.message, "Bad protocol version");
 		rep.success = FALSE;

@@ -416,7 +416,7 @@ int bp_send(bp_req * to_send)
 	memset(&rep, 0, sizeof(bp_rep));
 
 	assert(to_send);
-	to_send->version = BASH_PARSER_VERSION;
+	to_send->version = SERVICE_FILE_VERSION;
 
 	/* check if we can use fd 3 to talk to initng */
 	if (fcntl(sock, F_GETFD) < 0)
