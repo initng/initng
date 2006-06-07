@@ -172,7 +172,9 @@ static int simple_exec_fork(process_h * process_to_exec, active_db_h * s,
 
 	if ((pid_fork = initng_fork(s, process_to_exec)) == 0)
 	{
-
+		/* run g.AFTER_FORK from other plugins */
+		initng_fork_aforkhooks(s, process_to_exec);
+		
 #ifdef DEBUG
 		D_("FROM_FORK simple_exec(%i,%s, ...);\n", argc, argv[0]);
 		/*D_argv("simple_exec: ", argv); */

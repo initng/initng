@@ -24,5 +24,6 @@
 #include "initng_process_db.h"				/* process_h */
 
 pid_t initng_fork(active_db_h * service, process_h * process);
+void initng_fork_aforkhooks(active_db_h * service, process_h * process);
 
 #endif

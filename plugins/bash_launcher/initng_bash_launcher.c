@@ -159,6 +159,9 @@ static int bash_exec(process_h * process_to_exec, active_db_h * s,
 
 	if ((pid_fork = initng_fork(s, process_to_exec)) == 0)
 	{
+		/* run afterfork hooks from other plugins */
+		initng_fork_aforkhooks(s, process_to_exec);
+	
 		/* execute code */
 		bash_this(script, s, args);
 

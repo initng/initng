@@ -44,13 +44,26 @@
 
 #include "initng_fork.h"
 
+void initng_fork_aforkhooks(active_db_h * service, process_h * process)
+{
+	s_call *current = NULL;
+		/* There might be plug-ins that will work here */
+		while_list(current, &g.A_FORK)
+		{
+			if (((*current->c.af_launcher) (service, process)) == FALSE)
+			{
+				F_("Some plugin did fail (from:%s), in after fork launch.\n",
+				   current->from_file);
+				_exit(1);
+			}
+		}
+}
 
 pid_t initng_fork(active_db_h * service, process_h * process)
 {
 	/* This is the real service kicker */
 	pid_t pid_fork;				/* pid got from fork() */
 	int try_count = 0;			/* Count tryings */
-	s_call *current = NULL;
 	pipe_h *current_pipe = NULL;	/* used while walking */
 
 	assert(service);
@@ -164,18 +177,6 @@ pid_t initng_fork(active_db_h * service, process_h * process)
 				}
 			}
 		}
-
-		/* There might be plug-ins that will work here */
-		while_list(current, &g.A_FORK)
-		{
-			if (((*current->c.af_launcher) (service, process)) == FALSE)
-			{
-				F_("Some plugin did fail (from:%s), in after fork launch.\n",
-				   current->from_file);
-				_exit(1);
-			}
-		}
-
 
 		/* TODO, what does this do? */
 		if (g.i_am == I_AM_INIT)
