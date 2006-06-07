@@ -789,29 +789,40 @@ static active_db_h *create_new_active(const char *name)
 	{
 		char *new_argv[3];
 		char *new_env[4];
+
 		new_argv[0] = file;
 		new_argv[1] = i_strdup("internal_setup");
 		new_argv[2] = NULL;
-		
+
 		/* SERVICE=getty/tty1 */
 		new_env[0] = i_calloc(strlen(name) + 20, sizeof(char));
 		strcpy(new_env[0], "SERVICE=");
 		strcat(new_env[0], name);
-		
+
 		/* SERVICE_FILE=/etc/init/getty */
 		new_env[1] = i_calloc(strlen(file) + 20, sizeof(char));
 		strcpy(new_env[1], "SERVICE_FILE=");
-		strcat(new_env[1], name);
-	
+		strcat(new_env[1], file);
+
 		/* NAME=tty1 */
 		{
-			char * tmp = strrchr(name, '/') + 1;
-			new_env[2] = i_calloc(strlen(tmp ? tmp : name) + 20, sizeof(char));
-			strcpy(new_env[2], "NAME=");
-			strcat(new_env[2], tmp ? tmp : name);
+			char * tmp = strrchr(name, '/');
+			if(tmp && tmp[0] == '/') tmp++;
+
+			if(tmp && tmp[0])
+			{
+				new_env[2] = i_calloc(strlen(tmp) + 20, sizeof(char));
+				strcpy(new_env[2], "NAME=");
+				strcat(new_env[2], tmp);
+			} else {
+				new_env[2] = i_calloc(strlen(name) + 20, sizeof(char));
+				strcpy(new_env[2], "NAME=");
+				strcat(new_env[2], name);
+			}
 		}
 	
 		new_env[3]=NULL;
+		
 		execve(new_argv[0], new_argv, new_env);
 		_exit(10);
 	}
