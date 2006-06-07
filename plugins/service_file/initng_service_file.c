@@ -734,8 +734,22 @@ static active_db_h *create_new_active(const char *name)
 			return (NULL);
 		}
 #else
+		W_("File \"%s\" not found.\n", file);
 		return (NULL);
 #endif
+	}
+	
+	/* check that it is a file */
+	if (!S_ISREG(fstat.st_mode))
+	{
+		F_("File \"%s\" is not an regular file.\n", file);
+		return(NULL);
+	}
+	
+	if (!( fstat.st_mode & S_IXUSR))
+	{
+		F_("File \"%s\" cant be executed!\n", file);
+		return(NULL);
 	}
 
 	/* create new service */
@@ -773,13 +787,24 @@ static active_db_h *create_new_active(const char *name)
 	/* start parse process */
 	if (initng_fork(new_active, process) == 0)
 	{
-		char *av[3];
-		char *e[] = { NULL };
-		av[0] = file;
-		av[1] = i_strdup("internal_setup");
-		av[2] = NULL;
-
-		execve(av[0], av, e);
+		char *new_argv[3];
+		char *new_env[3];
+		new_argv[0] = file;
+		new_argv[1] = i_strdup("internal_setup");
+		new_argv[2] = NULL;
+		
+		/* SERVICE=name */
+		new_env[0] = i_calloc(strlen(name) + 20, sizeof(char));
+		strcpy(new_env[0], "SERVICE=");
+		strcat(new_env[0], name);
+		
+		/* SERVICE_FILE=file */
+		new_env[1] = i_calloc(strlen(file) + 20, sizeof(char));
+		strcpy(new_env[1], "SERVICE_FILE=");
+		strcat(new_env[1], name);
+	
+		new_env[2]=NULL;
+		execve(new_argv[0], new_argv, new_env);
 		_exit(10);
 	}
 
@@ -820,8 +845,8 @@ static int initng_bash_run(active_db_h * service, process_h * process,
 	if ((pid_fork = initng_fork(service, process)) == 0)
 	{
 		struct stat fstat;		/* file stat storage */
-		char *av[3];			/* use only 3 args */
-		char *e[] = { NULL };				/* use an empty environment */
+		char *new_argv[3];			/* use only 3 args */
+		char *new_env[] = { NULL };				/* use an empty environment */
 		char *file;				/* the file to execute from */
 
 		/* get the file path */
@@ -835,13 +860,13 @@ static int initng_bash_run(active_db_h * service, process_h * process,
 		}
 
 		/* execute this */
-		av[0] = file;
-		av[1] = i_calloc(10 + strlen(exec_name), sizeof(char));
-		strcpy(av[1], "internal_");
-		strcat(av[1], exec_name);
-		av[2] = NULL;
+		new_argv[0] = file;
+		new_argv[1] = i_calloc(10 + strlen(exec_name), sizeof(char));
+		strcpy(new_argv[1], "internal_");
+		strcat(new_argv[1], exec_name);
+		new_argv[2] = NULL;
 
-		execve(av[0], av, e);
+		execve(new_argv[0], new_argv, new_env);
 
 		printf("Error executing!\n");
 		_exit(2);
