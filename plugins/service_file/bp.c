@@ -167,8 +167,6 @@ int main(int argc, char **argv)
 	/* if still 99, print usage */
 	if (status == 99)
 	{
-		int i;
-
 		printf("Avaible commands:\n");
 		for (i = 0; commands[i].name; i++)
 			printf(" ./%s\n", commands[i].name);
@@ -177,7 +175,11 @@ int main(int argc, char **argv)
 
 	if (message)
 	{
-		printf("%s\n", message);
+		printf("%s (%s) :", commands[i].name, service);
+		for(i=1;new_argv[i]; i++)
+			printf(" %s", new_argv[i]);
+			
+		printf("  \"%s\"\n", message);
 		free(message);
 	}
 
@@ -409,6 +411,7 @@ int bp_send(bp_req * to_send)
 	int sock = 3;				/* testing fd 3, that is the oficcial pipe to initng for this communication */
 	int len;
 	struct sockaddr_un sockname;
+	int e;
 
 	/* the reply from initng */
 	bp_rep rep;
@@ -443,31 +446,28 @@ int bp_send(bp_req * to_send)
 		}
 	}
 
-	/* Put it not to block, waiting for more data on rscv */
-	{
-		int cur = fcntl(sock, F_GETFL, 0);
-
-		fcntl(sock, F_SETFL, cur | O_NONBLOCK);
-	}
-
-	/* make a quick sleep */
-	usleep(200);
-
 	/* send the request */
-	if (send(sock, to_send, sizeof(bp_req), 0) < (signed) sizeof(bp_req))
+	e=send(sock, to_send, sizeof(bp_req), 0);
+	if (e != (signed) sizeof(bp_req))
 	{
-		message = strdup("Unable to send the request.");
+		char *m = strerror(errno);
+		message = calloc(501, sizeof(char));
+		snprintf(message, 500, "Unable to send the request: \"%s\" (%i)\n", m, errno);
 		return (FALSE);
 	}
 
-	/* do a short sleep to give initng a chanse to reply */
+	/* sleep to give initng a chanse */
 	usleep(200);
 
-	/* get the reply */
-	if ((TEMP_FAILURE_RETRY(recv(sock, &rep, sizeof(bp_rep), 0)) <
-		 (signed) sizeof(bp_rep)))
+	e=TEMP_FAILURE_RETRY(recv(sock, &rep, sizeof(bp_rep), 0));
+	
+	
+	
+	if (e != (signed) sizeof(bp_rep))
 	{
-		message = strdup("Did not get any reply.");
+		char *m = strerror(errno);
+		message = calloc(501, sizeof(char));
+		snprintf(message, 500, "Did not get any reply: \"%s\" (%i)\n", m, errno);
 		return (FALSE);
 	}
 
