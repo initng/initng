@@ -183,6 +183,7 @@ pid_t initng_fork(active_db_h * service, process_h * process)
 		if (g.i_am == I_AM_INIT)
 			tcsetpgrp(0, getpgrp());		/* run this in foreground on fd 0 */
 
+
 		/* do a minimum sleep, to let the mother process 
 		   to register child, and notice death */
 		usleep(ALL_USLEEP);
