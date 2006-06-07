@@ -4,7 +4,8 @@
       commands : 
        options : env_file, env_file_required
    description : After a service is parsed, initng may parse an environment
-                 file and add these entrys aswell to the db.
-		 By an env_file i meen a file with entrys like TEST=hello,
-		 TEST2="This is a string", no bash code will be executed in
-		 this file, if you want that source within the bash script instead.
+                 file and add these entries to the db.  Files specified by
+                 env_file should contain variable declarations only, in the
+                 form FOO="bar".  Shellscript in an env_file will NOT be
+                 processed, to use a file with scripting, you will need to
+                 source it within an 'exec start' or similar code block.

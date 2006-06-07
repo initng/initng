@@ -3,5 +3,5 @@
   contributors : 
       commands : 
        options : 
-   description : If this plugin is loaded, the service list is duped on console when
-                 executing keyboard sysreq, ( Alt + KeyUp )
+   description : If this plugin is loaded, the service list is duplicated on
+                 the console when executing keyboard sysreq, ( Alt + KeyUp )

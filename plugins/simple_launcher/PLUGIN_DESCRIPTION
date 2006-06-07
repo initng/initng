@@ -3,5 +3,6 @@
   contributors : 
       commands : 
        options : exec, exec_path, exec_args
-   description : This launcher is more simple then launching a script,
-                 This one simple launches an executable with right enviroments.
+   description : The exec command is for use where only a single command is
+                 needed for executing a daemon/service, rather than a
+                 multi-line script.

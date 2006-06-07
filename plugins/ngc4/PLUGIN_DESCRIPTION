@@ -3,6 +3,6 @@
   contributors : 
       commands : 
        options : 
-   description : This is the standard initng control tool, for starting
-                 stopping services, and calling commands from the user.
-		 Use the ngc -h to get more info.
+   description : This is the standard initng control tool, for starting and
+                 stopping services, calling commands and providing information
+                 to the user.  Use 'ngc -h' or 'ngc -H' to get more info.

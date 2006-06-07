@@ -3,4 +3,4 @@
   contributors : 
       commands : 
        options : 
-   description : This is the standard i parser plugin, that parsers .i files.
+   description : This is the standard i parser plugin for .i files.

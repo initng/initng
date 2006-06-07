@@ -6,5 +6,5 @@
                  service_dep_on, service_dep_on_deep, service_dep_on_me,
 		 service_dep_on_me_deep, new_init 
        options : 
-   description : This plugin contains some werry basic commands, that user can use
-                 to control initng.
+   description : This plugin contains some basic commands for controlling
+                 initng.

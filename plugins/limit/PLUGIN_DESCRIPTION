@@ -9,4 +9,4 @@
 		 rlimit_nproc_soft, rlimit_nproc_hard, rlimit_rss_soft, rlimit_rss_hard,
 		 rlimit_sigpending_soft, rlimit_sigpending_hard, rlimit_stack_soft,
 		 rlimit_stack_hard
-   description : This option sets standard ulimits to the service/daemon other process.
+   description : This option sets standard ulimits for the service/daemon/other process.

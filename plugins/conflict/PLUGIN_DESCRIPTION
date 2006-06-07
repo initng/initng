@@ -4,6 +4,5 @@
       commands : 
        options : conflict
         states : FAILED_BY_CONFLICT
-   description : If service set in option conflict is up, when starting
-                 the starting service will stop, and get status
-		 FAILED_BY_CONFLICT.
+   description : If a service specified by "conflict = service;" is up, start
+                 will fail with FAILED_BY_CONFLICT.

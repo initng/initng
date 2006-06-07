@@ -5,6 +5,8 @@
        options : 
   cmd_line_opt : interactive
         states : INTERACTIVELY_DISABLED
-   description : When initng is started with interactive on the kernel line, and
-                 this plugin is loaded, the user will get an Yes/No question to
-		 this service or not on every service, good if a service locks boot.
+   description : When initng is started with 'interactive' on the kernel command
+                 line and this plugin is loaded, the user will get a yes/no
+                 prompt before each service is started.  If a service is
+                 preventing initng from booting, this plugin can be used to
+                 disable it temporarily.

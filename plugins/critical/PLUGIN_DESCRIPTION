@@ -3,5 +3,5 @@
   contributors : 
       commands : 
        options : critical
-   description : If a service marked critical fails, initng will abort
-                 and the user will be prompted a sulogin.
+   description : If a service marked critical fails, initng will abort and the
+                 user will be pesented an sulogin prompt.

@@ -4,6 +4,6 @@
       commands : 
        options : 
   cmd_line_opt : quiet_when_up
-   description : This plugin show errormessages, status changes,
-                 service output and system state changes directly
-		 on the console, by a colorfull output.
+   description : Shows error messages, status changes, service output and
+                 system state changes directly on the console, with colorful
+		 output.

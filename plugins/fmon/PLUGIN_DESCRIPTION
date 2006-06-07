@@ -3,4 +3,5 @@
   contributors : 
       commands : 
        options : 
-   description : If plugins or initng or any .i file used is changed, this plugin make sure initng will notice.
+   description : If plugins, initng, or any .i file used is changed, this
+                 plugin makes sure initng will notice.

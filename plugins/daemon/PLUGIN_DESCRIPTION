@@ -12,6 +12,8 @@
 		 DAEMON_WAIT_RESP_TOUT, DAEMON_START_DEPS_FAILED, DAEMON_STOP_DEPS_FAILED,
 		 DAEMON_FAIL_STARTING, DAEMON_FAIL_STOPPING, DAEMON_UP_CHECK_FAILED,
 		 DAEMON_RESPAWN_RATE_EXCEEDED
-   description : This handles the service type daemon, a daemon is a process that shud run
-                 on the computer the full time, and this plugins have checks for pidfiles
-		 and will watch if a daemons dies, or if other things happends.
+   description : This handles the service type daemon.  A daemon is a process
+                 that should execute and stay running (where a service will
+                 execute and terminate).  This plugin has checks for pidfiles
+                 and will watch for daemons terminating unexpectedly, amongst
+                 other actions.

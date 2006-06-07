@@ -3,4 +3,5 @@
   contributors : 
       commands : 
        options : 
-   description : This is an experimental initng control tool, like ngc using python.
+   description : This is an experimental initng control tool, similar to ngc
+                 but using python.

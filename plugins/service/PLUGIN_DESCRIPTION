@@ -10,8 +10,9 @@
 		 SERVICE_STOP_RUN, SERVICE_START_DEPS_FAILED, SERVICE_STOP_DEPS_FAILED,
 		 SERVICE_FAIL_STARTING, SERVICE_FAIL_STOPPING, SERVICE_START_FAILED_TIMEOUT,
 		 SERVICE_STOP_FAILED_TIMEOUT, SERVICE_UP_CHECK_FAILED
-   description : A service meens a object with an start and maby an stop launcher.
-                 It works by that starting an object the start code run, when it
-		 finishes, and succeed, the object is set to UP, later when stopping
-		 it the stop code is run, and when that finishes, the object got status
-		 DOWN. This is not like a daemon works, that is up when launced.
+   description : A service means a object with an start and optionally an stop
+                 command.  Unlike a daemon, which executes and continues to
+                 run, a service executes, performs an action, then terminates.
+                 A successful service will be given state UP.  If a stop
+                 command/script is specified, it will be used to terminate the
+                 service and state DOWN will be set.

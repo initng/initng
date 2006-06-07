@@ -4,5 +4,5 @@
       commands : 
  process_types : daemon_clean
        options : 
-   description : This plugin will feel if a daemon exits, and
-                 run aditional code if set.
+   description : This plugin checks for daemons exiting, and runs aditional
+                 code if set.

@@ -3,8 +3,8 @@
   contributors : 
       commands : 
        options : 
-   description : This plugin is an emulation layer for sysvinit
-                 halt, reboot or tellinit commands, so initng will
-		 also react to them, if you dont have sysvinit installed
-		 this plugin is compleatly usless, please use initngs own 
-		 rebot or halt scripts if possible.
+   description : This plugin is an emulation layer for sysvinit 'halt', 'reboot'
+                 and 'tellinit' commands, so initng will also react to them.
+                 If you dont have sysvinit installed this plugin is completely
+                 usless.  You should however use initng's own reboot or halt
+                 scripts if possible.

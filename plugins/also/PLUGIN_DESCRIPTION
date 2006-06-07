@@ -3,6 +3,6 @@
   contributors :
       commands : 
        options : also_start, also_stop
-   description : When a service is starting/stopping services put
-                 in also_start are also started and services in also_stop
-		 are also stopped.
+   description : When a service is starting or stopping, services specified by
+                 "also_start = service;" and "also_stop = service;" will be
+		 started and stopped also.

@@ -3,5 +3,5 @@
   contributors : 
       commands : 
        options : 
-   description : If this plugin is loaded, initng will make
-                 the system reboot, on a CTRL+ALT+DEL combination.
+   description : If this plugin is loaded, initng will make the system reboot
+                 on a CTRL+ALT+DEL press.

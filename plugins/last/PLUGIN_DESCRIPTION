@@ -3,5 +3,5 @@
   contributors : 
       commands : 
        options : last
-   description : If last keyword is set in service, this plugin makes sure
-                 all other services is started before this service.
+   description : If last keyword is set for a service, this plugin makes sure
+                 all other services are started before this service.

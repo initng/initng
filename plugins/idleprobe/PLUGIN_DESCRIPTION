@@ -3,5 +3,5 @@
   contributors : 
       commands : 
        options : wait_for_cpu_idle, wait_for_cpu_below
-   description : For not that important services, set this keyword, and
-                 initng will wait for some less cpu usage before trying to start these.
+   description : For less important services, set this keyword, and initng
+                 will wait for cpu usage to drop before trying to start them.

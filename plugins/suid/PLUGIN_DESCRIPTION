@@ -3,4 +3,4 @@
   contributors : 
       commands : 
        options : suid, sgid
-   description : Set user and goup id before launching.
+   description : Set user and group id before launching.

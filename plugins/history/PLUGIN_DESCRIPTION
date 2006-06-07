@@ -3,6 +3,6 @@
   contributors : 
       commands : 
        options : log, show_history
-   description : This file put up a history db, with all events, process output
-                 service state change, and saves it to the memory.
-		 This plugin will make initng take a lot of memory, be aware.
+   description : This file opens a history database, storing all events,
+                 process output and state changes in memory.  This plugin
+                 will make initng take a lot of memory, be aware.

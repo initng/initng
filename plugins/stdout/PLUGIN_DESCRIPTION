@@ -3,6 +3,7 @@
   contributors : Jimmy Wennlund <jimmy.wennlund@gmail.com>
       commands : 
        options : stdout, stderr, stdall, stdin
-   description : This plugins redirect the output to a file or socket/pipe
-                 before launching, if you redirecting output away from initng
-		 it wont be printed, or get in the logs, or history.
+   description : This plugin redirects the standard input/output and/or
+                 standard error to a file, socket or pipe before launching.
+                 When redirecting output away from initng it will not be
+                 printed or stored in either logs or history.
