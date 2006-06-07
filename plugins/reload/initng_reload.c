@@ -233,7 +233,6 @@ static int read_file(const char *filename)
 					op->pipe[0] = entry.process[pnr].stdout1;
 					op->pipe[1] = entry.process[pnr].stdout2;
 					op->dir = BUFFERED_OUT_PIPE;
-					op->pipet = PIPE_STDOUT;
 					op->targets[0] = 1;
 					op->targets[1] = 2;
 					add_pipe(op, process);

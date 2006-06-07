@@ -40,7 +40,7 @@
  * This function creates a new pipe, and creates a new
  * pipe struct entry.
  */
-pipe_h *pipe_new(e_pipet type, e_dir dir)
+pipe_h *pipe_new(e_dir dir)
 {
 	pipe_h *pipe_struct = i_calloc(1, sizeof(pipe_h));
 
@@ -48,7 +48,6 @@ pipe_h *pipe_new(e_pipet type, e_dir dir)
 		return (NULL);
 
 	/* set the type */
-	pipe_struct->pipet = type;
 	pipe_struct->dir = dir;
 
 	/* return the pointer */
@@ -84,7 +83,7 @@ process_h *initng_process_db_new(ptype_h * type)
 	INIT_LIST_HEAD(&new_p->pipes.list);
 
 	/* create the output pipe */
-	current_pipe = pipe_new(PIPE_STDOUT, BUFFERED_OUT_PIPE);
+	current_pipe = pipe_new(BUFFERED_OUT_PIPE);
 	if (!current_pipe)
 	{
 		free(new_p);

@@ -761,7 +761,7 @@ static active_db_h *create_new_active(const char *name)
 	add_process(process, new_active);
 
 	/* create and unidirectional pipe */
-	current_pipe = pipe_new(PIPE_CTRL_IN, IN_AND_OUT_PIPE);
+	current_pipe = pipe_new(IN_AND_OUT_PIPE);
 	if (current_pipe)
 	{
 		/* we want this pipe to get fd 3, in the fork */

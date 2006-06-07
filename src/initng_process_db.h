@@ -44,16 +44,6 @@ typedef enum
 	P_FREE = 1,
 } e_pst;
 
-/* the types that can be set to a pipe list */
-typedef enum
-{
-	PIPE_UNKNOWN = 0,
-	PIPE_STDOUT = 1,
-	PIPE_STDIN = 2,
-	PIPE_CTRL_OUT = 3,
-	PIPE_CTRL_IN = 4,
-} e_pipet;
-
 typedef enum
 {
 	UNKNOWN_PIPE = 0,
@@ -68,9 +58,6 @@ typedef struct
 {
 	/* this array contains the pipe fds */
 	int pipe[2];
-
-	/* Whats this type?, this will be a pointer to a struct in the future */
-	e_pipet pipet;
 
 	/* The direction of the stream, an OUTPUT or INPUT ?? */
 	e_dir dir;
@@ -148,7 +135,7 @@ ptype_h *initng_process_db_ptype_find(const char *name);
 #define add_process(pss, sss) list_add(&(pss)->list, &(sss)->processes.list);
 
 /* used for browing pipes */
-pipe_h *pipe_new(e_pipet type, e_dir dir);
+pipe_h *pipe_new(e_dir dir);
 
 #define add_pipe(PIPE, PROCESS) list_add(&(PIPE)->list, &(PROCESS)->pipes.list);
 #define while_pipes(CURRENT, PROCESS) list_for_each_entry_prev(CURRENT, &(PROCESS)->pipes.list, list)
