@@ -707,12 +707,23 @@ static active_db_h *create_new_active(const char *name)
 	pipe_h *current_pipe;
 
 	/*printf("create_new_active(%s);\n", name); */
-
-	/* check if initfile exists */
-	strncat(file, name, 1020 - strlen(SCRIPT_PATH));
+	/*printf("service \"%s\" ", name);*/
+	
+	/* Make the filename, cutting on first '/' in name */
+	{
+		int i=0;
+		while(name[i] && i < 500 && name[i] != '/')
+			i++;
+		strncat(file, name, i);
+	}
+	
+	/* printf(" parsing file \"%s\"\n", file); */
+		
+	/* check so that file exists */	
 	if (stat(file, &fstat) != 0)
 	{
-#if 0										/* Gentoo support disabled for now - doesn't work properly yet */
+#if 0
+		/* Gentoo support disabled for now - doesn't work properly yet */
 		strcpy(file, "/etc/init.d/");
 		strncat(file, name, 1020 - strlen("/etc/init.d/"));
 
