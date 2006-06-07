@@ -47,16 +47,17 @@
 void initng_fork_aforkhooks(active_db_h * service, process_h * process)
 {
 	s_call *current = NULL;
-		/* There might be plug-ins that will work here */
-		while_list(current, &g.A_FORK)
+
+	/* There might be plug-ins that will work here */
+	while_list(current, &g.A_FORK)
+	{
+		if (((*current->c.af_launcher) (service, process)) == FALSE)
 		{
-			if (((*current->c.af_launcher) (service, process)) == FALSE)
-			{
-				F_("Some plugin did fail (from:%s), in after fork launch.\n",
-				   current->from_file);
-				_exit(1);
-			}
+			F_("Some plugin did fail (from:%s), in after fork launch.\n",
+			   current->from_file);
+			_exit(1);
 		}
+	}
 }
 
 pid_t initng_fork(active_db_h * service, process_h * process)

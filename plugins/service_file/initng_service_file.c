@@ -369,7 +369,7 @@ static void bp_get_variable(bp_rep * rep, const char *service,
 	if (!active)
 	{
 		strcpy(rep->message, "Service \"");
-		
+
 		strncat(rep->message, service, 500);
 		strcat(rep->message, "\" not found.");
 		rep->success = FALSE;
@@ -707,19 +707,20 @@ static active_db_h *create_new_active(const char *name)
 	pipe_h *current_pipe;
 
 	/*printf("create_new_active(%s);\n", name); */
-	/*printf("service \"%s\" ", name);*/
-	
+	/*printf("service \"%s\" ", name); */
+
 	/* Make the filename, cutting on first '/' in name */
 	{
-		int i=0;
-		while(name[i] && i < 500 && name[i] != '/')
+		int i = 0;
+
+		while (name[i] && i < 500 && name[i] != '/')
 			i++;
 		strncat(file, name, i);
 	}
-	
+
 	/* printf(" parsing file \"%s\"\n", file); */
-		
-	/* check so that file exists */	
+
+	/* check so that file exists */
 	if (stat(file, &fstat) != 0)
 	{
 #if 0
