@@ -42,7 +42,7 @@
 #include <initng.h>
 #include <initng-paths.h>
 
-#include "initng_bash_parser.h"
+#include "initng_service_file.h"
 
 int bp_send(bp_req * to_send);
 

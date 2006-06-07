@@ -1,7 +1,7 @@
 INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/src ${CMAKE_BINARY_DIR} )
 
-ADD_LIBRARY(bash_parser MODULE initng_bash_parser.c)
-INSTALL_TARGETS(${LIB_INSTALL_DIR}/initng bash_parser)
+ADD_LIBRARY(service_file MODULE initng_service_file.c)
+INSTALL_TARGETS(${LIB_INSTALL_DIR}/initng service_file)
 
 ADD_EXECUTABLE(bp bp.c)
 SET_TARGET_PROPERTIES(bp PROPERTIES POST_INSTALL_SCRIPT
