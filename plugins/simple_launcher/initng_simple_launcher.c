@@ -160,10 +160,6 @@ static char *expand_exec(char *exec)
 	PATH = NULL;
 	path_argv = NULL;
 
-	/* make sure we got a filename to use */
-	if (!filename)
-		F_("No executable found\n");
-
 	/* return the filename */
 	return filename;
 }
@@ -342,7 +338,7 @@ static int simple_run(active_db_h * service, process_h * process)
 		argv0 = expand_exec(argv[0]);
 		if (!argv0)
 		{
-			D_("%s was not found in search path.\n", argv[0]);
+			F_("SERVICE: %s %s -- %s was not found in search path.\n", service->name, process->pt->name, argv[0]);
 			free(argv);
 			argv = NULL;
 			fix_free(exec_fixed, exec);
