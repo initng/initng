@@ -74,7 +74,7 @@ void unregister_ngcs_cmds(void);
 static int service_status_watch(active_db_h * service);
 static void ngcs_cmd_watch(ngcs_request * req);
 static void ngcs_free_watch(ngcs_chan * chan);
-static int service_output_watch(active_db_h * service, process_h * x,
+static int service_output_watch(active_db_h * service, process_h * x, pipe_h * pi, 
 								char *buffer_pos);
 static ngcs_watch *ngcs_add_watch(ngcs_conn * conn, char *svcname, int flags);
 static void ngcs_cmd_start(ngcs_request * req);
@@ -287,7 +287,7 @@ static int ngcs_watch_initial(ngcs_watch * watch)
 	return 0;
 }
 
-static int service_output_watch(active_db_h * service, process_h * x,
+static int service_output_watch(active_db_h * service, process_h * x, pipe_h * pi, 
 								char *buffer_pos)
 {
 	ngcs_watch *watch, *nextwatch;
@@ -549,7 +549,7 @@ void register_ngcs_cmds(void)
 	ngcs_reg_cmd(&ngcs_hot_reload_cmd_long);
 	ngcs_reg_cmd(&ngcs_zap_cmd);
 	initng_plugin_hook_register(&g.ASTATUS_CHANGE, 50, &service_status_watch);
-	initng_plugin_hook_register(&g.PIPEWATCHERS, 50, &service_output_watch);
+	initng_plugin_hook_register(&g.BUFFER_WATCHER, 50, &service_output_watch);
 	initng_plugin_hook_register(&g.SWATCHERS, 50, &system_state_watch);
 	initng_plugin_hook_register(&g.ERR_MSG, 50, &error_watch);
 	INIT_LIST_HEAD(&watches.list);
@@ -560,7 +560,7 @@ void register_ngcs_cmds(void)
 void unregister_ngcs_cmds(void)
 {
 	initng_plugin_hook_unregister(&g.ASTATUS_CHANGE, &service_status_watch);
-	initng_plugin_hook_unregister(&g.PIPEWATCHERS, &service_output_watch);
+	initng_plugin_hook_unregister(&g.BUFFER_WATCHER, &service_output_watch);
 	ngcs_unreg_cmd(&ngcs_start_cmd);
 	ngcs_unreg_cmd(&ngcs_stop_cmd);
 	ngcs_unreg_cmd(&ngcs_watch_cmd);
