@@ -172,24 +172,6 @@ static void service_db_print_u(service_cache_h * s, char **string)
 }
 
 
-/* Walk through every service and print it all */
-char *service_db_print_all(void)
-{
-	char *string = NULL;
-	service_cache_h *current = NULL;
-
-	mprintf(&string, "Full service print:\n");
-
-	D_("print_all():\n");
-
-	while_service_cache(current)
-	{
-		D_("printing %s ...\n", current->name);
-		service_db_print_u(current, &string);
-	}
-
-	return (string);
-}
 
 static void active_db_print_process(process_h * p, char **string)
 {
@@ -332,16 +314,35 @@ static void active_db_print_u(active_db_h * s, char **string)
 }
 
 /* Walk through every service and print it all */
-char *active_db_print_all(void)
+char *active_db_print_all(char * matching)
 {
 	char *string = NULL;
 	active_db_h *apt = NULL;
 
-	D_("print_all():\n");
+	D_("active_db_print_all(%s):\n", matching);
 
 	while_active_db(apt)
 	{
-		active_db_print_u(apt, &string);
+		if(!matching || service_match(apt->name, matching))
+			active_db_print_u(apt, &string);
+	}
+
+	return (string);
+}
+
+/* Walk through every service and print it all */
+char *service_db_print_all(char * matching)
+{
+	char *string = NULL;
+	service_cache_h *current = NULL;
+
+
+	D_("service_db_print_all(%s):\n", matching);
+
+	while_service_cache(current)
+	{
+		if(!matching || service_match(current->name, matching))
+			service_db_print_u(current, &string);
 	}
 
 	return (string);

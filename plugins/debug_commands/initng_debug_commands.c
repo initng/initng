@@ -55,8 +55,6 @@
 
 static char *cmd_print_fds(char *arg);
 static int cmd_initng_quit(char *arg);
-static char *cmd_print_service_db(char *arg);
-static char *cmd_print_active_db(char *arg);
 
 #ifdef DEBUG
 static int cmd_toggle_verbose(char *arg);
@@ -64,7 +62,7 @@ static int cmd_add_verbose(char *arg);
 static int cmd_del_verbose(char *arg);
 #endif
 
-s_command LIST_FDS = { 'I', "list_filedescriptors", STRING_COMMAND, ADVANCHED_COMMAND, NO_OPT, {(void *) &cmd_print_fds}, "Print all open filedescriptors initng have." };
+s_command LIST_FDS = { 'I', "list_filedescriptors", STRING_COMMAND, ADVANCHED_COMMAND, USES_OPT, {(void *) &cmd_print_fds}, "Print all open filedescriptors initng have." };
 
 s_command QUIT_INITNG = { 'q', "quit", TRUE_OR_FALSE_COMMAND, ADVANCHED_COMMAND, NO_OPT,
 	{(void *) &cmd_initng_quit},
@@ -73,12 +71,12 @@ s_command QUIT_INITNG = { 'q', "quit", TRUE_OR_FALSE_COMMAND, ADVANCHED_COMMAND,
 
 s_command PRINT_SERVICE_DB = { 'p', "print_service_db", STRING_COMMAND, ADVANCHED_COMMAND,
 	USES_OPT,
-	{(void *) &cmd_print_service_db},
+	{(void *) &service_db_print_all},
 	"Print service_db"
 };
 
 s_command PRINT_ACTIVE_DB = { 'P', "print_active_db", STRING_COMMAND, ADVANCHED_COMMAND, USES_OPT,
-	{(void *) &cmd_print_active_db},
+	{(void *) &active_db_print_all},
 	"Print active_db"
 };
 
@@ -117,27 +115,38 @@ static char *cmd_print_fds(char *arg)
 			if (currentC->c.fdh->fds != i)
 				continue;
 
-			mprintf(&string, " %i: Used by plugin: %s\n", i,
+			if(!arg || 	strstr(currentC->from_file, arg))
+				mprintf(&string, " %i: Used by plugin: %s\n", i,
 					currentC->from_file);
 			break;
 			/* Call db fs */
 		}
 
 		currentA = NULL;
+		
+		/* for every service */
 		while_active_db(currentA)
 		{
-			currentP = NULL;
-			while_processes(currentP, currentA)
+			/* if argument was set, only print matching */
+			if(!arg || service_match(currentA->name, arg))
 			{
-				current_pipe = NULL;
-				while_pipes(current_pipe, currentP)
+				/* for every process */
+				currentP = NULL;
+				while_processes(currentP, currentA)
 				{
-					if (current_pipe->pipe[0] == i
-						|| current_pipe->pipe[1] == i)
+					/* for every pipe */
+					current_pipe = NULL;
+					while_pipes(current_pipe, currentP)
 					{
-						mprintf(&string,
+						/* if matching */
+						if (current_pipe->pipe[0] == i
+							|| current_pipe->pipe[1] == i)
+						{
+							/* PRINT */
+							mprintf(&string,
 								" %i: Used service: %s, process: %s\n", i,
 								currentA->name, currentP->pt->name);
+						}
 					}
 				}
 			}
@@ -158,47 +167,6 @@ static int cmd_initng_quit(char *arg)
 }
 
 
-static char *cmd_print_service_db(char *arg)
-{
-	service_cache_h *s;
-
-	D_("Print service \"%s\"\n", arg);
-	if (arg && strlen(arg) > 1
-		&& (s = initng_service_cache_find_in_name(arg)))
-	{
-		return (service_db_print(s));
-	}
-	else if (arg && strlen(arg) > 1)
-	{
-		return (i_strdup("No such service.\n"));
-	}
-	else
-	{
-		return (service_db_print_all());
-	}
-
-	return (NULL);
-}
-
-static char *cmd_print_active_db(char *arg)
-{
-	active_db_h *s;
-
-	if (arg && strlen(arg) > 1 && (s = initng_active_db_find_in_name(arg)))
-	{
-		return (active_db_print(s));
-	}
-	else if (arg && strlen(arg) > 1)
-	{
-		return (i_strdup("No such service."));
-	}
-	else
-	{
-		return (active_db_print_all());
-	}
-
-	return (NULL);
-}
 
 #ifdef DEBUG
 
