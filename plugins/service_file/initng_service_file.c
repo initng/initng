@@ -83,8 +83,10 @@ static void handle_killed(active_db_h * service, process_h * process);
 
 #define SOCKET_4_ROOTPATH "/dev/initng"
 
-a_state_h PARSING = { "PARSING", "This is service is parsing by service_file.", IS_STARTING, NULL, NULL, NULL };
-a_state_h REDY_TO_START = { "REDY_TO_START", "This service is finished loading.", IS_DOWN, NULL, NULL, NULL };
+a_state_h PARSING = { "PARSING", "This is service is parsing by service_file.", IS_NEW, NULL, NULL, NULL };
+a_state_h PARSING_FOR_START = { "PARSING_FOR_START", "This is service is parsing by service_file.", IS_NEW, NULL, NULL, NULL };
+a_state_h NOT_RUNNING = { "NOT_RUNNING", "When a service is parsed done, its marked DOWN ready for starting.", IS_DOWN, NULL, NULL, NULL };
+a_state_h REDY_FOR_START = { "REDY_TO_START", "When a service is parsed done, its marked DOWN ready for starting.", IS_DOWN, NULL, NULL, NULL };
 a_state_h PARSE_FAIL = { "PARSE_FAIL", "This parse process failed.", IS_FAILED, NULL, NULL, NULL };
 
 /* put null to the kill_handler here */
@@ -211,7 +213,7 @@ static void bp_new_active(bp_rep * rep, const char *type, const char *service,
 	new_active = initng_active_db_find_by_exact_name(service);
 
 	/* check for duplet, not parsing */
-	if (new_active && new_active->current_state != &PARSING)
+	if (new_active && new_active->current_state != &PARSING_FOR_START)
 	{
 		strcpy(rep->message, "Duplet found.");
 		rep->success = FALSE;
@@ -250,6 +252,7 @@ static void bp_new_active(bp_rep * rep, const char *type, const char *service,
 	rep->success = TRUE;
 	return;
 }
+
 static void bp_set_variable(bp_rep * rep, const char *service,
 							const char *vartype, const char *varname,
 							const char *value)
@@ -287,7 +290,7 @@ static void bp_set_variable(bp_rep * rep, const char *service,
 		return;
 	}
 
-	if (active->current_state != &PARSING)
+	if (active->current_state != &PARSING && active->current_state != &PARSING_FOR_START)
 	{
 		strcpy(rep->message, "Please dont edit finished services.");
 		rep->success = FALSE;
@@ -358,6 +361,7 @@ static void bp_set_variable(bp_rep * rep, const char *service,
 	rep->success = TRUE;
 	return;
 }
+
 static void bp_get_variable(bp_rep * rep, const char *service,
 							const char *vartype, const char *varname)
 {
@@ -451,6 +455,7 @@ static void bp_get_variable(bp_rep * rep, const char *service,
 	rep->success = TRUE;
 	return;
 }
+
 static void bp_done(bp_rep * rep, const char *service)
 {
 	active_db_h *active = initng_active_db_find_by_exact_name(service);
@@ -471,20 +476,30 @@ static void bp_done(bp_rep * rep, const char *service)
 		return;
 	}
 
-	if (active->current_state != &PARSING)
-	{
-		strcpy(rep->message, "Service is not in PARSING state, cant start.");
-		rep->success = FALSE;
-		return;
-	}
 
 	/* must set to a DOWN state, to be able to start */
-	active->current_state = &REDY_TO_START;
+	if(IS_MARK(active, &PARSING_FOR_START))
+	{
+		if(initng_common_mark_service(active, &REDY_FOR_START))
+		{
+			rep->success=initng_handler_start_service(active);
+			return;
+		}
+	}
+	else if(IS_MARK(active, &PARSING))
+	{
+		rep->success = initng_common_mark_service(active, &NOT_RUNNING);
+		return;
+	}
+	
+	strcpy(rep->message, "Service is not in PARSING state, cant start.");
+	rep->success = FALSE;
+	return;
 
-	/* start this service */
-	rep->success = initng_handler_start_service(active);
+	/* This wont start it, it will be started by as a dependency for a other plugin */	
 	return;
 }
+
 static void bp_abort(bp_rep * rep, const char *service)
 {
 	active_db_h *active = initng_active_db_find_by_exact_name(service);
@@ -496,7 +511,7 @@ static void bp_abort(bp_rep * rep, const char *service)
 		return;
 	}
 
-	if (active->current_state != &PARSING)
+	if (active->current_state != &PARSING && active->current_state != &PARSING_FOR_START)
 	{
 		strcpy(rep->message, "Service is not in PARSING state, cant start.");
 		rep->success = FALSE;
@@ -775,7 +790,7 @@ static active_db_h *create_new_active(const char *name)
 		return (NULL);
 
 	/* set type */
-	new_active->current_state = &PARSING;
+	new_active->current_state = &PARSING_FOR_START;
 #ifdef SERVICE_CACHE
 	new_active->from_service = &NO_CACHE;
 #endif
@@ -948,6 +963,8 @@ int module_init(int api_version)
 #endif
 	initng_plugin_hook_register(&g.NEW_ACTIVE, 50, &create_new_active);
 	initng_plugin_hook_register(&g.PIPE_WATCHER, 30, &get_pipe);
+	initng_active_state_register(&REDY_FOR_START);
+	initng_active_state_register(&NOT_RUNNING);
 	initng_active_state_register(&PARSING);
 	initng_active_state_register(&PARSE_FAIL);
 #ifdef USE_LOCALEXEC
@@ -979,6 +996,8 @@ void module_unload(void)
 #endif
 	initng_plugin_hook_unregister(&g.NEW_ACTIVE, &create_new_active);
 	initng_plugin_hook_unregister(&g.PIPE_WATCHER, &get_pipe);
+	initng_active_state_unregister(&REDY_FOR_START);
+	initng_active_state_unregister(&NOT_RUNNING);
 	initng_active_state_unregister(&PARSING);
 	initng_active_state_unregister(&PARSE_FAIL);
 #ifdef USE_LOCALEXEC

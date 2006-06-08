@@ -358,13 +358,20 @@ int initng_depend_start_dep_met(active_db_h * service, int verbose)
 			return (FAIL);
 		}
 
+		/* if its this fresh, we dont do anything */
+		if (IS_NEW(dep))
+		{
+			fix_free(str, current->t.s);
+			return(FALSE);
+		}
+
 		/* if its marked down, and not starting, start it */
-		/*if (IS_DOWN(dep))
-		   {
+		if (IS_DOWN(dep))
+		{
 		   initng_handler_start_service(dep);
 		   fix_free(str, current->t.s);
 		   return (FALSE);
-		   } */
+		}
 
 		/* if its not starting or up, return FAIL */
 		if (!IS_UP(dep))

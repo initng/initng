@@ -200,8 +200,8 @@ static int print_output(active_db_h * service)
 	if (IS_STARTING(service))
 	{
 		/* if we print this on boot, we clutter up the screen too much */
-		if (g.sys_state == STATE_STARTING)
-			return (TRUE);
+		/* if (g.sys_state == STATE_STARTING)
+		 	return (TRUE); */
 		clear_lastserv();
 		if (color)
 			cprintf(CP "\t[" C_GREEN "starting" C_OFF "]\n", service->name);

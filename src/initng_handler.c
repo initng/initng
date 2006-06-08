@@ -186,6 +186,13 @@ int initng_handler_start_service(active_db_h * service_to_start)
 		D_("service %s is already up!\n", service_to_start->name);
 		return (TRUE);
 	}
+	
+	/* if new, and not got a stopped state yet, its no idea to bug this process */
+	if (IS_NEW(service_to_start))
+	{
+		D_("service %s is so fresh so we cant start it.\n", service_to_start->name);
+		return (TRUE);
+	}
 
 	/* it must be down or stopping to start it */
 	if (!(IS_DOWN(service_to_start) || IS_STOPPING(service_to_start)))

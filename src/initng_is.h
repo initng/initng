@@ -23,7 +23,7 @@
 
 typedef enum
 {
-	IS_UNKNOWN = 0,
+	IS_NEW = 0,
 	IS_UP = 1,
 	IS_DOWN = 2,
 	IS_FAILED = 3,
@@ -33,6 +33,7 @@ typedef enum
 } e_is;
 
 #define IS_MARK(serv, state) (serv && serv->current_state && serv->current_state == state)
+#define IS_NEW(serv) (serv && serv->current_state && serv->current_state->is == IS_NEW)
 #define IS_UP(serv) (serv && serv->current_state && serv->current_state->is == IS_UP)
 #define IS_DOWN(serv) (!serv->current_state || (serv && serv->current_state && serv->current_state->is == IS_DOWN))
 #define IS_FAILED(serv) (serv && serv->current_state && serv->current_state->is == IS_FAILED)
