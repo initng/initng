@@ -35,7 +35,6 @@
 
 #include <initng_global.h>
 #include <initng_process_db.h>
-#include <initng_service_cache.h>
 #include <initng_handler.h>
 #include <initng_main.h>
 #include <initng_active_db.h>
@@ -201,12 +200,14 @@ void parse_control_input(f_module_h * from_module, e_fdw what)
 			initng_reload();
 			return;
 
+#ifdef SERVICE_CACHE
 			/* reload /etc/inittab */
 		case 'Q':
 		case 'q':
 			D_("init Q, freeing complete service cache\n");
 			initng_service_cache_free_all();
 			return;
+#endif
 
 			/* go singleuser */
 		case 'S':

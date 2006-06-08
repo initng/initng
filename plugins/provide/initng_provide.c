@@ -122,8 +122,10 @@ static int add_virtual_service(const char *name)
 		/* set type */
 		vserv->type = &PROVIDED;
 
+#ifdef SERVICE_CACHE
 		/* make sure it wont try to parse this entry */
 		vserv->from_service = &NO_CACHE;
+#endif
 
 		/* register it */
 		if (!initng_active_db_register(vserv))

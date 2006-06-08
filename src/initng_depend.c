@@ -521,8 +521,6 @@ int initng_depend_start_deps(active_db_h * service)
 	assert(service->name);
 #ifdef DEBUG
 	D_("initng_depend_start_deps(%s);\n", service->name);
-	if (!service->from_service)
-		D_(" ** Data not loaded for %s!\n", service->name);
 #endif
 
 	/* walk all possible entrys, use get_next with NULL becouse we want both REQUIRE and NEED */

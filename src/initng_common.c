@@ -74,6 +74,7 @@ int initng_common_service_blacklisted(const char *name)
 	return (FALSE);
 }
 
+#ifdef SERVICE_CACHE
 /* creates a active service */
 active_db_h *initng_common_load_to_active(const char *service_name)
 {
@@ -174,9 +175,10 @@ active_db_h *initng_common_load_to_active(const char *service_name)
 		initng_active_db_free(a_new);
 	return (NULL);
 }
+#endif
 
 
-
+#ifdef SERVICE_CACHE
 /* this function tries to find the from_service pointer from a service name.
    this actually loads the config from disk, parser by parser */
 int initng_common_get_service(active_db_h * service)
@@ -290,7 +292,9 @@ int initng_common_get_service(active_db_h * service)
 	return (TRUE);
 
 }
+#endif
 
+#ifdef SERVICE_CACHE
 service_cache_h *initng_common_parse_service(const char *name)
 {
 	s_call *current, *safe = NULL;
@@ -347,6 +351,7 @@ service_cache_h *initng_common_parse_service(const char *name)
 	/* return the service */
 	return (service);
 }
+#endif
 
 /*
  * Use this function to change the status of an service, this

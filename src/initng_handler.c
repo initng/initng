@@ -335,6 +335,7 @@ active_db_h *initng_handler_start_new_service_named(const char *service)
 		return (to_load);
 	}
 
+#ifdef SERVICE_CACHE
 	/* else try create and load a new service */
 	if ((to_load = initng_common_load_to_active(service)))
 	{
@@ -343,6 +344,7 @@ active_db_h *initng_handler_start_new_service_named(const char *service)
 
 		return (to_load);
 	}
+#endif
 
 	/* the function calling this function will print out an error */
 	D_("Unable to load active for service %s\n", service);

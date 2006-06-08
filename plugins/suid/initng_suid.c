@@ -41,13 +41,13 @@ void adjust_env(active_db_h * service, const char *vn, const char *vv);
 void adjust_env(active_db_h * service, const char *vn, const char *vv)
 {
 	/* add to service cache */
-	if (is_var(&ENV, vn, service->from_service))
+	if (is_var(&ENV, vn, service))
 	{
 		return;								/* Assume they were set by .i file, don't override */
 	}
 	else
 	{
-		set_string_var(&ENV, i_strdup(vn), service->from_service,
+		set_string_var(&ENV, i_strdup(vn), service,
 					   i_strdup(vv));
 	}
 }

@@ -32,7 +32,6 @@
 #include "initng_global.h"
 #include "initng_active_db.h"
 #include "initng_process_db.h"
-#include "initng_service_cache.h"
 #include "initng_toolbox.h"
 #include "initng_common.h"
 #include "initng_static_data_id.h"
@@ -100,6 +99,7 @@ active_db_h *initng_active_db_find_by_name(const char *service)
 	}
 }
 
+#ifdef SERVICE_CACHE
 /*
  * This is called before dynamic data fetchers goes resursive.
  * and give us a chanse to try to set head->res if possible
@@ -132,6 +132,7 @@ int reload_service_cache(data_head * head)
 	service->from_service = &NO_CACHE;
 	return (FALSE);
 }
+#endif
 
 /*
  * This will search and find the best possible.
@@ -162,6 +163,7 @@ active_db_h *initng_active_db_find_in_name(const char *service)
 	return (NULL);
 }
 
+#ifdef SERVICE_CACHE
 /* return index of service in active data structure or -1 if not found */
 active_db_h *initng_active_db_find_by_service_h(service_cache_h * service)
 {
@@ -182,6 +184,7 @@ active_db_h *initng_active_db_find_by_service_h(service_cache_h * service)
 
 	return NULL;
 }
+#endif
 
 /* returns pointer to active_h process belongs to, and sets process_type */
 active_db_h *initng_active_db_find_by_pid(pid_t pid)
@@ -258,8 +261,12 @@ active_db_h *initng_active_db_new(const char *name)
 		return (NULL);
 	}
 
+#ifdef SERVICE_CACHE
 	/* initiate the data list, little special here sense data list relays on service->from_service */
 	DATA_HEAD_INIT_REQUEST(&new_active->data, NULL, &reload_service_cache);
+#else
+	DATA_HEAD_INIT_REQUEST(&new_active->data, NULL, NULL);
+#endif
 
 	/* get the time, and copy that time to all time entries */
 	gettimeofday(&new_active->time_current_state, NULL);
@@ -270,7 +277,6 @@ active_db_h *initng_active_db_new(const char *name)
 
 	/* mark this service as stopped, because it is not yet starting, or running */
 	new_active->current_state = &NEW;
-	new_active->from_service = NULL;
 
 	/* reset alarm */
 	new_active->alarm = 0;
@@ -305,6 +311,7 @@ void initng_active_db_free(active_db_h * pf)
 	/* remove every data entry */
 	remove_all(pf);
 
+#ifdef SERVICE_CACHE
 	/* remove file cache of entry if present, so we got a fresh read from file when this service is restarted */
 	if (pf->from_service)
 	{
@@ -313,6 +320,7 @@ void initng_active_db_free(active_db_h * pf)
 		/* free entry */
 		initng_service_cache_free(pf->from_service);
 	}
+#endif
 
 	/* free service name */
 	if (pf->name)
@@ -354,7 +362,7 @@ void initng_active_db_compensate_time(time_t skew)
 	}
 }
 
-
+#ifdef SERVICE_CACHE
 /* update all service_h pointers in whole active_db */
 void initng_active_db_change_service_h(service_cache_h * from,
 									   service_cache_h * to)
@@ -381,6 +389,7 @@ void initng_active_db_change_service_h(service_cache_h * from,
 		}
 	}
 }
+#endif
 
 /* active_db_count counts a type, if null, count all */
 int initng_active_db_count(a_state_h * current_state_to_count)

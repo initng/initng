@@ -90,7 +90,9 @@ void initng_service_data_type_register(s_entry * ent)
 void initng_service_data_type_unregister(s_entry * ent)
 {
 	active_db_h *currentA = NULL;
+#ifdef SERVICE_CACHE
 	service_cache_h *currentS = NULL;
+#endif
 
 	S_;
 	assert(ent);
@@ -101,11 +103,13 @@ void initng_service_data_type_unregister(s_entry * ent)
 		remove(ent, currentA);
 	}
 
+#ifdef SERVICE_CACHE
 	/* clear the file cache from this data */
 	while_service_cache(currentS)
 	{
 		remove(ent, currentS);
 	}
+#endif
 
 	/* remove it from the list */
 	list_del(&ent->list);

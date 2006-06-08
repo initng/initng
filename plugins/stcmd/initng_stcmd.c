@@ -36,7 +36,7 @@
 
 #include <initng_global.h>
 #include <initng_process_db.h>
-#include <initng_service_cache.h>
+//#include <initng_service_cache.h>
 #include <initng_handler.h>
 #include <initng_active_db.h>
 #include <initng_toolbox.h>
@@ -58,7 +58,6 @@ static int cmd_start_on_new(char *arg);
 static int cmd_free_service(char *arg);
 static int cmd_restart(char *arg);
 static char *cmd_print_uptime(char *arg);
-static int cmd_reload(char *arg);
 static int cmd_initng_halt(char *arg);
 static int cmd_initng_poweroff(char *arg);
 static int cmd_initng_reboot(char *arg);
@@ -67,7 +66,11 @@ static int cmd_load_module(char *arg);
 
 /* static int cmd_unload_module(char *arg); */
 static int cmd_percent_done(char *arg);
+#ifdef SERVICE_CACHE
 static char *cmd_get_father_of(char *arg);
+static int cmd_reload(char *arg);
+#endif
+
 static char *cmd_get_depends_on(char *arg);
 static char *cmd_get_depends_on_deep(char *arg);
 static char *cmd_get_depends_off(char *arg);
@@ -97,11 +100,18 @@ s_command PRINT_UPTIME = { 't', "time", STRING_COMMAND, ADVANCHED_COMMAND, REQUI
 	{(void *) &cmd_print_uptime},
 	"Print uptime"
 };
+
+#ifdef SERVICE_CACHE
 s_command SERVICE_RELOAD = { 'R', "reload_service", TRUE_OR_FALSE_COMMAND, STANDARD_COMMAND,
 	USES_OPT,
 	{(void *) &cmd_reload},
 	"Reload service data from disk ( reparse /etc/initng )"
 };
+s_command GET_FATHER_OF = { 'f', "father", STRING_COMMAND, ADVANCHED_COMMAND, REQUIRES_OPT,
+	{(void *) &cmd_get_father_of},
+	"Print father to"
+};
+#endif
 
 s_command POWEROFF_INITNG = { '0', "poweroff", TRUE_OR_FALSE_COMMAND, STANDARD_COMMAND, NO_OPT,
 	{(void *) &cmd_initng_poweroff},
@@ -140,10 +150,6 @@ s_command PERCENT_DONE = { 'n', "done", INT_COMMAND, ADVANCHED_COMMAND, NO_OPT,
 	"Prints percent of system up"
 };
 
-s_command GET_FATHER_OF = { 'f', "father", STRING_COMMAND, ADVANCHED_COMMAND, REQUIRES_OPT,
-	{(void *) &cmd_get_father_of},
-	"Print father to"
-};
 
 s_command DEPENDS_ON = { 'a', "service_dep_on", STRING_COMMAND, ADVANCHED_COMMAND, REQUIRES_OPT,
 	{(void *) &cmd_get_depends_on},
@@ -239,8 +245,10 @@ static int cmd_free_service(char *arg)
 		}
 	}
 
+#ifdef SERVICE_CACHE
 	/* also flush file cache */
 	cmd_reload(arg);
+#endif
 	return (ret);
 }
 
@@ -264,11 +272,13 @@ static int cmd_restart(char *arg)
 
 	D_("removing service data for %s, to make sure .ii file is reloaded!\n",
 	   arg);
+#ifdef SERVICE_CACHE
 	if (apt->from_service)
 	{
 		list_del(&apt->from_service->list);
 		initng_service_cache_free(apt->from_service);
 	}
+#endif
 
 	D_("Restarting service %s\n", apt->name);
 	return (initng_handler_restart_service(apt));
@@ -306,7 +316,7 @@ static char *cmd_print_uptime(char *arg)
 	}
 }
 
-
+#ifdef SERVICE_CACHE
 static int cmd_reload(char *arg)
 {
 	service_cache_h *s;
@@ -331,6 +341,7 @@ static int cmd_reload(char *arg)
 	initng_service_cache_free(s);
 	return (TRUE);
 }
+#endif
 
 static int cmd_initng_reboot(char *arg)
 {
@@ -403,8 +414,10 @@ static int cmd_load_module(char *arg)
 	if (initng_load_module(arg) == NULL)
 		return (FALSE);
 
+#ifdef SERVICE_CACHE
 	/* clear the service cache, so new variables will be read next time */
 	initng_service_cache_free_all();
+#endif
 
 	return (TRUE);
 }
@@ -428,7 +441,7 @@ static int cmd_percent_done(char *arg)
 }
 
 
-
+#ifdef SERVICE_CACHE
 static char *cmd_get_father_of(char *arg)
 {
 	char *string = NULL;
@@ -448,7 +461,7 @@ static char *cmd_get_father_of(char *arg)
 
 	return (string);
 }
-
+#endif
 
 static char *cmd_get_depends_on(char *arg)
 {
@@ -639,7 +652,10 @@ int module_init(int api_version)
 	initng_command_register(&FREE_SERVICE);
 	initng_command_register(&RESTART_SERVICE);
 	initng_command_register(&PRINT_UPTIME);
+#ifdef SERVICE_CACHE
+	initng_command_register(&GET_FATHER_OF);
 	initng_command_register(&SERVICE_RELOAD);
+#endif 
 	if (g.i_am == I_AM_INIT)
 	{
 		initng_command_register(&REBOOT_INITNG);
@@ -650,7 +666,6 @@ int module_init(int api_version)
 	initng_command_register(&LOAD_MODULE);
 	/* initng_command_register(&UNLOAD_MODULE); */
 	initng_command_register(&PERCENT_DONE);
-	initng_command_register(&GET_FATHER_OF);
 	initng_command_register(&DEPENDS_ON);
 	initng_command_register(&DEPENDS_ON_DEEP);
 	initng_command_register(&DEPENDS_OFF);
@@ -672,7 +687,10 @@ void module_unload(void)
 	initng_command_unregister(&FREE_SERVICE);
 	initng_command_unregister(&RESTART_SERVICE);
 	initng_command_unregister(&PRINT_UPTIME);
+#ifdef SERVICE_CACHE
 	initng_command_unregister(&SERVICE_RELOAD);
+	initng_command_unregister(&GET_FATHER_OF);
+#endif
 	if (g.i_am == I_AM_INIT)
 	{
 		initng_command_unregister(&REBOOT_INITNG);
@@ -683,7 +701,6 @@ void module_unload(void)
 	initng_command_unregister(&LOAD_MODULE);
 	/* initng_command_unregister(&UNLOAD_MODULE); */
 	initng_command_unregister(&PERCENT_DONE);
-	initng_command_unregister(&GET_FATHER_OF);
 	initng_command_unregister(&DEPENDS_ON);
 	initng_command_unregister(&DEPENDS_ON_DEEP);
 	initng_command_unregister(&DEPENDS_OFF);

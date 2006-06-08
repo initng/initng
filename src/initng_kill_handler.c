@@ -38,7 +38,7 @@
 #include "initng_main.h"
 #include "initng_common.h"
 
-#include "initng_service_cache.h"
+//#include "initng_service_cache.h"
 #include "initng_active_db.h"
 #include "initng_load_module.h"
 #include "initng_plugin_callers.h"

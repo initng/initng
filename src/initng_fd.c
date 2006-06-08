@@ -27,7 +27,7 @@
 #include <fcntl.h>							/* fcntl() */
 #include "initng.h"
 #include "initng_global.h"
-#include "initng_service_cache.h"
+//#include "initng_service_cache.h"
 #include "initng_load_module.h"
 #include "initng_toolbox.h"
 #include "initng_signal.h"

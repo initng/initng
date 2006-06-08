@@ -46,8 +46,10 @@ void initng_global_new(int argc, char *argv[], char *env[], h_i_am i_am)
 	assert(argv);
 	assert(env);
 
+#ifdef SERVICE_CACHE
 	/* INITZIATE NO_CACHE_TYPE, to make sure it wont segfault when locking up data */
 	DATA_HEAD_INIT(&NO_CACHE.data);
+#endif
 
 	/* zero the complete s_global */
 	memset(&g, 0, sizeof(s_global));
@@ -95,7 +97,9 @@ void initng_global_new(int argc, char *argv[], char *env[], h_i_am i_am)
 	 */
 	INIT_LIST_HEAD(&g.active_database.list);
 	INIT_LIST_HEAD(&g.active_database.interrupt);
+#ifdef SERVICE_CACHE
 	INIT_LIST_HEAD(&g.service_cache.list);
+#endif
 	INIT_LIST_HEAD(&g.states.list);
 	INIT_LIST_HEAD(&g.ptypes.list);
 	INIT_LIST_HEAD(&g.module_db.list);
@@ -106,7 +110,9 @@ void initng_global_new(int argc, char *argv[], char *env[], h_i_am i_am)
 
 	/* all hooks to hook at */
 	INIT_LIST_HEAD(&g.ASTATUS_CHANGE.list);
+#ifdef SERVICE_CACHE
 	INIT_LIST_HEAD(&g.PARSERS.list);
+#endif
 	INIT_LIST_HEAD(&g.SWATCHERS.list);
 	INIT_LIST_HEAD(&g.FDWATCHERS.list);
 	INIT_LIST_HEAD(&g.BUFFER_WATCHER.list);
@@ -118,7 +124,9 @@ void initng_global_new(int argc, char *argv[], char *env[], h_i_am i_am)
 	INIT_LIST_HEAD(&g.ERR_MSG.list);
 	INIT_LIST_HEAD(&g.LAUNCH.list);
 	INIT_LIST_HEAD(&g.DEP_ON.list);
+#ifdef SERVICE_CACHE
 	INIT_LIST_HEAD(&g.ADDITIONAL_PARSE.list);
+#endif
 	INIT_LIST_HEAD(&g.DUMP_ACTIVE_DB.list);
 	INIT_LIST_HEAD(&g.RELOAD_ACTIVE_DB.list);
 	INIT_LIST_HEAD(&g.IS_CHANGE.list);
@@ -231,7 +239,9 @@ void initng_global_free(void)
 
 	/* free all databases */
 	initng_active_db_free_all();			/* clean process_db */
+#ifdef SERVICE_CACHE
 	initng_service_cache_free_all();		/* clean service_cache_db */
+#endif
 	initng_service_data_type_unregister_all();	/* clean option_db */
 	initng_command_unregister_all();		/* clean command_db */
 

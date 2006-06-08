@@ -45,6 +45,7 @@
 #include <initng_signal.h>
 #include <initng_handler.h>
 #include <initng_execute.h>					/* new_environ() */
+#include <initng_service_cache.h> 
 #include <initng_active_db.h>
 #include <initng_load_module.h>
 #include <initng_plugin_callers.h>
@@ -129,7 +130,7 @@ int main(int argc, char *argv[], char *env[])
 
 			if (strcmp(argv[2], "print") == 0)
 			{
-				char *out = service_db_print(serv);
+				char *out = service_db_print_all(serv->name);
 
 				printf("%s\n", out);
 				free(out);

@@ -233,7 +233,7 @@ int main(int argc, char *argv[], char *env[])
 
 #ifdef PRINT_ALL
 	{
-		char *all = service_db_print_all();
+		char *all = service_db_print_all(NULL);
 
 		printf("%s\n", all);
 	}
@@ -331,7 +331,7 @@ static int load_service(const char *name, int level)
 
 	if (print_each == 1)
 	{
-		char *string = service_db_print(service);
+		char *string = service_db_print_all(service->name);
 
 		printf("%s\n", string);
 		free(string);

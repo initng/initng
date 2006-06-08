@@ -21,7 +21,9 @@
 #define INITNG_GLOBAL_H
 #include "initng.h"
 #include "initng_active_db.h"
+#ifdef SERVICE_CACHE
 #include "initng_service_cache.h"
+#endif
 #include "initng_module.h"
 #include "initng_plugin.h"
 #include "initng_struct_data.h"
@@ -54,7 +56,9 @@ typedef enum
 typedef struct
 {
 	/* all the databases */
+#ifdef SERVICE_CACHE
 	service_cache_h service_cache;
+#endif
 	active_db_h active_database;
 	a_state_h states;
 	ptype_h ptypes;
@@ -68,8 +72,10 @@ typedef struct
 
 	/* all hooks to hook at */
 	s_call ASTATUS_CHANGE;		/* Calls as soon as the ASTATUS changes */
+#ifdef SERVICE_CACHE
 	s_call PARSERS;				/* Called when a service needs its data */
 	s_call ADDITIONAL_PARSE;	/* Called after a service been parsed, and extra parsing may exist */
+#endif
 	s_call SWATCHERS;			/* Called when system state changes */
 	s_call FDWATCHERS;			/* Called when initng open file descriptors receive data */
 	s_call BUFFER_WATCHER;		/* Called when a service have outputed, and initng have filled its output buffer. */

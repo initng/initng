@@ -37,7 +37,6 @@
 #include <initng_active_state.h>
 #include <initng_active_db.h>
 #include <initng_process_db.h>
-#include <initng_service_cache.h>
 #include <initng_handler.h>
 #include <initng_active_db.h>
 #include <initng_toolbox.h>
@@ -51,6 +50,10 @@
 #include <initng_fork.h>
 #include <initng_common.h>
 #include <initng_string_tools.h>
+
+#ifdef SERVICE_CACHE
+#include <initng_service_cache.h>
+#endif
 
 #include <initng-paths.h>
 
@@ -224,7 +227,9 @@ static void bp_new_active(bp_rep * rep, const char *type, const char *service,
 
 		/* set type */
 		new_active->current_state = &PARSING;
+#ifdef SERVICE_CACHE
 		new_active->from_service = &NO_CACHE;
+#endif
 
 		/* register it */
 		if (!initng_active_db_register(new_active))
@@ -770,7 +775,9 @@ static active_db_h *create_new_active(const char *name)
 
 	/* set type */
 	new_active->current_state = &PARSING;
+#ifdef SERVICE_CACHE
 	new_active->from_service = &NO_CACHE;
+#endif
 	new_active->type = &unset;
 
 	/* register it */

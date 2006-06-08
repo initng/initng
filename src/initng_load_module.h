@@ -20,7 +20,7 @@
 #ifndef INITNG_LOAD_MODULE
 #define INITNG_LOAD_MODULE
 #include "initng_active_db.h"
-#include "initng_service_cache.h"
+//#include "initng_service_cache.h"
 #include "initng_global.h"
 #include "initng_system_states.h"
 #include "initng_module.h"

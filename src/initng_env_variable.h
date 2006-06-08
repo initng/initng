@@ -28,7 +28,9 @@
 char *fix_redefined_variable(const char *name, const char *oldval,
 							 const char *newdef);
 char *fix_variables(const char *from, active_db_h * s);
+#ifdef SERVICE_CACHE
 char *fix_variables2(const char *from, service_cache_h * s);
+#endif
 char **new_environ(active_db_h * s);
 void free_environ(char **tf);
 int is_same_env_var(char *var1, char *var2);

@@ -29,7 +29,9 @@
 #include <initng_plugin_hook.h>
 #include <initng_common.h>
 #include <initng_toolbox.h>
+#ifdef SERVICE_CACHE
 #include <initng_service_cache.h>
+#endif
 #include <initng_main.h>
 #include <initng_active_state.h>
 #include <initng_static_states.h>
@@ -58,12 +60,14 @@ static int check_critical(active_db_h * service)
 	initng_main_su_login();
 	/* now try to reload service from disk and run it again */
 
+#ifdef SERVICE_CACHE
 	if (service->from_service)
 	{
 		list_del(&(service->from_service->list));
 		initng_service_cache_free(service->from_service);
 		service->from_service = NULL;
 	}
+#endif
 
 	/* Reset the service state */
 	initng_common_mark_service(service, &NEW);

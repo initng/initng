@@ -95,7 +95,9 @@ void filemon_event(f_module_h * from, e_fdw what)
 
 	int len = 0;
 	int i = 0;
+#ifdef SERVICE_CACHE
 	char *tmp;
+#endif
 	char buf[BUF_LEN];
 
 	/* read events */
@@ -154,7 +156,7 @@ void filemon_event(f_module_h * from, e_fdw what)
 				return;
 			}
 
-
+#ifdef SERVICE_CACHE
 			/* check if there are any data file updated */
 			if (((tmp = strstr(event->name, ".i")) && tmp[2] == '\0')
 				|| strstr(event->name, ".runlevel")
@@ -190,8 +192,8 @@ void filemon_event(f_module_h * from, e_fdw what)
 					initng_service_cache_free_all();
 				}
 
-
 			}
+#endif
 
 		}
 
@@ -293,7 +295,9 @@ int module_init(int api_version)
 		return (FALSE);
 	}
 
+#ifdef SERVICE_CACHE
 	mon_dir("/etc/initng");
+#endif
 
 	/* add this hook */
 	initng_plugin_hook_register(&g.FDWATCHERS, 30, &fdh);

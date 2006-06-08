@@ -46,7 +46,9 @@ typedef union
 
 	/* put all hook functions here */
 	int (*status_change) (active_db_h * service);
+#ifdef SERVICE_CACHE
 	service_cache_h *(*parser) (const char *name);
+#endif
 	void (*swatcher) (h_sys_state state);
 	int (*buffer_watcher) (active_db_h * service, process_h * process,
 						   pipe_h * pi, char *buffer_pos);
@@ -63,7 +65,9 @@ typedef union
 	int (*dep_on_check) (active_db_h * service, active_db_h * check);
 	void (*signal_hook) (int signal);
 	f_module_h *fdh;
+#ifdef SERVICE_CACHE
 	int (*additional_parse) (service_cache_h * service);
+#endif
 	int (*dump_active_db) (void);
 	int (*reload_active_db) (void);
 	int (*start_dep_met) (active_db_h * service);

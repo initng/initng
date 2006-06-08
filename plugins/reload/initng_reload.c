@@ -52,8 +52,6 @@ static int read_file(const char *filename);
 static void cmd_fast_reload(char *arg);
 
 const char *module_needs[] = {
-	"rlparser",
-	"iparser",
 	"service",
 	"daemon",
 	"runlevel",

@@ -40,28 +40,13 @@ INITNG_PLUGIN_MACRO;
 
 #define IS_PRINTABLE(x) (x >= 32 || x == '\n' || x == '\t' || x == '\r')
 
+#ifdef SERVICE_CACHE
 static void service_db_print_u(service_cache_h * s, char **string);
+#endif
 static void active_db_print_u(active_db_h * s, char **string);
 static void print_string_value(char *string, char **to);
 
 /* P R I N T   S E R V I C E */
-
-/* some stdout */
-char *service_db_print(service_cache_h * s)
-{
-	char *string = NULL;
-
-	service_db_print_u(s, &string);
-	return (string);
-}
-
-char *active_db_print(active_db_h * s)
-{
-	char *string = NULL;
-
-	active_db_print_u(s, &string);
-	return (string);
-}
 
 /* there may be unprintable characters in string - should escape them when printing */
 static void print_string_value(char *string, char **to)
@@ -261,6 +246,7 @@ static void active_db_print_u(active_db_h * s, char **string)
 	struct timeval now;
 
 	mprintf(string, "\n %s  \"%s", s->type->name, s->name);
+#ifdef SERVICE_CACHE
 	if (s->from_service)
 	{
 		mprintf(string, " :: %s", s->from_service->name);
@@ -269,6 +255,7 @@ static void active_db_print_u(active_db_h * s, char **string)
 			mprintf(string, " : %s", s->from_service->father_name);
 		}
 	}
+#endif
 
 	if (s->current_state && s->current_state->state_name)
 	{
@@ -305,6 +292,8 @@ static void active_db_print_u(active_db_h * s, char **string)
 			print_sdata(tmp, string);
 		}
 	}
+	
+#ifdef SERVICE_CACHE
 	if (s->from_service && !list_empty(&s->from_service->data.head.list))
 	{
 		mprintf(string, "\tFILE_CACHE_VARIABLES:\n");
@@ -314,6 +303,7 @@ static void active_db_print_u(active_db_h * s, char **string)
 			print_sdata(tmp, string);
 		}
 	}
+#endif
 }
 
 /* Walk through every service and print it all */
@@ -333,6 +323,7 @@ char *active_db_print_all(char * matching)
 	return (string);
 }
 
+#ifdef SERVICE_CACHE
 /* Walk through every service and print it all */
 char *service_db_print_all(char * matching)
 {
@@ -350,3 +341,4 @@ char *service_db_print_all(char * matching)
 
 	return (string);
 }
+#endif

@@ -36,7 +36,9 @@
 
 #include <initng_global.h>
 #include <initng_process_db.h>
+#ifdef SERVICE_CACHE
 #include <initng_service_cache.h>
+#endif
 #include <initng_handler.h>
 #include <initng_active_db.h>
 #include <initng_toolbox.h>
@@ -69,11 +71,14 @@ s_command QUIT_INITNG = { 'q', "quit", TRUE_OR_FALSE_COMMAND, ADVANCHED_COMMAND,
 	"Quits initng"
 };
 
+
+#ifdef SERVICE_CACHE
 s_command PRINT_SERVICE_DB = { 'P', "print_service_db", STRING_COMMAND, ADVANCHED_COMMAND,
 	USES_OPT,
 	{(void *) &service_db_print_all},
 	"Print service_db"
 };
+#endif
 
 s_command PRINT_ACTIVE_DB = { 'p', "print_active_db", STRING_COMMAND, ADVANCHED_COMMAND, USES_OPT,
 	{(void *) &active_db_print_all},
@@ -227,7 +232,9 @@ int module_init(int api_version)
 	{
 		initng_command_register(&QUIT_INITNG);
 	}
+#ifdef SERVICE_CACHE
 	initng_command_register(&PRINT_SERVICE_DB);
+#endif
 	initng_command_register(&PRINT_ACTIVE_DB);
 
 #ifdef DEBUG
@@ -251,7 +258,9 @@ void module_unload(void)
 	{
 		initng_command_unregister(&QUIT_INITNG);
 	}
+#ifdef SERVICE_CACHE
 	initng_command_unregister(&PRINT_SERVICE_DB);
+#endif
 	initng_command_unregister(&PRINT_ACTIVE_DB);
 #ifdef DEBUG
 	initng_command_unregister(&TOGGLE_VERBOSE);

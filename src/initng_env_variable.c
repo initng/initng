@@ -593,6 +593,7 @@ char *fix_variables(const char *from, active_db_h * s)
 	return (ret);
 }
 
+#ifdef SERVICE_CACHE
 /* this shud be a complete copy of fix_variables, but with a service_cache_h instead of a active_h to use */
 /* WARNING, fix_variables will return from pointer, if no $ was found, so
  * when freeing you must do a if(got!=from) free(got) */
@@ -768,7 +769,7 @@ char *fix_variables2(const char *from, service_cache_h * s)
 	/* return what we got */
 	return (ret);
 }
-
+#endif
 
 
 
