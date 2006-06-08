@@ -69,13 +69,13 @@ s_command QUIT_INITNG = { 'q', "quit", TRUE_OR_FALSE_COMMAND, ADVANCHED_COMMAND,
 	"Quits initng"
 };
 
-s_command PRINT_SERVICE_DB = { 'p', "print_service_db", STRING_COMMAND, ADVANCHED_COMMAND,
+s_command PRINT_SERVICE_DB = { 'P', "print_service_db", STRING_COMMAND, ADVANCHED_COMMAND,
 	USES_OPT,
 	{(void *) &service_db_print_all},
 	"Print service_db"
 };
 
-s_command PRINT_ACTIVE_DB = { 'P', "print_active_db", STRING_COMMAND, ADVANCHED_COMMAND, USES_OPT,
+s_command PRINT_ACTIVE_DB = { 'p', "print_active_db", STRING_COMMAND, ADVANCHED_COMMAND, USES_OPT,
 	{(void *) &active_db_print_all},
 	"Print active_db"
 };
