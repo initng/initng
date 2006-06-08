@@ -359,9 +359,9 @@ static int write_file(const char *filename)
 
 		memset(&entry, 0, sizeof entry);
 		strncpy(entry.name, current->name, MAX_SERVICE_NAME_STRING_LEN);
-		strncpy(entry.state, current->current_state->state_name, 100);
+		strncpy(entry.state, current->current_state->state_name, MAX_SERVICE_STATE_LEN);
 		if (current->type)
-			strncpy(entry.type, current->type->name, 100);
+			strncpy(entry.type, current->type->name, MAX_TYPE_STRING_LEN);
 		memcpy(&entry.time_current_state, &current->time_current_state,
 			   sizeof(struct timeval));
 

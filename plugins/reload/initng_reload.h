@@ -24,6 +24,7 @@
  * and probably hang initng
  */
 #define MAX_SERVICE_NAME_STRING_LEN 200
+#define MAX_SERVICE_STATE_LEN 100
 #define MAX_DATA_STRING_LEN 200
 #define MAX_TYPE_STRING_LEN 100
 #define MAX_PROCESSES 6
@@ -66,7 +67,7 @@ typedef struct
 {
 	char name[MAX_SERVICE_NAME_STRING_LEN + 1];
 	char type[MAX_TYPE_STRING_LEN + 1];
-	char state[101];
+	char state[MAX_SERVICE_STATE_LEN + 1];
 	struct timeval time_current_state;
 
 	/*  struct with some processes */
