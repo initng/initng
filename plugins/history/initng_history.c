@@ -111,7 +111,10 @@ s_command HISTORYS = { 'L', "show_history", PAYLOAD_COMMAND, STANDARD_COMMAND, U
 	"Print out history_db."
 };
 
+/* This is the maxumum lenght of a row with ngc -l */
 #define LOG_ROW_LEN 70
+/* If the row got a space after this number of chars, make a newline to pevent a word breakage */
+#define LOG_ROW_LEN_BREAK_ON_SPACE 60
 #define NAME_SPACER "20"
 
 static char *cmd_log(char *arg)
@@ -132,7 +135,7 @@ static char *cmd_log(char *arg)
 			only_output = TRUE;
 	}
 
-	mprintf(&string, " %-" NAME_SPACER "s : STATUS\n", "SERVICE");
+	mprintf(&string, " %" NAME_SPACER "s : STATUS\n", "SERVICE");
 	mprintf(&string,
 			" ------------------------------------------------------\n");
 	while_history_db_prev(current)
@@ -190,14 +193,19 @@ static char *cmd_log(char *arg)
 
 				/* cont chars to newline */
 				while (tmp[i] && tmp[i] != '\n' && i < LOG_ROW_LEN)
+				{
+					/* This rules will decrease the chanse that a word is breaked */
+					if(i > LOG_ROW_LEN_BREAK_ON_SPACE && (tmp[i] == ' ' || tmp[i] == '\t'))
+						break;
 					i++;
+				}
 
 				/* fill with that row */
 				strncpy(buf, tmp, i);
 				buf[i] = '\0';
 				
 				/* send that to client */
-				mprintf(&string, " %-" NAME_SPACER "s : %s\n", name, buf);
+				mprintf(&string, " %" NAME_SPACER "s : %s\n", name, buf);
 
 				/* where to start next */
 				tmp = &tmp[i];
@@ -213,11 +221,11 @@ static char *cmd_log(char *arg)
 				/* if there has gone some seconds sence last change, print that */
 				if (current->duration > 0)
 					mprintf(&string,
-							" %-" NAME_SPACER "s : %s (after %i seconds)\n",
+							" %" NAME_SPACER "s | %s (after %i seconds)\n",
 							name, current->action->state_name,
 							(int) current->duration);
 				else
-					mprintf(&string, " %-" NAME_SPACER "s : %s\n", name,
+					mprintf(&string, " %" NAME_SPACER "s | %s\n", name,
 							current->action->state_name);
 			}
 		}
