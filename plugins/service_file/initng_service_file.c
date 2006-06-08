@@ -58,11 +58,14 @@
 
 INITNG_PLUGIN_MACRO;
 
+#ifdef GLOBAL_SOCKET
 static void bp_incomming(f_module_h * from, e_fdw what);
-static void bp_closesock(void);
-static void bp_handle_client(int fd);
 static int bp_open_socket(void);
 static void bp_check_socket(int signal);
+static void bp_closesock(void);
+#endif
+
+static void bp_handle_client(int fd);
 static void bp_new_active(bp_rep * rep, const char *type,
 						  const char *service, const char *from_file);
 static void bp_set_variable(bp_rep * rep, const char *service,
@@ -99,7 +102,9 @@ stype_h unset = { "unset", "Service type is not set yet, are still parsing.", FA
 
 /* globals */
 struct stat sock_stat;
+#ifdef GLOBAL_SOCKET
 f_module_h bpf = { &bp_incomming, FDW_READ, -1 };
+#endif
 
 #define RSCV() (TEMP_FAILURE_RETRY(recv(fd, &req, sizeof(bp_req), 0)))
 #define SEND() send(fd, &rep, sizeof(bp_rep), 0)
@@ -499,7 +504,7 @@ static void bp_abort(bp_rep * rep, const char *service)
 	return;
 }
 
-
+#ifdef GLObAL_SOCKET
 /* called by fd hook, when data is no socket */
 void bp_incomming(f_module_h * from, e_fdw what)
 {
@@ -544,8 +549,9 @@ void bp_incomming(f_module_h * from, e_fdw what)
 	bp_closesock();
 	return;
 }
+#endif
 
-
+#ifdef GLOBAL_SOCKET
 /* this will try to open a new socket */
 static int bp_open_socket()
 {
@@ -631,7 +637,9 @@ static int bp_open_socket()
 
 	return (TRUE);
 }
+#endif
 
+#ifdef GLOBAL_SOCKET
 /* this will check socket, and reopen on failure */
 static void bp_check_socket(int signal)
 {
@@ -671,7 +679,9 @@ static void bp_check_socket(int signal)
 	D_("Socket ok.\n");
 	return;
 }
+#endif
 
+#ifdef GLOBAL_SOCKET
 static void bp_closesock(void)
 {
 	/* Check if we need to remove hooks */
@@ -683,6 +693,7 @@ static void bp_closesock(void)
 	close(bpf.fds);
 	bpf.fds = -1;
 }
+#endif
 
 static void handle_killed(active_db_h * service, process_h * process)
 {
@@ -911,14 +922,18 @@ int module_init(int api_version)
 		return (FALSE);
 	}
 
+#ifdef GLOBAL_SOCKET
 	/* zero globals */
 	bpf.fds = -1;
 	memset(&sock_stat, 0, sizeof(sock_stat));
+#endif
 
 	D_("adding hook, that will reopen socket, for every started service.\n");
 	initng_process_db_ptype_register(&parse);
-	/*initng_plugin_hook_register(&g.FDWATCHERS, 30, &bpf); */
+#ifdef GLOBAL_SOCKET
+	initng_plugin_hook_register(&g.FDWATCHERS, 30, &bpf);
 	initng_plugin_hook_register(&g.SIGNAL, 50, &bp_check_socket);
+#endif
 	initng_plugin_hook_register(&g.NEW_ACTIVE, 50, &create_new_active);
 	initng_plugin_hook_register(&g.PIPE_WATCHER, 30, &get_pipe);
 	initng_active_state_register(&PARSING);
@@ -926,8 +941,11 @@ int module_init(int api_version)
 #ifdef USE_LOCALEXEC
 	initng_plugin_hook_register(&g.LAUNCH, 10, &initng_bash_run);
 #endif
+
+#ifdef GLOBAL_SOCKET
 	/* do the first socket directly */
 	bp_open_socket();
+#endif
 
 	return (TRUE);
 }
@@ -936,13 +954,17 @@ void module_unload(void)
 {
 	D_("module_unload(ngc2);\n");
 
+#ifdef GLOBAL_SOCKET
 	/* close open sockets */
 	bp_closesock();
+#endif
 
 	/* remove hooks */
 	initng_process_db_ptype_unregister(&parse);
-	/* initng_plugin_hook_unregister(&g.FDWATCHERS, &bpf); */
+#ifdef GLOBAL_SOCKET
+	initng_plugin_hook_unregister(&g.FDWATCHERS, &bpf); 
 	initng_plugin_hook_unregister(&g.SIGNAL, &bp_check_socket);
+#endif
 	initng_plugin_hook_unregister(&g.NEW_ACTIVE, &create_new_active);
 	initng_plugin_hook_unregister(&g.PIPE_WATCHER, &get_pipe);
 	initng_active_state_unregister(&PARSING);

@@ -33,6 +33,7 @@ struct history_s
 {
 	active_db_h *service;
 	char *name;
+	double duration;			/* The time in seconds the service stayed in this state */
 	struct timeval time;
 	char *data;
 	a_state_h *action;

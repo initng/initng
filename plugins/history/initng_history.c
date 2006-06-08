@@ -87,6 +87,7 @@ static void cmd_history(char *arg, s_payload * payload)
 
 
 		memcpy(&row->time_set, &current->time, sizeof(struct timeval));
+
 		if (current->name)
 			strncpy(row->name, current->name, 100);
 		else if (current->service && current->service->name)
@@ -110,14 +111,16 @@ s_command HISTORYS = { 'L', "show_history", PAYLOAD_COMMAND, STANDARD_COMMAND, U
 	"Print out history_db."
 };
 
+#define LOG_ROW_LEN 70
+#define NAME_SPACER "20"
+
 static char *cmd_log(char *arg)
 {
 	char *string = NULL;
 	char *name = NULL;
-	char *latest = NULL;
-	struct tm *ts;
 	int only_output = FALSE;
 	history_h *current = NULL;
+	time_t last;
 
 
 	/* reset arg, if strlen is short */
@@ -129,7 +132,7 @@ static char *cmd_log(char *arg)
 			only_output = TRUE;
 	}
 
-	mprintf(&string, " hh:mm:ss    service           :  STATUS\n");
+	mprintf(&string, " %-" NAME_SPACER "s : STATUS\n", "SERVICE");
 	mprintf(&string,
 			" ------------------------------------------------------\n");
 	while_history_db_prev(current)
@@ -153,32 +156,69 @@ static char *cmd_log(char *arg)
 		else
 			name = NULL;
 
-		/* create an localtime struct form service->time */
-		ts = localtime(&current->time.tv_sec);
+		if (last != current->time.tv_sec)
+		{
+			/* print a nice service change status entry */
+			char *c = ctime(&current->time.tv_sec);
+
+			mprintf(&string, "\n %s", c);
+			mprintf(&string,
+					" ------------------------------------------------------\n");
+
+			last = current->time.tv_sec;
+		}
+
+
 
 		/* if the log entry contains output data ... */
 		if (current->data)
 		{
-			if (latest == name)
-				mprintf(&string, "%s", current->data);
-			else
-				mprintf(&string, " %.2i:%.2i:%.2i %20s : *OUTPUT*\n%s",
-						ts->tm_hour, ts->tm_min, ts->tm_sec, name,
-						current->data);
-			latest = name;
+			char *tmp = current->data;
+			char buf[LOG_ROW_LEN + 1];
+
+			while (tmp)
+			{
+				/* Variable that contains the no of chars to next newline */
+				int i = 0;
+				
+				/* skip idention from data source */
+				while(tmp[0] == ' ' || tmp[0] == '\t' || tmp[0] == '\n')
+					tmp++;
+				/* if no more left, break */
+				if (!tmp[i])
+					break;
+
+				/* cont chars to newline */
+				while (tmp[i] && tmp[i] != '\n' && i < LOG_ROW_LEN)
+					i++;
+
+				/* fill with that row */
+				strncpy(buf, tmp, i);
+				buf[i] = '\0';
+				
+				/* send that to client */
+				mprintf(&string, " %-" NAME_SPACER "s : %s\n", name, buf);
+
+				/* where to start next */
+				tmp = &tmp[i];
+			}
 		}
 		else
 		{
+
+			/* only print important state changes */
 			if (current->action->is == IS_UP || current->action->is == IS_DOWN
 				|| current->action->is == IS_FAILED)
 			{
-				/* reset so that *OUTPUT* will be shown again */
-				latest = NULL;
-
-				/* print a nice service change status entry */
-				mprintf(&string, " %.2i:%.2i:%.2i %20s : %s\n", ts->tm_hour,
-						ts->tm_min, ts->tm_sec, name,
-						current->action->state_name);
+				/* if there has gone some seconds sence last change, print that */
+				if (current->duration > 0)
+					mprintf(&string,
+							" %-" NAME_SPACER "s : %s (after %i seconds)\n",
+							name, current->action->state_name,
+							(int) current->duration);
+				else
+					mprintf(&string, " %-" NAME_SPACER "s : %s\n", name,
+							current->action->state_name);
 			}
 		}
 
@@ -323,6 +363,12 @@ static int history_add_values(active_db_h * service)
 	memcpy(&tmp_e->time, &service->time_current_state,
 		   sizeof(struct timeval));
 	tmp_e->action = service->current_state;
+
+	/* set duration if possible */
+	if (service->last_state && service->time_last_state.tv_sec > 1)
+		tmp_e->duration = difftime(service->time_current_state.tv_sec,
+								   service->time_last_state.tv_sec);
+
 
 	/*D_("history_add_values() service : %s, name: %s, action: %s\n", service->name, NULL, service->current_state->state_name); */
 
