@@ -30,6 +30,8 @@
 #define MAX_PTYPE_STRING_LEN 100
 #define MAX_ENTRYS_FOR_SERVICE 20
 #define MAX_DATA_VN_LEN 100
+#define MAX_PIPES 6
+#define MAX_PIPE_TARGETS 5
 
 typedef struct
 {
@@ -45,9 +47,16 @@ typedef struct
 
 typedef struct
 {
+	int pipe[2];
+	e_dir dir;
+	int targets[MAX_PIPE_TARGETS + 1];
+} r_pipe;
+	
+
+typedef struct
+{
 	char ptype[MAX_PTYPE_STRING_LEN + 1];
-	int stdout1;
-	int stdout2;
+	r_pipe pipes[MAX_PIPES + 1];
 	int pid;
 	int rcode;
 } r_process;

@@ -44,8 +44,8 @@
 
 INITNG_PLUGIN_MACRO;
 
-#define SAVE_FILE      VARDIR "/initng_db_backup.v14"
-#define SAVE_FILE_FAKE VARDIR "/initng_db_backup_fake.v14"
+#define SAVE_FILE      VARDIR "/initng_db_backup.v15"
+#define SAVE_FILE_FAKE VARDIR "/initng_db_backup_fake.v15"
 
 static int write_file(const char *filename);
 static int read_file(const char *filename);
@@ -198,6 +198,7 @@ static int read_file(const char *filename)
 			{
 				process_h *process = NULL;
 				ptype_h *pt = NULL;
+				int p = 0; /* used to count pipes */
 
 				while_ptypes(pt)
 				{
@@ -220,8 +221,11 @@ static int read_file(const char *filename)
 
 				/* fill the data */
 				process->pid = entry.process[pnr].pid;
-
+	
+				/* for every pipe */
+				while(entry.process[pnr].pipes[p].dir > 0 && p < MAX_PIPES)
 				{
+					int i;
 					pipe_h *op = i_calloc(1, sizeof(pipe_h));
 
 					if (!op)
@@ -230,12 +234,15 @@ static int read_file(const char *filename)
 						continue;
 					}
 
-					op->pipe[0] = entry.process[pnr].stdout1;
-					op->pipe[1] = entry.process[pnr].stdout2;
-					op->dir = BUFFERED_OUT_PIPE;
-					op->targets[0] = 1;
-					op->targets[1] = 2;
+					op->pipe[0] = entry.process[pnr].pipes[p].pipe[0];
+					op->pipe[1] = entry.process[pnr].pipes[p].pipe[1];
+					op->dir = entry.process[pnr].pipes[p].dir;
+					for(i=0; i < MAX_TARGETS && i < MAX_PIPE_TARGETS && entry.process[pnr].pipes[p].targets[i] > 0; i++)
+					{
+						op->targets[i] = entry.process[pnr].pipes[p].targets[i];
+					}
 					add_pipe(op, process);
+					p++;
 				}
 				process->r_code = entry.process[pnr].rcode;
 
@@ -363,6 +370,7 @@ static int write_file(const char *filename)
 		pnr = 0;
 		while_processes(process, current)
 		{
+			int p = 0;
 			strncpy(entry.process[pnr].ptype, process->pt->name,
 					MAX_PTYPE_STRING_LEN);
 			entry.process[pnr].pid = process->pid;
@@ -370,11 +378,13 @@ static int write_file(const char *filename)
 			current_pipe = NULL;
 			while_pipes(current_pipe, process)
 			{
-				entry.process[pnr].stdout1 = current_pipe->pipe[0];
-				entry.process[pnr].stdout2 = current_pipe->pipe[1];
-
-				/* TODO, add them all! */
-				break;
+				entry.process[pnr].pipes[p].pipe[0] = current_pipe->pipe[0];
+				entry.process[pnr].pipes[p].pipe[1] = current_pipe->pipe[1];
+				entry.process[pnr].pipes[p].dir = current_pipe->dir;
+				for(i=0;i<MAX_TARGETS && i < MAX_PIPE_TARGETS && current_pipe->targets[i] > 0; i++)
+					entry.process[pnr].pipes[p].targets[i] = current_pipe->targets[i];
+					
+				p++;
 			}
 
 			entry.process[pnr].rcode = process->r_code;

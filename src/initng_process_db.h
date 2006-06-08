@@ -32,6 +32,7 @@
 
 //struct active_type;
 
+#define MAX_TARGETS 10
 
 /* struct containing data on an running process */
 typedef struct t_ptype_h ptype_h;
@@ -63,7 +64,7 @@ typedef struct
 	e_dir dir;
 
 	/* If targets set (max 10) the fd are duped after fork to match targets */
-	int targets[10];
+	int targets[MAX_TARGETS + 1];
 
 	/* If this pipe is a BUFFERED_OUT_PIPE stor a buffer here */
 	char *buffer;				/* stdout buffer ## THE BEGINNING ## */

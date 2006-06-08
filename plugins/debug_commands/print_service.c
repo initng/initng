@@ -246,7 +246,7 @@ static void active_db_print_process(process_h * p, char **string)
 				continue;
 		}
 
-		for (i = 0; current_pipe->targets[i] > 0 && i < 10; i++)
+		for (i = 0; current_pipe->targets[i] > 0 && i < MAX_TARGETS; i++)
 			mprintf(string, " %i", current_pipe->targets[i]);
 
 		mprintf(string, "\n");

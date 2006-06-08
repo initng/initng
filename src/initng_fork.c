@@ -147,7 +147,7 @@ pid_t initng_fork(active_db_h * service, process_h * process)
 				int i;
 
 				/* for every target */
-				for (i = 0; current_pipe->targets[i] > 0 && i < 10; i++)
+				for (i = 0; current_pipe->targets[i] > 0 && i < MAX_TARGETS; i++)
 				{
 					/* close any conflicting one */
 					close(current_pipe->targets[i]);
