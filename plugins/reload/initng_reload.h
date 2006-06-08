@@ -29,11 +29,13 @@
 #define MAX_PROCESSES 6
 #define MAX_PTYPE_STRING_LEN 100
 #define MAX_ENTRYS_FOR_SERVICE 20
+#define MAX_DATA_VN_LEN 100
 
 typedef struct
 {
 	char type[MAX_TYPE_STRING_LEN + 1];
 	e_dt opt_type;
+	char vn[MAX_DATA_VN_LEN + 1];
 	union
 	{
 		char s[MAX_DATA_STRING_LEN + 1];

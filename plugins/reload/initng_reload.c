@@ -44,8 +44,8 @@
 
 INITNG_PLUGIN_MACRO;
 
-#define SAVE_FILE      VARDIR "/initng_db_backup.v13"
-#define SAVE_FILE_FAKE VARDIR "/initng_db_backup_fake.v13"
+#define SAVE_FILE      VARDIR "/initng_db_backup.v14"
+#define SAVE_FILE_FAKE VARDIR "/initng_db_backup_fake.v14"
 
 static int write_file(const char *filename);
 static int read_file(const char *filename);
@@ -263,6 +263,8 @@ static int read_file(const char *filename)
 					i++;
 					continue;
 				}
+				
+				/* copy data */
 				switch (d->type->opt_type)
 				{
 					case STRING:
@@ -278,6 +280,11 @@ static int read_file(const char *filename)
 					default:
 						break;
 				}
+				
+				/* copy variable name if present */
+				if(d->type->opt_type > 50)
+					d->vn = i_strdup(entry.data[i].vn);
+					
 				list_add(&d->list, &new_entry->data.head.list);
 				i++;
 			}
@@ -412,6 +419,12 @@ static int write_file(const char *filename)
 					break;
 				default:
 					break;
+			}
+			
+			/* if they have variable names */
+			if(c_d->type->opt_type > 50)
+			{
+				strncpy(entry.data[i].vn, c_d->vn, MAX_DATA_VN_LEN);
 			}
 
 			/* save in next data entry row */
