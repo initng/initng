@@ -176,9 +176,9 @@ int main(int argc, char **argv)
 	if (message)
 	{
 		printf("%s (%s) :", commands[i].name, service);
-		for(i=1;new_argv[i]; i++)
+		for (i = 1; new_argv[i]; i++)
 			printf(" %s", new_argv[i]);
-			
+
 		printf("  \"%s\"\n", message);
 		free(message);
 	}
@@ -447,27 +447,29 @@ int bp_send(bp_req * to_send)
 	}
 
 	/* send the request */
-	e=send(sock, to_send, sizeof(bp_req), 0);
+	e = send(sock, to_send, sizeof(bp_req), 0);
 	if (e != (signed) sizeof(bp_req))
 	{
 		char *m = strerror(errno);
 		message = calloc(501, sizeof(char));
-		snprintf(message, 500, "Unable to send the request: \"%s\" (%i)\n", m, errno);
+		snprintf(message, 500, "Unable to send the request: \"%s\" (%i)\n", m,
+				 errno);
 		return (FALSE);
 	}
 
 	/* sleep to give initng a chanse */
 	usleep(200);
 
-	e=TEMP_FAILURE_RETRY(recv(sock, &rep, sizeof(bp_rep), 0));
-	
-	
-	
+	e = TEMP_FAILURE_RETRY(recv(sock, &rep, sizeof(bp_rep), 0));
+
+
+
 	if (e != (signed) sizeof(bp_rep))
 	{
 		char *m = strerror(errno);
 		message = calloc(501, sizeof(char));
-		snprintf(message, 500, "Did not get any reply: \"%s\" (%i)\n", m, errno);
+		snprintf(message, 500, "Did not get any reply: \"%s\" (%i)\n", m,
+				 errno);
 		return (FALSE);
 	}
 

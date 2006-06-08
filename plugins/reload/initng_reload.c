@@ -196,7 +196,7 @@ static int read_file(const char *filename)
 			{
 				process_h *process = NULL;
 				ptype_h *pt = NULL;
-				int p = 0; /* used to count pipes */
+				int p = 0;		/* used to count pipes */
 
 				while_ptypes(pt)
 				{
@@ -219,9 +219,9 @@ static int read_file(const char *filename)
 
 				/* fill the data */
 				process->pid = entry.process[pnr].pid;
-	
+
 				/* for every pipe */
-				while(entry.process[pnr].pipes[p].dir > 0 && p < MAX_PIPES)
+				while (entry.process[pnr].pipes[p].dir > 0 && p < MAX_PIPES)
 				{
 					int i;
 					pipe_h *op = i_calloc(1, sizeof(pipe_h));
@@ -235,7 +235,9 @@ static int read_file(const char *filename)
 					op->pipe[0] = entry.process[pnr].pipes[p].pipe[0];
 					op->pipe[1] = entry.process[pnr].pipes[p].pipe[1];
 					op->dir = entry.process[pnr].pipes[p].dir;
-					for(i=0; i < MAX_TARGETS && i < MAX_PIPE_TARGETS && entry.process[pnr].pipes[p].targets[i] > 0; i++)
+					for (i = 0;
+						 i < MAX_TARGETS && i < MAX_PIPE_TARGETS
+						 && entry.process[pnr].pipes[p].targets[i] > 0; i++)
 					{
 						op->targets[i] = entry.process[pnr].pipes[p].targets[i];
 					}
@@ -268,7 +270,7 @@ static int read_file(const char *filename)
 					i++;
 					continue;
 				}
-				
+
 				/* copy data */
 				switch (d->type->opt_type)
 				{
@@ -285,11 +287,11 @@ static int read_file(const char *filename)
 					default:
 						break;
 				}
-				
+
 				/* copy variable name if present */
-				if(d->type->opt_type > 50)
+				if (d->type->opt_type > 50)
 					d->vn = i_strdup(entry.data[i].vn);
-					
+
 				list_add(&d->list, &new_entry->data.head.list);
 				i++;
 			}
@@ -357,7 +359,8 @@ static int write_file(const char *filename)
 
 		memset(&entry, 0, sizeof entry);
 		strncpy(entry.name, current->name, MAX_SERVICE_NAME_STRING_LEN);
-		strncpy(entry.state, current->current_state->state_name, MAX_SERVICE_STATE_LEN);
+		strncpy(entry.state, current->current_state->state_name,
+				MAX_SERVICE_STATE_LEN);
 		if (current->type)
 			strncpy(entry.type, current->type->name, MAX_TYPE_STRING_LEN);
 		memcpy(&entry.time_current_state, &current->time_current_state,
@@ -369,6 +372,7 @@ static int write_file(const char *filename)
 		while_processes(process, current)
 		{
 			int p = 0;
+
 			strncpy(entry.process[pnr].ptype, process->pt->name,
 					MAX_PTYPE_STRING_LEN);
 			entry.process[pnr].pid = process->pid;
@@ -379,9 +383,11 @@ static int write_file(const char *filename)
 				entry.process[pnr].pipes[p].pipe[0] = current_pipe->pipe[0];
 				entry.process[pnr].pipes[p].pipe[1] = current_pipe->pipe[1];
 				entry.process[pnr].pipes[p].dir = current_pipe->dir;
-				for(i=0;i<MAX_TARGETS && i < MAX_PIPE_TARGETS && current_pipe->targets[i] > 0; i++)
+				for (i = 0;
+					 i < MAX_TARGETS && i < MAX_PIPE_TARGETS
+					 && current_pipe->targets[i] > 0; i++)
 					entry.process[pnr].pipes[p].targets[i] = current_pipe->targets[i];
-					
+
 				p++;
 			}
 
@@ -428,9 +434,9 @@ static int write_file(const char *filename)
 				default:
 					break;
 			}
-			
+
 			/* if they have variable names */
-			if(c_d->type->opt_type > 50)
+			if (c_d->type->opt_type > 50)
 			{
 				strncpy(entry.data[i].vn, c_d->vn, MAX_DATA_VN_LEN);
 			}

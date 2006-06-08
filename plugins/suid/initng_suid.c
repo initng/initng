@@ -47,8 +47,7 @@ void adjust_env(active_db_h * service, const char *vn, const char *vv)
 	}
 	else
 	{
-		set_string_var(&ENV, i_strdup(vn), service,
-					   i_strdup(vv));
+		set_string_var(&ENV, i_strdup(vn), service, i_strdup(vv));
 	}
 }
 

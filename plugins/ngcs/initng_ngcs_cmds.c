@@ -74,8 +74,8 @@ void unregister_ngcs_cmds(void);
 static int service_status_watch(active_db_h * service);
 static void ngcs_cmd_watch(ngcs_request * req);
 static void ngcs_free_watch(ngcs_chan * chan);
-static int service_output_watch(active_db_h * service, process_h * x, pipe_h * pi, 
-								char *buffer_pos);
+static int service_output_watch(active_db_h * service, process_h * x,
+								pipe_h * pi, char *buffer_pos);
 static ngcs_watch *ngcs_add_watch(ngcs_conn * conn, char *svcname, int flags);
 static void ngcs_cmd_start(ngcs_request * req);
 static int ngcs_watch_initial(ngcs_watch * watch);
@@ -287,8 +287,8 @@ static int ngcs_watch_initial(ngcs_watch * watch)
 	return 0;
 }
 
-static int service_output_watch(active_db_h * service, process_h * x, pipe_h * pi, 
-								char *buffer_pos)
+static int service_output_watch(active_db_h * service, process_h * x,
+								pipe_h * pi, char *buffer_pos)
 {
 	ngcs_watch *watch, *nextwatch;
 	ngcs_data dat[2];

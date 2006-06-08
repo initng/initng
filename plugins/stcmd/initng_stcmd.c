@@ -66,6 +66,7 @@ static int cmd_load_module(char *arg);
 
 /* static int cmd_unload_module(char *arg); */
 static int cmd_percent_done(char *arg);
+
 #ifdef SERVICE_CACHE
 static char *cmd_get_father_of(char *arg);
 static int cmd_reload(char *arg);
@@ -655,7 +656,7 @@ int module_init(int api_version)
 #ifdef SERVICE_CACHE
 	initng_command_register(&GET_FATHER_OF);
 	initng_command_register(&SERVICE_RELOAD);
-#endif 
+#endif
 	if (g.i_am == I_AM_INIT)
 	{
 		initng_command_register(&REBOOT_INITNG);

@@ -90,6 +90,7 @@ void initng_service_data_type_register(s_entry * ent)
 void initng_service_data_type_unregister(s_entry * ent)
 {
 	active_db_h *currentA = NULL;
+
 #ifdef SERVICE_CACHE
 	service_cache_h *currentS = NULL;
 #endif

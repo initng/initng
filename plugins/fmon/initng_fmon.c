@@ -95,6 +95,7 @@ void filemon_event(f_module_h * from, e_fdw what)
 
 	int len = 0;
 	int i = 0;
+
 #ifdef SERVICE_CACHE
 	char *tmp;
 #endif

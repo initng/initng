@@ -176,7 +176,8 @@ static int simple_exec_fork(process_h * process_to_exec, active_db_h * s,
 		initng_fork_aforkhooks(s, process_to_exec);
 
 		int i;
-		for(i=3;i<1024;i++)
+
+		for (i = 3; i < 1024; i++)
 			close(i);
 
 #ifdef DEBUG

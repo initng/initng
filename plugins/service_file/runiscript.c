@@ -100,14 +100,14 @@ int main(int argc, char *argv[])
 
 	/* cut service name from the last '/' found in service path */
 	servname = getenv("SERVICE");
-	if(!servname)
-		servname= strrchr(path, '/') + 1;
-	if(!servname)
+	if (!servname)
+		servname = strrchr(path, '/') + 1;
+	if (!servname)
 	{
 		printf("SERVICE is not known!\n");
 		exit(3);
 	}
-		
+
 
 	/* check if command shud forward to a ngc command */
 	{

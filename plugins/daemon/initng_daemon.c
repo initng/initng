@@ -103,6 +103,7 @@ static pid_t get_pidof(active_db_h * s);
 static pid_t get_pidfile(active_db_h * s);
 static int check_respawn(active_db_h * service);
 static int try_get_pid(active_db_h * s);
+
 #ifdef SERVICE_CACHE
 static int check_valid_pidfile_path(service_cache_h * s);
 #endif

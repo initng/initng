@@ -105,6 +105,7 @@ stype_h unset = { "unset", "Service type is not set yet, are still parsing.", FA
 
 /* globals */
 struct stat sock_stat;
+
 #ifdef GLOBAL_SOCKET
 f_module_h bpf = { &bp_incomming, FDW_READ, -1 };
 #endif
@@ -754,18 +755,18 @@ static active_db_h *create_new_active(const char *name)
 		return (NULL);
 #endif
 	}
-	
+
 	/* check that it is a file */
 	if (!S_ISREG(fstat.st_mode))
 	{
 		F_("File \"%s\" is not an regular file.\n", file);
-		return(NULL);
+		return (NULL);
 	}
-	
-	if (!( fstat.st_mode & S_IXUSR))
+
+	if (!(fstat.st_mode & S_IXUSR))
 	{
 		F_("File \"%s\" cant be executed!\n", file);
-		return(NULL);
+		return (NULL);
 	}
 
 	/* create new service */
@@ -824,23 +825,27 @@ static active_db_h *create_new_active(const char *name)
 
 		/* NAME=tty1 */
 		{
-			char * tmp = strrchr(name, '/');
-			if(tmp && tmp[0] == '/') tmp++;
+			char *tmp = strrchr(name, '/');
 
-			if(tmp && tmp[0])
+			if (tmp && tmp[0] == '/')
+				tmp++;
+
+			if (tmp && tmp[0])
 			{
 				new_env[2] = i_calloc(strlen(tmp) + 20, sizeof(char));
 				strcpy(new_env[2], "NAME=");
 				strcat(new_env[2], tmp);
-			} else {
+			}
+			else
+			{
 				new_env[2] = i_calloc(strlen(name) + 20, sizeof(char));
 				strcpy(new_env[2], "NAME=");
 				strcat(new_env[2], name);
 			}
 		}
-	
-		new_env[3]=NULL;
-		
+
+		new_env[3] = NULL;
+
 		execve(new_argv[0], new_argv, new_env);
 		_exit(10);
 	}
@@ -882,8 +887,8 @@ static int initng_bash_run(active_db_h * service, process_h * process,
 	if ((pid_fork = initng_fork(service, process)) == 0)
 	{
 		struct stat fstat;		/* file stat storage */
-		char *new_argv[3];			/* use only 3 args */
-		char *new_env[] = { NULL };				/* use an empty environment */
+		char *new_argv[3];		/* use only 3 args */
+		char *new_env[] = { NULL };			/* use an empty environment */
 		char *file;				/* the file to execute from */
 
 		/* get the file path */
@@ -969,7 +974,7 @@ void module_unload(void)
 	/* remove hooks */
 	initng_process_db_ptype_unregister(&parse);
 #ifdef GLOBAL_SOCKET
-	initng_plugin_hook_unregister(&g.FDWATCHERS, &bpf); 
+	initng_plugin_hook_unregister(&g.FDWATCHERS, &bpf);
 	initng_plugin_hook_unregister(&g.SIGNAL, &bp_check_socket);
 #endif
 	initng_plugin_hook_unregister(&g.NEW_ACTIVE, &create_new_active);

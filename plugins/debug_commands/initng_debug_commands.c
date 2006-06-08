@@ -120,20 +120,20 @@ static char *cmd_print_fds(char *arg)
 			if (currentC->c.fdh->fds != i)
 				continue;
 
-			if(!arg || 	strstr(currentC->from_file, arg))
+			if (!arg || strstr(currentC->from_file, arg))
 				mprintf(&string, " %i: Used by plugin: %s\n", i,
-					currentC->from_file);
+						currentC->from_file);
 			break;
 			/* Call db fs */
 		}
 
 		currentA = NULL;
-		
+
 		/* for every service */
 		while_active_db(currentA)
 		{
 			/* if argument was set, only print matching */
-			if(!arg || service_match(currentA->name, arg))
+			if (!arg || service_match(currentA->name, arg))
 			{
 				/* for every process */
 				currentP = NULL;
@@ -149,8 +149,8 @@ static char *cmd_print_fds(char *arg)
 						{
 							/* PRINT */
 							mprintf(&string,
-								" %i: Used service: %s, process: %s\n", i,
-								currentA->name, currentP->pt->name);
+									" %i: Used service: %s, process: %s\n", i,
+									currentA->name, currentP->pt->name);
 						}
 					}
 				}

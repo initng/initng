@@ -52,7 +52,7 @@ typedef struct
 	e_dir dir;
 	int targets[MAX_PIPE_TARGETS + 1];
 } r_pipe;
-	
+
 
 typedef struct
 {

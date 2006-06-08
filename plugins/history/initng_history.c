@@ -183,9 +183,9 @@ static char *cmd_log(char *arg)
 			{
 				/* Variable that contains the no of chars to next newline */
 				int i = 0;
-				
+
 				/* skip idention from data source */
-				while(tmp[0] == ' ' || tmp[0] == '\t' || tmp[0] == '\n')
+				while (tmp[0] == ' ' || tmp[0] == '\t' || tmp[0] == '\n')
 					tmp++;
 				/* if no more left, break */
 				if (!tmp[i])
@@ -195,7 +195,8 @@ static char *cmd_log(char *arg)
 				while (tmp[i] && tmp[i] != '\n' && i < LOG_ROW_LEN)
 				{
 					/* This rules will decrease the chanse that a word is breaked */
-					if(i > LOG_ROW_LEN_BREAK_ON_SPACE && (tmp[i] == ' ' || tmp[i] == '\t'))
+					if (i > LOG_ROW_LEN_BREAK_ON_SPACE
+						&& (tmp[i] == ' ' || tmp[i] == '\t'))
 						break;
 					i++;
 				}
@@ -203,7 +204,7 @@ static char *cmd_log(char *arg)
 				/* fill with that row */
 				strncpy(buf, tmp, i);
 				buf[i] = '\0';
-				
+
 				/* send that to client */
 				mprintf(&string, " %" NAME_SPACER "s : %s\n", name, buf);
 
