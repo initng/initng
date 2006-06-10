@@ -161,6 +161,13 @@ static char *expand_exec(char *exec)
 	path_argv = NULL;
 
 	/* return the filename */
+#ifdef SELINUX
+	char *newfile=NULL;
+	if(newfile!=NULL) free(newfile);
+	newfile=malloc(sizeof(filename)+12);
+	sprintf(newfile,"sh -c \"%s\"",filename);
+	return newfile;
+#endif
 	return filename;
 }
 
