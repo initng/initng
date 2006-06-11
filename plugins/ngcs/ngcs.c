@@ -109,7 +109,6 @@ const char *state_color(int rough_state)
 			return C_FG_CYAN;
 		case IS_WAITING:
 			return C_FG_MAGENTA;
-		case IS_UNKNOWN:
 		default:
 			return C_FG_DEFAULT;
 	}
@@ -219,8 +218,7 @@ void svc_watch_cb(ngcs_svc_evt_hook * hook, void *userdata,
 					break;
 				case WATCH_STATUS:
 					{
-						struct tm *ts = localtime(&event->r.adb.
-												  time_current_state.tv_sec);
+						struct tm *ts = localtime(&event->r.adb.time_current_state.tv_sec);
 						grab_out(NULL);
 						printf(C_FG_LIGHT_RED "%.2i:%.2i:%.2i" C_OFF C_FG_CYAN
 							   " %c" C_OFF " %-35s : %s%s" C_OFF "\n",
@@ -246,6 +244,15 @@ void svc_watch_cb(ngcs_svc_evt_hook * hook, void *userdata,
 			break;
 		case NGCS_SVC_EVT_END:
 			/* FIXME - need to detect failure here */
+			if (!res->d.svc_watch.got_svcs && (
+				    res->d.svc_watch.mode == WATCH_START ||
+				    res->d.svc_watch.mode == WATCH_STOP))
+			{
+				printf("Service \"%s\" " C_FG_RED "couldn't be started" 
+				       C_OFF "\n", res->arg);
+				failed = 1;
+			}
+
 			if (last_out == res)
 				last_out = NULL;
 			list_del(&res->list);
