@@ -47,6 +47,9 @@ INITNG_PLUGIN_MACRO;
 #define SAVE_FILE      VARDIR "/initng_db_backup.v15"
 #define SAVE_FILE_FAKE VARDIR "/initng_db_backup_fake.v15"
 
+#define SAVE_FILE_V13      VARDIR "/initng_db_backup.v13"
+#define SAVE_FILE_FAKE_v13 VARDIR "/initng_db_backup_fake.v13"
+
 static int write_file(const char *filename);
 static int read_file(const char *filename);
 static void cmd_fast_reload(char *arg);
@@ -322,6 +325,189 @@ static int read_file(const char *filename)
 
 	return success;
 }
+
+static int read_file_v13(const char *filename)
+{
+	FILE *fil;
+	int success = TRUE;
+
+	fil = fopen(filename, "r");
+
+	if (!fil)
+		return FALSE;
+
+	while (!feof(fil))
+	{
+		active_db_h *new_entry = NULL;
+		s_data *d = NULL;
+		data_save_struct_v13 entry;
+
+		if (!fread(&entry, sizeof(entry), 1, fil))
+			continue;
+
+		if (initng_active_db_find_by_name(entry.name))
+		{
+			W_("Entry exists, won't create it!\n");
+			continue;
+		}
+
+		/* create a new service entry */
+		if (!(new_entry = initng_active_db_new(entry.name)))
+		{
+			F_("Can't create new active!\n");
+			success = FALSE;
+			continue;
+		}
+
+		/* set current_state */
+		new_entry->current_state = initng_active_state_find(entry.state);
+		if (!new_entry->current_state)
+		{
+			F_("Could not find a proper state to set: %s.\n", entry.state);
+			success = FALSE;
+			continue;
+		}
+
+		/* set service stype */
+		if (!(new_entry->type = initng_service_type_get_by_name(entry.type)))
+		{
+			F_("Unknown service type %s.\n", entry.type);
+			success = FALSE;
+			continue;
+		}
+
+		/* set time_current_state */
+		memcpy(&new_entry->time_current_state, &entry.time_current_state,
+			   sizeof(struct timeval));
+
+		/* walk through all processes */
+		{
+			int pnr = 0;
+
+			while (entry.process[pnr].ptype[0] && pnr < MAX_PROCESSES)
+			{
+				process_h *process = NULL;
+				ptype_h *pt = NULL;
+				int p = 0;		/* used to count pipes */
+
+				while_ptypes(pt)
+				{
+					if (strcmp(entry.process[pnr].ptype, pt->name) == 0)
+						break;
+				}
+
+				/* check so it was found */
+				if (strcmp(entry.process[pnr].ptype, pt->name) != 0)
+				{
+					F_("Unknown process type %s\n", entry.process[pnr].ptype);
+					pnr++;
+					continue;
+				}
+
+				/* allocate the process */
+				process = initng_process_db_new(pt);
+				if (!process)
+					continue;
+
+				/* fill the data */
+				process->pid = entry.process[pnr].pid;
+
+				/* for every pipe */
+				{
+					pipe_h *op = i_calloc(1, sizeof(pipe_h));
+
+					if (!op)
+					{
+						free(process);
+						continue;
+					}
+
+					op->pipe[0] = entry.process[pnr].stdout1;
+					op->pipe[1] = entry.process[pnr].stdout2;
+					op->dir = BUFFERED_OUT_PIPE;
+					op->targets[0] = 1;
+					op->targets[1] = 2;
+					add_pipe(op, process);
+					p++;
+				}
+				process->r_code = entry.process[pnr].rcode;
+
+				/* add this process to the list */
+				list_add(&process->list, &new_entry->processes.list);
+
+				D_("Added process type %i to %s\n", process->pt,
+				   new_entry->name);
+
+				pnr++;
+			}
+		}
+
+		{
+			int i = 0;
+
+			while (entry.data[i].opt_type)
+			{
+				d = (s_data *) i_calloc(1, sizeof(s_data));
+				d->type = initng_service_data_type_find(entry.data[i].type);
+				if (!d->type)
+				{
+					F_("Did not found %s!\n", entry.data[i].type);
+					free(d);
+					i++;
+					continue;
+				}
+
+				/* copy data */
+				switch (d->type->opt_type)
+				{
+					case STRING:
+					case STRINGS:
+					case VARIABLE_STRING:
+					case VARIABLE_STRINGS:
+						d->t.s = i_strdup(entry.data[i].t.s);
+						break;
+					case INT:
+					case VARIABLE_INT:
+						d->t.i = entry.data[i].t.i;
+						break;
+					default:
+						break;
+				}
+
+				d->vn = NULL;
+
+				list_add(&d->list, &new_entry->data.head.list);
+				i++;
+			}
+		}
+
+		/* add the new service to the active_db */
+		if (initng_active_db_register(new_entry) != TRUE)
+		{
+			F_("Could not add entry!\n");
+			initng_active_db_free(new_entry);
+			success = FALSE;
+			continue;
+		}
+
+		/* Don't need to reload data from disk, loaded when needed
+		   if (get_service(new_entry) == TRUE)
+		   new_entry->from_service =
+		   service_db_find_by_name(new_entry->name);
+		 */
+	}
+
+	fclose(fil);
+	if (unlink(filename) != 0)
+	{
+		W_("Failed removing file %s !!!\n", filename);
+		return success;						/* not important */
+	}
+
+	return success;
+}
+
+
 static int write_file(const char *filename)
 {
 	FILE *fil;
@@ -500,14 +686,30 @@ static int reload_state(void)
 		return (TRUE);
 
 	/* check that file exits */
-	if (stat(file, &st) != 0)
+	if (stat(file, &st) == 0)
 	{
-		D_("No state file found, passing on reload_state request\n");
-		return (FALSE);
+		/* return with file */
+		return (read_file(file));
 	}
 
-	/* return with file */
-	return (read_file(file));
+	/* set the correct filename for import of v13 statefiles */
+	if (g.i_am == I_AM_INIT)
+		file = SAVE_FILE_V13;
+	else if (g.i_am == I_AM_FAKE_INIT)
+		file = SAVE_FILE_FAKE_v13;
+
+	/* check that file exits */
+	if (stat(file, &st) == 0)
+	{
+		/* return with file */
+		return (read_file_v13(file));
+	}
+	
+
+	D_("No state file found, passing on reload_state request\n");
+	return (FALSE);
+
+	
 }
 
 /* Save a reload file for backup if initng segfaults */
