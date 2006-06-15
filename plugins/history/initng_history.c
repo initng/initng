@@ -123,7 +123,7 @@ static char *cmd_log(char *arg)
 	char *name = NULL;
 	int only_output = FALSE;
 	history_h *current = NULL;
-	time_t last;
+	time_t last = 0;
 
 
 	/* reset arg, if strlen is short */
