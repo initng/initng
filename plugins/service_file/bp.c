@@ -167,7 +167,10 @@ int main(int argc, char **argv)
 	/* if still 99, print usage */
 	if (status == 99)
 	{
-		printf("Avaible commands:\n");
+		printf("Bad command \"");
+		for(i=0; argv[i];i++)
+			printf(" %s", argv[i]);
+		printf("\"\nAvaible commands:\n");
 		for (i = 0; commands[i].name; i++)
 			printf(" ./%s\n", commands[i].name);
 		exit(status);
