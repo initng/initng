@@ -446,7 +446,7 @@ int module_init(int api_version)
 	initng_plugin_hook_register(&g.SIGNAL, 50, &check_socket);
 	initng_plugin_hook_register(&g.ASTATUS_CHANGE, 50, &astatus_change);
 	initng_plugin_hook_register(&g.SWATCHERS, 50, &system_state_change);
-	initng_plugin_hook_register(&g.PIPEWATCHERS, 50, &system_pipe_watchers);
+	initng_plugin_hook_register(&g.PIPE_WATCHER, 50, &system_pipe_watchers);
 	initng_plugin_hook_register(&g.ERR_MSG, 50, &print_error);
 
 
@@ -468,6 +468,6 @@ void module_unload(void)
 	initng_plugin_hook_unregister(&g.SIGNAL, &check_socket);
 	initng_plugin_hook_unregister(&g.ASTATUS_CHANGE, &astatus_change);
 	initng_plugin_hook_unregister(&g.SWATCHERS, &system_state_change);
-	initng_plugin_hook_unregister(&g.PIPEWATCHERS, &system_pipe_watchers);
+	initng_plugin_hook_unregister(&g.PIPE_WATCHER, &system_pipe_watchers);
 	initng_plugin_hook_unregister(&g.ERR_MSG, &print_error);
 }

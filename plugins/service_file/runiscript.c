@@ -25,7 +25,7 @@
 #include <stdio.h>
 
 
-#define DEFAULT_PATH "/etc/init/"
+#define DEFAULT_PATH "/etc/initng/"
 
 extern char **environ;
 

@@ -191,8 +191,8 @@ int main(int argc, char **argv)
 }
 
 /*
- * usage: iexec start           will run /etc/init/service internal_start 
- *        iexec start = dodo    will run /etc/init/service internal_dodo
+ * usage: iexec start           will run /etc/initng/service internal_start 
+ *        iexec start = dodo    will run /etc/initng/service internal_dodo
  */
 int bp_add_exec(char *service, int argc, char **argv)
 {
@@ -202,7 +202,7 @@ int bp_add_exec(char *service, int argc, char **argv)
 	memset(&to_send, 0, sizeof(bp_req));
 	to_send.request = SET_VARIABLE;
 
-	/* "/etc/init/file" */
+	/* "/etc/initng/file" */
 	strncpy(to_send.u.set_variable.value, argv[0], 1024);
 
 	/* " internal_" */

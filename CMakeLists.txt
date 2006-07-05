@@ -39,8 +39,6 @@ FIND_LIBRARY(DBUS_LIBS NAMES dbus-1 PATHS ${DBUS_LINK_DIR} /usr/lib /usr/local/l
 
 SUBDIRS(src plugins tools devtool doc extras) 
 
-CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/initng-paths.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/initng-paths.h)
-CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 INSTALL_FILES(${INCLUDE_INSTALL_DIR}/initng FILES initng-paths.h)
 
 OPTION(SERVICE_CACHE "Include functions for separate data with temporary data inside of initng core, needed by the i_parser and friends" ON)
@@ -134,7 +132,8 @@ IF(COUNT_ME)
 	EXEC_PROGRAM(${CMAKE_CURRENT_SOURCE_DIR}/count_me.sh)
 ENDIF(COUNT_ME)
 
-
+CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/initng-paths.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/initng-paths.h)
+CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 CONFIGURE_FILE(
 	"${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
 	"${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
