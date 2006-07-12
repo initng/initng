@@ -525,7 +525,7 @@ static void bp_abort(bp_rep * rep, const char *service)
 	return;
 }
 
-#ifdef GLObAL_SOCKET
+#ifdef GLOBAL_SOCKET
 /* called by fd hook, when data is no socket */
 void bp_incoming(f_module_h * from, e_fdw what)
 {
