@@ -491,7 +491,7 @@ char *fix_variables(const char *from, active_db_h * s)
 	/* if we got any to compare */
 	if (var_len < 1)
 	{
-		F_("No var lenght.\n");
+		F_("No var length.\n");
 		return (NULL);
 	}
 
@@ -535,7 +535,7 @@ char *fix_variables(const char *from, active_db_h * s)
 
 	if (!rep)
 	{
-		W_("Coud not find a match for \"%s\"\n", var_point);
+		W_("Could not find a match for \"%s\"\n", var_point);
 		return (NULL);
 	}
 
@@ -668,7 +668,7 @@ char *fix_variables2(const char *from, service_cache_h * s)
 	/* if we got any to compare */
 	if (var_len < 1)
 	{
-		F_("No var lenght.\n");
+		F_("No var length.\n");
 		return (NULL);
 	}
 
@@ -712,7 +712,7 @@ char *fix_variables2(const char *from, service_cache_h * s)
 
 	if (!rep)
 	{
-		W_("Coud not find a match for \"%s\"\n", var_point);
+		W_("Could not find a match for \"%s\"\n", var_point);
 		return (NULL);
 	}
 

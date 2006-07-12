@@ -116,7 +116,7 @@ initng-0.5.5 Major bugfixing
 	* Don't flush service cache on "make install" (there's no guarantee the currently-running InitNG version will be compatible with the new initscripts)
 	* The buildsystem are rebuilt, ./autogen.sh is dead, long live Make -f Makefile.cvs
 	* Now really fails the service if stop_timeout or start_timeout passes.
-	* newer_kill option added, for services that are to important (like fsck) so there shoud not be any timeout.
+	* newer_kill option added, for services that are to important (like fsck) so there should not be any timeout.
 	* suid and find plugins got some bugfixing.
 	* The svn is reorganized, to get support for tags and releases, all current svn, is stored in folder trunk.
     

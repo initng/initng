@@ -24,7 +24,7 @@
 #define SOCKET_PATH "/dev/initng/bp"
 #define SCRIPT_PATH "/etc/initng"
 
-/* incomming type */
+/* incoming type */
 typedef enum
 {
 	UNSET_INVALID = 0,

@@ -62,7 +62,7 @@
 INITNG_PLUGIN_MACRO;
 
 #ifdef GLOBAL_SOCKET
-static void bp_incomming(f_module_h * from, e_fdw what);
+static void bp_incoming(f_module_h * from, e_fdw what);
 static int bp_open_socket(void);
 static void bp_check_socket(int signal);
 static void bp_closesock(void);
@@ -109,7 +109,7 @@ stype_h unset = { "unset", "Service type is not set yet, are still parsing.", FA
 struct stat sock_stat;
 
 #ifdef GLOBAL_SOCKET
-f_module_h bpf = { &bp_incomming, FDW_READ, -1 };
+f_module_h bpf = { &bp_incoming, FDW_READ, -1 };
 #endif
 
 #define RSCV() (TEMP_FAILURE_RETRY(recv(fd, &req, sizeof(bp_req), 0)))
@@ -139,7 +139,7 @@ static void bp_handle_client(int fd)
 
 	if (r != (signed) sizeof(bp_req))
 	{
-		F_("Could not read incomming service_file req.\n");
+		F_("Could not read incoming service_file req.\n");
 		strcpy(rep.message, "Unable to read request");
 		rep.success = FALSE;
 		SEND();
@@ -527,7 +527,7 @@ static void bp_abort(bp_rep * rep, const char *service)
 
 #ifdef GLObAL_SOCKET
 /* called by fd hook, when data is no socket */
-void bp_incomming(f_module_h * from, e_fdw what)
+void bp_incoming(f_module_h * from, e_fdw what)
 {
 	int newsock;
 
@@ -535,7 +535,7 @@ void bp_incomming(f_module_h * from, e_fdw what)
 	if (from != &bpf)
 		return;
 
-	D_("bp_incomming();\n");
+	D_("bp_incoming();\n");
 	/* we try to fix socket after every service start
 	   if it fails here chances are a user screwed it
 	   up, and we shouldn't manually try to fix anything. */

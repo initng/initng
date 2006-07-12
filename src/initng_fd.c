@@ -91,7 +91,7 @@ static void initng_fd_plugin_readpipe(active_db_h * service,
 }
 
 
-/* if there is data incomming in a pipe, tell the plugins */
+/* if there is data incoming in a pipe, tell the plugins */
 static int initng_fd_pipe(active_db_h * service, process_h * process,
 						  pipe_h * pi)
 {

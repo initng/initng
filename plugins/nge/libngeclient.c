@@ -162,7 +162,7 @@ static int ngeclient_read_and_fill_buffer(nge_connection * c)
 
 /*
  * poll_for_input(seconds)
- * Will wait for (seconds) and if there is data incomming.
+ * Will wait for (seconds) and if there is data incoming.
  * event->read_buffer is filled, and this will return the chars read.
  */
 int ngeclient_poll_for_input(nge_connection * c, int seconds)
@@ -354,7 +354,7 @@ static char *ngeclient_get_option(const char *tag, const char *name)
 		return (strndup(point, len));
 	}
 
-	sprintf(err_msg_buffer, "Coud not find option \"%s\" in tag", name);
+	sprintf(err_msg_buffer, "Could not find option \"%s\" in tag", name);
 	ngeclient_error = (const char *) err_msg_buffer;
 	return (NULL);
 }

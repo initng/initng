@@ -111,9 +111,9 @@ s_command HISTORYS = { 'L', "show_history", PAYLOAD_COMMAND, STANDARD_COMMAND, U
 	"Print out history_db."
 };
 
-/* This is the maxumum lenght of a row with ngc -l */
+/* This is the maxumum length of a row with ngc -l */
 #define LOG_ROW_LEN 70
-/* If the row got a space after this number of chars, make a newline to pevent a word breakage */
+/* If the row got a space after this number of chars, make a newline to prevent a word breakage */
 #define LOG_ROW_LEN_BREAK_ON_SPACE 60
 #define NAME_SPACER "20"
 

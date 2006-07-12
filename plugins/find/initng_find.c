@@ -111,7 +111,7 @@ static service_cache_h *search_dir(const char *for_service, const char *dir)
 
 				/*
 				 * this was a bug, becouse initng_common_parse_service calls this function, 
-				 * this coud easy be an cirular bug,
+				 * this could easy be an cirular bug,
 				 * for now we check so that the new parse word is not the same as for_service
 				 * that was orginally looking for.
 				 */
