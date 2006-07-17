@@ -47,7 +47,7 @@ static int dont_try_to_stop_start(active_db_h * service);
 
 s_entry PROVIDE = {
 	"provide", STRINGS, NULL,
-	"Used by service providers, automagically creates virutal services.",
+	"Used by service providers, automagically creates virtual services.",
 	NULL
 };
 
@@ -58,9 +58,9 @@ stype_h PROVIDED = { "provided", "If a service sets provide, this virtual servic
 s_entry PCOUNT = { "p_count", INT, &PROVIDED, "Internal variable only", NULL };	/* used to keep track of */
 
 /* THE UP STATE GOT */
-a_state_h SOON_PROVIDED = { "SOON_PROVIDED", "This service providing this is starting.", IS_STARTING, NULL, NULL, NULL };
-a_state_h PROVIDE_UP = { "PROVIDED", "This service is provided by a parrent service.", IS_UP, NULL, NULL, NULL };
-a_state_h PROVIDE_DOWN = { "NOT_PROVIDED", "This service is not longer provided by a parrent service.", IS_DOWN, NULL, NULL, NULL };
+a_state_h SOON_PROVIDED = { "SOON_PROVIDED", "The service providing this is starting.", IS_STARTING, NULL, NULL, NULL };
+a_state_h PROVIDE_UP = { "PROVIDED", "This service is provided by a parent service.", IS_UP, NULL, NULL, NULL };
+a_state_h PROVIDE_DOWN = { "NOT_PROVIDED", "This service is no longer provided by a parent service.", IS_DOWN, NULL, NULL, NULL };
 
 
 static int dont_try_to_stop_start(active_db_h * service)

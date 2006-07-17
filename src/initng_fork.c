@@ -213,8 +213,8 @@ pid_t initng_fork(active_db_h * service, process_h * process)
 
 			else if (current_pipe->dir == IN_AND_OUT_PIPE)
 			{
-				/* in an unidirectional pipe, pipe[0] is fork, and pipe[1] is parrent */
-				/*printf("parrent closing: fd%i\n", current_pipe->pipe[0]); */
+				/* in an unidirectional pipe, pipe[0] is fork, and pipe[1] is parent */
+				/*printf("parent closing: fd%i\n", current_pipe->pipe[0]); */
 				if (current_pipe->pipe[0] > 0)
 					close(current_pipe->pipe[0]);
 				current_pipe->pipe[0] = -1;
