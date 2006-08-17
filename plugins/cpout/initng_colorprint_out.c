@@ -341,6 +341,30 @@ static void print_system_state(h_sys_state state)
 				cprintf("\n\n\trunlevel \"%s\" up in, %ims.\n\n",
 						g.runlevel, MS_DIFF(now, runl->last_rought_time));
 
+
+				/* at the end, print a list of all failing services */
+				{
+					int f=0; /* remember if we need to print first line */
+					active_db_h * cur = NULL;
+					
+					/* walk thru all services */
+					while_active_db(cur)
+					{
+						if(IS_FAILED(cur))
+						{
+							if(f==0)
+							{
+								cprintf(" Failing services:");
+								f=1;
+							}
+							/* print this service name */
+							cprintf(" %s", cur->name);
+						}
+					}
+					if(f==1)
+						cprintf("\n\n");
+				}
+
 				break;
 			}
 		default:
