@@ -3,7 +3,7 @@
   contributors : 
       commands : 
   service_type : daemon
-  rocess_types : daemon, kill
+ process_types : daemon, kill
        options : pid_of, pid_file, forks, respawn, respawn_pause, respawn_rate, daemon_fail_ok
         states : DAEMON_START_MARKED, DAEMON_STOP_MARKED, DAEMON_RUNNING,
                  DAEMON_WAITING_FOR_START_DEP, DAEMON_WAITING_FOR_STOP_DEP,
