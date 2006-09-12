@@ -104,9 +104,9 @@ void initng_global_new(int argc, char *argv[], char *env[], h_i_am i_am)
 	INIT_LIST_HEAD(&g.ptypes.list);
 	INIT_LIST_HEAD(&g.module_db.list);
 	INIT_LIST_HEAD(&g.option_db.list);
+	INIT_LIST_HEAD(&g.event_db.list);
 	INIT_LIST_HEAD(&g.command_db.list);
 	INIT_LIST_HEAD(&g.stypes.list);
-
 
 	/* all hooks to hook at */
 	INIT_LIST_HEAD(&g.ASTATUS_CHANGE.list);
@@ -243,6 +243,7 @@ void initng_global_free(void)
 	initng_service_cache_free_all();		/* clean service_cache_db */
 #endif
 	initng_service_data_type_unregister_all();	/* clean option_db */
+	initng_event_type_unregister_all();		/* clean event_db */
 	initng_command_unregister_all();		/* clean command_db */
 
 	/* free dynamic global variables */

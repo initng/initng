@@ -29,6 +29,7 @@ SET(initng_lib_srcs
 	initng_string_tools.c
 	initng_struct_data.c
 	initng_toolbox.c
+	initng_event_types.c
 )
 
 IF(SERVICE_CACHE)
@@ -91,6 +92,7 @@ SET(initng_headers
 	initng_struct_data.h
 	initng_toolbox.h 
 	initng_msg.h
+	initng_event_types.h
 )
 
 IF(SERVICE_CACHE)

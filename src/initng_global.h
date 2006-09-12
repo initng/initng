@@ -30,6 +30,7 @@
 #include "initng_control_command.h"
 #include "initng_static_data_id.h"
 #include "initng_active_state.h"
+#include "initng_event_types.h"
 
 /* what to do when last process stops */
 typedef enum
@@ -64,6 +65,7 @@ typedef struct
 	ptype_h ptypes;
 	m_h module_db;
 	s_entry option_db;
+	s_event_type event_db;
 	s_command command_db;
 	stype_h stypes;
 
