@@ -30,6 +30,8 @@ SET(initng_lib_srcs
 	initng_struct_data.c
 	initng_toolbox.c
 	initng_event_types.c
+	initng_event_hook.c
+	initng_event.c
 )
 
 IF(SERVICE_CACHE)
@@ -56,7 +58,7 @@ INSTALL_TARGETS(${SBIN_INSTALL_DIR} initng_bin)
 ########### install files ###############
 
 SET(initng_headers
-	initng_global.h  
+	initng_global.h
 	initng.h
 	initng_module.h
 	initng_plugin.h
@@ -76,7 +78,7 @@ SET(initng_headers
 	initng_interrupt.h
 	initng_is.h
 	initng_kill_handler.h
-	initng_load_module.h 
+	initng_load_module.h
 	initng_main.h
 	initng_open_read_close.h
 	initng_plugin_callers.h
@@ -90,9 +92,11 @@ SET(initng_headers
 	initng_static_service_types.h
 	initng_string_tools.h
 	initng_struct_data.h
-	initng_toolbox.h 
+	initng_toolbox.h
 	initng_msg.h
 	initng_event_types.h
+	initng_event_hook.h
+	initng_event.h
 )
 
 IF(SERVICE_CACHE)

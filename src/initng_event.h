@@ -17,33 +17,3 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-
-#ifndef INITNG_EVENT_H
-#define INITNG_EVENT_H
-
-#include "initng_list.h"
-
-typedef struct {
-	char *name;
-	char *description;
-
-	s_call hooks;
-
-	int name_len;
-	struct list_head list;
-} s_event_type;
-
-typedef struct {
-	s_event_type *type;
-} s_event;
-
-
-void initng_event_type_register(s_event_type *ent);
-void initng_event_type_unregister(s_event_type *ent);
-void initng_event_type_unregister_all(void);
-s_event_type *initng_event_type_find(const char *string);
-
-#define while_event_types(current) list_for_each_entry_prev(current, &g.event_db.list, list)
-#define while_event_types_safe(current, safe) list_for_each_entry_prev_safe(current, safe, &g.event_db.list, list)
-
-#endif
