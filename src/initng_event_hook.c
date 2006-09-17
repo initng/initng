@@ -25,6 +25,8 @@
 #include <time.h>
 #include "initng.h"
 #include "initng_list.h"
+#include "initng_toolbox.h"
+#include "initng_event_types.h"
 #include "initng_event_hook.h"
 
 int initng_event_hook_register_real(const char *from_file, s_event_type *t,
@@ -45,7 +47,7 @@ int initng_event_hook_register_real(const char *from_file, s_event_type *t,
 	new_call->from_file = i_strdup(from_file);
 	new_call->c.pointer = hook;
 
-	list_add(&new_call->list, &t->hooks->list);
+	list_add(&new_call->list, &t->hooks.list);
 
 	return (TRUE);
 }
@@ -62,7 +64,7 @@ void initng_event_hook_unregister_real(const char *from_file,
 	D_("Deleting event hook from file %s, func %s, line %i.\n", from_file,
 	   func, line);
 
-	while_list_safe(current, t->hooks, safe)
+	while_list_safe(current, &t->hooks, safe)
 	{
 		/* make sure the pointer is right */
 		if (current->c.pointer != hook)

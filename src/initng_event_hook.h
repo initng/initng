@@ -22,6 +22,7 @@
 #define INITNG_EVENT_HOOK_H
 
 #include "initng_plugin.h"
+#include "initng_event_types.h"
 
 void initng_event_hook_unregister_real(const char *from_file,
 					const char *func, int line,

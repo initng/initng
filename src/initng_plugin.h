@@ -22,6 +22,11 @@
 #include <stdarg.h>
 #include "initng_system_states.h"
 #include "initng_list.h"
+#include "initng_active_db.h"
+
+#define S_EVENT_ONLY
+#include "initng_event_types.h"
+#undef S_EVENT_ONLY
 
 /* flags for f_module_h.what - correspond to the arguments of select() */
 typedef enum
@@ -73,7 +78,7 @@ typedef union
 	int (*start_dep_met) (active_db_h * service);
 	int (*stop_dep_met) (active_db_h * service);
 	int (*up_met) (active_db_h * service);
-	int (*event) (s_event * event)
+	int (*event) (s_event * event);
 	active_db_h *(*new_active) (const char *name);
 } uc __attribute__ ((__transparent_union__));
 
