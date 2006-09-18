@@ -1,3 +1,9 @@
+initng (0.6.8-1) experimental; urgency=low
+
+  * New upstream release
+
+ -- Armin Berres <a.berres@onlinehome.de>  Mon, 18 Sep 2006 12:05:31 +0200
+
 initng (0.6.7-1) experimental; urgency=low
 
   * New upstream release
