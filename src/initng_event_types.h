@@ -18,32 +18,23 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef S_EVENT
-#define S_EVENT
-
-typedef struct s_event_s s_event;
-
-#endif
-
-#if (!defined(INITNG_EVENT_H) && !defined(S_EVENT_ONLY))
+#ifndef INITNG_EVENT_H
 #define INITNG_EVENT_H
 
-#include "initng_list.h"
-#include "initng_plugin.h"
+#
 
 typedef struct {
 	char *name;
 	char *description;
 
-	s_call hooks;
-
 	int name_len;
 	struct list_head list;
 } s_event_type;
 
-struct {
+typedef struct {
 	s_event_type *type;
-} s_event_s;
+} s_event;
+
 
 void initng_event_type_register(s_event_type *ent);
 void initng_event_type_unregister(s_event_type *ent);
