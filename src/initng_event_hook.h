@@ -18,30 +18,21 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef INITNG_EVENT_H
-#define INITNG_EVENT_H
+#ifndef INITNG_EVENT_HOOK_H
+#define INITNG_EVENT_HOOK_H
 
-#
+#include "initng_plugin.h"
+#include "initng_event_types.h"
 
-typedef struct {
-	char *name;
-	char *description;
+void initng_event_hook_unregister_real(const char *from_file,
+					const char *func, int line,
+					s_event_type * t, void *hook);
+int initng_event_hook_register_real(const char *from_file, s_event_type * t,
+					void *hook);
 
-	int name_len;
-	struct list_head list;
-} s_event_type;
-
-typedef struct {
-	s_event_type *type;
-} s_event;
-
-
-void initng_event_type_register(s_event_type *ent);
-void initng_event_type_unregister(s_event_type *ent);
-void initng_event_type_unregister_all(void);
-s_event_type *initng_event_type_find(const char *string);
-
-#define while_event_types(current) list_for_each_entry_prev(current, &g.event_db.list, list)
-#define while_event_types_safe(current, safe) list_for_each_entry_prev_safe(current, safe, &g.event_db.list, list)
-
+#define initng_event_hook_register(t,h) \
+	initng_event_hook_register_real(__FILE__, t, h)
+#define initng_event_hook_unregister(t,h) \
+	initng_event_hook_unregister_real(__FILE__, \
+	(const char*)__PRETTY_FUNCTION__, __LINE__, t, h)
 #endif
