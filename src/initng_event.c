@@ -17,3 +17,20 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
+
+#include <assert.h>
+#include "initng_plugin.h"
+#include "initng_event_types.h"
+#include "initng_event.h"
+
+void initng_event_send(s_event *event)
+{
+	s_call *current;
+
+	assert(event);
+	assert(event->event_type);
+
+	while_list(current, &event->event_type->hooks) {
+		current->c.event(event);
+	}
+}

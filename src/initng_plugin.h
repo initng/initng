@@ -23,10 +23,8 @@
 #include "initng_system_states.h"
 #include "initng_list.h"
 #include "initng_active_db.h"
-
-#define S_EVENT_ONLY
-#include "initng_event_types.h"
-#undef S_EVENT_ONLY
+#include "initng_msg.h"
+#include "initng_event.h"
 
 /* flags for f_module_h.what - correspond to the arguments of select() */
 typedef enum

@@ -17,3 +17,15 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
+
+#ifndef INITNG_EVENT_H
+#define INITNG_EVENT_H
+
+typedef struct {
+	struct s_event_type_s *event_type;
+} s_event;
+
+
+void initng_event_send(s_event *event);
+
+#endif
