@@ -97,7 +97,7 @@ s_command RESTART_SERVICE = { 'r', "restart", TRUE_OR_FALSE_COMMAND, STANDARD_CO
 	"Restart service"
 };
 
-s_command PRINT_UPTIME = { 't', "time", STRING_COMMAND, ADVANCHED_COMMAND, REQUIRES_OPT,
+s_command PRINT_UPTIME = { 'T', "time", STRING_COMMAND, ADVANCHED_COMMAND, REQUIRES_OPT,
 	{(void *) &cmd_print_uptime},
 	"Print uptime"
 };
