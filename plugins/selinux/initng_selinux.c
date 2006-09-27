@@ -54,6 +54,17 @@ s_entry SELINUX_CONTEXT = { "selinux_context", STRING, NULL,
 static int set_selinux_context(active_db_h * s, process_h * p
 							   __attribute__ ((unused)))
 {
+	static int have_selinux = -1;
+	if (have_selinux==-1) {
+		int rc = is_selinux_enabled();
+		if (rc<0)
+			return (TRUE);
+		else
+			have_selinux = rc;
+	}
+	if (!have_selinux)
+		return (TRUE);
+
 	const char *selinux_context = get_string(&SELINUX_CONTEXT, s);
 	char *sestr = NULL;
 	context_t seref = NULL;
