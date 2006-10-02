@@ -23,7 +23,6 @@
 
 #include "initng_list.h"
 #include "initng_plugin.h"
-#include "initng_event.h"
 
 typedef struct s_event_type_s {
 	char *name;
