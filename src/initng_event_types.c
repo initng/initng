@@ -42,6 +42,12 @@ void initng_event_type_register(s_event_type *ent)
 		ent->name_len = 0;
 	}
 
+	/* initialize the event types list */
+	INIT_LIST_HEAD(&ent->list);
+
+	/* initialize the event hooks list */
+	INIT_LIST_HEAD(&ent->hooks.list);
+
 #ifdef CHECK_IF_CURRENTLY_ADDED
 	{
 		s_event_type *current = NULL;

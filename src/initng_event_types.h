@@ -34,6 +34,7 @@ typedef struct s_event_type_s {
 	struct list_head list;
 } s_event_type;
 
+void initng_event_type_init(s_event_type *ent);
 void initng_event_type_register(s_event_type *ent);
 void initng_event_type_unregister(s_event_type *ent);
 void initng_event_type_unregister_all(void);
