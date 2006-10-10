@@ -25,8 +25,8 @@
 #include "initng_plugin.h"
 
 typedef struct s_event_type_s {
-	char *name;
-	char *description;
+	const char *name;
+	const char *description;
 
 	s_call hooks;
 
