@@ -29,6 +29,9 @@ finish cron plugin. [BIG_TASK]
 
 write inetd plugin. [BIG_TASK]
 
+finish splash plugin for graphical boot display (progress bars, etc)
+
+
 
 [DONE] Internal variables must have a name, to be able to be reloaded after ngc -c, how will we make sure
 
