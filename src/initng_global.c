@@ -29,6 +29,7 @@
 #include "initng_static_states.h"
 #include "initng_handler.h"
 #include "initng_static_service_types.h"
+#include "initng_static_event_types.h"
 
 /* HERE IS THE GLOBAL DEFINED STRUCT, WE OFTEN RELATE TO */
 s_global g;
@@ -152,6 +153,8 @@ void initng_global_new(int argc, char *argv[], char *env[], h_i_am i_am)
 	initng_static_states_register_defaults();
 	/* Add static stypes */
 	initng_service_register_static_stypes();
+	/* Add static event types */
+	initng_register_static_event_types();
 
 	/* CLEARED by memset above 
 	   #ifdef DEBUG

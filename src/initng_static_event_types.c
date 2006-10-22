@@ -18,19 +18,25 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+#include <string.h>
 #include <assert.h>
-#include "initng_plugin.h"
+
+#include "initng.h"
+#include "initng_list.h"
+#include "initng_global.h"
 #include "initng_event_types.h"
-#include "initng_event.h"
+#include "initng_static_event_types.h"
 
-void initng_event_send(s_event *event, void *event_data)
+s_event_type EVENT_STATE_CHANGE = { "state_change", "When an active change its status, this event will apere" };
+s_event_type EVENT_INTERRUPT = { "interrupt", "When initng gets an sysreq, it will get here" };
+s_event_type HALT = { "halt", "Initng got a request to halt" };
+s_event_type REBOOT = { "reboot", "Initng got a request to reboot" };
+
+void initng_register_static_event_types(void)
 {
-	s_call *current;
-
-	assert(event);
-	assert(event->event_type);
-
-	while_list(current, &event->event_type->hooks) {
-		current->c.event(event, event_data);
-	}
+    initng_event_type_register(&EVENT_STATE_CHANGE);
+    initng_event_type_register(&EVENT_INTERRUPT);
+    initng_event_type_register(&HALT);
+    initng_event_type_register(&REBOOT);
 }
+

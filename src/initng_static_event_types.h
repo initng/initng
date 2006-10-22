@@ -18,19 +18,10 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <assert.h>
-#include "initng_plugin.h"
-#include "initng_event_types.h"
-#include "initng_event.h"
 
-void initng_event_send(s_event *event, void *event_data)
-{
-	s_call *current;
+extern s_event_type EVENT_STATE_CHANGE;
+extern s_event_type EVENT_INTERRUPT;
+extern s_event_type HALT;
+extern s_event_type REBOOT;
 
-	assert(event);
-	assert(event->event_type);
-
-	while_list(current, &event->event_type->hooks) {
-		current->c.event(event, event_data);
-	}
-}
+void initng_register_static_event_types(void);
