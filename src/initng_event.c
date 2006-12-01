@@ -23,7 +23,7 @@
 #include "initng_event_types.h"
 #include "initng_event.h"
 
-void initng_event_send(s_event *event, void *event_data)
+void initng_event_send(s_event *event)
 {
 	s_call *current;
 
@@ -31,6 +31,6 @@ void initng_event_send(s_event *event, void *event_data)
 	assert(event->event_type);
 
 	while_list(current, &event->event_type->hooks) {
-		current->c.event(event, event_data);
+		current->c.event(event);
 	}
 }

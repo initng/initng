@@ -177,12 +177,6 @@ static void remove_virtual_service(const char *name)
 	{
 		/* NOTE: all service marked DOWN will dissapere from active list within a minute or so */
 		initng_common_mark_service(vserv, &PROVIDE_DOWN);
-
-		/* TODO: test the following code; initng crashes and free()
-		 *       complains about invalid pointer.
-		 *    NOTE: probably becouse d_get_int_var with an var name, that cant be free (vhar *) "count".
-		 * initng_active_db_free(vserv);
-		 */
 	}
 }
 
@@ -199,7 +193,7 @@ static int service_state(active_db_h * service)
 	assert(service->name);
 
 
-	/* if servie is starting */
+	/* if service is starting */
 	if (IS_STARTING(service))
 	{
 		/* never when system is stopping */

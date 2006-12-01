@@ -23,10 +23,9 @@
 
 typedef struct {
 	struct s_event_type_s *event_type;
-	void * event_data;
 } s_event;
 
 
-void initng_event_send(s_event *event, void * data);
+void initng_event_send(s_event *event);
 
 #endif

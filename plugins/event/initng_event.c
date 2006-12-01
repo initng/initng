@@ -40,11 +40,29 @@
 #include <initng_execute.h>
 #include <initng_event_hook.h>
 #include <initng_static_event_types.h>
+#include <initng_active_db.h>
+
 
 INITNG_PLUGIN_MACRO;
 
 
-static void handle_event(s_event * event, void * data);
+static void handle_event(s_event * extrn_event);
+static int event_triggerer(active_db_h * service);
+
+/*
+ * ############################################################################
+ * #                               EVENT STUFF                                #
+ * ############################################################################
+ */
+
+s_event_type EXTRN_EVENT = { "EXTRN_EVENT", "External event, triggered and handled by ifiles" };
+
+typedef struct {
+	s_event_type * event_type;
+	char * triggerer;
+	char * targets;
+} s_extrn_event;
+
 
 /*
  * ############################################################################
@@ -100,7 +118,7 @@ a_state_h EVENT_WAITING = { "EVENT_WAITING", "This event is waiting for a trigge
 a_state_h EVENT_RUNNING = { "EVENT_RUNNING", "This service is marked for stopping.", IS_STARTING, NULL, NULL, NULL };
 
 /*
- * When a event 
+ * When a event
  */
 a_state_h EVENT_DONE = { "EVENT_DONE", "When trigger has run, it will be marked up.", IS_UP, NULL, NULL, NULL };
 
@@ -144,8 +162,12 @@ int module_init(int api_version)
 
 	initng_service_data_type_register(&TRIGGER);
 	initng_service_data_type_register(&AUTO_RESET);
-	
-	initng_event_hook_register(&EVENT_STATE_CHANGE, &handle_event);
+
+	initng_event_type_register(&EXTRN_EVENT);
+	initng_event_hook_register(&EXTRN_EVENT, &handle_event);
+
+	initng_plugin_hook_register(&g.IS_CHANGE, 99, &event_triggerer);
+
 	return (TRUE);
 }
 
@@ -157,15 +179,17 @@ void module_unload(void)
 
 	initng_process_db_ptype_unregister(&RUN_EVENT);
 
+	initng_plugin_hook_unregister(&g.IS_CHANGE, &event_triggerer);
+
 	initng_active_state_unregister(&EVENT_WAITING);
 	initng_active_state_unregister(&EVENT_RUNNING);
 	initng_active_state_unregister(&EVENT_DONE);
 
-
 	initng_service_data_type_unregister(&TRIGGER);
 	initng_service_data_type_unregister(&AUTO_RESET);
 
-	initng_event_hook_unregister(&EVENT_STATE_CHANGE, &handle_event);
+	initng_event_hook_unregister(&EXTRN_EVENT, &handle_event);
+	initng_event_type_unregister(&EXTRN_EVENT);
 }
 
 /*
@@ -174,6 +198,36 @@ void module_unload(void)
  * ############################################################################
  */
 
+static int event_triggerer(active_db_h * service)
+{
+	s_extrn_event event;
+	s_data *itt = NULL;
+	const char *tmp = NULL;
+	char *fixed;
+
+	assert(service);
+	assert(service->name);
+
+	/* if service is up */
+	if (IS_UP(service) && (g.sys_state != STATE_STOPPING))
+	{
+		/* get the trigger strings */
+		while ((tmp = get_next_string(&TRIGGER, service, &itt)))
+		{
+			/* fix $vars */
+			fixed = fix_variables(tmp, service);
+
+			event.event_type = &EXTRN_EVENT;
+			event.triggerer = service->name;
+			event.targets = fixed;
+			initng_event_send((s_event *) &event);
+
+			fix_free(fixed, tmp);
+		}
+	}
+
+	return (TRUE);
+}
 
 
 /* to do when event is done */
@@ -181,8 +235,9 @@ static void handle_event_leave(active_db_h * service, process_h * process)
 {
 }
 
-static void handle_event(s_event * event, void * data)
+static void handle_event(s_event * extrn_event)
 {
-    
+	s_extrn_event * event = (s_extrn_event *) extrn_event;
 
+	/* TODO: find services in event->targets and launch them. */
 }
