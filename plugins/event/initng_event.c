@@ -28,6 +28,7 @@
 #include <errno.h>
 /*#include <time.h> */
 
+#include <initng_env_variable.h>
 #include <initng_handler.h>
 #include <initng_global.h>
 #include <initng_plugin_hook.h>
@@ -237,7 +238,8 @@ static void handle_event_leave(active_db_h * service, process_h * process)
 
 static void handle_event(s_event * extrn_event)
 {
+#if 0
 	s_extrn_event * event = (s_extrn_event *) extrn_event;
-
+#endif
 	/* TODO: find services in event->targets and launch them. */
 }
