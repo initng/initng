@@ -61,7 +61,7 @@ s_event_type EXTRN_EVENT = { "EXTRN_EVENT", "External event, triggered and handl
 typedef struct {
 	s_event_type * event_type;
 	char * triggerer;
-	char * targets;
+	char * target;
 } s_extrn_event;
 
 
@@ -119,9 +119,14 @@ a_state_h EVENT_WAITING = { "EVENT_WAITING", "This event is waiting for a trigge
 a_state_h EVENT_RUNNING = { "EVENT_RUNNING", "This service is marked for stopping.", IS_STARTING, NULL, NULL, NULL };
 
 /*
- * When a event
+ * When a event has run.
  */
 a_state_h EVENT_DONE = { "EVENT_DONE", "When trigger has run, it will be marked up.", IS_UP, NULL, NULL, NULL };
+
+/*
+ * When a event has failed.
+ */
+a_state_h EVENT_FAILED = { "EVENT_FAILED", "When trigger has failed." };
 
 /*
  * ############################################################################
@@ -159,6 +164,7 @@ int module_init(int api_version)
 
 	initng_active_state_register(&EVENT_WAITING);
 	initng_active_state_register(&EVENT_RUNNING);
+	initng_active_state_register(&EVENT_FAILED);
 	initng_active_state_register(&EVENT_DONE);
 
 	initng_service_data_type_register(&TRIGGER);
@@ -184,6 +190,7 @@ void module_unload(void)
 
 	initng_active_state_unregister(&EVENT_WAITING);
 	initng_active_state_unregister(&EVENT_RUNNING);
+	initng_active_state_unregister(&EVENT_FAILED);
 	initng_active_state_unregister(&EVENT_DONE);
 
 	initng_service_data_type_unregister(&TRIGGER);
@@ -202,6 +209,8 @@ void module_unload(void)
 static int event_triggerer(active_db_h * service)
 {
 	s_extrn_event event;
+	const void * eventp = &event;
+
 	s_data *itt = NULL;
 	const char *tmp = NULL;
 	char *fixed;
@@ -212,16 +221,17 @@ static int event_triggerer(active_db_h * service)
 	/* if service is up */
 	if (IS_UP(service) && (g.sys_state != STATE_STOPPING))
 	{
+		event.event_type = &EXTRN_EVENT;
+		event.triggerer = service->name;
+
 		/* get the trigger strings */
 		while ((tmp = get_next_string(&TRIGGER, service, &itt)))
 		{
 			/* fix $vars */
 			fixed = fix_variables(tmp, service);
 
-			event.event_type = &EXTRN_EVENT;
-			event.triggerer = service->name;
-			event.targets = fixed;
-			initng_event_send((s_event *) &event);
+			event.target = fixed;
+			initng_event_send((s_event *) eventp);
 
 			fix_free(fixed, tmp);
 		}
@@ -234,12 +244,50 @@ static int event_triggerer(active_db_h * service)
 /* to do when event is done */
 static void handle_event_leave(active_db_h * service, process_h * process)
 {
+	if (get_int(&AUTO_RESET, service))
+	{
+		initng_common_mark_service(service, &EVENT_WAITING);
+	}
+	else
+	{
+		initng_common_mark_service(service, &EVENT_DONE);
+	}
 }
 
 static void handle_event(s_event * extrn_event)
 {
-#if 0
 	s_extrn_event * event = (s_extrn_event *) extrn_event;
-#endif
-	/* TODO: find services in event->targets and launch them. */
+	active_db_h * target;
+
+	if (!(target = initng_active_db_find_by_exact_name(event->target)))
+	{
+		F_("Target service not found\n");
+		return;
+	}
+
+	if (target->type != &TYPE_EVENT)
+	{
+		F_("Target service is not event type\n");
+		return;
+	}
+
+	if (!IS_MARK(target, &EVENT_WAITING))
+	{
+		F_("Target service has been triggered already\n");
+		return;
+	}
+
+	initng_common_mark_service(target, &EVENT_RUNNING);
+
+	switch (initng_execute_launch(target, &RUN_EVENT, NULL))
+	{
+		case FALSE:
+			F_("Did not find a run_event entry to run\n");
+			initng_common_mark_service(target, &EVENT_FAILED);
+			return;
+		case FAIL:
+			F_("Could not launch run_event\n");
+			initng_common_mark_service(target, &EVENT_FAILED);
+			return;
+	}
 }

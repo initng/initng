@@ -1,6 +1,6 @@
           name : event
         author : Jimmy Wennlund <jimmy.wennlund@gmail.com>
-  contributors : 
+  contributors : Ismael Luceno <ismael.luceno@gmail.com>
       commands : 
        options : trigger
  service_types : event
