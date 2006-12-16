@@ -100,7 +100,7 @@ ptype_h RUN_EVENT = { "run_event", &handle_event_leave };
  */
 
 s_entry TRIGGER = { "trigger", STRINGS, NULL, "Add requirements here for events to run" };
-s_entry AUTO_RESET = { "reset_trigger", INT, &TYPE_EVENT, "Reset event when done" };
+s_entry AUTO_RESET = { "reset_trigger", SET, &TYPE_EVENT, "Reset event when done" };
 
 /*
  * ############################################################################
@@ -244,7 +244,7 @@ static int event_triggerer(active_db_h * service)
 /* to do when event is done */
 static void handle_event_leave(active_db_h * service, process_h * process)
 {
-	if (get_int(&AUTO_RESET, service))
+	if (is(&AUTO_RESET, service))
 	{
 		initng_common_mark_service(service, &EVENT_WAITING);
 	}
@@ -278,7 +278,7 @@ static void handle_event(s_event * extrn_event)
 
 	if (!IS_DOWN(target))
 	{
-		F_("Target service %s has been triggered already\n", event->target);
+		W_("Target service %s has been triggered already\n", event->target);
 		return;
 	}
 
