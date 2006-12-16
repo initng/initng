@@ -99,7 +99,7 @@ ptype_h RUN_EVENT = { "run_event", &handle_event_leave };
  * ############################################################################
  */
 
-s_entry TRIGGER = { "trigger", STRINGS, &TYPE_EVENT, "Add requirements here for events to run" };
+s_entry TRIGGER = { "trigger", STRINGS, NULL, "Add requirements here for events to run" };
 s_entry AUTO_RESET = { "reset_trigger", INT, &TYPE_EVENT, "Reset event when done" };
 
 /*
@@ -261,19 +261,24 @@ static void handle_event(s_event * extrn_event)
 
 	if (!(target = initng_active_db_find_by_exact_name(event->target)))
 	{
-		F_("Target service not found\n");
-		return;
+#ifdef SERVICE_CACHE
+		if (!(target = initng_common_load_to_active(event->target)))
+#endif
+		{
+			F_("Target service %s not found\n", event->target);
+			return;
+		}
 	}
 
 	if (target->type != &TYPE_EVENT)
 	{
-		F_("Target service is not event type\n");
+		F_("Target service %s is not event type\n", event->target);
 		return;
 	}
 
 	if (!IS_MARK(target, &EVENT_WAITING))
 	{
-		F_("Target service has been triggered already\n");
+		F_("Target service %s has been triggered already\n", event->target);
 		return;
 	}
 
