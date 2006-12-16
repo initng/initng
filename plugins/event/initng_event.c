@@ -126,7 +126,7 @@ a_state_h EVENT_DONE = { "EVENT_DONE", "When trigger has run, it will be marked 
 /*
  * When a event has failed.
  */
-a_state_h EVENT_FAILED = { "EVENT_FAILED", "When trigger has failed." };
+a_state_h EVENT_FAILED = { "EVENT_FAILED", "When trigger has failed.", IS_FAILED, NULL, NULL, NULL };
 
 /*
  * ############################################################################
@@ -276,7 +276,7 @@ static void handle_event(s_event * extrn_event)
 		return;
 	}
 
-	if (!IS_MARK(target, &EVENT_WAITING))
+	if (!IS_DOWN(target))
 	{
 		F_("Target service %s has been triggered already\n", event->target);
 		return;
