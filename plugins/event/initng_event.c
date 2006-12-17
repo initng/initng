@@ -242,15 +242,16 @@ static int event_triggerer(active_db_h * service)
 
 
 /* to do when event is done */
-static void handle_event_leave(active_db_h * service, process_h * process)
+static void handle_event_leave(active_db_h * killed_event, process_h * process)
 {
-	if (is(&AUTO_RESET, service))
+	if (is(&AUTO_RESET, killed_event))
 	{
-		initng_common_mark_service(service, &EVENT_WAITING);
+		initng_process_db_free(process);
+		initng_common_mark_service(killed_event, &EVENT_WAITING);
 	}
 	else
 	{
-		initng_common_mark_service(service, &EVENT_DONE);
+		initng_common_mark_service(killed_event, &EVENT_DONE);
 	}
 }
 
