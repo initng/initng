@@ -73,12 +73,10 @@ typedef struct
 	data_head data;
 
 	/* all hooks to hook at */
-	s_call ASTATUS_CHANGE;		/* Calls as soon as the ASTATUS changes */
 #ifdef SERVICE_CACHE
 	s_call PARSERS;				/* Called when a service needs its data */
 	s_call ADDITIONAL_PARSE;	/* Called after a service been parsed, and extra parsing may exist */
 #endif
-	s_call SWATCHERS;			/* Called when system state changes */
 	s_call FDWATCHERS;			/* Called when initng open file descriptors receive data */
 	s_call BUFFER_WATCHER;		/* Called when a service have outputed, and initng have filled its output buffer. */
 	s_call SIGNAL;				/* Called when initng rescives a signal, like SIGHUP */

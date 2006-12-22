@@ -37,8 +37,11 @@
 #include <initng_active_state.h>
 #include <initng_process_db.h>
 #include <initng_service_types.h>
-#include <initng-paths.h>
 #include <initng_plugin_callers.h>
+#include <initng_event_hook.h>
+#include <initng_static_event_types.h>
+
+#include <initng-paths.h>
 
 #include "initng_reload.h"
 
@@ -135,7 +138,7 @@ static void cmd_fast_reload(char *arg)
 }
 
 
-/* FIXME - not all errors are detected, in some cases success could be 
+/* FIXME - not all errors are detected, in some cases success could be
    reported incorrectly */
 static int read_file(const char *filename)
 {
@@ -704,19 +707,27 @@ static int reload_state(void)
 		/* return with file */
 		return (read_file_v13(file));
 	}
-	
+
 
 	D_("No state file found, passing on reload_state request\n");
 	return (FALSE);
 
-	
+
 }
 
 /* Save a reload file for backup if initng segfaults */
-static void save_backup(h_sys_state state)
+static void save_backup(s_event * event)
 {
+	h_sys_state * state;
+
+	assert(event);
+	assert(event->event_type != &EVENT_SYSTEM_CHANGE);
+	assert(event->data);
+
+	state = event->data;
+
 	/* only save when system is getting up */
-	if (state == STATE_UP)
+	if (*state == STATE_UP)
 	{
 		/* save file */
 		if (g.i_am == I_AM_INIT)
@@ -731,7 +742,7 @@ static void save_backup(h_sys_state state)
 	}
 
 	/* if system is stopping, remove the SAVE_FILE */
-	if (state == STATE_STOPPING)
+	if (*state == STATE_STOPPING)
 	{
 		if (g.i_am == I_AM_INIT)
 		{
@@ -766,7 +777,7 @@ int module_init(int api_version)
 	   }
 	   } */
 
-	initng_plugin_hook_register(&g.SWATCHERS, 90, &save_backup);
+	initng_event_hook_register(&EVENT_SYSTEM_CHANGE, &save_backup);
 	initng_plugin_hook_register(&g.DUMP_ACTIVE_DB, 10, &dump_state);
 	initng_plugin_hook_register(&g.RELOAD_ACTIVE_DB, 10, &reload_state);
 	initng_command_register(&FAST_RELOAD);
@@ -776,7 +787,7 @@ int module_init(int api_version)
 void module_unload(void)
 {
 	D_("module_unload();\n");
-	initng_plugin_hook_unregister(&g.SWATCHERS, &save_backup);
+	initng_event_hook_unregister(&EVENT_SYSTEM_CHANGE, &save_backup);
 	initng_plugin_hook_unregister(&g.DUMP_ACTIVE_DB, &dump_state);
 	initng_plugin_hook_unregister(&g.RELOAD_ACTIVE_DB, &reload_state);
 	initng_command_unregister(&FAST_RELOAD);

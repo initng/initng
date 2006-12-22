@@ -32,6 +32,7 @@
 #include <errno.h>
 #include <dirent.h>
 #include <ctype.h>
+#include <assert.h>
 
 #include <initng_global.h>
 #include <initng_process_db.h>
@@ -43,6 +44,9 @@
 #include <initng_plugin.h>
 #include <initng_load_module.h>
 #include <initng_static_states.h>
+#include <initng_event_hook.h>
+#include <initng_static_event_types.h>
+
 #include <initng-paths.h>
 
 #include <utmp.h>
@@ -292,9 +296,17 @@ static void hup_request(int signal)
 	}
 }
 
-static void is_system_up(h_sys_state state)
+static void is_system_up(s_event * event)
 {
-	if (state == STATE_UP && (!utmp_stored))
+	h_sys_state * state;
+
+	assert(event);
+	assert(event->event_type != &EVENT_SYSTEM_CHANGE);
+	assert(event->data);
+
+	state = event->data;
+
+	if (*state == STATE_UP && (!utmp_stored))
 	{
 		makeutmp(3);
 	}
@@ -321,7 +333,7 @@ int module_init(int api_version)
 	initctl_control_open();
 
 	if ((!initng_plugin_hook_register(&g.SIGNAL, 50, &hup_request))
-		|| (!initng_plugin_hook_register(&g.SWATCHERS, 50, &is_system_up)))
+		|| (!initng_event_hook_register(&EVENT_SYSTEM_CHANGE, &is_system_up)))
 	{
 		F_("Fail add hook!\n");
 		return (FALSE);
@@ -342,6 +354,6 @@ void module_unload(void)
 	initctl_control_close();
 	/* remove all hooks */
 	initng_plugin_hook_unregister(&g.FDWATCHERS, &pipe_fd);
-	initng_plugin_hook_unregister(&g.SWATCHERS, &is_system_up);
+	initng_event_hook_unregister(&EVENT_SYSTEM_CHANGE, &is_system_up);
 	initng_plugin_hook_unregister(&g.SIGNAL, &hup_request);
 }

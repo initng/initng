@@ -36,6 +36,8 @@
 #include <initng_plugin_hook.h>
 #include <initng_static_states.h>
 #include <initng_toolbox.h>
+#include <initng_static_event_types.h>
+#include <initng_event_hook.h>
 
 INITNG_PLUGIN_MACRO;
 
@@ -249,7 +251,7 @@ static int print_output(active_db_h * service)
 	if (IS_STOPPING(service))
 	{
 		/*
-		 * don't prompt that we are stopping a service, if system is shutting down, i 
+		 * don't prompt that we are stopping a service, if system is shutting down, i
 		 * do think that the user is aware about this.
 		 */
 		if (g.sys_state == STATE_STOPPING)
@@ -280,10 +282,17 @@ static int print_output(active_db_h * service)
 	return (TRUE);
 }
 
-static void print_system_state(h_sys_state state)
+static void print_system_state(s_event * event)
 {
+	h_sys_state * state;
 
-	switch (state)
+	assert(event);
+	assert(event->event_type != &EVENT_SYSTEM_CHANGE);
+	assert(event->data);
+
+	state = event->data;
+
+	switch (*state)
 	{
 		case STATE_STARTING:
 			clear_lastserv();
@@ -346,7 +355,7 @@ static void print_system_state(h_sys_state state)
 				{
 					int f=0; /* remember if we need to print first line */
 					active_db_h * cur = NULL;
-					
+
 					/* walk thru all services */
 					while_active_db(cur)
 					{
@@ -588,7 +597,7 @@ int module_init(int api_version)
 	lastservice = NULL;
 	initng_plugin_hook_register(&g.ERR_MSG, 10, &cp_print_error);
 	initng_plugin_hook_register(&g.IS_CHANGE, 80, &print_output);
-	initng_plugin_hook_register(&g.SWATCHERS, 80, &print_system_state);
+	initng_event_hook_register(&EVENT_SYSTEM_CHANGE, &print_system_state);
 	initng_plugin_hook_register(&g.BUFFER_WATCHER, 50, &print_program_output);
 	return (TRUE);
 }
@@ -601,7 +610,7 @@ void module_unload(void)
 
 
 	initng_plugin_hook_unregister(&g.IS_CHANGE, &print_output);
-	initng_plugin_hook_unregister(&g.SWATCHERS, &print_system_state);
+	initng_event_hook_unregister(&EVENT_SYSTEM_CHANGE, &print_system_state);
 	initng_plugin_hook_unregister(&g.BUFFER_WATCHER, &print_program_output);
 	initng_plugin_hook_unregister(&g.ERR_MSG, &cp_print_error);
 	cprintf("  Goodbye\n");

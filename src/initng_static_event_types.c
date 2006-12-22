@@ -28,6 +28,8 @@
 #include "initng_static_event_types.h"
 
 s_event_type EVENT_STATE_CHANGE = { "state_change", "When an active change its status, this event will apere" };
+s_event_type EVENT_SYSTEM_CHANGE = { "system_change", "Triggered when system state changes" };
+
 s_event_type EVENT_INTERRUPT = { "interrupt", "When initng gets an sysreq, it will get here" };
 s_event_type HALT = { "halt", "Initng got a request to halt" };
 s_event_type REBOOT = { "reboot", "Initng got a request to reboot" };
@@ -35,6 +37,8 @@ s_event_type REBOOT = { "reboot", "Initng got a request to reboot" };
 void initng_register_static_event_types(void)
 {
     initng_event_type_register(&EVENT_STATE_CHANGE);
+    initng_event_type_register(&EVENT_SYSTEM_CHANGE);
+
     initng_event_type_register(&EVENT_INTERRUPT);
     initng_event_type_register(&HALT);
     initng_event_type_register(&REBOOT);

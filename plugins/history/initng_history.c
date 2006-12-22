@@ -34,6 +34,9 @@
 #include <initng_plugin_hook.h>
 #include <initng_static_states.h>
 #include <initng_string_tools.h>
+#include <initng_static_event_types.h>
+#include <initng_event_hook.h>
+
 #include "initng_history.h"
 
 INITNG_PLUGIN_MACRO;
@@ -344,9 +347,16 @@ static int add_hist(history_h * hist)
 }
 
 /* add values to history database */
-static int history_add_values(active_db_h * service)
+static int history_add_values(s_event * event)
 {
+	active_db_h * service;
 	history_h *tmp_e = NULL;	/* temporary pointer to insert data and add to db */
+
+	assert(event);
+	assert(event->event_type != &EVENT_STATE_CHANGE);
+	assert(event->data);
+
+	service = event->data;
 
 	assert(service->name);
 
@@ -432,7 +442,7 @@ int module_init(int api_version)
 
 	initng_command_register(&HISTORYS);
 	initng_command_register(&LOG);
-	initng_plugin_hook_register(&g.ASTATUS_CHANGE, 1000, &history_add_values);
+	initng_event_hook_register(&EVENT_STATE_CHANGE, &history_add_values);
 	initng_plugin_hook_register(&g.COMPENSATE_TIME, 50,
 								&history_db_compensate_time);
 	initng_plugin_hook_register(&g.BUFFER_WATCHER, 50, &fetch_output);
@@ -446,7 +456,7 @@ void module_unload(void)
 	initng_command_unregister(&HISTORYS);
 	initng_command_unregister(&LOG);
 	history_free_all();
-	initng_plugin_hook_unregister(&g.ASTATUS_CHANGE, &history_add_values);
+	initng_event_hook_unregister(&EVENT_STATE_CHANGE, &history_add_values);
 	initng_plugin_hook_unregister(&g.COMPENSATE_TIME,
 								  &history_db_compensate_time);
 	initng_plugin_hook_unregister(&g.BUFFER_WATCHER, &fetch_output);

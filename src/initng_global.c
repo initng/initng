@@ -71,11 +71,11 @@ void initng_global_new(int argc, char *argv[], char *env[], h_i_am i_am)
 	}
 	g.Argv[argc] = NULL;
 
-	/* 
-	 * We want to change our process name, because it looks nice in 
-	 * "ps" output. But we can only use space that the kernel 
-	 * allocated for us when we started. This is argv[] and env[] 
-	 * together. 
+	/*
+	 * We want to change our process name, because it looks nice in
+	 * "ps" output. But we can only use space that the kernel
+	 * allocated for us when we started. This is argv[] and env[]
+	 * together.
 	 */
 	g.maxproclen = 0;
 	for (i = 0; i < argc; i++)
@@ -110,11 +110,9 @@ void initng_global_new(int argc, char *argv[], char *env[], h_i_am i_am)
 	INIT_LIST_HEAD(&g.stypes.list);
 
 	/* all hooks to hook at */
-	INIT_LIST_HEAD(&g.ASTATUS_CHANGE.list);
 #ifdef SERVICE_CACHE
 	INIT_LIST_HEAD(&g.PARSERS.list);
 #endif
-	INIT_LIST_HEAD(&g.SWATCHERS.list);
 	INIT_LIST_HEAD(&g.FDWATCHERS.list);
 	INIT_LIST_HEAD(&g.BUFFER_WATCHER.list);
 	INIT_LIST_HEAD(&g.SIGNAL.list);
@@ -156,7 +154,7 @@ void initng_global_new(int argc, char *argv[], char *env[], h_i_am i_am)
 	/* Add static event types */
 	initng_register_static_event_types();
 
-	/* CLEARED by memset above 
+	/* CLEARED by memset above
 	   #ifdef DEBUG
 	   g.verbose = 0;
 	   {

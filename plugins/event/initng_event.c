@@ -58,13 +58,6 @@ static int event_triggerer(active_db_h * service);
 
 s_event_type EXTRN_EVENT = { "EXTRN_EVENT", "External event, triggered and handled by ifiles" };
 
-typedef struct {
-	s_event_type * event_type;
-	char * triggerer;
-	char * target;
-} s_extrn_event;
-
-
 /*
  * ############################################################################
  * #                        STATE HANDLERS FUNCTION DEFINES                   #
@@ -208,8 +201,7 @@ void module_unload(void)
 
 static int event_triggerer(active_db_h * service)
 {
-	s_extrn_event event;
-	const void * eventp = &event;
+	s_event event;
 
 	s_data *itt = NULL;
 	const char *tmp = NULL;
@@ -222,7 +214,6 @@ static int event_triggerer(active_db_h * service)
 	if (IS_UP(service) && (g.sys_state != STATE_STOPPING))
 	{
 		event.event_type = &EXTRN_EVENT;
-		event.triggerer = service->name;
 
 		/* get the trigger strings */
 		while ((tmp = get_next_string(&TRIGGER, service, &itt)))
@@ -230,8 +221,8 @@ static int event_triggerer(active_db_h * service)
 			/* fix $vars */
 			fixed = fix_variables(tmp, service);
 
-			event.target = fixed;
-			initng_event_send((s_event *) eventp);
+			event.data = fixed;
+			initng_event_send(&event);
 
 			fix_free(fixed, tmp);
 		}
@@ -255,31 +246,30 @@ static void handle_event_leave(active_db_h * killed_event, process_h * process)
 	}
 }
 
-static void handle_event(s_event * extrn_event)
+static void handle_event(s_event * event)
 {
-	s_extrn_event * event = (s_extrn_event *) extrn_event;
 	active_db_h * target;
 
-	if (!(target = initng_active_db_find_by_exact_name(event->target)))
+	if (!(target = initng_active_db_find_by_exact_name(event->data)))
 	{
 #ifdef SERVICE_CACHE
-		if (!(target = initng_common_load_to_active(event->target)))
+		if (!(target = initng_common_load_to_active(event->data)))
 #endif
 		{
-			F_("Target service %s not found\n", event->target);
+			F_("Target service %s not found\n", event->data);
 			return;
 		}
 	}
 
 	if (target->type != &TYPE_EVENT)
 	{
-		F_("Target service %s is not event type\n", event->target);
+		F_("Target service %s is not event type\n", event->data);
 		return;
 	}
 
 	if (!IS_DOWN(target))
 	{
-		W_("Target service %s has been triggered already\n", event->target);
+		W_("Target service %s has been triggered already\n", event->data);
 		return;
 	}
 

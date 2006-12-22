@@ -71,7 +71,7 @@ typedef struct ngcs_genwatch_s
 
 void register_ngcs_cmds(void);
 void unregister_ngcs_cmds(void);
-static int service_status_watch(active_db_h * service);
+static int service_status_watch(s_event * event);
 static void ngcs_cmd_watch(ngcs_request * req);
 static void ngcs_free_watch(ngcs_chan * chan);
 static int service_output_watch(active_db_h * service, process_h * x,
@@ -82,7 +82,7 @@ static int ngcs_watch_initial(ngcs_watch * watch);
 static void ngcs_cmd_stop(ngcs_request * req);
 static void ngcs_cmd_hot_reload(ngcs_request * req);
 static void ngcs_cmd_zap(ngcs_request * req);
-static void system_state_watch(e_is state);
+static void system_state_watch(s_event * event);
 static void ngcs_free_genwatch(ngcs_chan * chan);
 static void ngcs_cmd_swatch(ngcs_request * req);
 static void ngcs_cmd_ewatch(ngcs_request * req);
@@ -149,10 +149,17 @@ ngcs_watch watches;
 ngcs_genwatch swatches;
 ngcs_genwatch ewatches;
 
-static void system_state_watch(e_is state)
+static void system_state_watch(s_event * event)
 {
+	e_is state;
 	ngcs_genwatch *watch, *nextwatch;
 	int i = state;
+
+	assert(event);
+	assert(event->event_type != &EVENT_SYSTEM_CHANGE);
+	assert(event->data);
+
+	state = event->data;
 
 	list_for_each_entry_prev_safe(watch, nextwatch, &swatches.list, list)
 	{
@@ -216,11 +223,18 @@ static int error_watch(e_mt mt, const char *file, const char *func,
 	return FALSE;
 }
 
-static int service_status_watch(active_db_h * service)
+static int service_status_watch(s_event * event)
 {
+	service_db_h * service;
 	ngcs_watch *watch, *nextwatch;
 	int len = 0;
 	char *buf = NULL;
+
+	assert(event);
+	assert(event->event_type != &EVENT_STATE_CHANGE);
+	assert(event->data);
+
+	service = event->data;
 
 	len = ngcs_marshal_active_db_h(service, NULL);
 	list_for_each_entry_prev_safe(watch, nextwatch, &watches.list, list)
@@ -548,9 +562,9 @@ void register_ngcs_cmds(void)
 	ngcs_reg_cmd(&ngcs_hot_reload_cmd_short);
 	ngcs_reg_cmd(&ngcs_hot_reload_cmd_long);
 	ngcs_reg_cmd(&ngcs_zap_cmd);
-	initng_plugin_hook_register(&g.ASTATUS_CHANGE, 50, &service_status_watch);
+	initng_event_hook_register(&EVENT_STATE_CHANGE, &service_status_watch);
 	initng_plugin_hook_register(&g.BUFFER_WATCHER, 50, &service_output_watch);
-	initng_plugin_hook_register(&g.SWATCHERS, 50, &system_state_watch);
+	initng_event_hook_register(&EVENT_SYSTEM_CHANGE, &system_state_watch);
 	initng_plugin_hook_register(&g.ERR_MSG, 50, &error_watch);
 	INIT_LIST_HEAD(&watches.list);
 	INIT_LIST_HEAD(&swatches.list);
@@ -559,7 +573,7 @@ void register_ngcs_cmds(void)
 
 void unregister_ngcs_cmds(void)
 {
-	initng_plugin_hook_unregister(&g.ASTATUS_CHANGE, &service_status_watch);
+	initng_event_hook_unregister(&EVENT_STATE_CHANGE, &service_status_watch);
 	initng_plugin_hook_unregister(&g.BUFFER_WATCHER, &service_output_watch);
 	ngcs_unreg_cmd(&ngcs_start_cmd);
 	ngcs_unreg_cmd(&ngcs_stop_cmd);

@@ -35,10 +35,12 @@
 #include <initng_toolbox.h>
 #include <initng_plugin_hook.h>
 #include <initng_static_states.h>
+#include <initng_event_hook.h>
+#include <initng_static_event_types.h>
 
 INITNG_PLUGIN_MACRO;
 
-static void syslog_print_system_state(h_sys_state state);
+static void syslog_print_system_state(s_event * event);
 static int syslog_print_status_change(active_db_h * service);
 static void check_syslog(void);
 static void initng_log(int prio, const char *owner, const char *format, ...);
@@ -192,9 +194,17 @@ static int syslog_print_status_change(active_db_h * service)
 	return (TRUE);
 }
 
-static void syslog_print_system_state(h_sys_state state)
+static void syslog_print_system_state(s_event * event)
 {
-	switch (state)
+	h_sys_state * state;
+
+	assert(event);
+	assert(event->event_type != &EVENT_SYSTEM_CHANGE);
+	assert(event->data);
+
+	state = event->data;
+
+	switch (*state)
 	{
 		case STATE_UP:
 			initng_log(LOG_NOTICE, NULL, "System is up and running!\n");
@@ -334,7 +344,7 @@ int module_init(int api_version)
 
 	initng_plugin_hook_register(&g.IS_CHANGE, 100,
 								&syslog_print_status_change);
-	initng_plugin_hook_register(&g.SWATCHERS, 100,
+	initng_event_hook_register(&EVENT_SYSTEM_CHANGE,
 								&syslog_print_system_state);
 	initng_plugin_hook_register(&g.BUFFER_WATCHER, 100, &syslog_fetch_output);
 	initng_plugin_hook_register(&g.ERR_MSG, 50, &syslog_print_error);
@@ -353,7 +363,7 @@ void module_unload(void)
 	}
 
 	initng_plugin_hook_unregister(&g.IS_CHANGE, &syslog_print_status_change);
-	initng_plugin_hook_unregister(&g.SWATCHERS, &syslog_print_system_state);
+	initng_event_hook_unregister(&EVENT_SYSTEM_CHANGE, &syslog_print_system_state);
 	initng_plugin_hook_unregister(&g.BUFFER_WATCHER, &syslog_fetch_output);
 	initng_plugin_hook_unregister(&g.ERR_MSG, &syslog_print_error);
 	free_buffert();

@@ -18,10 +18,13 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-
 extern s_event_type EVENT_STATE_CHANGE;
+extern s_event_type EVENT_SYSTEM_CHANGE;
+
 extern s_event_type EVENT_INTERRUPT;
 extern s_event_type HALT;
 extern s_event_type REBOOT;
 
 void initng_register_static_event_types(void);
+
+/* TODO: replace g.SWATCHERS with EVENT_SYSTEM_CHANGE */

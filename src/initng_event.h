@@ -23,6 +23,7 @@
 
 typedef struct {
 	struct s_event_type_s *event_type;
+	void *data;
 } s_event;
 
 

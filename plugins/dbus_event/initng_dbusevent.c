@@ -61,10 +61,10 @@ INITNG_PLUGIN_MACRO;
 void send_to_all(char *buf);
 
 
-static int astatus_change(active_db_h * service);
+static int astatus_change(s_event * event);
 static void check_socket(int signal);
 static int connect_to_dbus(void);
-static void system_state_change(e_is state);
+static void system_state_change(s_event * event);
 static int system_pipe_watchers(active_db_h * service, process_h * process,
 								pipe_h * pi, char *output);
 static int print_error(e_mt mt, const char *file, const char *func, int line,
@@ -171,10 +171,18 @@ static void fdw_callback(f_module_h * from, e_fdw what)
 
 /* --- End DBus watch handling ---- */
 
-static int astatus_change(active_db_h * service)
+static int astatus_change(s_event * event)
 {
+	service_db_h * service;
+	/* TODO: Port this function to be an event hook */
 	DBusMessage *msg;
 	dbus_uint32_t serial = 0;
+
+	assert(event);
+	assert(event->event_type != &EVENT_STATE_CHANGE);
+	assert(event->data);
+
+	service = event->data;
 
 	/* these values will be send */
 	const char *service_name = service->name;
@@ -224,10 +232,17 @@ static int astatus_change(active_db_h * service)
 	return (TRUE);
 }
 
-static void system_state_change(e_is state)
+static void system_state_change(s_event * event)
 {
+	e_is state;
 	DBusMessage *msg;
 	dbus_uint32_t serial = 0;
+
+	assert(event);
+	assert(event->event_type != &EVENT_SYSTEM_CHANGE);
+	assert(event->data);
+
+	state = event->data;
 
 	if (conn == NULL)
 		return;
@@ -423,7 +438,7 @@ static int connect_to_dbus(void)
 	}
 
 	/*  IF this is set, initng is the owner of initng.signal.source */
-	/*if ( ret != DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER) { 
+	/*if ( ret != DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER) {
 	   printf("Could not gain PRIMARY_OWNER of "SOURCE_REQUEST"\n");
 	   return(FALSE);
 	   } */
@@ -433,7 +448,6 @@ static int connect_to_dbus(void)
 
 int module_init(int api_version)
 {
-
 	if (api_version != API_VERSION)
 	{
 		F_("This module is compiled for api_version %i version and initng is compiled on %i version, won't load this module!\n", INITNG_VERSION, api_version);
@@ -444,8 +458,8 @@ int module_init(int api_version)
 
 	/* add the hooks we are monitoring */
 	initng_plugin_hook_register(&g.SIGNAL, 50, &check_socket);
-	initng_plugin_hook_register(&g.ASTATUS_CHANGE, 50, &astatus_change);
-	initng_plugin_hook_register(&g.SWATCHERS, 50, &system_state_change);
+	initng_event_hook_register(&EVENT_STATE_CHANGE, &astatus_change);
+	initng_event_hook_register(&EVENT_SYSTEM_CHANGE, &system_state_change);
 	initng_plugin_hook_register(&g.PIPE_WATCHER, 50, &system_pipe_watchers);
 	initng_plugin_hook_register(&g.ERR_MSG, 50, &print_error);
 
@@ -466,8 +480,8 @@ void module_unload(void)
 	}
 
 	initng_plugin_hook_unregister(&g.SIGNAL, &check_socket);
-	initng_plugin_hook_unregister(&g.ASTATUS_CHANGE, &astatus_change);
-	initng_plugin_hook_unregister(&g.SWATCHERS, &system_state_change);
+	initng_event_hook_unregister(&EVENT_STATE_CHANGE, &astatus_change);
+	initng_event_hook_unregister(&EVENT_SYSTEM_CHANGE, &system_state_change);
 	initng_plugin_hook_unregister(&g.PIPE_WATCHER, &system_pipe_watchers);
 	initng_plugin_hook_unregister(&g.ERR_MSG, &print_error);
 }

@@ -254,9 +254,16 @@ static int service_state(active_db_h * service)
 
 
 #ifdef EXTRA_SURE
-static void system_stopping(h_sys_state state)
+static void system_stopping(s_event * event)
 {
+	h_sys_state state;
 	active_db_h *current = NULL;
+
+	assert(event);
+	assert(event->event_type != &EVENT_SYSTEM_CHANGE);
+	assert(event->data);
+
+	state = event->data;
 
 	/* only do this if system is stopping */
 	if (state != STATE_STOPPING)
@@ -292,7 +299,7 @@ int module_init(int api_version)
 	initng_service_data_type_register(&PROVIDE);
 	initng_service_data_type_register(&PCOUNT);
 #ifdef EXTRA_SURE
-	initng_plugin_hook_register(&g.SWATCHERS, 80, &system_stopping);
+	initng_event_hook_register(&EVENT_SYSTEM_CHANGE, &system_stopping);
 #endif
 	initng_plugin_hook_register(&g.IS_CHANGE, 50, &service_state);
 
@@ -310,6 +317,6 @@ void module_unload(void)
 	initng_active_state_unregister(&PROVIDE_DOWN);
 	initng_service_type_unregister(&PROVIDED);
 #ifdef EXTRA_SURE
-	initng_plugin_hook_unregister(&g.SWATCHERS, &system_stopping);
+	initng_event_hook_unregister(&EVENT_SYSTEM_CHANGE, &system_stopping);
 #endif
 }

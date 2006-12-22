@@ -46,6 +46,7 @@
 #include "initng_static_states.h"
 #include "initng_depend.h"
 #include "initng_handler.h"
+#include "initng_static_event_types.h"
 
 /* self */
 #include "initng_interrupt.h"
@@ -140,43 +141,30 @@ static void initng_handler_run_interrupt_handlers(void)
 
 static void handle(active_db_h * service)
 {
-	s_call *current, *q = NULL;
+	s_event event;
 	a_state_h *state = service->current_state;
 
+	event.event_type = &EVENT_STATE_CHANGE;
+	event.data = service;
+
 	/* call all hooks again, to notify about the change */
-	current = q = NULL;
-	while_list_safe(current, &g.ASTATUS_CHANGE, q)
-	{
-		if ((*current->c.status_change) (service) <= FALSE)
-		{
-			D_("Some plugin return FALSE when service %s Astate_CHANGE to %s hook called, aborting here.\n", service->name, service->current_state->state_name);
-			return;
-		}
+	initng_event_send(&event);
 
-		/* the ASTATUS_CHANGE hook did change this hook state, dont continue from here */
-		if (service->current_state != state)
-			return;
-	}
-
+	/* the EVENT_STATE_CHANGE events did change this hook state, dont continue from here */
+	if (service->current_state != state)
+		return;
 
 	/* If the rough state has changed */
 	if (service->last_rought_state != state->is)
 	{
 		D_("An is change from %i to %i for %s.\n",
 		   service->last_rought_state, state->is, service->name);
-		current = q = NULL;
-		while_list_safe(current, &g.IS_CHANGE, q)
-		{
-			if ((*current->c.status_change) (service) <= FALSE)
-			{
-				D_("Some plugin return FALSE when service %s IS_CHANGE to %s hook called, aborting here.\n", service->name, service->current_state->state_name);
-				return;
-			}
 
-			/* make sure that state was not changed again, because then, dont call more hooks */
-			if (service->current_state != state)
-				return;
-		}
+		initng_event_send(&event);
+
+		/* make sure that state was not changed again, because then, dont call more hooks */
+		if (service->current_state != state)
+			return;
 
 		/* This checks if all services on a runlevel is up, then set STATE_UP */
 		if (IS_UP(service))

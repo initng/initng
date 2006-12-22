@@ -32,6 +32,7 @@
 #include "initng_load_module.h"
 #include "initng_toolbox.h"
 #include "initng_signal.h"
+#include "initng_static_event_types.h"
 
 #include "initng_plugin_callers.h"
 #include "initng_plugin.h"
@@ -97,17 +98,12 @@ void initng_plugin_callers_compensate_time(int t)
 /* called when system state has changed. */
 void initng_plugin_callers_load_module_system_changed(h_sys_state state)
 {
-	s_call *current, *q = NULL;
+	s_event event;
 
-	while_list_safe(current, &g.SWATCHERS, q)
-	{
-		if (current->c.swatcher)
-		{
-			D_("Calling system_state_changed plugin from %s\n",
-			   current->from_file);
-			(*current->c.swatcher) (state);
-		}
-	}
+	event.event_type = &EVENT_SYSTEM_CHANGE;
+	event.data = &state;
+	initng_event_send(&event);
+
 	return;
 }
 

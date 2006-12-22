@@ -25,18 +25,6 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <initng_handler.h>
-#include <initng_global.h>
-#include <initng_plugin_hook.h>
-#include <initng_common.h>
-#include <initng_toolbox.h>
-#include <initng_static_data_id.h>
-#include <initng_static_states.h>
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <netinet/ip.h>
@@ -44,6 +32,17 @@
 #include <net/if.h>
 #include <string.h>
 #include <arpa/inet.h>
+#include <assert.h>
+
+#include <initng_handler.h>
+#include <initng_global.h>
+#include <initng_plugin_hook.h>
+#include <initng_common.h>
+#include <initng_toolbox.h>
+#include <initng_static_data_id.h>
+#include <initng_static_states.h>
+#include <initng_event_hook.h>
+#include <initng_static_event_types.h>
 
 INITNG_PLUGIN_MACRO;
 
@@ -66,7 +65,7 @@ typedef struct
 } s_netdev;
 
 /*
- * we need to have a list in memory, to notice when devices 
+ * we need to have a list in memory, to notice when devices
  * are lost on the system.
  */
 s_netdev devs[20];
@@ -312,12 +311,19 @@ static void probe_network_devices(void)
 }
 
 
-static void system_stopping(h_sys_state state)
+static void system_stopping(s_event * event)
 {
+	h_sys_state * state;
 	active_db_h *current = NULL;
 
+	assert(event);
+	assert(event->event_type != &EVENT_SYSTEM_CHANGE);
+	assert(event->data);
+
+	state = event->data;
+
 	/* only do this if system is stopping */
-	if (state != STATE_STOPPING)
+	if (*state != STATE_STOPPING)
 		return;
 
 	/* find all netdev types and stop them */
@@ -356,7 +362,7 @@ int module_init(int api_version)
 	initng_active_state_register(&NIC_DOWN);
 	initng_service_type_register(&NETDEV);
 	initng_plugin_hook_register(&g.MAIN, 50, &probe_network_devices);
-	initng_plugin_hook_register(&g.SWATCHERS, 80, &system_stopping);
+	initng_event_hook_register(&EVENT_SYSTEM_CHANGE, &system_stopping);
 	return (TRUE);
 }
 
@@ -376,6 +382,6 @@ void module_unload(void)
 	initng_active_state_unregister(&NIC_UP);
 	initng_active_state_unregister(&NIC_DOWN);
 	initng_plugin_hook_unregister(&g.MAIN, &probe_network_devices);
-	initng_plugin_hook_unregister(&g.SWATCHERS, &system_stopping);
+	initng_event_hook_unregister(&EVENT_SYSTEM_CHANGE, &system_stopping);
 	initng_service_type_unregister(&NETDEV);
 }

@@ -48,6 +48,8 @@
 #include <initng_plugin.h>
 #include <initng_static_states.h>
 #include <initng_control_command.h>
+#include <initng_static_event_types.h>
+#include <initng_event_hook.h>
 
 #include <initng-paths.h>
 
@@ -72,8 +74,8 @@ static void check_socket(int signal);
 void send_to_all(const void *buf, size_t len);
 
 
-static int astatus_change(active_db_h * service);
-static void system_state_change(e_is state);
+static int astatus_change(s_event * event);
+static void system_state_change(s_event * event);
 static int system_pipe_watchers(active_db_h * service, process_h * process,
 								pipe_h * pi, char *output);
 static int print_error(e_mt mt, const char *file, const char *func, int line,
@@ -136,8 +138,8 @@ static void close_initiator_socket(void)
 		/*
 		 * UnRegister that hooks, that we forwards events from.
 		 */
-		initng_plugin_hook_unregister(&g.ASTATUS_CHANGE, &astatus_change);
-		initng_plugin_hook_unregister(&g.SWATCHERS, &system_state_change);
+		initng_event_hook_unregister(&EVENT_STATE_CHANGE, &astatus_change);
+		initng_event_hook_unregister(&EVENT_SYSTEM_CHANGE, &system_state_change);
 		initng_plugin_hook_unregister(&g.BUFFER_WATCHER,
 									  &system_pipe_watchers);
 		initng_plugin_hook_unregister(&g.ERR_MSG, &print_error);
@@ -210,8 +212,8 @@ void event_acceptor(f_module_h * from, e_fdw what)
 		/*
 		 * Register that hooks, that we forwards events from.
 		 */
-		initng_plugin_hook_register(&g.ASTATUS_CHANGE, 50, &astatus_change);
-		initng_plugin_hook_register(&g.SWATCHERS, 50, &system_state_change);
+		initng_event_hook_register(&EVENT_STATE_CHANGE, &astatus_change);
+		initng_event_hook_register(&EVENT_SYSTEM_CHANGE, &system_state_change);
 		initng_plugin_hook_register(&g.BUFFER_WATCHER, 50,
 									&system_pipe_watchers);
 		initng_plugin_hook_register(&g.ERR_MSG, 50, &print_error);
@@ -455,10 +457,17 @@ static void check_socket(int signal)
 	return;
 }
 
-static int astatus_change(active_db_h * service)
+static int astatus_change(s_event * event)
 {
+	active_db_h * service;
 	char *buffert = NULL;
 	int len;
+
+	assert(event);
+	assert(event->event_type != &EVENT_STATE_CHANGE);
+	assert(event->data);
+
+	service = event->data;
 
 	buffert = i_calloc(180 + strlen(service->name) +
 					   strlen(service->current_state->state_name) +
@@ -496,14 +505,21 @@ static int astatus_change(active_db_h * service)
 	return (TRUE);
 }
 
-static void system_state_change(e_is state)
+static void system_state_change(s_event * event)
 {
+	e_is * state;
 	char *buffert = i_calloc(90 + strlen(g.runlevel), sizeof(char));
 	int len;
 
+	assert(event);
+	assert(event->event_type != &EVENT_SYSTEM_CHANGE);
+	assert(event->data);
+
+	state = event->data;
+
 	len = sprintf(buffert,
 				  "<event type=\"system_state_change\" system_state=\"%i\" runlevel=\"%s\" />\n",
-				  state, g.runlevel);
+				  *state, g.runlevel);
 	if (len > 1)
 		send_to_all(buffert, sizeof(char) * len);
 
@@ -547,7 +563,7 @@ static int print_error(e_mt mt, const char *file, const char *func,
 	while (len < 0 || len >= size)
 	{
 		/* Some glibc versions apparently return -1 if buffer too small.
-		   Oh, and the argument counts the null char, but the return 
+		   Oh, and the argument counts the null char, but the return
 		   value doesn't, apparently. (See man page for gory details.) */
 		size = (len < 0 ? size * 2 : len + 1);
 		free(msg);
