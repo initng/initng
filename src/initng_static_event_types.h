@@ -26,5 +26,3 @@ extern s_event_type HALT;
 extern s_event_type REBOOT;
 
 void initng_register_static_event_types(void);
-
-/* TODO: replace g.SWATCHERS with EVENT_SYSTEM_CHANGE */

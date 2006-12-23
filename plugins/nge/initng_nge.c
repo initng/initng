@@ -75,7 +75,7 @@ void send_to_all(const void *buf, size_t len);
 
 
 static int astatus_change(s_event * event);
-static void system_state_change(s_event * event);
+static int system_state_change(s_event * event);
 static int system_pipe_watchers(active_db_h * service, process_h * process,
 								pipe_h * pi, char *output);
 static int print_error(e_mt mt, const char *file, const char *func, int line,
@@ -464,7 +464,7 @@ static int astatus_change(s_event * event)
 	int len;
 
 	assert(event);
-	assert(event->event_type != &EVENT_STATE_CHANGE);
+	assert(event->event_type == &EVENT_STATE_CHANGE);
 	assert(event->data);
 
 	service = event->data;
@@ -505,14 +505,14 @@ static int astatus_change(s_event * event)
 	return (TRUE);
 }
 
-static void system_state_change(s_event * event)
+static int system_state_change(s_event * event)
 {
 	e_is * state;
 	char *buffert = i_calloc(90 + strlen(g.runlevel), sizeof(char));
 	int len;
 
 	assert(event);
-	assert(event->event_type != &EVENT_SYSTEM_CHANGE);
+	assert(event->event_type == &EVENT_SYSTEM_CHANGE);
 	assert(event->data);
 
 	state = event->data;
@@ -524,6 +524,8 @@ static void system_state_change(s_event * event)
 		send_to_all(buffert, sizeof(char) * len);
 
 	free(buffert);
+
+	return (TRUE);
 }
 
 static int system_pipe_watchers(active_db_h * service, process_h * process,

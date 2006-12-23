@@ -149,14 +149,14 @@ ngcs_watch watches;
 ngcs_genwatch swatches;
 ngcs_genwatch ewatches;
 
-static void system_state_watch(s_event * event)
+static int system_state_watch(s_event * event)
 {
 	e_is state;
 	ngcs_genwatch *watch, *nextwatch;
 	int i = state;
 
 	assert(event);
-	assert(event->event_type != &EVENT_SYSTEM_CHANGE);
+	assert(event->event_type == &EVENT_SYSTEM_CHANGE);
 	assert(event->data);
 
 	state = event->data;
@@ -165,6 +165,8 @@ static void system_state_watch(s_event * event)
 	{
 		ngcs_chan_send(watch->chan, NGCS_TYPE_INT, sizeof(int), (char *) &i);
 	}
+
+	return (TRUE);
 }
 
 static int error_watch(e_mt mt, const char *file, const char *func,
@@ -231,7 +233,7 @@ static int service_status_watch(s_event * event)
 	char *buf = NULL;
 
 	assert(event);
-	assert(event->event_type != &EVENT_STATE_CHANGE);
+	assert(event->event_type == &EVENT_STATE_CHANGE);
 	assert(event->data);
 
 	service = event->data;
@@ -250,7 +252,7 @@ static int service_status_watch(s_event * event)
 				{
 					F_("ngcs_marshal_active_db_h() failed!\n");
 					free(buf);
-					return TRUE;
+					return (TRUE);
 				}
 			}
 			ngcs_chan_send(watch->chan, NGCS_TYPE_STRUCT, len, buf);
@@ -258,7 +260,8 @@ static int service_status_watch(s_event * event)
 	}
 	if (buf)
 		free(buf);
-	return TRUE;
+
+	return (TRUE);
 }
 
 static int ngcs_watch_initial(ngcs_watch * watch)

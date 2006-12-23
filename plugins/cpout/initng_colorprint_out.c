@@ -282,12 +282,12 @@ static int print_output(active_db_h * service)
 	return (TRUE);
 }
 
-static void print_system_state(s_event * event)
+static int print_system_state(s_event * event)
 {
 	h_sys_state * state;
 
 	assert(event);
-	assert(event->event_type != &EVENT_SYSTEM_CHANGE);
+	assert(event->event_type == &EVENT_SYSTEM_CHANGE);
 	assert(event->data);
 
 	state = event->data;
@@ -332,7 +332,7 @@ static void print_system_state(s_event * event)
 
 				/* Dont print this */
 				if (quiet_when_up)
-					return;
+					return (TRUE);
 
 				/* get runlevel */
 				active_db_h *runl = initng_active_db_find_by_name(g.runlevel);
@@ -341,7 +341,7 @@ static void print_system_state(s_event * event)
 				if (!runl)
 				{
 					D_("Runlevel %s not found.\n", g.runlevel);
-					return;
+					return (FALSE);
 				}
 
 				gettimeofday(&now, NULL);
@@ -382,6 +382,8 @@ static void print_system_state(s_event * event)
 
 	fflush(output);
 	D_("print_system_state(): new system state: %i\n", state);
+
+	return (TRUE);
 }
 
 static int print_program_output(active_db_h * service, process_h * x,

@@ -296,12 +296,12 @@ static void hup_request(int signal)
 	}
 }
 
-static void is_system_up(s_event * event)
+static int is_system_up(s_event * event)
 {
 	h_sys_state * state;
 
 	assert(event);
-	assert(event->event_type != &EVENT_SYSTEM_CHANGE);
+	assert(event->event_type == &EVENT_SYSTEM_CHANGE);
 	assert(event->data);
 
 	state = event->data;
@@ -310,6 +310,8 @@ static void is_system_up(s_event * event)
 	{
 		makeutmp(3);
 	}
+
+	return (TRUE);
 }
 
 

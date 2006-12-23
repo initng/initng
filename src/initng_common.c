@@ -143,7 +143,7 @@ active_db_h *initng_common_load_to_active(const char *service_name)
 	/* circular dependencies are BAD, so check this one before adding it to the db */
 	/* dep_on_deep will not crash as long as the offending service is not loaded into the db */
 
-	/* dep_on_deep will loop over the active_db, but as the a_new service is not added to 
+	/* dep_on_deep will loop over the active_db, but as the a_new service is not added to
 	 * the service db up to now, this will not cause an endless loop, cause it will not
 	 * loop over a_new */
 
@@ -237,7 +237,7 @@ int initng_common_get_service(active_db_h * service)
 		 * example 2, An i file containing multible services.
 		 * service->name == "/etc/initng/system/coldplug.i" and service->from_service->name == "system/coldplug/pci"
 		 *
-		 * example 3, An i file containing a variable service. 
+		 * example 3, An i file containing a variable service.
 		 * service->name == "/etc/initng/net.i" and servce->from_service->name == "net/ *"
 		 */
 
@@ -247,9 +247,9 @@ int initng_common_get_service(active_db_h * service)
 	}
 
 	/*
-	 * if service->name is "samba", and service->from_service->name is "daemon/samba" 
+	 * if service->name is "samba", and service->from_service->name is "daemon/samba"
 	 * we have to update service->name.
-	 * also notice that service->name should not exactly match service->from_service->name, 
+	 * also notice that service->name should not exactly match service->from_service->name,
 	 * service->name might be "eth0" and service->from_service->name might be "net / *".
 	 */
 
@@ -366,20 +366,60 @@ int initng_common_mark_service(active_db_h * service, a_state_h * state)
 	assert(service->current_state);
 	assert(state);
 
-	D_("going to mark_service(%s) from %s to %s\n", service->name,
-	   service->current_state->state_name, state->state_name);
-
-	/* 1: Test if already set */
+	/* Test if already set */
 	if (service->current_state == state)
 	{
-		D_("warning, this state %s is already set on %s!\n",
+		D_("state %s is already set on %s!\n",
 		   state->state_name, service->name);
-		/* it is actually already set to requested state */
+
+		/* clear next_state */
+		service->next_state = NULL;
 		return (TRUE);
 	}
 
-	D_(" %-20s : %10s -> %-10s\n", service->name,
+	D_("Going to mark service %s from %s to %s\n", service->name,
 	   service->current_state->state_name, state->state_name);
+
+	service->next_state = state;
+
+	/* If state is not locked, update it */
+	if (!service->state_lock)
+		initng_common_state_unlock(service);
+
+	return (TRUE);
+}
+
+void initng_common_state_lock(active_db_h * service)
+{
+	assert(service);
+	assert(service->name);
+
+	service->state_lock++;
+	D_("Locked state of %s (level: %d)\n", service->name, service->state_lock);
+}
+
+int initng_common_state_unlock(active_db_h * service)
+{
+	assert(service);
+	assert(service->name);
+	assert(service->current_state);
+
+	/* If locked, decrement the lock counter */
+	if (service->state_lock)
+		service->state_lock--;
+
+	/* Test if locked more than one time */
+	if (service->state_lock) {
+		D_("State of %s is still locked (level: %d)\n", service->name, service->state_lock);
+		return (FALSE);
+	}
+
+	/* Test if state has changed */
+	if (!service->next_state)
+		return (FALSE);
+
+	D_(" %-20s : %10s -> %-10s\n", service->name,
+	   service->current_state->state_name, service->next_state->state_name);
 
 	/* Fill last entries */
 	service->last_state = service->current_state;
@@ -396,7 +436,7 @@ int initng_common_mark_service(active_db_h * service, a_state_h * state)
 
 	/* reset alarm, set state and time */
 	service->alarm = 0;
-	service->current_state = state;
+	service->current_state = service->next_state;
 	gettimeofday(&service->time_current_state, NULL);
 
 	/* Set INTERRUPT, the interrupt is set only when a service
@@ -404,7 +444,38 @@ int initng_common_mark_service(active_db_h * service, a_state_h * state)
 	 */
 	list_add(&service->interrupt, &g.active_database.interrupt);
 
+	/* clear next_state */
+	service->next_state = NULL;
 
-	/* return success */
+	D_("Unlocked state of %s\n", service->name);
+
 	return (TRUE);
+}
+
+void initng_common_state_lock_all(void)
+{
+	active_db_h * current;
+
+	while_active_db(current)
+	{
+		initng_common_state_lock(current);
+	}
+}
+
+int initng_common_state_unlock_all(void)
+{
+	active_db_h * current;
+	int ret = 0;
+
+	while_active_db(current)
+	{
+		ret |= initng_common_state_unlock(current);
+	}
+
+	return (ret);
+}
+
+a_state_h *initng_common_state_has_changed(active_db_h * service)
+{
+	return (service->next_state);
 }

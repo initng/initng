@@ -19,6 +19,7 @@
  */
 
 #include <assert.h>
+#include "initng.h"
 #include "initng_plugin.h"
 #include "initng_event_types.h"
 #include "initng_event.h"
@@ -26,11 +27,25 @@
 void initng_event_send(s_event *event)
 {
 	s_call *current;
+	int ret;
 
 	assert(event);
 	assert(event->event_type);
 
-	while_list(current, &event->event_type->hooks) {
-		current->c.event(event);
+	D_("%s event triggered\n", event->event_type->name);
+
+	while_list(current, &event->event_type->hooks)
+	{
+		ret = current->c.event(event);
+
+		if (ret != TRUE)
+		{
+			if (ret == FAIL)
+			{
+				F_("%s event aborted\n", event->event_type->name);
+				break;
+			}
+			W_("%s event failed\n", event->event_type->name);
+		}
 	}
 }

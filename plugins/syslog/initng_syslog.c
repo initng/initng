@@ -40,7 +40,7 @@
 
 INITNG_PLUGIN_MACRO;
 
-static void syslog_print_system_state(s_event * event);
+static int syslog_print_system_state(s_event * event);
 static int syslog_print_status_change(active_db_h * service);
 static void check_syslog(void);
 static void initng_log(int prio, const char *owner, const char *format, ...);
@@ -194,12 +194,12 @@ static int syslog_print_status_change(active_db_h * service)
 	return (TRUE);
 }
 
-static void syslog_print_system_state(s_event * event)
+static int syslog_print_system_state(s_event * event)
 {
 	h_sys_state * state;
 
 	assert(event);
-	assert(event->event_type != &EVENT_SYSTEM_CHANGE);
+	assert(event->event_type == &EVENT_SYSTEM_CHANGE);
 	assert(event->data);
 
 	state = event->data;
@@ -213,35 +213,35 @@ static void syslog_print_system_state(s_event * event)
 			 * to spend memory for the buffert anyway.
 			 */
 			free_buffert();
-			return;
+			return (TRUE);
 		case STATE_STARTING:
 			initng_log(LOG_NOTICE, NULL, "System is starting up.\n");
-			return;
+			return (TRUE);
 		case STATE_STOPPING:
 			initng_log(LOG_NOTICE, NULL, "System is going down.\n");
-			return;
+			return (TRUE);
 		case STATE_ASE:
 			initng_log(LOG_NOTICE, NULL, "Last service exited.\n");
-			return;
+			return (TRUE);
 		case STATE_EXIT:
 			initng_log(LOG_NOTICE, NULL, "Initng is exiting.\n");
-			return;
+			return (TRUE);
 		case STATE_RESTART:
 			initng_log(LOG_NOTICE, NULL, "Initng is restarting.\n");
-			return;
+			return (TRUE);
 		case STATE_HALT:
 			initng_log(LOG_NOTICE, NULL, "System is halting.\n");
-			return;
+			return (TRUE);
 		case STATE_POWEROFF:
 			initng_log(LOG_NOTICE, NULL, "System is power-off.\n");
-			return;
+			return (TRUE);
 		case STATE_REBOOT:
 			initng_log(LOG_NOTICE, NULL, "System is rebooting.\n");
-			return;
+			return (TRUE);
 		default:
-			return;
+			return (TRUE);
 	}
-	return;
+	return (TRUE);
 }
 
 static int syslog_fetch_output(active_db_h * service, process_h * process,

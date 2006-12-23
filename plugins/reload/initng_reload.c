@@ -716,12 +716,12 @@ static int reload_state(void)
 }
 
 /* Save a reload file for backup if initng segfaults */
-static void save_backup(s_event * event)
+static int save_backup(s_event * event)
 {
 	h_sys_state * state;
 
 	assert(event);
-	assert(event->event_type != &EVENT_SYSTEM_CHANGE);
+	assert(event->event_type == &EVENT_SYSTEM_CHANGE);
 	assert(event->data);
 
 	state = event->data;
@@ -738,7 +738,7 @@ static void save_backup(s_event * event)
 		{
 			write_file(SAVE_FILE_FAKE);
 		}
-		return;
+		return (TRUE);
 	}
 
 	/* if system is stopping, remove the SAVE_FILE */
@@ -752,8 +752,10 @@ static void save_backup(s_event * event)
 		{
 			unlink(SAVE_FILE_FAKE);
 		}
-		return;
+		return (TRUE);
 	}
+
+	return (TRUE);
 }
 
 int module_init(int api_version)

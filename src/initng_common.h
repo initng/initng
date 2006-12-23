@@ -31,4 +31,10 @@ int initng_common_get_service(active_db_h * service);
 int initng_common_mark_service(active_db_h * service, a_state_h * state);
 int initng_common_service_blacklisted(const char *name);
 
+void initng_common_state_lock(active_db_h * service);
+int initng_common_state_unlock(active_db_h * service);
+void initng_common_state_lock_all(void);
+int initng_common_state_unlock_all(void);
+a_state_h *initng_common_state_has_changed(active_db_h * service);
+
 #endif

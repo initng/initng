@@ -34,7 +34,7 @@
 #include <sys/stat.h>
 #include <errno.h>
 
-
+#include "initng_common.h"
 #include "initng_active_db.h"
 #include "initng_process_db.h"
 #include "initng_signal.h"
@@ -185,7 +185,7 @@ pid_t initng_fork(active_db_h * service, process_h * process)
 			tcsetpgrp(0, getpgrp());		/* run this in foreground on fd 0 */
 
 
-		/* do a minimum sleep, to let the mother process 
+		/* do a minimum sleep, to let the mother process
 		   to register child, and notice death */
 		usleep(ALL_USLEEP);
 

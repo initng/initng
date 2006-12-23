@@ -147,11 +147,14 @@ static void handle(active_db_h * service)
 	event.event_type = &EVENT_STATE_CHANGE;
 	event.data = service;
 
+	/* lock the state, so we could know about a change */
+	initng_common_state_lock(service);
+
 	/* call all hooks again, to notify about the change */
 	initng_event_send(&event);
 
-	/* the EVENT_STATE_CHANGE events did change this hook state, dont continue from here */
-	if (service->current_state != state)
+	/* abort if the state has changed since the event was sent */
+	if (initng_common_state_unlock(service))
 		return;
 
 	/* If the rough state has changed */
@@ -160,10 +163,11 @@ static void handle(active_db_h * service)
 		D_("An is change from %i to %i for %s.\n",
 		   service->last_rought_state, state->is, service->name);
 
+		initng_common_state_lock(service);
 		initng_event_send(&event);
 
-		/* make sure that state was not changed again, because then, dont call more hooks */
-		if (service->current_state != state)
+		/* abort if the state has changed since the event was sent */
+		if (initng_common_state_unlock(service))
 			return;
 
 		/* This checks if all services on a runlevel is up, then set STATE_UP */

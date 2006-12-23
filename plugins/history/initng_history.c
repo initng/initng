@@ -353,7 +353,7 @@ static int history_add_values(s_event * event)
 	history_h *tmp_e = NULL;	/* temporary pointer to insert data and add to db */
 
 	assert(event);
-	assert(event->event_type != &EVENT_STATE_CHANGE);
+	assert(event->event_type == &EVENT_STATE_CHANGE);
 	assert(event->data);
 
 	service = event->data;

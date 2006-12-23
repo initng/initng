@@ -311,20 +311,20 @@ static void probe_network_devices(void)
 }
 
 
-static void system_stopping(s_event * event)
+static int system_stopping(s_event * event)
 {
 	h_sys_state * state;
 	active_db_h *current = NULL;
 
 	assert(event);
-	assert(event->event_type != &EVENT_SYSTEM_CHANGE);
+	assert(event->event_type == &EVENT_SYSTEM_CHANGE);
 	assert(event->data);
 
 	state = event->data;
 
 	/* only do this if system is stopping */
 	if (*state != STATE_STOPPING)
-		return;
+		return (TRUE);
 
 	/* find all netdev types and stop them */
 	while_active_db(current)
@@ -335,6 +335,8 @@ static void system_stopping(s_event * event)
 			initng_common_mark_service(current, &NIC_DOWN);
 		}
 	}
+	
+	return (TRUE);
 }
 
 

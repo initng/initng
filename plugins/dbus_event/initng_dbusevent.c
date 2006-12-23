@@ -174,12 +174,12 @@ static void fdw_callback(f_module_h * from, e_fdw what)
 static int astatus_change(s_event * event)
 {
 	service_db_h * service;
-	/* TODO: Port this function to be an event hook */
+
 	DBusMessage *msg;
 	dbus_uint32_t serial = 0;
 
 	assert(event);
-	assert(event->event_type != &EVENT_STATE_CHANGE);
+	assert(event->event_type == &EVENT_STATE_CHANGE);
 	assert(event->data);
 
 	service = event->data;
@@ -232,20 +232,20 @@ static int astatus_change(s_event * event)
 	return (TRUE);
 }
 
-static void system_state_change(s_event * event)
+static int system_state_change(s_event * event)
 {
 	e_is state;
 	DBusMessage *msg;
 	dbus_uint32_t serial = 0;
 
 	assert(event);
-	assert(event->event_type != &EVENT_SYSTEM_CHANGE);
+	assert(event->event_type == &EVENT_SYSTEM_CHANGE);
 	assert(event->data);
 
 	state = event->data;
 
 	if (conn == NULL)
-		return;
+		return (TRUE);
 
 	/* create a signal & check for errors */
 	msg = dbus_message_new_signal(OBJECT,	/* object name of the signal */
@@ -254,7 +254,7 @@ static void system_state_change(s_event * event)
 	if (NULL == msg)
 	{
 		F_("Unable to create new dbus signal\n");
-		return;
+		return (FALSE);
 	}
 
 
@@ -263,7 +263,7 @@ static void system_state_change(s_event * event)
 		(msg, DBUS_TYPE_INT32, &state, DBUS_TYPE_INVALID))
 	{
 		F_("Unable to append args to dbus signal!\n");
-		return;
+		return (FALSE);
 	}
 
 
@@ -271,7 +271,7 @@ static void system_state_change(s_event * event)
 	if (!dbus_connection_send(conn, msg, &serial))
 	{
 		F_("Unable to send dbus signal!\n");
-		return;
+		return (FALSE);
 	}
 	//dbus_connection_flush(conn);
 
@@ -279,7 +279,7 @@ static void system_state_change(s_event * event)
 	dbus_message_unref(msg);
 
 	D_("Dbus Signal Sent\n");
-	return;
+	return (TRUE);
 }
 
 static int system_pipe_watchers(active_db_h * service, process_h * process,

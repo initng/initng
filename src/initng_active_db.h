@@ -51,7 +51,7 @@ struct active_type
 	/*
 	 * current state.
 	 * This pointer point to a a_state_h struct containing
-	 * info in what state the service is in currelty, also 
+	 * info in what state the service is in currelty, also
 	 * is a timepoint saved in here when the service got that state.
 	 */
 	a_state_h *current_state;
@@ -65,6 +65,15 @@ struct active_type
 	 */
 	a_state_h *last_state;
 	struct timeval time_last_state;	/* the time got last state */
+
+	/*
+	 * Next state & state_lock
+	 * They exist to avoid an state change during an event, next_state holds
+	 * the state the service will get after unlocking, an state_lock is a
+	 * flag to check if it's locked.
+	 */
+	a_state_h *next_state;
+	int state_lock;
 
 	/*
 	 * Rough state

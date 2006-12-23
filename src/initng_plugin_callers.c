@@ -33,6 +33,7 @@
 #include "initng_toolbox.h"
 #include "initng_signal.h"
 #include "initng_static_event_types.h"
+#include "initng_common.h"
 
 #include "initng_plugin_callers.h"
 #include "initng_plugin.h"
@@ -49,6 +50,7 @@ active_db_h *initng_plugin_create_new_active(const char *name)
 		if (ret)
 			return (ret);
 	}
+
 	return (NULL);
 }
 
@@ -61,6 +63,7 @@ void initng_plugin_callers_signal(int signal)
 	{
 		(*current->c.signal_hook) (signal);
 	}
+
 }
 
 int initng_plugin_callers_handle_killed(active_db_h * s, process_h * p)
@@ -73,7 +76,6 @@ int initng_plugin_callers_handle_killed(active_db_h * s, process_h * p)
 		if (current->c.handle_killed)
 			if (((*current->c.handle_killed) (s, p)) == TRUE)
 				return (TRUE);
-
 	}
 	return (FALSE);
 }
@@ -163,5 +165,6 @@ int initng_plugin_callers_reload_active_db(void)
 			}
 		}
 	}
+
 	return retval;
 }
