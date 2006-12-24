@@ -142,7 +142,6 @@ static void initng_handler_run_interrupt_handlers(void)
 static void handle(active_db_h * service)
 {
 	s_event event;
-	s_call *current, *q;
 	a_state_h *state = service->current_state;
 
 	event.event_type = &EVENT_STATE_CHANGE;
@@ -166,15 +165,8 @@ static void handle(active_db_h * service)
 
 		initng_common_state_lock(service);
 
-		current = q = NULL;
-		while_list_safe(current, &g.IS_CHANGE, q)
-		{
-			if ((*current->c.status_change)(service) <= FALSE)
-			{
-				D_("Some plugin return FALSE when service %s IS_CHANGE to %s hook called, aborting here.\n", service->name, service->current_state->state_name);
-				return;
-			}
-		}
+		event.event_type = &EVENT_IS_CHANGE;
+		initng_event_send(&event);
 
 		/* abort if the state has changed since the event was sent */
 		if (initng_common_state_unlock(service))

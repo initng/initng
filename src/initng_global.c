@@ -128,10 +128,8 @@ void initng_global_new(int argc, char *argv[], char *env[], h_i_am i_am)
 #endif
 	INIT_LIST_HEAD(&g.DUMP_ACTIVE_DB.list);
 	INIT_LIST_HEAD(&g.RELOAD_ACTIVE_DB.list);
-	INIT_LIST_HEAD(&g.IS_CHANGE.list);
 	INIT_LIST_HEAD(&g.START_DEP_MET.list);
 	INIT_LIST_HEAD(&g.STOP_DEP_MET.list);
-	INIT_LIST_HEAD(&g.UP_MET.list);
 	INIT_LIST_HEAD(&g.NEW_ACTIVE.list);
 	INIT_LIST_HEAD(&g.PIPE_WATCHER.list);
 

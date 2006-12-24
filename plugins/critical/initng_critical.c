@@ -35,6 +35,8 @@
 #include <initng_main.h>
 #include <initng_active_state.h>
 #include <initng_static_states.h>
+#include <initng_static_event_types.h>
+#include <initng_event_hook.h>
 
 INITNG_PLUGIN_MACRO;
 
@@ -43,9 +45,16 @@ s_entry CRITICAL = { "critical", SET, NULL,
 };
 
 /* returns TRUE if all use deps are started */
-static int check_critical(active_db_h * service)
+static int check_critical(s_event * event)
 {
-	assert(service);
+	active_db_h * service;
+
+	assert(event);
+	assert(event->event_type == &EVENT_IS_CHANGE);
+	assert(event->data);
+
+	service = event->data;
+
 	assert(service->name);
 
 	if (!IS_FAILED(service))
@@ -93,7 +102,7 @@ int module_init(int api_version)
 	}
 
 	initng_service_data_type_register(&CRITICAL);
-	initng_plugin_hook_register(&g.IS_CHANGE, 80, &check_critical);
+	initng_event_hook_register(&EVENT_IS_CHANGE, &check_critical);
 	return (TRUE);
 }
 
@@ -101,5 +110,5 @@ void module_unload(void)
 {
 	D_("module_unload();\n");
 	initng_service_data_type_unregister(&CRITICAL);
-	initng_plugin_hook_unregister(&g.IS_CHANGE, &check_critical);
+	initng_event_hook_unregister(&EVENT_IS_CHANGE, &check_critical);
 }

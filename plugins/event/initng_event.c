@@ -47,8 +47,8 @@
 INITNG_PLUGIN_MACRO;
 
 
-static void handle_event(s_event * extrn_event);
-static int event_triggerer(active_db_h * service);
+static int handle_event(s_event * event);
+static int event_triggerer(s_event * pevent);
 
 /*
  * ############################################################################
@@ -56,7 +56,7 @@ static int event_triggerer(active_db_h * service);
  * ############################################################################
  */
 
-s_event_type EXTRN_EVENT = { "EXTRN_EVENT", "External event, triggered and handled by ifiles" };
+s_event_type EVENT_EXTERNAL = { "external", "External event, triggered and handled by ifiles" };
 
 /*
  * ############################################################################
@@ -163,10 +163,10 @@ int module_init(int api_version)
 	initng_service_data_type_register(&TRIGGER);
 	initng_service_data_type_register(&AUTO_RESET);
 
-	initng_event_type_register(&EXTRN_EVENT);
-	initng_event_hook_register(&EXTRN_EVENT, &handle_event);
+	initng_event_type_register(&EVENT_EXTERNAL);
+	initng_event_hook_register(&EVENT_EXTERNAL, &handle_event);
 
-	initng_plugin_hook_register(&g.IS_CHANGE, 99, &event_triggerer);
+	initng_event_hook_register(&EVENT_IS_CHANGE, &event_triggerer);
 
 	return (TRUE);
 }
@@ -179,7 +179,7 @@ void module_unload(void)
 
 	initng_process_db_ptype_unregister(&RUN_EVENT);
 
-	initng_plugin_hook_unregister(&g.IS_CHANGE, &event_triggerer);
+	initng_event_hook_unregister(&EVENT_IS_CHANGE, &event_triggerer);
 
 	initng_active_state_unregister(&EVENT_WAITING);
 	initng_active_state_unregister(&EVENT_RUNNING);
@@ -189,8 +189,8 @@ void module_unload(void)
 	initng_service_data_type_unregister(&TRIGGER);
 	initng_service_data_type_unregister(&AUTO_RESET);
 
-	initng_event_hook_unregister(&EXTRN_EVENT, &handle_event);
-	initng_event_type_unregister(&EXTRN_EVENT);
+	initng_event_hook_unregister(&EVENT_EXTERNAL, &handle_event);
+	initng_event_type_unregister(&EVENT_EXTERNAL);
 }
 
 /*
@@ -199,21 +199,27 @@ void module_unload(void)
  * ############################################################################
  */
 
-static int event_triggerer(active_db_h * service)
+static int event_triggerer(s_event * pevent)
 {
+	active_db_h * service;
 	s_event event;
 
 	s_data *itt = NULL;
 	const char *tmp = NULL;
 	char *fixed;
 
-	assert(service);
+	assert(pevent);
+	assert(pevent->event_type == &EVENT_IS_CHANGE);
+	assert(pevent->data);
+
+	service = pevent->data;
+
 	assert(service->name);
 
 	/* if service is up */
 	if (IS_UP(service) && (g.sys_state != STATE_STOPPING))
 	{
-		event.event_type = &EXTRN_EVENT;
+		event.event_type = &EVENT_EXTERNAL;
 
 		/* get the trigger strings */
 		while ((tmp = get_next_string(&TRIGGER, service, &itt)))
@@ -246,31 +252,38 @@ static void handle_event_leave(active_db_h * killed_event, process_h * process)
 	}
 }
 
-static void handle_event(s_event * event)
+static int handle_event(s_event * event)
 {
 	active_db_h * target;
+	char * target_name;
 
-	if (!(target = initng_active_db_find_by_exact_name(event->data)))
+	assert(event);
+	assert(event->event_type == &EVENT_EXTERNAL);
+	assert(event->data);
+
+	target_name = event->data;
+
+	if (!(target = initng_active_db_find_by_exact_name(target_name)))
 	{
 #ifdef SERVICE_CACHE
-		if (!(target = initng_common_load_to_active(event->data)))
+		if (!(target = initng_common_load_to_active(target_name)))
 #endif
 		{
-			F_("Target service %s not found\n", event->data);
-			return;
+			F_("Target service %s not found\n", target_name);
+			return (FALSE);
 		}
 	}
 
 	if (target->type != &TYPE_EVENT)
 	{
-		F_("Target service %s is not event type\n", event->data);
-		return;
+		F_("Target service %s is not event type\n", target_name);
+		return (FALSE);
 	}
 
 	if (!IS_DOWN(target))
 	{
-		W_("Target service %s has been triggered already\n", event->data);
-		return;
+		W_("Target service %s has been triggered already\n", target_name);
+		return (FALSE);
 	}
 
 	initng_common_mark_service(target, &EVENT_RUNNING);
@@ -280,10 +293,12 @@ static void handle_event(s_event * event)
 		case FALSE:
 			F_("Did not find a run_event entry to run\n");
 			initng_common_mark_service(target, &EVENT_FAILED);
-			return;
+			return (FALSE);
 		case FAIL:
 			F_("Could not launch run_event\n");
 			initng_common_mark_service(target, &EVENT_FAILED);
-			return;
+			return (FALSE);
 	}
+
+	return (TRUE);
 }

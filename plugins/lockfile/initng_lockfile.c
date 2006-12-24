@@ -24,6 +24,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <string.h>
+#include <assert.h>
 
 #include <initng_handler.h>
 #include <initng_global.h>
@@ -34,6 +35,8 @@
 #include <initng_static_data_id.h>
 #include <initng_static_states.h>
 #include <initng_static_service_types.h>
+#include <initng_static_event_types.h>
+#include <initng_event_hook.h>
 
 INITNG_PLUGIN_MACRO;
 
@@ -43,8 +46,16 @@ s_entry LOCKFILE = { "lockfile", SET, NULL,
 
 #define LOCKDIR "/var/lock/subsys/"
 
-static int status_change(active_db_h * service)
+static int status_change(s_event * event)
 {
+	active_db_h * service;
+
+	assert(event);
+	assert(event->event_type == &EVENT_IS_CHANGE);
+	assert(event->data);
+
+	service = event->data;
+
 	D_("status change [%s]\n", service->name);
 
 	// are we under influence of lockfile?
@@ -88,7 +99,7 @@ int module_init(int api_version)
 	}
 
 	initng_service_data_type_register(&LOCKFILE);
-	initng_plugin_hook_register(&g.IS_CHANGE, 50, &status_change);
+	initng_event_hook_register(&EVENT_IS_CHANGE, &status_change);
 	return (TRUE);
 }
 
@@ -96,5 +107,5 @@ void module_unload(void)
 {
 	D_("module_unload();\n");
 	initng_service_data_type_unregister(&LOCKFILE);
-	initng_plugin_hook_unregister(&g.IS_CHANGE, &status_change);
+	initng_event_hook_unregister(&EVENT_IS_CHANGE, &status_change);
 }

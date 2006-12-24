@@ -180,9 +180,16 @@ static void opt_service_stop_p(active_db_h * s, const char *is)
 }
 
 
-static int print_output(active_db_h * service)
+static int print_output(s_event * event)
 {
-	assert(service);
+	active_db_h * service;
+
+	assert(event);
+	assert(event->event_type == &EVENT_IS_CHANGE);
+	assert(event->data);
+
+	service = event->data;
+
 	assert(service->name);
 
 	/* dont print hidden services */
@@ -598,7 +605,7 @@ int module_init(int api_version)
 	D_("module_init();\n");
 	lastservice = NULL;
 	initng_plugin_hook_register(&g.ERR_MSG, 10, &cp_print_error);
-	initng_plugin_hook_register(&g.IS_CHANGE, 80, &print_output);
+	initng_event_hook_register(&EVENT_IS_CHANGE, &print_output);
 	initng_event_hook_register(&EVENT_SYSTEM_CHANGE, &print_system_state);
 	initng_plugin_hook_register(&g.BUFFER_WATCHER, 50, &print_program_output);
 	return (TRUE);
@@ -611,7 +618,7 @@ void module_unload(void)
 		return;
 
 
-	initng_plugin_hook_unregister(&g.IS_CHANGE, &print_output);
+	initng_event_hook_unregister(&EVENT_IS_CHANGE, &print_output);
 	initng_event_hook_unregister(&EVENT_SYSTEM_CHANGE, &print_system_state);
 	initng_plugin_hook_unregister(&g.BUFFER_WATCHER, &print_program_output);
 	initng_plugin_hook_unregister(&g.ERR_MSG, &cp_print_error);

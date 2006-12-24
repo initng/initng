@@ -22,11 +22,11 @@
 #define INITNG_EVENT_H
 
 typedef struct {
-	struct s_event_type_s *event_type;
-	void *data;
+	struct s_event_type_s * event_type;
+	void * data;
 } s_event;
 
 
-void initng_event_send(s_event *event);
+int initng_event_send(s_event *event);
 
 #endif

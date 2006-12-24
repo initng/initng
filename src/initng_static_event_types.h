@@ -20,6 +20,8 @@
 
 extern s_event_type EVENT_STATE_CHANGE;
 extern s_event_type EVENT_SYSTEM_CHANGE;
+extern s_event_type EVENT_IS_CHANGE;
+extern s_event_type EVENT_UP_MET;
 
 extern s_event_type EVENT_INTERRUPT;
 extern s_event_type HALT;

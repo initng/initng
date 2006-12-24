@@ -25,6 +25,8 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <assert.h>
+
 #include <initng_handler.h>
 #include <initng_global.h>
 #include <initng_plugin_hook.h>
@@ -32,6 +34,8 @@
 #include <initng_toolbox.h>
 #include <initng_static_data_id.h>
 #include <initng_static_states.h>
+#include <initng_static_event_types.h>
+#include <initng_event_hook.h>
 
 INITNG_PLUGIN_MACRO;
 
@@ -97,12 +101,19 @@ static int check_files_to_exist(active_db_h * service)
 /*
  * Do this test before status RUNNING can be set.
  */
-static int check_files_to_exist_after(active_db_h * service)
+static int check_files_to_exist_after(s_event * event)
 {
+	active_db_h * service;
 	const char *file = NULL;
 	s_data *itt = NULL;
 
 	struct stat file_stat;
+
+	assert(event);
+	assert(event->event_type == &EVENT_UP_MET);
+	assert(event->data);
+
+	service = event->data;
 
 	/* check WAIT_FOR_FILE_AFTER */
 	while ((file = get_next_string(&WAIT_FOR_FILE_AFTER, service, &itt)))
@@ -116,7 +127,7 @@ static int check_files_to_exist_after(active_db_h * service)
 			initng_global_set_sleep(1);
 
 			/* don't change status of service to START_READY */
-			return (FALSE);
+			return (FAIL);
 		}
 	}
 
@@ -126,7 +137,7 @@ static int check_files_to_exist_after(active_db_h * service)
 		if (stat(file, &file_stat) != 0)
 		{
 			initng_common_mark_service(service, &REQUIRE_FILE_AFTER_FAILED);
-			return (FALSE);
+			return (FAIL);
 		}
 	}
 
@@ -151,7 +162,7 @@ int module_init(int api_version)
 	initng_active_state_register(&REQUIRE_FILE_AFTER_FAILED);
 
 	initng_plugin_hook_register(&g.START_DEP_MET, 55, &check_files_to_exist);
-	initng_plugin_hook_register(&g.UP_MET, 55, &check_files_to_exist_after);
+	initng_event_hook_register(&EVENT_UP_MET, &check_files_to_exist_after);
 	return (TRUE);
 }
 
@@ -167,5 +178,5 @@ void module_unload(void)
 	initng_active_state_unregister(&REQUIRE_FILE_AFTER_FAILED);
 
 	initng_plugin_hook_unregister(&g.START_DEP_MET, &check_files_to_exist);
-	initng_plugin_hook_unregister(&g.UP_MET, &check_files_to_exist_after);
+	initng_event_hook_unregister(&EVENT_UP_MET, &check_files_to_exist_after);
 }

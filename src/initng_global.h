@@ -93,11 +93,8 @@ typedef struct
 	s_call PIPE_WATCHER;		/* watch pipes for communication */
 
 	/* new ones */
-	s_call IS_CHANGE;			/* Called when the rough state of a service changes */
 	s_call START_DEP_MET;		/* Called and all this hooks have to return TRUE for launch to start */
 	s_call STOP_DEP_MET;		/* Called and all this hooks have to return TRUE for the service to stop */
-	s_call UP_MET;				/* Called when a service is trying to set the RUNNING state, is a up test */
-
 
 	/* global variables */
 	h_sys_state sys_state;

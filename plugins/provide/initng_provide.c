@@ -32,7 +32,8 @@
 #include <initng_toolbox.h>
 #include <initng_static_data_id.h>
 #include <initng_static_states.h>
-
+#include <initng_static_event_types.h>
+#include <initng_event_hook.h>
 #include <initng_env_variable.h>
 #include <initng_service_data_types.h>
 #include <initng_active_db.h>
@@ -183,15 +184,20 @@ static void remove_virtual_service(const char *name)
 /*
  * This hook is for monitor service changes.
  */
-static int service_state(active_db_h * service)
+static int service_state(s_event * event)
 {
+	active_db_h * service;
 	const char *tmp = NULL;
 	s_data *itt = NULL;
 	char *fixed;
 
-	assert(service);
-	assert(service->name);
+	assert(event);
+	assert(event->event_type == &EVENT_IS_CHANGE);
+	assert(event->data);
 
+	service = event->data;
+
+	assert(service->name);
 
 	/* if service is starting */
 	if (IS_STARTING(service))
@@ -303,7 +309,7 @@ int module_init(int api_version)
 #ifdef EXTRA_SURE
 	initng_event_hook_register(&EVENT_SYSTEM_CHANGE, &system_stopping);
 #endif
-	initng_plugin_hook_register(&g.IS_CHANGE, 50, &service_state);
+	initng_event_hook_register(&EVENT_IS_CHANGE, &service_state);
 
 	return (TRUE);
 }
@@ -311,7 +317,7 @@ int module_init(int api_version)
 void module_unload(void)
 {
 	D_("module_unload();\n");
-	initng_plugin_hook_unregister(&g.IS_CHANGE, &service_state);
+	initng_event_hook_unregister(&EVENT_IS_CHANGE, &service_state);
 	initng_service_data_type_unregister(&PROVIDE);
 	initng_service_data_type_unregister(&PCOUNT);
 	initng_active_state_unregister(&SOON_PROVIDED);

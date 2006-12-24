@@ -31,6 +31,8 @@
 #include <initng_toolbox.h>
 #include <initng_static_states.h>
 #include <initng_env_variable.h>
+#include <initng_static_event_types.h>
+#include <initng_event_hook.h>
 
 INITNG_PLUGIN_MACRO;
 
@@ -40,12 +42,18 @@ s_entry CONFLICT = { "conflict", STRINGS, NULL,
 
 a_state_h CONFLICTING = { "FAILED_BY_CONFLICT", "There is a running service that is conflicting with this service, initng cannot launch this service.", IS_FAILED, NULL, NULL, NULL };
 
-static int check_conflict(active_db_h * service)
+static int check_conflict(s_event * event)
 {
+	active_db_h * service;
 	const char *conflict_entry = NULL;
 	s_data *itt = NULL;
 
-	assert(service);
+	assert(event);
+	assert(event->event_type == &EVENT_IS_CHANGE);
+	assert(event->data);
+
+	service = event->data;
+
 	assert(service->name);
 
 	/* Do this check when this service is put in a STARTING state */
@@ -91,7 +99,7 @@ int module_init(int api_version)
 	}
 
 	initng_service_data_type_register(&CONFLICT);
-	initng_plugin_hook_register(&g.IS_CHANGE, 10, &check_conflict);
+	initng_event_hook_register(&EVENT_IS_CHANGE, &check_conflict);
 	initng_active_state_register(&CONFLICTING);
 
 	return (TRUE);
@@ -100,7 +108,7 @@ int module_init(int api_version)
 void module_unload(void)
 {
 
-	initng_plugin_hook_unregister(&g.IS_CHANGE, &check_conflict);
+	initng_event_hook_unregister(&EVENT_IS_CHANGE, &check_conflict);
 	initng_active_state_unregister(&CONFLICTING);
 	initng_service_data_type_unregister(&CONFLICT);
 }

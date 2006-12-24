@@ -17,7 +17,7 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-/* Experimental code for notifying external programs of status changes 
+/* Experimental code for notifying external programs of status changes
    and the like. Perhaps one day I'll write a DBUS proxy for all this */
 
 #include <initng.h>
@@ -656,8 +656,16 @@ static void check_socket()
 }
 
 /* this function, will make a check for socket, on every new service that goes up */
-int service_status(active_db_h * service)
+int service_status(s_event * event)
 {
+	active_db_h * service;
+
+	assert(event);
+	assert(event->event_type == &EVENT_IS_CHANGE);
+	assert(event->data);
+
+	service = event->data;
+
 	/* only try open, when a service got up */
 	if (IS_UP(service))
 		check_socket();
@@ -692,7 +700,7 @@ int module_init(int api_version)
 	D_("Socket is: %s\n", socket_filename);
 
 	D_("adding hook, that will reopen socket, for every started service.\n");
-	initng_plugin_hook_register(&g.IS_CHANGE, 50, &service_status);
+	initng_event_hook_register(&EVENT_IS_CHANGE, &service_status);
 	initng_plugin_hook_register(&g.FDWATCHERS, 30, &fdh);
 
 	ngcs_reg_cmd(&ngcs_compat_cmds);
@@ -729,7 +737,7 @@ void module_unload(void)
 
 	/* remove hooks */
 	initng_plugin_hook_unregister(&g.FDWATCHERS, &fdh);
-	initng_plugin_hook_unregister(&g.IS_CHANGE, &service_status);
+	initng_event_hook_unregister(&EVENT_IS_CHANGE, &service_status);
 
 	D_("ngcs.so.0.0 unloaded!\n");
 

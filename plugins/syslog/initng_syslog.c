@@ -41,7 +41,7 @@
 INITNG_PLUGIN_MACRO;
 
 static int syslog_print_system_state(s_event * event);
-static int syslog_print_status_change(active_db_h * service);
+static int syslog_print_status_change(s_event * event);
 static void check_syslog(void);
 static void initng_log(int prio, const char *owner, const char *format, ...);
 static void free_buffert(void);
@@ -152,9 +152,16 @@ static void initng_log(int prio, const char *owner, const char *format, ...)
 }
 
 /* add values to syslog database */
-static int syslog_print_status_change(active_db_h * service)
+static int syslog_print_status_change(s_event * event)
 {
-	assert(service);
+	active_db_h * service;
+
+	assert(event);
+	assert(event->event_type == &EVENT_IS_CHANGE);
+	assert(event->data);
+
+	service = event->data;
+
 	assert(service->name);
 
 	if (IS_UP(service))
@@ -342,10 +349,8 @@ int module_init(int api_version)
 	setlogmask(LOG_UPTO(LOG_NOTICE));
 	openlog("InitNG", 0, LOG_LOCAL1);
 
-	initng_plugin_hook_register(&g.IS_CHANGE, 100,
-								&syslog_print_status_change);
-	initng_event_hook_register(&EVENT_SYSTEM_CHANGE,
-								&syslog_print_system_state);
+	initng_event_hook_register(&EVENT_IS_CHANGE, &syslog_print_status_change);
+	initng_event_hook_register(&EVENT_SYSTEM_CHANGE, &syslog_print_system_state);
 	initng_plugin_hook_register(&g.BUFFER_WATCHER, 100, &syslog_fetch_output);
 	initng_plugin_hook_register(&g.ERR_MSG, 50, &syslog_print_error);
 
@@ -362,7 +367,7 @@ void module_unload(void)
 		return;
 	}
 
-	initng_plugin_hook_unregister(&g.IS_CHANGE, &syslog_print_status_change);
+	initng_event_hook_unregister(&EVENT_IS_CHANGE, &syslog_print_status_change);
 	initng_event_hook_unregister(&EVENT_SYSTEM_CHANGE, &syslog_print_system_state);
 	initng_plugin_hook_unregister(&g.BUFFER_WATCHER, &syslog_fetch_output);
 	initng_plugin_hook_unregister(&g.ERR_MSG, &syslog_print_error);

@@ -33,6 +33,7 @@
 #include "initng_static_data_id.h"
 #include "initng_static_states.h"
 #include "initng_env_variable.h"
+#include "initng_static_event_types.h"
 
 #include "initng_depend.h"
 
@@ -240,21 +241,11 @@ int initng_depend_restart_deps(active_db_h * service)
  */
 int initng_depend_up_check(active_db_h * service)
 {
-	s_call *current, *s = NULL;
-	int ret;
+	s_event event;
 
-	/* run the global plugin dep check */
-	while_list_safe(current, &g.UP_MET, s)
-	{
-
-		if ((ret = (*current->c.up_met) (service)) < TRUE)
-			return (ret);
-
-	}
-
-	/* Return happily */
-	return (TRUE);
-
+	event.event_type = &EVENT_UP_MET;
+	event.data = service;
+	return (initng_event_send(&event));
 }
 
 /*
@@ -461,7 +452,7 @@ int initng_depend_stop_dep_met(active_db_h * service, int verbose)
 		 * This is not correct, but if we wait for a service that is
 		 * starting to stop, and that service is waiting for this service
 		 * to start, until it starts, makes a deadlock.
-		 * 
+		 *
 		 * Asuming that STARTING services WAITING_FOR_START_DEP are down for now.
 		 */
 		if (IS_STARTING(currentA)

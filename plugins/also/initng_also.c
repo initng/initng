@@ -32,6 +32,8 @@
 #include <initng_static_data_id.h>
 #include <initng_static_states.h>
 #include <initng_env_variable.h>
+#include <initng_static_event_types.h>
+#include <initng_event_hook.h>
 
 INITNG_PLUGIN_MACRO;
 
@@ -42,10 +44,16 @@ s_entry ALSO_STOP = { "also_stop", STRINGS, NULL,
 	"When this service is stopping, also stop this."
 };
 
-static int service_state(active_db_h * service)
+static int service_state(s_event * event)
 {
+	active_db_h * service;
 	const char *tmp = NULL;
 	active_db_h *current = NULL;
+
+	assert(event);
+	assert(event->event_type == &EVENT_IS_CHANGE);
+
+	service = event->data;
 
 	assert(service);
 	assert(service->name);
@@ -130,7 +138,7 @@ int module_init(int api_version)
 
 	initng_service_data_type_register(&ALSO_START);
 	initng_service_data_type_register(&ALSO_STOP);
-	initng_plugin_hook_register(&g.IS_CHANGE, 50, &service_state);
+	initng_event_hook_register(&EVENT_IS_CHANGE, &service_state);
 	return (TRUE);
 }
 
@@ -139,5 +147,5 @@ void module_unload(void)
 	D_("module_unload();\n");
 	initng_service_data_type_unregister(&ALSO_START);
 	initng_service_data_type_unregister(&ALSO_STOP);
-	initng_plugin_hook_unregister(&g.IS_CHANGE, &service_state);
+	initng_event_hook_unregister(&EVENT_IS_CHANGE, &service_state);
 }

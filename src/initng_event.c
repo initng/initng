@@ -24,7 +24,7 @@
 #include "initng_event_types.h"
 #include "initng_event.h"
 
-void initng_event_send(s_event *event)
+int initng_event_send(s_event *event)
 {
 	s_call *current;
 	int ret;
@@ -42,10 +42,12 @@ void initng_event_send(s_event *event)
 		{
 			if (ret == FAIL)
 			{
-				F_("%s event aborted\n", event->event_type->name);
-				break;
+				D_("%s event aborted\n", event->event_type->name);
+				return (FALSE);
 			}
-			W_("%s event failed\n", event->event_type->name);
+			D_("%s event failed\n", event->event_type->name);
 		}
 	}
+
+	return (TRUE);
 }
