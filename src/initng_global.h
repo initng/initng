@@ -80,7 +80,6 @@ typedef struct
 	s_call FDWATCHERS;			/* Called when initng open file descriptors receive data */
 	s_call BUFFER_WATCHER;		/* Called when a service have outputed, and initng have filled its output buffer. */
 	s_call SIGNAL;				/* Called when initng rescives a signal, like SIGHUP */
-	s_call MAIN;				/* Called every main loop */
 	s_call A_FORK;				/* Called after a process forks to start */
 	s_call HANDLE_KILLED;		/* Called when a process dies */
 	s_call COMPENSATE_TIME;		/* Called when initng detects a system time change */

@@ -1,0 +1,2 @@
+MESSAGE("-- Creating links")
+EXEC_PROGRAM(ln ${SBIN_INSTALL_DIR} ARGS -sf killalli5 pidof)

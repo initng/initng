@@ -59,6 +59,8 @@
 //#include "initng_service_cache.h"
 #include "initng_process_db.h"
 #include "initng_global.h"
+#include "initng_static_event_types.h"
+
 #ifdef SELINUX
 #include <stdlib.h>
 #include <string.h>
@@ -422,7 +424,7 @@ int main(int argc, char *argv[], char *env[])
 		if ((fopen("/selinux/enforce", "r")) != NULL) goto BOOT;
 		int enforce = -1;
 		char *nonconst;
-	
+
 		if (getenv("SELINUX_INIT") == NULL)
 		{
 			nonconst = malloc(sizeof("SELINUX_INIT=YES"));
@@ -449,7 +451,7 @@ int main(int argc, char *argv[], char *env[])
 				}
 			}
 		}
-		
+
 		BOOT:
 #endif
 
@@ -610,16 +612,13 @@ int main(int argc, char *argv[], char *env[])
 		 */
 
 		/*
-		 * call the main_hooks in all plug-ins.
+		 * Trigger MAIN_EVENT event.
 		 * OBS! This part in mainloop is expensive.
 		 */
 		{
-			s_call *current, *q = NULL;
-
-			while_list_safe(current, &g.MAIN, q)
-			{
-				(*current->c.main) ();
-			}
+			s_event event;
+			event.event_type = &EVENT_MAIN;
+			initng_event_send(&event);
 		}
 
 

@@ -261,16 +261,19 @@ static void net_remove(const char *name)
 }
 
 
-static void probe_network_devices(void)
+static int probe_network_devices(s_event *event)
 {
 	struct ifconf ifc;
 	struct ifreq *ifr;
 	char buffert[1024];
 	int netsock = -1;
 
+	assert(event);
+	assert(event->event_type == &EVENT_MAIN);
+
 	/* no monitoring on system_stopping */
 	if (g.sys_state == STATE_STOPPING)
-		return;
+		return (TRUE);
 
 	devs_reset();
 
@@ -278,7 +281,7 @@ static void probe_network_devices(void)
 	if (netsock < 0)
 	{
 		F_("Unable to open a socket!\n");
-		return;
+		return (FALSE);
 	}
 
 	ifc.ifc_len = sizeof(buffert);
@@ -287,7 +290,7 @@ static void probe_network_devices(void)
 	if (ioctl(netsock, SIOCGIFCONF, &ifc) < 0)
 	{
 		F_("error: SIOCGIFCONF\n");
-		return;
+		return (FALSE);
 	}
 
 	/* now add all nics */
@@ -308,6 +311,8 @@ static void probe_network_devices(void)
 
 	/* Make sure mainloop will run within 2 mins. */
 	initng_global_set_sleep(120);
+
+	return (TRUE);
 }
 
 
@@ -335,7 +340,7 @@ static int system_stopping(s_event * event)
 			initng_common_mark_service(current, &NIC_DOWN);
 		}
 	}
-	
+
 	return (TRUE);
 }
 
@@ -363,7 +368,7 @@ int module_init(int api_version)
 	initng_active_state_register(&NIC_UP);
 	initng_active_state_register(&NIC_DOWN);
 	initng_service_type_register(&NETDEV);
-	initng_plugin_hook_register(&g.MAIN, 50, &probe_network_devices);
+	initng_event_hook_register(&EVENT_MAIN, &probe_network_devices);
 	initng_event_hook_register(&EVENT_SYSTEM_CHANGE, &system_stopping);
 	return (TRUE);
 }
@@ -383,7 +388,7 @@ void module_unload(void)
 	initng_active_state_unregister(&NIC_STARTING);
 	initng_active_state_unregister(&NIC_UP);
 	initng_active_state_unregister(&NIC_DOWN);
-	initng_plugin_hook_unregister(&g.MAIN, &probe_network_devices);
+	initng_event_hook_unregister(&EVENT_MAIN, &probe_network_devices);
 	initng_event_hook_unregister(&EVENT_SYSTEM_CHANGE, &system_stopping);
 	initng_service_type_unregister(&NETDEV);
 }
