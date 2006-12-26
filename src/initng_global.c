@@ -120,7 +120,6 @@ void initng_global_new(int argc, char *argv[], char *env[], h_i_am i_am)
 	INIT_LIST_HEAD(&g.HANDLE_KILLED.list);
 	INIT_LIST_HEAD(&g.COMPENSATE_TIME.list);
 	INIT_LIST_HEAD(&g.ERR_MSG.list);
-	INIT_LIST_HEAD(&g.LAUNCH.list);
 	INIT_LIST_HEAD(&g.DEP_ON.list);
 #ifdef SERVICE_CACHE
 	INIT_LIST_HEAD(&g.ADDITIONAL_PARSE.list);

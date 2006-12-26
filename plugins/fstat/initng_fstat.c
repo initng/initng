@@ -109,7 +109,6 @@ static int check_files_to_exist_after(s_event * event)
 
 	struct stat file_stat;
 
-	assert(event);
 	assert(event->event_type == &EVENT_UP_MET);
 	assert(event->data);
 

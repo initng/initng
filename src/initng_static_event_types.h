@@ -23,9 +23,16 @@ extern s_event_type EVENT_SYSTEM_CHANGE;
 extern s_event_type EVENT_IS_CHANGE;
 extern s_event_type EVENT_UP_MET;
 extern s_event_type EVENT_MAIN;
+extern s_event_type EVENT_LAUNCH;
 
 extern s_event_type EVENT_INTERRUPT;
 extern s_event_type HALT;
 extern s_event_type REBOOT;
 
 void initng_register_static_event_types(void);
+
+typedef struct {
+	active_db_h * service;
+	process_h * process;
+	const char * exec_name;
+} s_event_launch_data;

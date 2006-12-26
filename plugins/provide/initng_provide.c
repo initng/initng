@@ -191,7 +191,6 @@ static int service_state(s_event * event)
 	s_data *itt = NULL;
 	char *fixed;
 
-	assert(event);
 	assert(event->event_type == &EVENT_IS_CHANGE);
 	assert(event->data);
 
@@ -265,7 +264,6 @@ static int system_stopping(s_event * event)
 	h_sys_state state;
 	active_db_h *current = NULL;
 
-	assert(event);
 	assert(event->event_type == &EVENT_SYSTEM_CHANGE);
 	assert(event->data);
 

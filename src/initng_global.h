@@ -84,7 +84,6 @@ typedef struct
 	s_call HANDLE_KILLED;		/* Called when a process dies */
 	s_call COMPENSATE_TIME;		/* Called when initng detects a system time change */
 	s_call ERR_MSG;				/* Called when an error message is sent, so all output plug-ins can show it */
-	s_call LAUNCH;				/* Called when a process are getting launched */
 	s_call DUMP_ACTIVE_DB;		/* Asks for a plugin willing to dump the acytive_db */
 	s_call RELOAD_ACTIVE_DB;	/* Asks for a plugin willing to reload the active_db from a dump */
 	s_call DEP_ON;				/* Called when a function tries to find out a service dependency */

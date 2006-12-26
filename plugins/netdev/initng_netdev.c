@@ -268,7 +268,6 @@ static int probe_network_devices(s_event *event)
 	char buffert[1024];
 	int netsock = -1;
 
-	assert(event);
 	assert(event->event_type == &EVENT_MAIN);
 
 	/* no monitoring on system_stopping */
@@ -321,7 +320,6 @@ static int system_stopping(s_event * event)
 	h_sys_state * state;
 	active_db_h *current = NULL;
 
-	assert(event);
 	assert(event->event_type == &EVENT_SYSTEM_CHANGE);
 	assert(event->data);
 

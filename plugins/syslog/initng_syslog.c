@@ -156,7 +156,6 @@ static int syslog_print_status_change(s_event * event)
 {
 	active_db_h * service;
 
-	assert(event);
 	assert(event->event_type == &EVENT_IS_CHANGE);
 	assert(event->data);
 
@@ -205,7 +204,6 @@ static int syslog_print_system_state(s_event * event)
 {
 	h_sys_state * state;
 
-	assert(event);
 	assert(event->event_type == &EVENT_SYSTEM_CHANGE);
 	assert(event->data);
 

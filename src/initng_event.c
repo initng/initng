@@ -38,14 +38,13 @@ int initng_event_send(s_event *event)
 	{
 		ret = current->c.event(event);
 
-		if (ret != TRUE)
+		if (ret == FAIL)
+			return FAIL;
+
+		if (ret == event->break_on)
 		{
-			if (ret == FAIL)
-			{
-				D_("%s event aborted\n", event->event_type->name);
-				return (FALSE);
-			}
-			D_("%s event failed\n", event->event_type->name);
+			D_("%s event aborted (returned %d)\n", event->event_type->name, ret);
+			return (FALSE);
 		}
 	}
 

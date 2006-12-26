@@ -49,7 +49,6 @@ static int check_critical(s_event * event)
 {
 	active_db_h * service;
 
-	assert(event);
 	assert(event->event_type == &EVENT_IS_CHANGE);
 	assert(event->data);
 

@@ -146,6 +146,7 @@ static void handle(active_db_h * service)
 
 	event.event_type = &EVENT_STATE_CHANGE;
 	event.data = service;
+	event.break_on = FAIL;
 
 	/* lock the state, so we could know about a change */
 	initng_common_state_lock(service);

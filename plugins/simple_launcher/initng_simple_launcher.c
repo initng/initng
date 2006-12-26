@@ -44,6 +44,8 @@
 #include <initng_signal.h>
 #include <initng_fork.h>
 #include <initng_env_variable.h>
+#include <initng_static_event_types.h>
+#include <initng_event_hook.h>
 
 INITNG_PLUGIN_MACRO;
 
@@ -73,7 +75,7 @@ s_entry EXEC_ARGS = { "exec_args", VARIABLE_STRING, NULL,
 
 /*
  * Searches for exec in PATH.
- * 
+ *
  * Completely rewritten function.
  * Contains old Code from SaTaN0rX and DEac-.
  * @author TheLich
@@ -382,22 +384,27 @@ static int simple_run(active_db_h * service, process_h * process)
 	return (result);
 }
 
-static int initng_s_launch(active_db_h * service, process_h * process,
-						   const char *exec_name)
+static int initng_s_launch(s_event * event)
 {
+	s_event_launch_data * data;
 
-	assert(service);
-	assert(service->name);
-	assert(process);
-	assert(exec_name);
+	assert(event->event_type == &EVENT_LAUNCH);
+	assert(event->data);
 
-	D_("service: %s, process: %s\n", service->name, process->pt->name);
+	data = event->data;
 
-	if (is_var(&EXECS, exec_name, service))
-		return (simple_exec(service, process));
+	assert(data->service);
+	assert(data->service->name);
+	assert(data->process);
+	assert(data->exec_name);
 
-	if (is_var(&EXEC, exec_name, service))
-		return (simple_run(service, process));
+	D_("service: %s, process: %s\n", data->service->name, data->process->pt->name);
+
+	if (is_var(&EXECS, data->exec_name, data->service))
+		return (simple_exec(data->service, data->process));
+
+	if (is_var(&EXEC, data->exec_name, data->service))
+		return (simple_run(data->service, data->process));
 
 	return (FALSE);
 }
@@ -412,7 +419,7 @@ int module_init(int api_version)
 		return (FALSE);
 	}
 
-	initng_plugin_hook_register(&g.LAUNCH, 40, &initng_s_launch);
+	initng_event_hook_register(&EVENT_LAUNCH, &initng_s_launch);
 	initng_service_data_type_register(&EXEC);
 	initng_service_data_type_register(&EXECS);
 	initng_service_data_type_register(&EXEC_ARGS);
@@ -426,6 +433,6 @@ void module_unload(void)
 	initng_service_data_type_unregister(&EXEC);
 	initng_service_data_type_unregister(&EXECS);
 	initng_service_data_type_unregister(&EXEC_ARGS);
-	initng_plugin_hook_unregister(&g.LAUNCH, &initng_s_launch);
+	initng_event_hook_unregister(&EVENT_LAUNCH, &initng_s_launch);
 
 }

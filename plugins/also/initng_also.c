@@ -50,7 +50,6 @@ static int service_state(s_event * event)
 	const char *tmp = NULL;
 	active_db_h *current = NULL;
 
-	assert(event);
 	assert(event->event_type == &EVENT_IS_CHANGE);
 
 	service = event->data;

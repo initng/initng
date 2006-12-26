@@ -178,7 +178,6 @@ static int astatus_change(s_event * event)
 	DBusMessage *msg;
 	dbus_uint32_t serial = 0;
 
-	assert(event);
 	assert(event->event_type == &EVENT_STATE_CHANGE);
 	assert(event->data);
 
@@ -238,7 +237,6 @@ static int system_state_change(s_event * event)
 	DBusMessage *msg;
 	dbus_uint32_t serial = 0;
 
-	assert(event);
 	assert(event->event_type == &EVENT_SYSTEM_CHANGE);
 	assert(event->data);
 

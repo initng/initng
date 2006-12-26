@@ -720,7 +720,6 @@ static int save_backup(s_event * event)
 {
 	h_sys_state * state;
 
-	assert(event);
 	assert(event->event_type == &EVENT_SYSTEM_CHANGE);
 	assert(event->data);
 

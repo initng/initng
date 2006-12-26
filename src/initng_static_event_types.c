@@ -29,9 +29,10 @@
 
 s_event_type EVENT_STATE_CHANGE = { "state_change", "When an active change its status, this event will apere" };
 s_event_type EVENT_SYSTEM_CHANGE = { "system_change", "Triggered when system state changes" };
-s_event_type EVENT_IS_CHANGE = { "is_change", "Called when the rough state of a service changes" };
+s_event_type EVENT_IS_CHANGE = { "is_change", "Triggered when the rough state of a service changes" };
 s_event_type EVENT_UP_MET = { "up_met", "Triggered when a service is trying to set the RUNNING state, is a up test" };
 s_event_type EVENT_MAIN = { "main", "Triggered every main loop" };
+s_event_type EVENT_LAUNCH = { "launch", "Triggered when a process are getting launched" };
 
 s_event_type EVENT_INTERRUPT = { "interrupt", "When initng gets an sysreq, it will get here" };
 s_event_type HALT = { "halt", "Initng got a request to halt" };

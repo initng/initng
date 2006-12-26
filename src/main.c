@@ -618,6 +618,7 @@ int main(int argc, char *argv[], char *env[])
 		{
 			s_event event;
 			event.event_type = &EVENT_MAIN;
+			event.break_on = FAIL;
 			initng_event_send(&event);
 		}
 

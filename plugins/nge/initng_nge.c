@@ -463,7 +463,6 @@ static int astatus_change(s_event * event)
 	char *buffert = NULL;
 	int len;
 
-	assert(event);
 	assert(event->event_type == &EVENT_STATE_CHANGE);
 	assert(event->data);
 
@@ -511,7 +510,6 @@ static int system_state_change(s_event * event)
 	char *buffert = i_calloc(90 + strlen(g.runlevel), sizeof(char));
 	int len;
 
-	assert(event);
 	assert(event->event_type == &EVENT_SYSTEM_CHANGE);
 	assert(event->data);
 

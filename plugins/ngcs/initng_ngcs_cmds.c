@@ -155,7 +155,6 @@ static int system_state_watch(s_event * event)
 	ngcs_genwatch *watch, *nextwatch;
 	int i = state;
 
-	assert(event);
 	assert(event->event_type == &EVENT_SYSTEM_CHANGE);
 	assert(event->data);
 
@@ -232,7 +231,6 @@ static int service_status_watch(s_event * event)
 	int len = 0;
 	char *buf = NULL;
 
-	assert(event);
 	assert(event->event_type == &EVENT_STATE_CHANGE);
 	assert(event->data);
 

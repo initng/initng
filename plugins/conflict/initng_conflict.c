@@ -48,7 +48,6 @@ static int check_conflict(s_event * event)
 	const char *conflict_entry = NULL;
 	s_data *itt = NULL;
 
-	assert(event);
 	assert(event->event_type == &EVENT_IS_CHANGE);
 	assert(event->data);
 

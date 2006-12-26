@@ -491,12 +491,12 @@ static void bp_done(bp_rep * rep, const char *service)
 		rep->success = initng_common_mark_service(active, &NOT_RUNNING);
 		return;
 	}
-	
+
 	strcpy(rep->message, "Service is not in PARSING state, cant start.");
 	rep->success = FALSE;
 	return;
 
-	/* This wont start it, it will be started by as a dependency for a other plugin */	
+	/* This wont start it, it will be started by as a dependency for a other plugin */
 	return;
 }
 
@@ -889,17 +889,22 @@ static int get_pipe(active_db_h * service, process_h * process, pipe_h * pi)
 }
 
 #ifdef USE_LOCALEXEC
-static int initng_bash_run(active_db_h * service, process_h * process,
-						   const char *exec_name)
+static int initng_bash_run(s_event * event)
 {
+	s_event_launch_data * data;
 	pid_t pid_fork;				/* pid got from fork() */
 
-	assert(service);
-	assert(service->name);
-	assert(process);
-	assert(exec_name);
+	assert(event->event_type == &EVENT_LAUNCH);
+	assert(event->data);
 
-	if ((pid_fork = initng_fork(service, process)) == 0)
+	data = event->data;
+
+	assert(data->service);
+	assert(data->service->name);
+	assert(data->process);
+	assert(data->exec_name);
+
+	if ((pid_fork = initng_fork(data->service, data->process)) == 0)
 	{
 		struct stat fstat;		/* file stat storage */
 		char *new_argv[3];		/* use only 3 args */
@@ -907,7 +912,7 @@ static int initng_bash_run(active_db_h * service, process_h * process,
 		char *file;				/* the file to execute from */
 
 		/* get the file path */
-		file = get_string(&FROM_FILE, service);
+		file = get_string(&FROM_FILE, data->service);
 
 		/* check that it exists */
 		if (!file || stat(file, &fstat) != 0)
@@ -918,9 +923,9 @@ static int initng_bash_run(active_db_h * service, process_h * process,
 
 		/* execute this */
 		new_argv[0] = file;
-		new_argv[1] = i_calloc(10 + strlen(exec_name), sizeof(char));
+		new_argv[1] = i_calloc(10 + strlen(data->exec_name), sizeof(char));
 		strcpy(new_argv[1], "internal_");
-		strcat(new_argv[1], exec_name);
+		strcat(new_argv[1], data->exec_name);
 		new_argv[2] = NULL;
 
 		execve(new_argv[0], new_argv, new_env);
@@ -931,10 +936,10 @@ static int initng_bash_run(active_db_h * service, process_h * process,
 
 	if (pid_fork > 0)
 	{
-		process->pid = pid_fork;
+		data->process->pid = pid_fork;
 		return (TRUE);
 	}
-	process->pid = 0;
+	data->process->pid = 0;
 	return (FALSE);
 }
 #endif
@@ -968,7 +973,7 @@ int module_init(int api_version)
 	initng_active_state_register(&PARSING);
 	initng_active_state_register(&PARSE_FAIL);
 #ifdef USE_LOCALEXEC
-	initng_plugin_hook_register(&g.LAUNCH, 10, &initng_bash_run);
+	initng_event_hook_register(&EVENT_LAUNCH, &initng_bash_run);
 #endif
 
 #ifdef GLOBAL_SOCKET
@@ -1001,6 +1006,6 @@ void module_unload(void)
 	initng_active_state_unregister(&PARSING);
 	initng_active_state_unregister(&PARSE_FAIL);
 #ifdef USE_LOCALEXEC
-	initng_plugin_hook_unregister(&g.LAUNCH, &initng_bash_run);
+	initng_event_hook_unregister(&EVENT_LAUNCH, &initng_bash_run);
 #endif
 }

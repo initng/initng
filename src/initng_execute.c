@@ -41,11 +41,11 @@
 #include "initng_common.h"
 #include "initng_static_data_id.h"
 #include "initng_plugin.h"
+#include "initng_static_event_types.h"
 
 int initng_execute_launch(active_db_h * service, ptype_h * type,
 						  const char *exec_name)
 {
-	s_call *current, *q = NULL;
 	process_h *process = NULL;
 	int ret = 0;
 
@@ -79,24 +79,27 @@ int initng_execute_launch(active_db_h * service, ptype_h * type,
 	if (!exec_name)
 		exec_name = type->name;
 
-	/* walk the db with hooks */
-	while_list_safe(current, &g.LAUNCH, q)
+	/* send the event */
 	{
-		/* call the start */
-		ret = (*current->c.launch) (service, process, exec_name);
+		s_event event;
+		s_event_launch_data data;
 
-		/* if launch succeeded */
-		if (ret >= TRUE)
-			return (TRUE);
+		event.event_type = &EVENT_LAUNCH;
+		event.break_on = TRUE;
+		event.data = &data;
 
-		/* if that launcher did not get any to launch, take next launcher */
-		if (ret == FALSE)
-			continue;
-		if (ret < FALSE)
-			break;
+		data.service = service;
+		data.process = process;
+		data.exec_name = exec_name;
+
+		ret = initng_event_send(&event);
 	}
 
-	if (ret < FALSE)						/* ret == FAIL */
+	/* if we found a launcher */
+	if (ret == FALSE)
+		return (TRUE);
+
+	if (ret == FAIL)
 		F_("initng_execute(%s): FAILED LAUNCHING, returned FAIL\n",
 		   service->name);
 	else

@@ -47,6 +47,8 @@
 #include <initng_signal.h>
 #include <initng_fork.h>
 #include <initng_env_variable.h>
+#include <initng_static_event_types.h>
+#include <initng_event_hook.h>
 
 INITNG_PLUGIN_MACRO;
 
@@ -63,26 +65,31 @@ static int bash_exec(process_h * process_to_exec, active_db_h * s,
 					 const char *script, const char *args);
 
 
-static int initng_bash(active_db_h * service, process_h * process,
-					   const char *exec_name)
+static int initng_bash(s_event * event)
 {
+	s_event_launch_data * data;
 	const char *e = NULL;
 	const char *args = NULL;
 
-	assert(service);
-	assert(service->name);
-	assert(exec_name);
-	assert(process);
+	assert(event->event_type == &EVENT_LAUNCH);
+	assert(event->data);
+
+	data = event->data;
+
+	assert(data->service);
+	assert(data->service->name);
+	assert(data->exec_name);
+	assert(data->process);
 
 	/* WE ARE EXECUTING A START MULTILINE_STRING */
-	if (!(e = get_string_var(&SCRIPT, exec_name, service)))
+	if (!(e = get_string_var(&SCRIPT, data->exec_name, data->service)))
 		return (FALSE);
 
 	/* get the arguments if any */
-	args = get_string_var(&SCRIPT_OPT, exec_name, service);
+	args = get_string_var(&SCRIPT_OPT, data->exec_name, data->service);
 
-	/*D_("initng_bash(%s, %s, %s);\n", service->name, e, args); */
-	return (bash_exec(process, service, e, args));
+	/*D_("initng_bash(%s, %s, %s);\n", data->service->name, e, args); */
+	return (bash_exec(data->process, data->service, e, args));
 }
 
 
@@ -197,7 +204,7 @@ int module_init(int api_version)
 	initng_service_data_type_register(&SCRIPT);
 	initng_service_data_type_register(&SCRIPT_OPT);
 
-	initng_plugin_hook_register(&g.LAUNCH, 51, &initng_bash);
+	initng_event_hook_register(&EVENT_LAUNCH, &initng_bash);
 	return (TRUE);
 }
 
@@ -207,5 +214,5 @@ void module_unload(void)
 	initng_service_data_type_unregister(&SCRIPT_OPT);
 
 	D_("initng_simple_plugin: module_unload();\n");
-	initng_plugin_hook_unregister(&g.LAUNCH, &initng_bash);
+	initng_event_hook_unregister(&EVENT_LAUNCH, &initng_bash);
 }
