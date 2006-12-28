@@ -19,6 +19,7 @@
  */
 
 #include <assert.h>
+
 #include "initng.h"
 #include "initng_plugin.h"
 #include "initng_event_types.h"
@@ -38,13 +39,12 @@ int initng_event_send(s_event *event)
 	{
 		ret = current->c.event(event);
 
-		if (ret == FAIL)
-			return FAIL;
+		if (ret == HANDLED)
+			return (HANDLED);
 
-		if (ret == event->break_on)
-		{
-			D_("%s event aborted (returned %d)\n", event->event_type->name, ret);
-			return (FALSE);
+		if (ret == FAIL) {
+			F_("%s event failed on %s\n", event->event_type->name, current->from_file);
+			return (FAIL);
 		}
 	}
 

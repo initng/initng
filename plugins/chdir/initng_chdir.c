@@ -29,6 +29,8 @@
 #include <initng_global.h>
 #include <initng_plugin_hook.h>
 #include <initng_env_variable.h>
+#include <initng_event_hook.h>
+#include <initng_static_event_types.h>
 
 INITNG_PLUGIN_MACRO;
 
@@ -36,29 +38,40 @@ s_entry CHDIR = { "chdir", STRING, NULL,
 	"Change to this directory before launching."
 };
 
-static int do_chdir(active_db_h * s, process_h * p __attribute__ ((unused)))
+static int do_chdir(s_event * event)
 {
+	s_event_after_fork_data * data;
+
 	const char *tmp = NULL;
 	char *tmp_fixed = NULL;
 
-	assert(s);
-	assert(s->name);
-	assert(p);
+	assert(event->event_type == &EVENT_AFTER_FORK);
+	assert(event->data);
+
+	data = event->data;
+
+	assert(data->service);
+	assert(data->service->name);
+	assert(data->process);
 
 	D_("do_chdir!\n");
-	if (!(tmp = get_string(&CHDIR, s)))
+
+	if (!(tmp = get_string(&CHDIR, data->service)))
 	{
 		D_("CHDIR not set!\n");
 		return (TRUE);
 	}
-	tmp_fixed = fix_variables(tmp, s);
+
+	tmp_fixed = fix_variables(tmp, data->service);
 	D_("CHDIR TO %s\n", tmp_fixed);
+
 	if (chdir(tmp_fixed) == -1)
 	{
 		F_("Chdir failed with %s\n", strerror(errno));
 		fix_free(tmp_fixed, tmp);
-		return (FALSE);
+		return (FAIL);
 	}
+
 	fix_free(tmp_fixed, tmp);
 	return (TRUE);
 }
@@ -74,12 +87,12 @@ int module_init(int api_version)
 	}
 
 	initng_service_data_type_register(&CHDIR);
-	return (initng_plugin_hook_register(&g.A_FORK, 50, &do_chdir));
+	return (initng_event_hook_register(&EVENT_AFTER_FORK, &do_chdir));
 }
 
 void module_unload(void)
 {
 	D_("module_unload(CHDIR);\n");
 	initng_service_data_type_unregister(&CHDIR);
-	initng_plugin_hook_unregister(&g.A_FORK, &do_chdir);
+	initng_event_hook_unregister(&EVENT_AFTER_FORK, &do_chdir);
 }

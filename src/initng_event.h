@@ -23,7 +23,6 @@
 
 typedef struct {
 	struct s_event_type_s * event_type;
-	int break_on;
 	void * data;
 } s_event;
 

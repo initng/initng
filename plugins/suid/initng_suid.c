@@ -22,15 +22,18 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <assert.h>
+#include <pwd.h>
+#include <grp.h>
+
 #include <initng_toolbox.h>
 #include <initng_handler.h>
 #include <initng_global.h>
 #include <initng_plugin_hook.h>
 #include <initng_env_variable.h>
+#include <initng_event_hook.h>
+#include <initng_static_event_types.h>
 
-#include <assert.h>
-#include <pwd.h>
-#include <grp.h>
 
 INITNG_PLUGIN_MACRO;
 
@@ -51,12 +54,16 @@ void adjust_env(active_db_h * service, const char *vn, const char *vv)
 	}
 }
 
-static int do_suid(active_db_h * service, process_h * process
-				   __attribute__ ((unused)))
+static int do_suid(s_event * event)
 {
+	s_event_after_fork_data * data;
+
 	struct passwd *passwd = NULL;
 	struct group *group = NULL;
+
+	/* NOTE: why we have ret here? */
 	int ret = TRUE;
+
 	int i = 0;
 	int gid = 0;
 	int uid = 0;
@@ -65,15 +72,19 @@ static int do_suid(active_db_h * service, process_h * process
 	char *groupname = NULL;
 	char *username = NULL;
 
-	assert(service);
-	assert(service->name);
-	assert(process);
+	assert(event->event_type == &EVENT_AFTER_FORK);
+	assert(event->data);
 
-	if ((tmp = get_string(&SGID, service)))
-		groupname = fix_variables(tmp, service);
+	data = event->data;
 
-	if ((tmp2 = get_string(&SUID, service)))
-		username = fix_variables(tmp2, service);
+	assert(data->service);
+	assert(data->service->name);
+
+	if ((tmp = get_string(&SGID, data->service)))
+		groupname = fix_variables(tmp, data->service);
+
+	if ((tmp2 = get_string(&SUID, data->service)))
+		username = fix_variables(tmp2, data->service);
 
 	if (username && !groupname)
 	{
@@ -125,15 +136,16 @@ static int do_suid(active_db_h * service, process_h * process
 		setuid(uid);
 
 		/* Set UID-related env variables */
-		adjust_env(service, "USER", passwd->pw_name);
-		adjust_env(service, "HOME", passwd->pw_dir);
-		adjust_env(service, "PATH", "/bin:/usr/bin");
+		adjust_env(data->service, "USER", passwd->pw_name);
+		adjust_env(data->service, "HOME", passwd->pw_dir);
+		adjust_env(data->service, "PATH", "/bin:/usr/bin");
 	}
 
 	fix_free(groupname, tmp);
 	fix_free(username, tmp2);
 	/* group and passwd are static data structures - don't free */
-	return ret;
+
+	return (TRUE);
 }
 
 int module_init(int api_version)
@@ -147,7 +159,7 @@ int module_init(int api_version)
 
 	initng_service_data_type_register(&SUID);
 	initng_service_data_type_register(&SGID);
-	return (initng_plugin_hook_register(&g.A_FORK, 90, &do_suid));
+	return (initng_event_hook_register(&EVENT_AFTER_FORK, &do_suid));
 }
 
 void module_unload(void)
@@ -155,5 +167,5 @@ void module_unload(void)
 	D_("module_unload();\n");
 	initng_service_data_type_unregister(&SUID);
 	initng_service_data_type_unregister(&SGID);
-	initng_plugin_hook_unregister(&g.A_FORK, &do_suid);
+	initng_event_hook_unregister(&EVENT_AFTER_FORK, &do_suid);
 }

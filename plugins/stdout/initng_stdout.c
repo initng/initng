@@ -34,6 +34,9 @@
 #include <initng_common.h>
 #include <initng_toolbox.h>
 #include <initng_env_variable.h>
+#include <initng_event_hook.h>
+#include <initng_static_event_types.h>
+
 
 INITNG_PLUGIN_MACRO;
 
@@ -52,9 +55,9 @@ s_entry STDIN = { "stdin", STRING, NULL,
 
 
 
-static int setup_output(active_db_h * s, process_h * p
-						__attribute__ ((unused)))
+static int setup_output(s_event * event)
 {
+	s_event_after_fork_data * data;
 
 	/* string containing the filename of output */
 	const char *s_stdout = NULL;
@@ -74,18 +77,23 @@ static int setup_output(active_db_h * s, process_h * p
 	int fd_stdall = -1;
 	int fd_stdin = -1;
 
+	assert(event->event_type == &EVENT_AFTER_FORK);
+	assert(event->data);
+
+	data = event->data;
+
 	/* assert some */
-	assert(s);
-	assert(s->name);
-	assert(p);
+	assert(data->service);
+	assert(data->service->name);
+	assert(data->process);
 
 	S_;
 
 	/* get strings if present */
-	s_stdout = get_string(&STDOUT, s);
-	s_stderr = get_string(&STDERR, s);
-	s_stdall = get_string(&STDALL, s);
-	s_stdin = get_string(&STDIN, s);
+	s_stdout = get_string(&STDOUT, data->service);
+	s_stderr = get_string(&STDERR, data->service);
+	s_stdall = get_string(&STDALL, data->service);
+	s_stdin = get_string(&STDIN, data->service);
 
 	if (!(s_stdout || s_stderr || s_stdall || s_stdin))
 	{
@@ -104,13 +112,13 @@ static int setup_output(active_db_h * s, process_h * p
 
 	/* fix variables */
 	if (s_stdout)
-		f_stdout = fix_variables(s_stdout, s);
+		f_stdout = fix_variables(s_stdout, data->service);
 	if (s_stderr)
-		f_stderr = fix_variables(s_stderr, s);
+		f_stderr = fix_variables(s_stderr, data->service);
 	if (s_stdall)
-		f_stdall = fix_variables(s_stdall, s);
+		f_stdall = fix_variables(s_stdall, data->service);
 	if (s_stdin)
-		f_stdin = fix_variables(s_stdin, s);
+		f_stdin = fix_variables(s_stdin, data->service);
 
 
 	/* if stdall string is set */
@@ -198,7 +206,7 @@ int module_init(int api_version)
 	initng_service_data_type_register(&STDALL);
 	initng_service_data_type_register(&STDIN);
 
-	initng_plugin_hook_register(&g.A_FORK, 30, &setup_output);
+	initng_event_hook_register(&EVENT_AFTER_FORK, &setup_output);
 	return (TRUE);
 }
 
@@ -213,5 +221,5 @@ void module_unload(void)
 	initng_service_data_type_unregister(&STDALL);
 	initng_service_data_type_unregister(&STDIN);
 
-	initng_plugin_hook_unregister(&g.A_FORK, &setup_output);
+	initng_event_hook_unregister(&EVENT_AFTER_FORK, &setup_output);
 }

@@ -41,22 +41,25 @@
 #include "initng_plugin_callers.h"
 #include "initng_execute.h"
 #include "initng_toolbox.h"
+#include "initng_static_event_types.h"
+#include "initng_event.h"
 
 #include "initng_fork.h"
 
 void initng_fork_aforkhooks(active_db_h * service, process_h * process)
 {
-	s_call *current = NULL;
+	s_event event;
+	s_event_after_fork_data data;
 
-	/* There might be plug-ins that will work here */
-	while_list(current, &g.A_FORK)
-	{
-		if (((*current->c.af_launcher) (service, process)) == FALSE)
-		{
-			F_("Some plugin did fail (from:%s), in after fork launch.\n",
-			   current->from_file);
-			_exit(1);
-		}
+	event.event_type = &EVENT_AFTER_FORK;
+	event.data = &data;
+
+	data.process = process;
+	data.service = service;
+
+	if (initng_event_send(&event) == FAIL) {
+		F_("Some plugin did fail in after fork launch.\n");
+		_exit(1);
 	}
 }
 

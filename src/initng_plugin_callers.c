@@ -104,7 +104,6 @@ void initng_plugin_callers_load_module_system_changed(h_sys_state state)
 
 	event.event_type = &EVENT_SYSTEM_CHANGE;
 	event.data = &state;
-	event.break_on = FAIL;
 
 	initng_event_send(&event);
 

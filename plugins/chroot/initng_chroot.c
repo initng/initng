@@ -29,6 +29,9 @@
 #include <initng_global.h>
 #include <initng_plugin_hook.h>
 #include <initng_env_variable.h>
+#include <initng_static_event_types.h>
+#include <initng_event_hook.h>
+
 
 INITNG_PLUGIN_MACRO;
 
@@ -36,36 +39,43 @@ s_entry CHROOT = { "chroot", STRING, NULL,
 	"Chroot this path, before launching the service."
 };
 
-static int do_chroot(active_db_h * s, process_h * p __attribute__ ((unused)))
+static int do_chroot(s_event * event)
 {
+	s_event_after_fork_data * data;
+
 	const char *tmp = NULL;
 	char *tmp_fixed = NULL;
 
-	assert(s);
-	assert(s->name);
-	assert(p);
+	assert(event->event_type == &EVENT_AFTER_FORK);
+	assert(event->data);
+
+	data = event->data;
+
+	assert(data->service);
+	assert(data->service->name);
+	assert(data->process);
 
 	D_("do_suid!\n");
-	if (!(tmp = get_string(&CHROOT, s)))
+	if (!(tmp = get_string(&CHROOT, data->service)))
 	{
 		D_("SUID not set!\n");
 		return (TRUE);
 	}
 
 	/* fix ev.${VARIABLES} */
-	tmp_fixed = fix_variables(tmp, s);
+	tmp_fixed = fix_variables(tmp, data->service);
 
 	if (chdir(tmp_fixed) == -1)
 	{
 		F_("Chdir %s failed with %s\n", tmp_fixed, strerror(errno));
 		fix_free(tmp_fixed, tmp);
-		return (FALSE);
+		return (FAIL);
 	}
 	if (chroot(tmp_fixed) == -1)
 	{
 		F_("Chroot %s failed with %s\n", tmp_fixed, strerror(errno));
 		fix_free(tmp_fixed, tmp);
-		return (FALSE);
+		return (FAIL);
 	}
 	fix_free(tmp_fixed, tmp);
 	return (TRUE);
@@ -81,12 +91,12 @@ int module_init(int api_version)
 	}
 
 	initng_service_data_type_register(&CHROOT);
-	return (initng_plugin_hook_register(&g.A_FORK, 50, &do_chroot));
+	return (initng_event_hook_register(&EVENT_AFTER_FORK, &do_chroot));
 }
 
 void module_unload(void)
 {
 	D_("module_unload();\n");
 	initng_service_data_type_unregister(&CHROOT);
-	initng_plugin_hook_unregister(&g.A_FORK, &do_chroot);
+	initng_event_hook_unregister(&EVENT_AFTER_FORK, &do_chroot);
 }

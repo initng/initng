@@ -33,6 +33,7 @@ s_event_type EVENT_IS_CHANGE = { "is_change", "Triggered when the rough state of
 s_event_type EVENT_UP_MET = { "up_met", "Triggered when a service is trying to set the RUNNING state, is a up test" };
 s_event_type EVENT_MAIN = { "main", "Triggered every main loop" };
 s_event_type EVENT_LAUNCH = { "launch", "Triggered when a process are getting launched" };
+s_event_type EVENT_AFTER_FORK = { "after_fork", "Triggered after a process forks to start" };
 
 s_event_type EVENT_INTERRUPT = { "interrupt", "When initng gets an sysreq, it will get here" };
 s_event_type HALT = { "halt", "Initng got a request to halt" };
@@ -45,6 +46,8 @@ void initng_register_static_event_types(void)
     initng_event_type_register(&EVENT_IS_CHANGE);
     initng_event_type_register(&EVENT_UP_MET);
     initng_event_type_register(&EVENT_MAIN);
+    initng_event_type_register(&EVENT_LAUNCH);
+    initng_event_type_register(&EVENT_AFTER_FORK);
 
     initng_event_type_register(&EVENT_INTERRUPT);
     initng_event_type_register(&HALT);

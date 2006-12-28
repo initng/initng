@@ -51,9 +51,10 @@ s_entry SELINUX_CONTEXT = { "selinux_context", STRING, NULL,
 	"The selinux context to start in."
 };
 
-static int set_selinux_context(active_db_h * s, process_h * p
-							   __attribute__ ((unused)))
+static int set_selinux_context(s_event * event)
 {
+	s_event_after_fork_data * data;
+
 	static int have_selinux = -1;
 	if (have_selinux==-1) {
 		int rc = is_selinux_enabled();
@@ -109,7 +110,7 @@ static int set_selinux_context(active_db_h * s, process_h * p
 	if (enforce)
 	{
 		F_("bash_this(): could not change selinux context!\n ERROR!\n");
-		return (FALSE);
+		return (FAIL);
 	}
 	else
 	{
@@ -127,15 +128,15 @@ int module_init(int api_version)
 		return (FALSE);
 	}
 	/*
-	if(g.i_am != I_AM_INIT) { 
-		F_("Selinx have no effect in fake mode\n"); 
-		return(FALSE); 
+	if(g.i_am != I_AM_INIT) {
+		F_("Selinx have no effect in fake mode\n");
+		return(FALSE);
 	}
 	*/
 	/* add hooks and malloc data here */
 
 	initng_service_data_type_register(&SELINUX_CONTEXT);
-	initng_plugin_hook_register(&g.A_FORK, 20, &set_selinux_context);
+	initng_event_hook_register(&EVENT_AFTER_FORK, &set_selinux_context);
 
 	return (TRUE);
 }
@@ -147,5 +148,5 @@ void module_unload(void)
 
 	/* remove hooks and free data here */
 	initng_service_data_type_unregister(&SELINUX_CONTEXT);
-	initng_plugin_hook_unregister(&g.A_FORK, &set_selinux_context);
+	initng_event_hook_unregister(&EVENT_AFTER_FORK, &set_selinux_context);
 }

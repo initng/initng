@@ -937,7 +937,7 @@ static int initng_bash_run(s_event * event)
 	if (pid_fork > 0)
 	{
 		data->process->pid = pid_fork;
-		return (TRUE);
+		return (HANDLED);
 	}
 	data->process->pid = 0;
 	return (FALSE);

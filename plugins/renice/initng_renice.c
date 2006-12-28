@@ -23,30 +23,41 @@
 #include <string.h>
 #include <assert.h>
 #include <errno.h>
+
 #include <initng_handler.h>
 #include <initng_global.h>
 #include <initng_plugin_hook.h>
+#include <initng_event_hook.h>
+#include <initng_static_event_types.h>
 
 INITNG_PLUGIN_MACRO;
 
 s_entry NICE = { "nice", INT, NULL, "Set this nice value before executing service." };
 
-static int do_renice(active_db_h * s, process_h * p __attribute__ ((unused)))
+static int do_renice(s_event * event)
 {
-	assert(s);
-	assert(s->name);
-	assert(p);
+	s_event_after_fork_data * data;
 
-	if (is(&NICE, s))
+	assert(event->event_type == &EVENT_AFTER_FORK);
+	assert(event->data);
+
+	data = event->data;
+
+	assert(data->service);
+	assert(data->service->name);
+	assert(data->process);
+
+	if (is(&NICE, data->service))
 	{
-		D_("Will renice %s to %i !\n", s->name, get_int(&NICE, s));
+		D_("Will renice %s to %i !\n", data->service->name, get_int(&NICE, data->service));
 		errno = 0;
-		if (nice(get_int(&NICE, s)) == -1 && errno != 0)
+		if (nice(get_int(&NICE, data->service)) == -1 && errno != 0)
 		{
 			F_("Failed to set the nice value: %s\n", strerror(errno));
-			return FALSE;
+			return (FAIL);
 		}
 	}
+
 	return (TRUE);
 }
 
@@ -60,12 +71,12 @@ int module_init(int api_version)
 	}
 
 	initng_service_data_type_register(&NICE);
-	return (initng_plugin_hook_register(&g.A_FORK, 50, &do_renice));
+	return (initng_event_hook_register(&EVENT_AFTER_FORK, &do_renice));
 }
 
 void module_unload(void)
 {
 	D_("module_unload();\n");
 	initng_service_data_type_unregister(&NICE);
-	initng_plugin_hook_unregister(&g.A_FORK, &do_renice);
+	initng_event_hook_unregister(&EVENT_AFTER_FORK, &do_renice);
 }

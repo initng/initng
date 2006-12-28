@@ -25,6 +25,8 @@
 #include <initng_handler.h>
 #include <initng_global.h>
 #include <initng_plugin_hook.h>
+#include <initng_static_event_types.h>
+#include <initng_event_hook.h>
 
 #include <assert.h>
 
@@ -172,63 +174,70 @@ static int set_limit(s_entry * soft, s_entry * hard, active_db_h * service,
 	return (0);
 }
 
-static int do_limit(active_db_h * s, process_h * p __attribute__ ((unused)))
+static int do_limit(s_event * event)
 {
+	s_event_after_fork_data * data;
+
 	int ret = 0;
 
-	assert(s);
-	assert(s->name);
-	assert(p);
+	assert(event->event_type == &EVENT_AFTER_FORK);
+	assert(event->data);
+
+	data = event->data;
+
+	assert(data->service);
+	assert(data->service->name);
+	assert(data->process);
 
 	D_("do_limit!\n");
 
 	/* Handle RLIMIT_AS */
-	ret += set_limit(&RLIMIT_AS_SOFT, &RLIMIT_AS_HARD, s, RLIMIT_AS, 1024);
+	ret += set_limit(&RLIMIT_AS_SOFT, &RLIMIT_AS_HARD, data->service, RLIMIT_AS, 1024);
 
 	/* Handle RLIMIT_CORE */
-	ret += set_limit(&RLIMIT_CORE_SOFT, &RLIMIT_CORE_HARD, s, RLIMIT_CORE,
+	ret += set_limit(&RLIMIT_CORE_SOFT, &RLIMIT_CORE_HARD, data->service, RLIMIT_CORE,
 					 1024);
 
 	/* Handle RLIMIT_CPU */
-	ret += set_limit(&RLIMIT_CPU_SOFT, &RLIMIT_CPU_HARD, s, RLIMIT_CPU, 1);
+	ret += set_limit(&RLIMIT_CPU_SOFT, &RLIMIT_CPU_HARD, data->service, RLIMIT_CPU, 1);
 
 	/* Handle RLIMIT_DATA */
-	ret += set_limit(&RLIMIT_DATA_SOFT, &RLIMIT_DATA_HARD, s, RLIMIT_DATA,
+	ret += set_limit(&RLIMIT_DATA_SOFT, &RLIMIT_DATA_HARD, data->service, RLIMIT_DATA,
 					 1024);
 
 	/* Handle RLIMIT_FSIZE */
-	ret += set_limit(&RLIMIT_FSIZE_SOFT, &RLIMIT_FSIZE_HARD, s, RLIMIT_FSIZE,
+	ret += set_limit(&RLIMIT_FSIZE_SOFT, &RLIMIT_FSIZE_HARD, data->service, RLIMIT_FSIZE,
 					 1024);
 
 	/* Handle RLIMIT_MEMLOCK */
-	ret += set_limit(&RLIMIT_MEMLOCK_SOFT, &RLIMIT_MEMLOCK_HARD, s,
+	ret += set_limit(&RLIMIT_MEMLOCK_SOFT, &RLIMIT_MEMLOCK_HARD, data->service,
 					 RLIMIT_MEMLOCK, 1024);
 
 	/* Handle RLIMIT_NOFILE */
-	ret += set_limit(&RLIMIT_NOFILE_SOFT, &RLIMIT_NOFILE_HARD, s,
+	ret += set_limit(&RLIMIT_NOFILE_SOFT, &RLIMIT_NOFILE_HARD, data->service,
 					 RLIMIT_NOFILE, 1);
 
 	/* Handle RLIMIT_NPROC */
-	ret += set_limit(&RLIMIT_NPROC_SOFT, &RLIMIT_NPROC_HARD, s, RLIMIT_NPROC,
+	ret += set_limit(&RLIMIT_NPROC_SOFT, &RLIMIT_NPROC_HARD, data->service, RLIMIT_NPROC,
 					 1);
 
 	/* Handle RLIMIT_RSS */
-	ret += set_limit(&RLIMIT_RSS_SOFT, &RLIMIT_RSS_HARD, s, RLIMIT_RSS, 1024);
+	ret += set_limit(&RLIMIT_RSS_SOFT, &RLIMIT_RSS_HARD, data->service, RLIMIT_RSS, 1024);
 
 #ifdef RLIMIT_SIGPENDING
 	/* for some reason, this seems missing on some systems */
 	/* Handle RLIMIT_SIGPENDING */
-	ret += set_limit(&RLIMIT_SIGPENDING_SOFT, &RLIMIT_SIGPENDING_HARD, s,
+	ret += set_limit(&RLIMIT_SIGPENDING_SOFT, &RLIMIT_SIGPENDING_HARD, data->service,
 					 RLIMIT_SIGPENDING, 1);
 #endif
 
 	/* Handle RLIMIT_STACK */
-	ret += set_limit(&RLIMIT_STACK_SOFT, &RLIMIT_STACK_HARD, s, RLIMIT_STACK,
+	ret += set_limit(&RLIMIT_STACK_SOFT, &RLIMIT_STACK_HARD, data->service, RLIMIT_STACK,
 					 1024);
 
 	/* make sure every rlimit suceeded */
 	if (ret != 0)
-		return (FALSE);
+		return (FAIL);
 
 	/* return happily */
 	return (TRUE);
@@ -268,7 +277,7 @@ int module_init(int api_version)
 	initng_service_data_type_register(&RLIMIT_STACK_HARD);
 
 	/* add the after fork function hook */
-	initng_plugin_hook_register(&g.A_FORK, 20, &do_limit);
+	initng_event_hook_register(&EVENT_AFTER_FORK, &do_limit);
 
 	/* always return happily */
 	return (TRUE);
@@ -279,7 +288,7 @@ void module_unload(void)
 	D_("module_unload();\n");
 
 	/* remove the hook */
-	initng_plugin_hook_unregister(&g.A_FORK, &do_limit);
+	initng_event_hook_unregister(&EVENT_AFTER_FORK, &do_limit);
 
 	/* Del all options to initng */
 	initng_service_data_type_unregister(&RLIMIT_AS_SOFT);

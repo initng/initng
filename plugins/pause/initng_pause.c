@@ -21,10 +21,13 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
+
 #include <initng_handler.h>
 #include <initng_global.h>
 #include <initng_plugin_hook.h>
-#include <assert.h>
+#include <initng_event_hook.h>
+#include <initng_static_event_types.h>
 
 INITNG_PLUGIN_MACRO;
 
@@ -36,20 +39,27 @@ s_entry MS_DELAY = { "exec_m_delay", VARIABLE_INT, NULL,
 	"Pause this much microseconds before service is launched."
 };
 
-static int do_pause(active_db_h * s, process_h * p)
+static int do_pause(s_event * event)
 {
+	s_event_after_fork_data * data;
+
 	int s_delay = 0;
 	int ms_delay = 0;
 
-	assert(s);
-	assert(p);
-	assert(p->pt);
+	assert(event->event_type == &EVENT_AFTER_FORK);
+	assert(event->data);
 
-	D_(" %s\n", s->name);
+	data = event->data;
+
+	assert(data->service);
+	assert(data->process);
+	assert(data->process->pt);
+
+	D_(" %s\n", data->service->name);
 
 
-	s_delay = get_int_var(&S_DELAY, p->pt->name, s);
-	ms_delay = get_int_var(&MS_DELAY, p->pt->name, s);
+	s_delay = get_int_var(&S_DELAY, data->process->pt->name, data->service);
+	ms_delay = get_int_var(&MS_DELAY, data->process->pt->name, data->service);
 
 
 	if (s_delay)
@@ -78,7 +88,7 @@ int module_init(int api_version)
 
 	initng_service_data_type_register(&S_DELAY);
 	initng_service_data_type_register(&MS_DELAY);
-	return (initng_plugin_hook_register(&g.A_FORK, 90, &do_pause));
+	return (initng_event_hook_register(&EVENT_AFTER_FORK, &do_pause));
 }
 
 void module_unload(void)
@@ -86,5 +96,5 @@ void module_unload(void)
 	D_("module_unload();\n");
 	initng_service_data_type_unregister(&S_DELAY);
 	initng_service_data_type_unregister(&MS_DELAY);
-	initng_plugin_hook_unregister(&g.A_FORK, &do_pause);
+	initng_event_hook_unregister(&EVENT_AFTER_FORK, &do_pause);
 }

@@ -24,6 +24,7 @@ extern s_event_type EVENT_IS_CHANGE;
 extern s_event_type EVENT_UP_MET;
 extern s_event_type EVENT_MAIN;
 extern s_event_type EVENT_LAUNCH;
+extern s_event_type EVENT_AFTER_FORK;
 
 extern s_event_type EVENT_INTERRUPT;
 extern s_event_type HALT;
@@ -36,3 +37,8 @@ typedef struct {
 	process_h * process;
 	const char * exec_name;
 } s_event_launch_data;
+
+typedef struct {
+	active_db_h * service;
+	process_h * process;
+} s_event_after_fork_data;

@@ -401,10 +401,12 @@ static int initng_s_launch(s_event * event)
 	D_("service: %s, process: %s\n", data->service->name, data->process->pt->name);
 
 	if (is_var(&EXECS, data->exec_name, data->service))
-		return (simple_exec(data->service, data->process));
+		if (simple_exec(data->service, data->process))
+			return (HANDLED);
 
 	if (is_var(&EXEC, data->exec_name, data->service))
-		return (simple_run(data->service, data->process));
+		if (simple_run(data->service, data->process))
+			return (HANDLED);
 
 	return (FALSE);
 }

@@ -245,7 +245,6 @@ int initng_depend_up_check(active_db_h * service)
 
 	event.event_type = &EVENT_UP_MET;
 	event.data = service;
-	event.break_on = FAIL;
 
 	return (initng_event_send(&event));
 }

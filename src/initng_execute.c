@@ -85,7 +85,6 @@ int initng_execute_launch(active_db_h * service, ptype_h * type,
 		s_event_launch_data data;
 
 		event.event_type = &EVENT_LAUNCH;
-		event.break_on = TRUE;
 		event.data = &data;
 
 		data.service = service;
@@ -96,7 +95,7 @@ int initng_execute_launch(active_db_h * service, ptype_h * type,
 	}
 
 	/* if we found a launcher */
-	if (ret == FALSE)
+	if (ret == HANDLED)
 		return (TRUE);
 
 	if (ret == FAIL)

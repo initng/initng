@@ -89,7 +89,10 @@ static int initng_bash(s_event * event)
 	args = get_string_var(&SCRIPT_OPT, data->exec_name, data->service);
 
 	/*D_("initng_bash(%s, %s, %s);\n", data->service->name, e, args); */
-	return (bash_exec(data->process, data->service, e, args));
+	if (bash_exec(data->process, data->service, e, args))
+		return (HANDLED);
+	else
+		return (FALSE);
 }
 
 

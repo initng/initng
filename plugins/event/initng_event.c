@@ -220,7 +220,6 @@ static int event_triggerer(s_event * pevent)
 	if (IS_UP(service) && (g.sys_state != STATE_STOPPING))
 	{
 		event.event_type = &EVENT_EXTERNAL;
-		event.break_on = FAIL;
 
 		/* get the trigger strings */
 		while ((tmp = get_next_string(&TRIGGER, service, &itt)))
