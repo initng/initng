@@ -146,7 +146,7 @@ static int initng_rl_parser(s_event * event)
 		if (!TYPE_RUNLEVEL)
 		{
 			F_("ERROR, runlevel servicetype is not found, make sure runlevel plugin is loaded.\n");
-			return (TRUE);
+			return (FALSE);
 		}
 	}
 
@@ -156,7 +156,7 @@ static int initng_rl_parser(s_event * event)
 		if (!TYPE_VIRTUAL)
 		{
 			F_("ERROR, virtual servicetype is not found, make sure runlevel plugin is loaded.\n");
-			return (TRUE);
+			return (FALSE);
 		}
 	}
 
@@ -184,7 +184,7 @@ static int initng_rl_parser(s_event * event)
 		return (HANDLED);
 	}
 
-	return (TRUE);
+	return (FALSE);
 }
 
 int module_init(int api_version)
