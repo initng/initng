@@ -72,27 +72,6 @@ typedef struct
 	/* global options */
 	data_head data;
 
-	/* all hooks to hook at */
-#ifdef SERVICE_CACHE
-	s_call PARSERS;				/* Called when a service needs its data */
-	s_call ADDITIONAL_PARSE;	/* Called after a service been parsed, and extra parsing may exist */
-#endif
-	s_call FDWATCHERS;			/* Called when initng open file descriptors receive data */
-	s_call BUFFER_WATCHER;		/* Called when a service have outputed, and initng have filled its output buffer. */
-	s_call SIGNAL;				/* Called when initng rescives a signal, like SIGHUP */
-	s_call HANDLE_KILLED;		/* Called when a process dies */
-	s_call COMPENSATE_TIME;		/* Called when initng detects a system time change */
-	s_call ERR_MSG;				/* Called when an error message is sent, so all output plug-ins can show it */
-	s_call DUMP_ACTIVE_DB;		/* Asks for a plugin willing to dump the acytive_db */
-	s_call RELOAD_ACTIVE_DB;	/* Asks for a plugin willing to reload the active_db from a dump */
-	s_call DEP_ON;				/* Called when a function tries to find out a service dependency */
-	s_call NEW_ACTIVE;			/* Called when initng trys to resolve a nonexistive service to start */
-	s_call PIPE_WATCHER;		/* watch pipes for communication */
-
-	/* new ones */
-	s_call START_DEP_MET;		/* Called and all this hooks have to return TRUE for launch to start */
-	s_call STOP_DEP_MET;		/* Called and all this hooks have to return TRUE for the service to stop */
-
 	/* global variables */
 	h_sys_state sys_state;
 	int modules_to_unload;

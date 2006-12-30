@@ -41,14 +41,16 @@
 
 active_db_h *initng_plugin_create_new_active(const char *name)
 {
-	s_call *current, *q = NULL;
-	active_db_h *ret = NULL;
+	s_event event;
+	s_event_new_active_data data;
 
-	while_list_safe(current, &g.NEW_ACTIVE, q)
-	{
-		ret = (*current->c.new_active) (name);
-		if (ret)
-			return (ret);
+	event.event_type = &EVENT_NEW_ACTIVE;
+	event.data = &data;
+
+	data.name = name;
+
+	if (initng_event_send(&event) == HANDLED) {
+		return data.ret;
 	}
 
 	return (NULL);
@@ -57,44 +59,39 @@ active_db_h *initng_plugin_create_new_active(const char *name)
 
 void initng_plugin_callers_signal(int signal)
 {
-	s_call *current, *q = NULL;
+	s_event event;
 
-	while_list_safe(current, &g.SIGNAL, q)
-	{
-		(*current->c.signal_hook) (signal);
-	}
+	event.event_type = &EVENT_SIGNAL;
+	event.data = (void *) signal;
 
+	initng_event_send(&event);
 }
 
 int initng_plugin_callers_handle_killed(active_db_h * s, process_h * p)
 {
-	s_call *current, *q = NULL;
+	s_event event;
+	s_event_handle_killed_data data;
 
-	while_list_safe(current, &g.HANDLE_KILLED, q)
-	{
-		D_("Calling killed_handle plugin from %s\n", current->from_file);
-		if (current->c.handle_killed)
-			if (((*current->c.handle_killed) (s, p)) == TRUE)
-				return (TRUE);
-	}
+	event.event_type = &EVENT_HANDLE_KILLED;
+	event.data = &data;
+	data.service = s;
+	data.process = p;
+
+	if (initng_event_send(&event) == HANDLED)
+		return (TRUE);
+
 	return (FALSE);
 }
 
 
 void initng_plugin_callers_compensate_time(int t)
 {
-	s_call *current, *q = NULL;
+	s_event event;
 
-	while_list_safe(current, &g.COMPENSATE_TIME, q)
-	{
-		if (current->c.swatcher)
-		{
-			D_("Calling system_state_changed plugin from %s\n",
-			   current->from_file);
-			(*current->c.swatcher) (t);
-		}
-	}
+	event.event_type = &EVENT_COMPENSATE_TIME;
+	event.data = (void *) t;
 
+	initng_event_send(&event);
 }
 
 /* called when system state has changed. */
@@ -113,59 +110,19 @@ void initng_plugin_callers_load_module_system_changed(h_sys_state state)
 /* called to dump active_db */
 int initng_plugin_callers_dump_active_db(void)
 {
-	s_call *current, *q = NULL;
-	int retval = FALSE;
+	s_event event;
 
-	while_list_safe(current, &g.DUMP_ACTIVE_DB, q)
-	{
-		if (current->c.dump_active_db)
-		{
-			D_("Calling dump_active_db plugin from %s\n", current->from_file);
-			retval = (*current->c.dump_active_db) ();
-			if (retval == TRUE)
-			{
-				D_("dump_active_db plugin from %s succeeded\n",
-				   current->from_file);
-				break;
-			}
-			else if (retval == FAIL)
-			{
-				F_("dump_state plugin from %s failed\n", current->from_file);
-				break;
-			}
-		}
-	}
-	return retval;
+	event.event_type = &EVENT_DUMP_ACTIVE_DB;
 
+	return initng_event_send(&event);
 }
 
 /* called to reload dump of active_db */
 int initng_plugin_callers_reload_active_db(void)
 {
-	s_call *current, *q = NULL;
-	int retval = FALSE;
+	s_event event;
 
-	while_list_safe(current, &g.RELOAD_ACTIVE_DB, q)
-	{
-		if (current->c.reload_active_db)
-		{
-			D_("Calling reload_active_db plugin from %s\n",
-			   current->from_file);
-			retval = (*current->c.reload_active_db) ();
-			if (retval == TRUE)
-			{
-				D_("reload_active_db plugin from %s succeeded\n",
-				   current->from_file);
-				break;
-			}
-			else if (retval == FAIL)
-			{
-				F_("reload_active_db plugin from %s failed\n",
-				   current->from_file);
-				break;
-			}
-		}
-	}
+	event.event_type = &EVENT_RELOAD_ACTIVE_DB;
 
-	return retval;
+	return initng_event_send(&event);
 }

@@ -48,6 +48,8 @@
 #include <initng_plugin.h>
 #include <initng_static_states.h>
 #include <initng_control_command.h>
+#include <initng_static_event_types.h>
+#include <initng_event_hook.h>
 
 #include <initng-paths.h>
 
@@ -60,7 +62,7 @@ static void closesock(void);
 static void handle_client(int fd);
 static int sendping(void);
 static int open_socket(void);
-static void check_socket(int signal);
+static int check_socket(s_event * event);
 
 s_command local_commands_db;
 
@@ -135,7 +137,7 @@ static void initng_reload(void)
 
 	/*
 	 * Now we are going to try reload initng
-	 * 
+	 *
 	 * ngc -c  is the reload command
 	 */
 	reload = initng_command_find_by_command_id('c');
@@ -714,12 +716,17 @@ static int open_socket()
 }
 
 /* this will check socket, and reopen on failure */
-static void check_socket(int signal)
+static int check_socket(s_event * event)
 {
+	int signal;
 	struct stat st;
 
+	assert(event->event_type == &EVENT_SIGNAL);
+
+	signal = (int) event->data;
+
 	if (signal != SIGHUP)
-		return;
+		return (TRUE);
 
 	D_("Checking socket\n");
 
@@ -728,7 +735,7 @@ static void check_socket(int signal)
 	{
 		D_("fdh.fds not set, opening new socket.\n");
 		open_socket();
-		return;
+		return (TRUE);
 	}
 
 	/* stat the socket, reopen on failure */
@@ -737,7 +744,7 @@ static void check_socket(int signal)
 	{
 		W_("Stat failed! Opening new socket.\n");
 		open_socket();
-		return;
+		return (TRUE);
 	}
 
 	/* compare socket file, with the one that we know, reopen on failure */
@@ -746,11 +753,11 @@ static void check_socket(int signal)
 	{
 		F_("Invalid socket found, reopening\n");
 		open_socket();
-		return;
+		return (TRUE);
 	}
 
 	D_("Socket ok.\n");
-	return;
+	return (TRUE);
 }
 
 
@@ -1383,8 +1390,8 @@ int module_init(int api_version)
 	D_("Socket is: %s\n", socket_filename);
 
 	D_("adding hook, that will reopen socket, for every started service.\n");
-	initng_plugin_hook_register(&g.FDWATCHERS, 30, &fdh);
-	initng_plugin_hook_register(&g.SIGNAL, 50, &check_socket);
+	initng_plugin_hook_register(&EVENT_FD_WATCHER.hooks, 30, &fdh);
+	initng_event_hook_register(&EVENT_SIGNAL, &check_socket);
 
 	/* add the help command, that list commands to the client */
 	list_add(&HELP.list, &local_commands_db.list);
@@ -1414,8 +1421,8 @@ void module_unload(void)
 	closesock();
 
 	/* remove hooks */
-	initng_plugin_hook_unregister(&g.FDWATCHERS, &fdh);
-	initng_plugin_hook_unregister(&g.SIGNAL, &check_socket);
+	initng_plugin_hook_unregister(&EVENT_FD_WATCHER.hooks, &fdh);
+	initng_event_hook_unregister(&EVENT_SIGNAL, &check_socket);
 
 	D_("ngc2.so.0.0 unloaded!\n");
 

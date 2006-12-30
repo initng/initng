@@ -26,12 +26,14 @@
 #include <string.h>
 #include <stdarg.h>
 #include <time.h>
+#include <assert.h>
 
 #include "initng_error.h"
 
 #include "initng_global.h"
 #include "initng_toolbox.h"
-#include <assert.h>
+
+#include "initng_static_event_types.h"
 
 int lock_error_printing = 0;
 
@@ -80,7 +82,6 @@ int initng_error_print(e_mt mt, const char *file, const char *func, int line,
 	assert(format);
 
 	int delivered = FALSE;
-	s_call *current = NULL;
 	va_list arg;
 
 	/* This lock is to make sure we don't get into an endless print loop */
@@ -94,20 +95,28 @@ int initng_error_print(e_mt mt, const char *file, const char *func, int line,
 	va_start(arg, format);
 
 	/* check for hooks */
-	while_list(current, &g.ERR_MSG)
 	{
-		va_list pass;
+		s_event event;
+		s_event_error_message_data data;
 
-		va_copy(pass, arg);
+		event.event_type = &EVENT_ERROR_MESSAGE;
+		event.data = &data;
+		data.mt = mt;
+		data.file = file;
+		data.func = func;
+		data.line = line;
+		data.format = format;
 
-		if ((*current->c.err) (mt, file, func, line, format, pass) == TRUE)
+		va_copy(data.arg, arg);
+
+		if (initng_event_send(&event) == TRUE)
 			delivered = TRUE;
 
-		va_end(pass);
+		va_end(data.arg);
 	}
 
 	/* Print on failsafe if no hook is to listen. */
-	if (delivered != TRUE)
+	if (!delivered)
 	{
 		va_list pass;
 

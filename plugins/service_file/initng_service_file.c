@@ -50,6 +50,8 @@
 #include <initng_fork.h>
 #include <initng_common.h>
 #include <initng_string_tools.h>
+#include <initng_static_event_types.h>
+#include <initng_event_hook.h>
 
 #ifdef SERVICE_CACHE
 #include <initng_service_cache.h>
@@ -662,12 +664,17 @@ static int bp_open_socket()
 
 #ifdef GLOBAL_SOCKET
 /* this will check socket, and reopen on failure */
-static void bp_check_socket(int signal)
+static int bp_check_socket(s_event * event)
 {
+	int signal;
 	struct stat st;
 
+	assert(event->event_type == &EVENT_SIGNAL);
+
+	signal = event->data;
+
 	if (signal != SIGHUP)
-		return;
+		return (TRUE);
 
 	D_("Checking socket\n");
 
@@ -676,7 +683,7 @@ static void bp_check_socket(int signal)
 	{
 		D_("bpf.fds not set, opening new socket.\n");
 		bp_open_socket();
-		return;
+		return (TRUE);
 	}
 
 	/* stat the socket, reopen on failure */
@@ -685,7 +692,7 @@ static void bp_check_socket(int signal)
 	{
 		W_("Stat failed! Opening new socket.\n");
 		bp_open_socket();
-		return;
+		return (TRUE);
 	}
 
 	/* compare socket file, with the one that we know, reopen on failure */
@@ -694,11 +701,11 @@ static void bp_check_socket(int signal)
 	{
 		F_("Invalid socket found, reopening\n");
 		bp_open_socket();
-		return;
+		return (TRUE);
 	}
 
 	D_("Socket ok.\n");
-	return;
+	return (TRUE);
 }
 #endif
 
@@ -730,24 +737,30 @@ static void handle_killed(active_db_h * service, process_h * process)
 	initng_handler_start_service(service);
 }
 
-static active_db_h *create_new_active(const char *name)
+static int create_new_active(s_event * event)
 {
+	s_event_new_active_data * data;
 	char file[1024] = SCRIPT_PATH "/";
 	struct stat fstat;
 	active_db_h *new_active;
 	process_h *process;
 	pipe_h *current_pipe;
 
-	/*printf("create_new_active(%s);\n", name); */
-	/*printf("service \"%s\" ", name); */
+	assert(event->event_type == &EVENT_NEW_ACTIVE);
+	assert(event->data);
+
+	data = event->data;
+
+	/*printf("create_new_active(%s);\n", data->name); */
+	/*printf("service \"%s\" ", data->name); */
 
 	/* Make the filename, cutting on first '/' in name */
 	{
 		int i = 0;
 
-		while (name[i] && i < 500 && name[i] != '/')
+		while (data->name[i] && i < 500 && data->name[i] != '/')
 			i++;
-		strncat(file, name, i);
+		strncat(file, data->name, i);
 	}
 
 	/* printf(" parsing file \"%s\"\n", file); */
@@ -758,16 +771,16 @@ static active_db_h *create_new_active(const char *name)
 #if 0
 		/* Gentoo support disabled for now - doesn't work properly yet */
 		strcpy(file, "/etc/init.d/");
-		strncat(file, name, 1020 - strlen("/etc/init.d/"));
+		strncat(file, data->name, 1020 - strlen("/etc/init.d/"));
 
 		if (stat(file, &fstat) != 0)
 		{
 			/* file not found */
-			return (NULL);
+			return (FALSE);
 		}
 #else
 		W_("File \"%s\" not found.\n", file);
-		return (NULL);
+		return (FALSE);
 #endif
 	}
 
@@ -775,19 +788,19 @@ static active_db_h *create_new_active(const char *name)
 	if (!S_ISREG(fstat.st_mode))
 	{
 		F_("File \"%s\" is not an regular file.\n", file);
-		return (NULL);
+		return (FALSE);
 	}
 
 	if (!(fstat.st_mode & S_IXUSR))
 	{
 		F_("File \"%s\" cant be executed!\n", file);
-		return (NULL);
+		return (FALSE);
 	}
 
 	/* create new service */
-	new_active = initng_active_db_new(name);
+	new_active = initng_active_db_new(data->name);
 	if (!new_active)
-		return (NULL);
+		return (FALSE);
 
 	/* set type */
 	new_active->current_state = &PARSING_FOR_START;
@@ -800,7 +813,7 @@ static active_db_h *create_new_active(const char *name)
 	if (!initng_active_db_register(new_active))
 	{
 		initng_active_db_free(new_active);
-		return (NULL);
+		return (FALSE);
 	}
 
 	/* create the process */
@@ -829,9 +842,9 @@ static active_db_h *create_new_active(const char *name)
 		new_argv[2] = NULL;
 
 		/* SERVICE=getty/tty1 */
-		new_env[0] = i_calloc(strlen(name) + 20, sizeof(char));
+		new_env[0] = i_calloc(strlen(data->name) + 20, sizeof(char));
 		strcpy(new_env[0], "SERVICE=");
-		strcat(new_env[0], name);
+		strcat(new_env[0], data->name);
 
 		/* SERVICE_FILE=/etc/init/getty */
 		new_env[1] = i_calloc(strlen(file) + 20, sizeof(char));
@@ -840,7 +853,7 @@ static active_db_h *create_new_active(const char *name)
 
 		/* NAME=tty1 */
 		{
-			char *tmp = strrchr(name, '/');
+			char *tmp = strrchr(data->name, '/');
 
 			if (tmp && tmp[0] == '/')
 				tmp++;
@@ -853,9 +866,9 @@ static active_db_h *create_new_active(const char *name)
 			}
 			else
 			{
-				new_env[2] = i_calloc(strlen(name) + 20, sizeof(char));
+				new_env[2] = i_calloc(strlen(data->name) + 20, sizeof(char));
 				strcpy(new_env[2], "NAME=");
-				strcat(new_env[2], name);
+				strcat(new_env[2], data->name);
 			}
 		}
 
@@ -866,26 +879,34 @@ static active_db_h *create_new_active(const char *name)
 	}
 
 	/* return the newly created */
-	return (new_active);
+	data->ret = new_active;
+	return (HANDLED);
 }
 
-static int get_pipe(active_db_h * service, process_h * process, pipe_h * pi)
+static int get_pipe(s_event * event)
 {
-	/*printf("get_pipe(%s, %i, %i);\n", service->name, pi->dir, pi->targets[0]); */
+	s_event_pipe_watcher_data * data;
+
+	assert(event->event_type == &EVENT_PIPE_WATCHER);
+	assert(event->data);
+
+	data = event->data;
+
+	/*printf("get_pipe(%s, %i, %i);\n", data->service->name, data->pipe->dir, data->pipe->targets[0]); */
 
 	/* extra check */
-	if (pi->dir != IN_AND_OUT_PIPE)
+	if (data->pipe->dir != IN_AND_OUT_PIPE)
 		return (FALSE);
 
 	/* the pipe we opened was on fd 3 */
-	if (pi->targets[0] != 3)
+	if (data->pipe->targets[0] != 3)
 		return (FALSE);
 
 	/* handle the client in the same way, as a fifo connected one */
-	bp_handle_client(pi->pipe[1]);
+	bp_handle_client(data->pipe->pipe[1]);
 
 	/* return happy */
-	return (TRUE);
+	return (HANDLED);
 }
 
 #ifdef USE_LOCALEXEC
@@ -963,11 +984,11 @@ int module_init(int api_version)
 	D_("adding hook, that will reopen socket, for every started service.\n");
 	initng_process_db_ptype_register(&parse);
 #ifdef GLOBAL_SOCKET
-	initng_plugin_hook_register(&g.FDWATCHERS, 30, &bpf);
-	initng_plugin_hook_register(&g.SIGNAL, 50, &bp_check_socket);
+	initng_plugin_hook_register(&EVENT_FD_WATCHER.hooks, 30, &bpf);
+	initng_event_hook_register(&EVENT_SIGNAL, &bp_check_socket);
 #endif
-	initng_plugin_hook_register(&g.NEW_ACTIVE, 50, &create_new_active);
-	initng_plugin_hook_register(&g.PIPE_WATCHER, 30, &get_pipe);
+	initng_event_hook_register(&EVENT_NEW_ACTIVE, &create_new_active);
+	initng_event_hook_register(&EVENT_PIPE_WATCHER, &get_pipe);
 	initng_active_state_register(&REDY_FOR_START);
 	initng_active_state_register(&NOT_RUNNING);
 	initng_active_state_register(&PARSING);
@@ -996,11 +1017,11 @@ void module_unload(void)
 	/* remove hooks */
 	initng_process_db_ptype_unregister(&parse);
 #ifdef GLOBAL_SOCKET
-	initng_plugin_hook_unregister(&g.FDWATCHERS, &bpf);
-	initng_plugin_hook_unregister(&g.SIGNAL, &bp_check_socket);
+	initng_plugin_hook_unregister(&EVENT_FD_WATCHER.hooks, &bpf);
+	initng_event_hook_unregister(&EVENT_SIGNAL, &bp_check_socket);
 #endif
-	initng_plugin_hook_unregister(&g.NEW_ACTIVE, &create_new_active);
-	initng_plugin_hook_unregister(&g.PIPE_WATCHER, &get_pipe);
+	initng_event_hook_unregister(&EVENT_NEW_ACTIVE, &create_new_active);
+	initng_event_hook_unregister(&EVENT_PIPE_WATCHER, &get_pipe);
 	initng_active_state_unregister(&REDY_FOR_START);
 	initng_active_state_unregister(&NOT_RUNNING);
 	initng_active_state_unregister(&PARSING);

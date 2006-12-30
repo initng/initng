@@ -36,13 +36,21 @@
 #include <initng_static_data_id.h>
 #include <initng_static_states.h>
 #include <initng_static_service_types.h>
+#include <initng_static_event_types.h>
+#include <initng_event_hook.h>
 
 INITNG_PLUGIN_MACRO;
 
-static void ctrlaltdel(int signal)
+static int ctrlaltdel(s_event * event)
 {
+	int signal;
+
+	assert(event->event_type == &EVENT_SIGNAL);
+
+	signal = (int) event->data;
+
 	if (signal != SIGINT)
-		return;
+		return (TRUE);
 
 	/* what to do when there is no services left */
 	if (g.i_am == I_AM_INIT)
@@ -52,6 +60,8 @@ static void ctrlaltdel(int signal)
 
 	/* stop all services */
 	initng_handler_stop_all();
+
+	return (TRUE);
 }
 
 int module_init(int api_version)
@@ -63,12 +73,12 @@ int module_init(int api_version)
 		return (FALSE);
 	}
 
-	initng_plugin_hook_register(&g.SIGNAL, 50, &ctrlaltdel);
+	initng_event_hook_register(&EVENT_SIGNAL, &ctrlaltdel);
 	return (TRUE);
 }
 
 void module_unload(void)
 {
 	D_("module_unload();\n");
-	initng_plugin_hook_unregister(&g.SIGNAL, &ctrlaltdel);
+	initng_event_hook_unregister(&EVENT_SIGNAL, &ctrlaltdel);
 }

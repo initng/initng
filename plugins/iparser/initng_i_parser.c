@@ -38,7 +38,11 @@
 #include <initng_plugin_hook.h>
 #include <initng_error.h>
 #include <initng_handler.h>
+#include <initng_static_event_types.h>
+#include <initng_event_hook.h>
+
 #include <initng-paths.h>
+
 /* a check with escape chars check */
 #define CH_(STRING, CHAR) (((*STRING)[0] == CHAR) && ((*STRING)[-1] != '\\'))
 #define CHL_(STRING, LEN, CHAR) (((*STRING)[LEN] == CHAR) && ((*STRING)[LEN-1] != '\\'))
@@ -251,18 +255,24 @@ static service_cache_h *test_parse(char *path, const char *service_to_find)
 }
 
 /* Load a service from a service_to_find or process_path */
-static service_cache_h *initng_i_parser(const char *service_to_find)
+static int initng_i_parser(s_event * event)
 {
-	service_cache_h *got_serv = NULL;
+	service_cache_h * got_serv = NULL;
+	s_event_parse_data * data;
 
-	assert(service_to_find);
-	D_("Parsing for %s\n", service_to_find);
+	assert(event->event_type == &EVENT_PARSE);
+	assert(event->data);
+
+	data = event->data;
+
+	assert(data->name);
+	D_("Parsing for %s\n", data->name);
 
 	/* Make sure the filename of 200 chars above are more than enough */
-	if (strlen(service_to_find) > 50)
+	if (strlen(data->name) > 50)
 	{
 		F_("Service name to long, initng_i_parser can't look for this service!\n");
-		return (NULL);
+		return (TRUE);
 	}
 
 	/*
@@ -270,10 +280,11 @@ static service_cache_h *initng_i_parser(const char *service_to_find)
 	 * when searching on a full .i filename, the service
 	 * returned is the first entry found in the i.file
 	 */
-	if (service_to_find[0] == '/')
+	if (data->name[0] == '/')
 	{
 		/* sending null returns the first found */
-		return (parse_file(service_to_find, NULL));
+		data->ret = parse_file(data->name, NULL);
+		return (HANDLED);
 	}
 
 	/*
@@ -283,12 +294,14 @@ static service_cache_h *initng_i_parser(const char *service_to_find)
 	 * and service "udevd"
 	 */
 
-	got_serv = test_parse((char *) service_to_find, service_to_find);
-	if (got_serv)
-		return (got_serv);
+	got_serv = test_parse((char *) data->name, data->name);
+	if (got_serv) {
+		data->ret = got_serv;
+		return (HANDLED);
+	}
 
-	D_("Was not able to parse: %s\n", service_to_find);
-	return (NULL);
+	D_("Was not able to parse: %s\n", data->name);
+	return (TRUE);
 }
 
 /* parse a file for services */
@@ -1213,14 +1226,14 @@ int module_init(int api_version)
 		return (FALSE);
 	}
 
-	return (initng_plugin_hook_register(&g.PARSERS, 50, &initng_i_parser));
+	return (initng_event_hook_register(&EVENT_PARSE, &initng_i_parser));
 
 }
 
 void module_unload(void)
 {
 	D_("i_parser: module_unload();\n");
-	initng_plugin_hook_unregister(&g.PARSERS, &initng_i_parser);
+	initng_event_hook_unregister(&EVENT_PARSE, &initng_i_parser);
 }
 
 

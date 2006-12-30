@@ -35,6 +35,8 @@
 #include <initng_static_service_types.h>
 #include <initng_execute.h>
 #include <initng_process_db.h>
+#include <initng_static_event_types.h>
+#include <initng_event_hook.h>
 
 INITNG_PLUGIN_MACRO;
 
@@ -45,20 +47,27 @@ const char *module_needs[] = {
 
 ptype_h T_DAEMON_CLEAN = { "daemon_clean", NULL };
 
-static int on_kill(active_db_h * service, process_h * process);
+static int on_kill(s_event * event);
 
-static int on_kill(active_db_h * s, process_h * p)
+static int on_kill(s_event * event)
 {
-	if (strcmp(p->pt->name, "daemon") != 0)
+	s_event_handle_killed_data * data;
+
+	assert(event->event_type == &EVENT_HANDLE_KILLED);
+	assert(event->data);
+
+	data = event->data;
+
+	if (strcmp(data->process->pt->name, "daemon") != 0)
 		return (FALSE);
 
 	/* start the T_DAEMON_CLEAN */
-	W_("%s %s has been killed!, executing DAEMON_CLEAN!\n", p->pt->name,
-	   s->name);
-	initng_execute_launch(s, &T_DAEMON_CLEAN, NULL);
+	W_("%s %s has been killed!, executing DAEMON_CLEAN!\n", data->process->pt->name,
+	   data->service->name);
+	initng_execute_launch(data->service, &T_DAEMON_CLEAN, NULL);
 
 	/*
-	 * if we return TRUE, other kill handlers wont get this signal, 
+	 * if we return TRUE, other kill handlers wont get this signal,
 	 * it means that this signal have been handled.
 	 */
 	return (FALSE);
@@ -74,13 +83,13 @@ int module_init(int api_version)
 	}
 
 	initng_process_db_ptype_register(&T_DAEMON_CLEAN);
-	initng_plugin_hook_register(&g.HANDLE_KILLED, 5, &on_kill);
+	initng_event_hook_register(&EVENT_HANDLE_KILLED, &on_kill);
 	return (TRUE);
 }
 
 void module_unload(void)
 {
 	D_("module_unload();\n");
-	initng_plugin_hook_unregister(&g.HANDLE_KILLED, &on_kill);
+	initng_event_hook_unregister(&EVENT_HANDLE_KILLED, &on_kill);
 	initng_process_db_ptype_unregister(&T_DAEMON_CLEAN);
 }

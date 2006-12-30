@@ -33,28 +33,35 @@
 #include <initng_common.h>
 #include <initng_toolbox.h>
 #include <initng_env_variable.h>
+#include <initng_static_event_types.h>
+#include <initng_event_hook.h>
 
 INITNG_PLUGIN_MACRO;
 
 s_entry LOGFILE = { "logfile", STRING, NULL, "An extra output of service output." };
 
-static int program_output(active_db_h * service, process_h * x, pipe_h * pi,
-						  char *buffer_pos)
+static int program_output(s_event * event)
 {
+	s_event_buffer_watcher_data * data;
 	const char *filename = NULL;
 	char *filename_fixed = NULL;
 	int len = 0;
 	int fd = -1;
 
-	assert(service);
-	assert(service->name);
-	assert(x);
+	assert(event->event_type == &EVENT_BUFFER_WATCHER);
+	assert(event->data);
+
+	data = event->data;
+
+	assert(data->service);
+	assert(data->service->name);
+	assert(data->process);
 
 	/*D_("%s process fd: # %i, %i, service %s, have something to say\n",
-	   x->pt->name, x->out_pipe[0], x->out_pipe[1], service->name); */
+	   data->process->pt->name, data->process->out_pipe[0], data->process->out_pipe[1], data->service->name); */
 
 	/* get the filename */
-	filename = get_string(&LOGFILE, service);
+	filename = get_string(&LOGFILE, data->service);
 	if (!filename)
 	{
 		D_("Logfile not set\n");
@@ -62,7 +69,7 @@ static int program_output(active_db_h * service, process_h * x, pipe_h * pi,
 	}
 
 	/* Fix $variables in filename string */
-	filename_fixed = fix_variables(filename, service);
+	filename_fixed = fix_variables(filename, data->service);
 
 	/* open the file */
 	fd = open(filename, O_WRONLY | O_CREAT | O_APPEND);
@@ -74,10 +81,10 @@ static int program_output(active_db_h * service, process_h * x, pipe_h * pi,
 
 	/* Write data to logfile */
 	D_("Writing data...\n");
-	len = strlen(buffer_pos);
+	len = strlen(data->buffer_pos);
 
-	if (write(fd, buffer_pos, len) != len)
-		F_("Error writing to %s's log, err : %s\n", service->name,
+	if (write(fd, data->buffer_pos, len) != len)
+		F_("Error writing to %s's log, err : %s\n", data->service->name,
 		   strerror(errno));
 
 	fix_free(filename_fixed, filename);
@@ -98,7 +105,7 @@ int module_init(int api_version)
 
 	initng_service_data_type_register(&LOGFILE);
 
-	initng_plugin_hook_register(&g.BUFFER_WATCHER, 30, &program_output);
+	initng_event_hook_register(&EVENT_BUFFER_WATCHER, &program_output);
 	return (TRUE);
 }
 
@@ -110,5 +117,5 @@ void module_unload(void)
 
 	initng_service_data_type_unregister(&LOGFILE);
 
-	initng_plugin_hook_unregister(&g.BUFFER_WATCHER, &program_output);
+	initng_event_hook_unregister(&EVENT_BUFFER_WATCHER, &program_output);
 }

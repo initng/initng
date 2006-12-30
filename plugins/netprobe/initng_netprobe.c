@@ -33,6 +33,8 @@
 #include <initng_toolbox.h>
 #include <initng_static_data_id.h>
 #include <initng_static_states.h>
+#include <initng_static_event_types.h>
+#include <initng_event_hook.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -45,12 +47,13 @@
 #include <net/if.h>
 #include <string.h>
 #include <arpa/inet.h>
+#include <assert.h>
 
 INITNG_PLUGIN_MACRO;
 
 static int is_network(void);
-static int check_START_DEP_MET(active_db_h * service);
-static int check_STOP_DEP_MET(active_db_h * service);
+static int check_START_DEP_MET(s_event * event);
+static int check_STOP_DEP_MET(s_event * event);
 
 int network_status = FALSE;
 time_t last_check = 0;
@@ -113,9 +116,15 @@ s_entry NETWORK_PROVIDER = { "network_provider", SET, NULL,
 };
 
 
-static int check_STOP_DEP_MET(active_db_h * service)
+static int check_STOP_DEP_MET(s_event * event)
 {
-	active_db_h *current = NULL;
+	active_db_h * service;
+	active_db_h * current = NULL;
+
+	assert(event->event_type == &EVENT_STOP_DEP_MET);
+	assert(event->data);
+
+	service = event->data;
 
 	/* The network provider should always be stoppable */
 	if (is(&NETWORK_PROVIDER, service))
@@ -128,13 +137,21 @@ static int check_STOP_DEP_MET(active_db_h * service)
 	while_active_db(current)
 	{
 		if (is(&NETWORK_PROVIDER, service) && (!IS_DOWN(service)))
-			return (FALSE);
+			return (FAIL);
 	}
+
 	return (TRUE);
 }
 
-static int check_START_DEP_MET(active_db_h * service)
+static int check_START_DEP_MET(s_event * event)
 {
+	active_db_h * service;
+
+	assert(event->event_type == &EVENT_START_DEP_MET);
+	assert(event->data);
+
+	service = event->data;
+
 	/* only apply if service requires network */
 	if (!is(&REQUIRE_NETWORK, service))
 		return (TRUE);
@@ -142,7 +159,7 @@ static int check_START_DEP_MET(active_db_h * service)
 	D_("Doing check because REQURE_NETWORK is set.\n");
 
 	/*
-	 * I believe that we are way better probing this in kernel, 
+	 * I believe that we are way better probing this in kernel,
 	 * then waiting for the net provider service to be up.
 	 */
 #ifdef REQUIRE_NETWORK_PROVIDER_SERVICE_TO_BE_UP
@@ -157,7 +174,7 @@ static int check_START_DEP_MET(active_db_h * service)
 	 * service changes state anyway.
 	 */
 	/*initng_set_sleep(1); */
-	return (FALSE);
+	return (FAIL);
 
   ok:
 #endif
@@ -183,7 +200,7 @@ static int check_START_DEP_MET(active_db_h * service)
 	/* Make sure mainloop will run within 1 second. */
 	initng_global_set_sleep(1);
 
-	return (FALSE);
+	return (FAIL);
 }
 
 int module_init(int api_version)
@@ -197,8 +214,9 @@ int module_init(int api_version)
 
 	initng_service_data_type_register(&REQUIRE_NETWORK);
 	initng_service_data_type_register(&NETWORK_PROVIDER);
-	initng_plugin_hook_register(&g.START_DEP_MET, 55, &check_START_DEP_MET);
-	initng_plugin_hook_register(&g.STOP_DEP_MET, 55, &check_STOP_DEP_MET);
+	initng_event_hook_register(&EVENT_START_DEP_MET, &check_START_DEP_MET);
+	initng_event_hook_register(&EVENT_STOP_DEP_MET, &check_STOP_DEP_MET);
+
 	return (TRUE);
 }
 
@@ -207,6 +225,6 @@ void module_unload(void)
 	S_;
 	initng_service_data_type_unregister(&REQUIRE_NETWORK);
 	initng_service_data_type_unregister(&NETWORK_PROVIDER);
-	initng_plugin_hook_unregister(&g.START_DEP_MET, &check_START_DEP_MET);
-	initng_plugin_hook_unregister(&g.STOP_DEP_MET, &check_STOP_DEP_MET);
+	initng_event_hook_unregister(&EVENT_START_DEP_MET, &check_START_DEP_MET);
+	initng_event_hook_unregister(&EVENT_STOP_DEP_MET, &check_STOP_DEP_MET);
 }

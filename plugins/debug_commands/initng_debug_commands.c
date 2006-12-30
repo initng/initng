@@ -51,6 +51,8 @@
 #include <initng_static_states.h>
 #include <initng_depend.h>
 #include <initng_main.h>
+#include <initng_static_event_types.h>
+#include <initng_event_hook.h>
 
 #include "print_service.h"
 
@@ -115,7 +117,7 @@ static char *cmd_print_fds(char *arg)
 	{
 
 		currentC = NULL;
-		while_list(currentC, &g.FDWATCHERS)
+		while_list(currentC, &EVENT_FD_WATCHER.hooks)
 		{
 			if (currentC->c.fdh->fds != i)
 				continue;

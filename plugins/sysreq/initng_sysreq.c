@@ -36,15 +36,23 @@
 #include <initng_static_data_id.h>
 #include <initng_static_states.h>
 #include <initng_static_service_types.h>
+#include <initng_static_event_types.h>
+#include <initng_event_hook.h>
+
 
 INITNG_PLUGIN_MACRO;
 
-static void sysreq(int signal)
+static int sysreq(s_event * event)
 {
+	int signal;
 	active_db_h *current = NULL;
 
+	assert(event->event_type == &EVENT_SIGNAL);
+
+	signal = (int) event->data;
+
 	if (signal != SIGWINCH)
-		return;
+		return (TRUE);
 
 	printf(" %-36s   %-15s (I)\n", "Service", "State");
 	printf(" ----------------------------------------------------------\n");
@@ -54,6 +62,8 @@ static void sysreq(int signal)
 			   current->current_state->state_name,
 			   current->current_state->is);
 	}
+
+	return (TRUE);
 }
 
 int module_init(int api_version)
@@ -65,12 +75,12 @@ int module_init(int api_version)
 		return (FALSE);
 	}
 
-	initng_plugin_hook_register(&g.SIGNAL, 51, &sysreq);
+	initng_event_hook_register(&EVENT_SIGNAL, &sysreq);
 	return (TRUE);
 }
 
 void module_unload(void)
 {
 	D_("module_unload();\n");
-	initng_plugin_hook_unregister(&g.SIGNAL, &sysreq);
+	initng_event_hook_unregister(&EVENT_SIGNAL, &sysreq);
 }

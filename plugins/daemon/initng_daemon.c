@@ -50,6 +50,9 @@
 #include <initng_depend.h>
 #include <initng_env_variable.h>
 #include <initng_execute.h>
+#include <initng_static_event_types.h>
+#include <initng_event_hook.h>
+
 
 INITNG_PLUGIN_MACRO;
 
@@ -105,7 +108,7 @@ static int check_respawn(active_db_h * service);
 static int try_get_pid(active_db_h * s);
 
 #ifdef SERVICE_CACHE
-static int check_valid_pidfile_path(service_cache_h * s);
+static int check_valid_pidfile_path(s_event * event);
 #endif
 /*
  * ############################################################################
@@ -263,7 +266,7 @@ a_state_h DAEMON_STOP_MARKED = { "DAEMON_STOP_MARKED", "The daemon is marked to 
  */
 a_state_h DAEMON_RUNNING = { "DAEMON_RUNNING", "This daemon is running.", IS_UP, NULL, NULL, NULL };
 
-/* 
+/*
  * When daemons needed by current one is starting, current daemon is set DAEMON_WAITING_FOR_START_DEP
  */
 a_state_h DAEMON_WAITING_FOR_START_DEP = { "DAEMON_WAITING_FOR_START_DEP", "Waiting for depdencencies before starting this daemon", IS_STARTING,
@@ -458,8 +461,7 @@ int module_init(int api_version)
 	initng_active_state_register(&DAEMON_RESPAWN_RATE_EXCEEDED);
 
 #ifdef SERVICE_CACHE
-	initng_plugin_hook_register(&g.ADDITIONAL_PARSE, 80,
-								&check_valid_pidfile_path);
+	initng_event_hook_register(&EVENT_ADDITIONAL_PARSE, &check_valid_pidfile_path);
 
 #endif
 	/* return happily */
@@ -516,8 +518,7 @@ void module_unload(void)
 
 #ifdef SERVICE_CACHE
 
-	initng_plugin_hook_unregister(&g.ADDITIONAL_PARSE,
-								  &check_valid_pidfile_path);
+	initng_event_hook_unregister(&EVENT_ADDITIONAL_PARSE, &check_valid_pidfile_path);
 #endif
 }
 
@@ -529,7 +530,7 @@ void module_unload(void)
 
 
 /*
- * Everything DAEMON_START_MARKED are gonna do, is to set it DAEMON_WAITING_FOR_START_DEP 
+ * Everything DAEMON_START_MARKED are gonna do, is to set it DAEMON_WAITING_FOR_START_DEP
  */
 static void init_DAEMON_START_MARKED(active_db_h * daemon)
 {
@@ -542,7 +543,7 @@ static void init_DAEMON_START_MARKED(active_db_h * daemon)
 }
 
 /*
- * Everything DAEMON_STOP_MARKED are gonna do, is to set it DAEMON_WAITING_FOR_STOP_DEP 
+ * Everything DAEMON_STOP_MARKED are gonna do, is to set it DAEMON_WAITING_FOR_STOP_DEP
  */
 static void init_DAEMON_STOP_MARKED(active_db_h * daemon)
 {
@@ -1094,7 +1095,7 @@ static pid_t pid_of(const char *name)
 
 
 /*
- * Check if a pidfile exists, if it exists, update the 
+ * Check if a pidfile exists, if it exists, update the
  * pid in the active_db entry. and return TRUE
  */
 static pid_t pid_from_file(const char *name)
@@ -1241,10 +1242,16 @@ static void clear_pidfile(active_db_h * s)
    us deleting something we shouldn't due to a missing semicolon
    (see bug #414). [FIXME] Note that for some reason, this can't stop
    the daemon with the problem from being loaded and started! */
-static int check_valid_pidfile_path(service_cache_h * s)
+static int check_valid_pidfile_path(s_event * event)
 {
+	service_cache_h * s;
 	const char *pidfile = NULL;
 	s_data *itt = NULL;
+
+	assert(event->event_type == &EVENT_ADDITIONAL_PARSE);
+	assert(event->data);
+
+	s = event->data;
 
 	while ((pidfile = get_next_string(&PIDFILE, s, &itt)))
 	{
@@ -1252,10 +1259,10 @@ static int check_valid_pidfile_path(service_cache_h * s)
 		{
 			F_("%s has pid_file with relative path \"%s\"\n", s->name,
 			   pidfile);
-			return FALSE;
+			return (FAIL);
 		}
 	}
-	return TRUE;
+	return (TRUE);
 }
 #endif
 

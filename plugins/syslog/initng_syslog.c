@@ -249,36 +249,41 @@ static int syslog_print_system_state(s_event * event)
 	return (TRUE);
 }
 
-static int syslog_fetch_output(active_db_h * service, process_h * process,
-							   pipe_h * pi, char *buffer_pos)
+static int syslog_fetch_output(s_event * event)
 {
+	s_event_buffer_watcher_data * data;
 	char log[201];
 	int pos = 0;
 	int i;
 
-	assert(service);
-	assert(service->name);
+	assert(event->event_type == &EVENT_BUFFER_WATCHER);
+	assert(event->data);
+
+	data = event->data;
+
+	assert(data->service);
+	assert(data->service->name);
 
 	/* print every line, ending with a '\n' as an own syslog */
-	while (buffer_pos[pos])
+	while (data->buffer_pos[pos])
 	{
 		i = 0;
 		/* count the number of char before '\n' */
-		while (buffer_pos[pos + i] && buffer_pos[pos + i] != '\n' && i < 200)
+		while (data->buffer_pos[pos + i] && data->buffer_pos[pos + i] != '\n' && i < 200)
 			i++;
 
 		/* copy that many chars to our temporary log array */
-		strncpy(log, &buffer_pos[pos], i);
+		strncpy(log, &data->buffer_pos[pos], i);
 		log[i] = '\0';
 
 		/* send it to syslog */
-		initng_log(LOG_NOTICE, service->name, "%s", log);
+		initng_log(LOG_NOTICE, data->service->name, "%s", log);
 
 		/* step forward */
 		pos += i;
 
 		/* and skip the newline if any */
-		if (buffer_pos[pos])
+		if (data->buffer_pos[pos])
 			pos++;
 
 	}
@@ -286,21 +291,27 @@ static int syslog_fetch_output(active_db_h * service, process_h * process,
 }
 
 
-static int syslog_print_error(e_mt mt, const char *file, const char *func,
-							  int line, const char *format, va_list arg)
+static int syslog_print_error(s_event * event)
 {
-	assert(file);
-	assert(func);
-	assert(format);
+	s_event_error_message_data * data;
+
+	assert(event->event_type == &EVENT_ERROR_MESSAGE);
+	assert(event->data);
+
+	data = event->data;
+
+	assert(data->file);
+	assert(data->func);
+	assert(data->format);
 	char tempspace[200];
 
-	vsnprintf(tempspace, 200, format, arg);
+	vsnprintf(tempspace, 200, data->format, data->arg);
 
-	switch (mt)
+	switch (data->mt)
 	{
 		case MSG_FAIL:
 #ifdef DEBUG
-			syslog(LOG_EMERG, "\"%s\", %s() #%i FAIL: %s", file, func, line,
+			syslog(LOG_EMERG, "\"%s\", %s() #%i FAIL: %s", data->file, data->func, data->line,
 				   tempspace);
 #else
 			syslog(LOG_EMERG, "FAIL: %s", tempspace);
@@ -308,7 +319,7 @@ static int syslog_print_error(e_mt mt, const char *file, const char *func,
 			return (TRUE);
 		case MSG_WARN:
 #ifdef DEBUG
-			syslog(LOG_WARNING, "\"%s\", %s() #%i WARN: %s", file, func, line,
+			syslog(LOG_WARNING, "\"%s\", %s() #%i WARN: %s", data->file, data->func, data->line,
 				   tempspace);
 #else
 			syslog(LOG_EMERG, "WARN: %s", tempspace);
@@ -349,8 +360,8 @@ int module_init(int api_version)
 
 	initng_event_hook_register(&EVENT_IS_CHANGE, &syslog_print_status_change);
 	initng_event_hook_register(&EVENT_SYSTEM_CHANGE, &syslog_print_system_state);
-	initng_plugin_hook_register(&g.BUFFER_WATCHER, 100, &syslog_fetch_output);
-	initng_plugin_hook_register(&g.ERR_MSG, 50, &syslog_print_error);
+	initng_event_hook_register(&EVENT_BUFFER_WATCHER, &syslog_fetch_output);
+	initng_event_hook_register(&EVENT_ERROR_MESSAGE, &syslog_print_error);
 
 	return (TRUE);
 }
@@ -367,8 +378,8 @@ void module_unload(void)
 
 	initng_event_hook_unregister(&EVENT_IS_CHANGE, &syslog_print_status_change);
 	initng_event_hook_unregister(&EVENT_SYSTEM_CHANGE, &syslog_print_system_state);
-	initng_plugin_hook_unregister(&g.BUFFER_WATCHER, &syslog_fetch_output);
-	initng_plugin_hook_unregister(&g.ERR_MSG, &syslog_print_error);
+	initng_event_hook_unregister(&EVENT_BUFFER_WATCHER, &syslog_fetch_output);
+	initng_event_hook_unregister(&EVENT_ERROR_MESSAGE, &syslog_print_error);
 	free_buffert();
 	closelog();
 }

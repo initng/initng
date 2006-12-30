@@ -168,42 +168,46 @@ static int system_state_watch(s_event * event)
 	return (TRUE);
 }
 
-static int error_watch(e_mt mt, const char *file, const char *func,
-					   int line, const char *format, va_list arg)
+static int error_watch(s_event * event)
 {
+	s_event_error_message_data * data;
 	ngcs_genwatch *watch, *nextwatch;
 	int len, size;
 	ngcs_data dat[5];
 	char *buf;
 
+	assert(event->event_type == &EVENT_ERROR_MESSAGE);
+	assert(event->data);
+
+	data = event->data;
 
 	/* Don't do the processing if we're just going to throw away the result */
 	if (list_empty(&ewatches.list))
 		return FALSE;
 
 	dat[0].type = NGCS_TYPE_INT;
-	dat[0].d.i = mt;
+	dat[0].d.i = data->mt;
 	dat[1].type = NGCS_TYPE_STRING;
 	dat[1].len = -1;
-	dat[1].d.s = (char *) file;
+	dat[1].d.s = (char *) data->file;
 	dat[2].type = NGCS_TYPE_STRING;
 	dat[2].len = -1;
-	dat[2].d.s = (char *) func;
+	dat[2].d.s = (char *) data->func;
 	dat[3].type = NGCS_TYPE_INT;
-	dat[3].d.i = line;
+	dat[3].d.i = data->line;
 
 	dat[4].type = NGCS_TYPE_STRING;
 
 	size = 256;
 	dat[4].d.s = i_calloc(1, size);
-	len = vsnprintf(dat[4].d.s, size, format, arg);
+	len = vsnprintf(dat[4].d.s, size, data->format, data->arg);
 	while (len < 0 || len >= size)
 	{
 		/* Some glibc versions apparently return -1 if buffer too small */
 		size = (len < 0 ? size * 2 : len + 1);
 		free(dat[4].d.s);
 		dat[4].d.s = i_calloc(1, size);
-		len = vsnprintf(dat[4].d.s, size, format, arg);
+		len = vsnprintf(dat[4].d.s, size, data->format, data->arg);
 	}
 	dat[4].len = len;
 
@@ -302,25 +306,27 @@ static int ngcs_watch_initial(ngcs_watch * watch)
 	return 0;
 }
 
-static int service_output_watch(active_db_h * service, process_h * x,
-								pipe_h * pi, char *buffer_pos)
+static int service_output_watch(s_event * event)
 {
+	s_event_buffer_watcher_data *data;
 	ngcs_watch *watch, *nextwatch;
 	ngcs_data dat[2];
 	int len = 0;
 	char *buf = NULL;;
 
+	assert(event->event_type == &EVENT_BUFFER_WATCHER);
+
 	dat[0].type = NGCS_TYPE_STRING;
 	dat[0].len = -1;
-	dat[0].d.s = service->name;
+	dat[0].d.s = data->service->name;
 	dat[1].type = NGCS_TYPE_STRING;
 	dat[1].len = -1;
-	dat[1].d.s = buffer_pos;
+	dat[1].d.s = data->buffer_pos;
 
 	list_for_each_entry_prev_safe(watch, nextwatch, &watches.list, list)
 	{
 		if ((watch->flags & NGCS_WATCH_OUTPUT) &&
-			(watch->name == NULL || strcmp(watch->name, service->name) == 0))
+			(watch->name == NULL || strcmp(watch->name, data->service->name) == 0))
 		{
 			if (!buf)
 			{
@@ -337,9 +343,11 @@ static int service_output_watch(active_db_h * service, process_h * x,
 			};
 		}
 	}
+
 	if (buf)
 		free(buf);
-	return FALSE;
+
+	return (FALSE);
 }
 
 static void ngcs_cmd_stop(ngcs_request * req)
@@ -564,9 +572,9 @@ void register_ngcs_cmds(void)
 	ngcs_reg_cmd(&ngcs_hot_reload_cmd_long);
 	ngcs_reg_cmd(&ngcs_zap_cmd);
 	initng_event_hook_register(&EVENT_STATE_CHANGE, &service_status_watch);
-	initng_plugin_hook_register(&g.BUFFER_WATCHER, 50, &service_output_watch);
+	initng_event_hook_register(&EVENT_BUFFER_WATCHER, &service_output_watch);
 	initng_event_hook_register(&EVENT_SYSTEM_CHANGE, &system_state_watch);
-	initng_plugin_hook_register(&g.ERR_MSG, 50, &error_watch);
+	initng_event_hook_register(&EVENT_ERROR_MESSAGE, &error_watch);
 	INIT_LIST_HEAD(&watches.list);
 	INIT_LIST_HEAD(&swatches.list);
 	INIT_LIST_HEAD(&ewatches.list);
@@ -575,7 +583,7 @@ void register_ngcs_cmds(void)
 void unregister_ngcs_cmds(void)
 {
 	initng_event_hook_unregister(&EVENT_STATE_CHANGE, &service_status_watch);
-	initng_plugin_hook_unregister(&g.BUFFER_WATCHER, &service_output_watch);
+	initng_event_hook_unregister(&EVENT_BUFFER_WATCHER, &service_output_watch);
 	ngcs_unreg_cmd(&ngcs_start_cmd);
 	ngcs_unreg_cmd(&ngcs_stop_cmd);
 	ngcs_unreg_cmd(&ngcs_watch_cmd);

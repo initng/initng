@@ -184,7 +184,7 @@ void accepted_client(f_module_h * from, e_fdw what)
 		conn->list.next = 0;
 		conn->list.prev = 0;
 		list_add(&conn->list, &ngcs_conns.list);
-		initng_plugin_hook_register(&g.FDWATCHERS, 30, &conn->fdw);
+		initng_plugin_hook_register(&EVENT_FD_WATCHER.hooks, 30, &conn->fdw);
 		return;
 	}
 
@@ -205,7 +205,7 @@ static void handle_close(ngcs_conn * conn)
 {
 	ngcs_svr_conn *sconn = (ngcs_svr_conn *) conn->userdata;
 
-	initng_plugin_hook_unregister(&g.FDWATCHERS, &(sconn->fdw));
+	initng_plugin_hook_unregister(&EVENT_FD_WATCHER.hooks, &(sconn->fdw));
 	sconn->fdw.fds = -1;
 	list_move(&sconn->list, &ngcs_dead_conns.list);
 }
@@ -700,7 +700,7 @@ int module_init(int api_version)
 
 	D_("adding hook, that will reopen socket, for every started service.\n");
 	initng_event_hook_register(&EVENT_IS_CHANGE, &service_status);
-	initng_plugin_hook_register(&g.FDWATCHERS, 30, &fdh);
+	initng_plugin_hook_register(&EVENT_FD_WATCHER.hooks, 30, &fdh);
 
 	ngcs_reg_cmd(&ngcs_compat_cmds);
 
@@ -735,7 +735,7 @@ void module_unload(void)
 	unregister_ngcs_cmds();
 
 	/* remove hooks */
-	initng_plugin_hook_unregister(&g.FDWATCHERS, &fdh);
+	initng_plugin_hook_unregister(&EVENT_FD_WATCHER.hooks, &fdh);
 	initng_event_hook_unregister(&EVENT_IS_CHANGE, &service_status);
 
 	D_("ngcs.so.0.0 unloaded!\n");

@@ -27,6 +27,8 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <assert.h>
+
 #include <initng_handler.h>
 #include <initng_global.h>
 #include <initng_plugin_hook.h>
@@ -34,6 +36,8 @@
 #include <initng_toolbox.h>
 #include <initng_static_data_id.h>
 #include <initng_static_states.h>
+#include <initng_static_event_types.h>
+#include <initng_event_hook.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -185,21 +189,26 @@ static int is_cpu_idle(int wait)
 	return (FALSE);
 }
 
-static int check_cpu_idle(active_db_h * service)
+static int check_cpu_idle(s_event * event)
 {
 	S_;
+	active_db_h * service;
 	int value = 0;
 
+	assert(event->event_type == &EVENT_START_DEP_MET);
+	assert(event->data);
 
+	service = event->data;
 
 	if ((value = get_int(&WAIT_FOR_CPU_COUNT, service)) > 0)
 	{
-		return (is_cpu_idle(value));
+		if (is_cpu_idle(value) < TRUE)
+			return FAIL;
 	}
 
 	if (is(&WAIT_FOR_CPU_IDLE, service))
-		return (is_cpu_idle(DEFAULT_IDLE));
-
+		if (is_cpu_idle(DEFAULT_IDLE) < TRUE)
+			return FAIL;
 
 	return (TRUE);
 }
@@ -215,7 +224,7 @@ int module_init(int api_version)
 
 	initng_service_data_type_register(&WAIT_FOR_CPU_IDLE);
 	initng_service_data_type_register(&WAIT_FOR_CPU_COUNT);
-	initng_plugin_hook_register(&g.START_DEP_MET, 90, &check_cpu_idle);
+	initng_event_hook_register(&EVENT_START_DEP_MET, &check_cpu_idle);
 	return (TRUE);
 }
 
@@ -224,7 +233,7 @@ void module_unload(void)
 	S_;
 	initng_service_data_type_unregister(&WAIT_FOR_CPU_IDLE);
 	initng_service_data_type_unregister(&WAIT_FOR_CPU_COUNT);
-	initng_plugin_hook_unregister(&g.START_DEP_MET, &check_cpu_idle);
+	initng_event_hook_unregister(&EVENT_START_DEP_MET, &check_cpu_idle);
 
 	if (fp_proc)
 		fclose(fp_proc);

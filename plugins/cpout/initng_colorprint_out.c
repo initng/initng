@@ -391,8 +391,7 @@ static int print_system_state(s_event * event)
 	return (TRUE);
 }
 
-static int print_program_output(active_db_h * service, process_h * x,
-								pipe_h * pi, char *buffer_pos)
+static int print_program_output(s_event * event)
 {
 	/*
 	   TODO here:
@@ -401,37 +400,43 @@ static int print_program_output(active_db_h * service, process_h * x,
 	   That way when this function is called we can print every full line from plugin_pos.
 	   This way fsck will look nice, along with an "internal" database of write positions we can cache data so we print every 5 seconds or on int forceflush.
 	 */
+	s_event_buffer_watcher_data * data;
 	int i = 0;
 
-	assert(service);
-	assert(service->name);
-	assert(x);
+	assert(event->event_type == &EVENT_BUFFER_WATCHER);
+	assert(event->data);
+
+	data = event->data;
+
+	assert(data->service);
+	assert(data->service->name);
+	assert(data->process);
 	S_;
 
 	/* if quiet_when_up and system up, dont print anything */
 	if (quiet_when_up && g.sys_state == STATE_UP)
 		return (TRUE);
 
-	D_(" from service \"%s\"\n", service->name);
+	D_(" from service \"%s\"\n", data->service->name);
 	/*
-	   cprintf("buffer_pos: %i\n", buffer_pos);
+	   cprintf("buffer_pos: %i\n", data->buffer_pos);
 	   cprintf("datalen: %i\n", datalen);
-	   cprintf("Buffer: \n################\n%s\n##########\n\n",x->buffer);
+	   cprintf("Buffer: \n################\n%s\n##########\n\n",data->process->buffer);
 	 */
 	/* a first while loop that sorts out crap */
-	while (buffer_pos[i] != '\0')
+	while (data->buffer_pos[i] != '\0')
 	{
 		/*  remove lines with " [2]  Done " that bash generates. */
-		if (buffer_pos[i] == '[' && buffer_pos[i + 2] == ']')
+		if (data->buffer_pos[i] == '[' && data->buffer_pos[i + 2] == ']')
 		{
 			/* jump to next line */
-			while (buffer_pos[i] && buffer_pos[i] != '\n')
+			while (data->buffer_pos[i] && data->buffer_pos[i] != '\n')
 				i++;
 		}
 
 		/* if there are stupid tokens, go to next char, and run while again. */
-		if (buffer_pos[i] == ' ' || buffer_pos[i] == '\n'
-			|| buffer_pos[i] == '\t')
+		if (data->buffer_pos[i] == ' ' || data->buffer_pos[i] == '\n'
+			|| data->buffer_pos[i] == '\t')
 		{
 			i++;
 			continue;
@@ -442,25 +447,25 @@ static int print_program_output(active_db_h * service, process_h * x,
 	}
 
 	/* Make sure that there is anything left to write */
-	if (strlen(&buffer_pos[i]) < 2)
+	if (strlen(&data->buffer_pos[i]) < 2)
 	{
 		/* its okay anyway */
 		return (TRUE);
 	}
 
-	if (lastservice != service && last_ptype != x->pt)
+	if (lastservice != data->service && last_ptype != data->process->pt)
 	{
 		clear_lastserv();
 		if (color)
-			cprintf("\n" C_CYAN " %s %s:" C_OFF, service->name, x->pt->name);
+			cprintf("\n" C_CYAN " %s %s:" C_OFF, data->service->name, data->process->pt->name);
 		else
-			cprintf("\n %s %s:", service->name, x->pt->name);
+			cprintf("\n %s %s:", data->service->name, data->process->pt->name);
 		/* print our special indented newline */
 		putc('\n', output);
 		putc(' ', output);
 		putc(' ', output);
-		lastservice = service;
-		last_ptype = x->pt;
+		lastservice = data->service;
+		last_ptype = data->process->pt;
 	}
 	else
 	{
@@ -470,17 +475,17 @@ static int print_program_output(active_db_h * service, process_h * x,
 
 
 	/* while buffer lasts */
-	while (buffer_pos[i] != '\0')
+	while (data->buffer_pos[i] != '\0')
 	{
 		/*  remove lines with " [2]  Done " that bash generates. */
-		if (buffer_pos[i] == '[' && buffer_pos[i + 2] == ']')
+		if (data->buffer_pos[i] == '[' && data->buffer_pos[i + 2] == ']')
 		{
-			while (buffer_pos[i] && buffer_pos[i] != '\n')
+			while (data->buffer_pos[i] && data->buffer_pos[i] != '\n')
 				i++;
 		}
 
 		/* if this are a newline */
-		if (buffer_pos[i] == '\n')
+		if (data->buffer_pos[i] == '\n')
 		{
 			/* print our special indented newline instead */
 			putc('\n', output);
@@ -488,14 +493,14 @@ static int print_program_output(active_db_h * service, process_h * x,
 			putc(' ', output);
 			i++;
 			/* skip spaces, on newline. */
-			while (buffer_pos[i]
-				   && (buffer_pos[i] == ' ' || buffer_pos[i] == '\t'))
+			while (data->buffer_pos[i]
+				   && (data->buffer_pos[i] == ' ' || data->buffer_pos[i] == '\t'))
 				i++;
 			continue;
 		}
 
 		/* ok, now put the char, and go to next. */
-		putc(buffer_pos[i], output);
+		putc(data->buffer_pos[i], output);
 		i++;
 	}
 
@@ -505,28 +510,33 @@ static int print_program_output(active_db_h * service, process_h * x,
 }
 
 
-static int cp_print_error(e_mt mt, const char *file, const char *func,
-						  int line, const char *format, va_list arg)
+static int cp_print_error(s_event * event)
 {
+	s_event_error_message_data * data;
 	struct tm *ts;
 	time_t t;
 
-	switch (mt)
+	assert(event->event_type == &EVENT_ERROR_MESSAGE);
+	assert(event->data);
+
+	data = event->data;
+
+	switch (data->mt)
 	{
 		case MSG_FAIL:
 		case MSG_WARN:
 			t = time(0);
 			ts = localtime(&t);
 #ifdef DEBUG
-			fprintf(output, "\n\n ** \"%s\", %s()  line:%i:\n", file, func,
-					line);
+			fprintf(output, "\n\n ** \"%s\", %s()  line:%i:\n", data->file, data->func,
+					data->line);
 #endif
 			fprintf(output, " %.2i:%.2i:%.2i -- %s:\t", ts->tm_hour,
-					ts->tm_min, ts->tm_sec, mt == MSG_FAIL ? "FAIL" : "WARN");
-			vfprintf(output, format, arg);
+					ts->tm_min, ts->tm_sec, data->mt == MSG_FAIL ? "FAIL" : "WARN");
+			vfprintf(output, data->format, data->arg);
 			break;
 		default:
-			vfprintf(output, format, arg);
+			vfprintf(output, data->format, data->arg);
 			break;
 	}
 
@@ -602,10 +612,10 @@ int module_init(int api_version)
 	fflush(output);
 	D_("module_init();\n");
 	lastservice = NULL;
-	initng_plugin_hook_register(&g.ERR_MSG, 10, &cp_print_error);
+	initng_event_hook_register(&EVENT_ERROR_MESSAGE, &cp_print_error);
 	initng_event_hook_register(&EVENT_IS_CHANGE, &print_output);
 	initng_event_hook_register(&EVENT_SYSTEM_CHANGE, &print_system_state);
-	initng_plugin_hook_register(&g.BUFFER_WATCHER, 50, &print_program_output);
+	initng_event_hook_register(&EVENT_BUFFER_WATCHER, &print_program_output);
 	return (TRUE);
 }
 
@@ -618,8 +628,8 @@ void module_unload(void)
 
 	initng_event_hook_unregister(&EVENT_IS_CHANGE, &print_output);
 	initng_event_hook_unregister(&EVENT_SYSTEM_CHANGE, &print_system_state);
-	initng_plugin_hook_unregister(&g.BUFFER_WATCHER, &print_program_output);
-	initng_plugin_hook_unregister(&g.ERR_MSG, &cp_print_error);
+	initng_event_hook_unregister(&EVENT_BUFFER_WATCHER, &print_program_output);
+	initng_event_hook_unregister(&EVENT_ERROR_MESSAGE, &cp_print_error);
 	cprintf("  Goodbye\n");
 	fflush(output);
 

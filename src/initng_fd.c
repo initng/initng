@@ -25,6 +25,7 @@
 #include <errno.h>
 #include <string.h>
 #include <fcntl.h>							/* fcntl() */
+
 #include "initng.h"
 #include "initng_global.h"
 //#include "initng_service_cache.h"
@@ -34,6 +35,7 @@
 
 #include "initng_plugin_callers.h"
 #include "initng_plugin.h"
+#include "initng_static_event_types.h"
 
 #include "initng_fd.h"
 
@@ -43,7 +45,7 @@ void initng_fd_close_all(void)
 
 	S_;
 
-	while_list_safe(current, &g.FDWATCHERS, safe)
+	while_list_safe(current, &EVENT_FD_WATCHER.hooks, safe)
 	{
 		if (current->c.fdh->fds > 0)
 			close(current->c.fdh->fds);
@@ -65,29 +67,23 @@ static void initng_fd_plugin_readpipe(active_db_h * service,
 									  process_h * process, pipe_h * pi,
 									  char *buffer_pos)
 {
-	s_call *current = NULL;
-	int delivered = FALSE;
+	s_event event;
+	s_event_buffer_watcher_data data;
 
 	S_;
 
+	event.event_type = &EVENT_BUFFER_WATCHER;
+	event.data = &data;
+	data.service = service;
+	data.process = process;
+	data.pipe = pi;
+	data.buffer_pos = buffer_pos;
 
-	while_list(current, &g.BUFFER_WATCHER)
+	if (initng_event_send(&event) != TRUE)
 	{
-		D_("Calling pipewatcher plugin.\n");
-		if ((*current->c.buffer_watcher) (service, process, pi,
-										  buffer_pos) == TRUE)
-			delivered = TRUE;
-#ifdef DEBUG
-		else
-		{
-			D_("plugin %s returned FALSE\n", current->from_file);
-		}
-#endif
-	}
-
-	/* make sure someone handled this */
-	if (delivered != TRUE)
+		/* make sure someone handled this */
 		fprintf(stdout, "%s", buffer_pos);
+	}
 }
 
 
@@ -95,13 +91,18 @@ static void initng_fd_plugin_readpipe(active_db_h * service,
 static int initng_fd_pipe(active_db_h * service, process_h * process,
 						  pipe_h * pi)
 {
-	s_call *current = NULL;
+	s_event event;
+	s_event_pipe_watcher_data data;
 
-	while_list(current, &g.PIPE_WATCHER)
-	{
-		if ((*current->c.pipe_watcher) (service, process, pi) == TRUE)
-			return (TRUE);
-	}
+	data.service = service;
+	data.process = process;
+	data.pipe = pi;
+
+	event.event_type = &EVENT_PIPE_WATCHER;
+	event.data = &data;
+
+	if (initng_event_send(&event) == HANDLED)
+		return (TRUE);
 
 	return (FALSE);
 }
@@ -318,7 +319,7 @@ void initng_fd_plugin_poll(int timeout)
 
 	/* scan through active plug-ins that have listening file descriptors, and add them */
 	currentC = NULL;
-	while_list(currentC, &g.FDWATCHERS)
+	while_list(currentC, &EVENT_FD_WATCHER.hooks)
 	{
 		/* first, some checking */
 		if (currentC->c.fdh->fds <= 2)
@@ -454,7 +455,7 @@ void initng_fd_plugin_poll(int timeout)
 	/* Now scan through callers */
 	currentC = NULL;
 	qC = NULL;
-	while_list_safe(currentC, &g.FDWATCHERS, qC)
+	while_list_safe(currentC, &EVENT_FD_WATCHER.hooks, qC)
 	{
 		int what = 0;
 

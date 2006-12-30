@@ -70,16 +70,14 @@ void event_acceptor(f_module_h * from, e_fdw what);
 static void close_all_listeners(void);
 static void close_initiator_socket(void);
 static int open_initiator_socket(void);
-static void check_socket(int signal);
+static int check_socket(s_event * event);
 void send_to_all(const void *buf, size_t len);
 
 
 static int astatus_change(s_event * event);
 static int system_state_change(s_event * event);
-static int system_pipe_watchers(active_db_h * service, process_h * process,
-								pipe_h * pi, char *output);
-static int print_error(e_mt mt, const char *file, const char *func, int line,
-					   const char *format, va_list arg);
+static int system_pipe_watchers(s_event * event);
+static int print_error(s_event * event);
 
 /* todo, when last listener closed, del hooks to save cpu cykles */
 
@@ -101,21 +99,27 @@ static void close_all_listeners(void)
 	}
 }
 
-static int handle_killed(active_db_h * service, process_h * process)
+static int handle_killed(s_event * event)
 {
+	s_event_handle_killed_data * data;
 	char *buffert = NULL;
 	int len;
 
-	buffert = i_calloc(180 + strlen(service->name) +
-					   strlen(service->current_state->state_name) +
-					   strlen(process->pt->name), sizeof(char));
+	assert(event->event_type == &EVENT_HANDLE_KILLED);
+	assert(event->data);
+
+	data = event->data;
+
+	buffert = i_calloc(180 + strlen(data->service->name) +
+					   strlen(data->service->current_state->state_name) +
+					   strlen(data->process->pt->name), sizeof(char));
 
 	len = sprintf(buffert,
 				  "<event type=\"process_killed\" service=\"%s\" is=\"%i\" state=\"%s\" process=\"%s\" exit_status=\"%i\" term_sig=\"%i\"/>\n",
-				  service->name, service->current_state->is,
-				  service->current_state->state_name,
-				  process->pt->name, WEXITSTATUS(process->r_code),
-				  WTERMSIG(process->r_code));
+				  data->service->name, data->service->current_state->is,
+				  data->service->current_state->state_name,
+				  data->process->pt->name, WEXITSTATUS(data->process->r_code),
+				  WTERMSIG(data->process->r_code));
 
 	if (len > 1)
 		send_to_all(buffert, sizeof(char) * len);
@@ -140,10 +144,9 @@ static void close_initiator_socket(void)
 		 */
 		initng_event_hook_unregister(&EVENT_STATE_CHANGE, &astatus_change);
 		initng_event_hook_unregister(&EVENT_SYSTEM_CHANGE, &system_state_change);
-		initng_plugin_hook_unregister(&g.BUFFER_WATCHER,
-									  &system_pipe_watchers);
-		initng_plugin_hook_unregister(&g.ERR_MSG, &print_error);
-		initng_plugin_hook_unregister(&g.HANDLE_KILLED, &handle_killed);
+		initng_event_hook_unregister(&EVENT_BUFFER_WATCHER, &system_pipe_watchers);
+		initng_event_hook_unregister(&EVENT_ERROR_MESSAGE, &print_error);
+		initng_event_hook_unregister(&EVENT_HANDLE_KILLED, &handle_killed);
 
 		is_active = FALSE;
 	}
@@ -153,7 +156,7 @@ static void close_initiator_socket(void)
 	fd_event_acceptor.fds = -1;
 
 	/* remove tha hook too */
-	initng_plugin_hook_unregister(&g.FDWATCHERS, &fd_event_acceptor);
+	initng_plugin_hook_unregister(&EVENT_FD_WATCHER.hooks, &fd_event_acceptor);
 }
 
 /* send to all listeners */
@@ -214,10 +217,9 @@ void event_acceptor(f_module_h * from, e_fdw what)
 		 */
 		initng_event_hook_register(&EVENT_STATE_CHANGE, &astatus_change);
 		initng_event_hook_register(&EVENT_SYSTEM_CHANGE, &system_state_change);
-		initng_plugin_hook_register(&g.BUFFER_WATCHER, 50,
-									&system_pipe_watchers);
-		initng_plugin_hook_register(&g.ERR_MSG, 50, &print_error);
-		initng_plugin_hook_register(&g.HANDLE_KILLED, 1, &handle_killed);
+		initng_event_hook_register(&EVENT_BUFFER_WATCHER, &system_pipe_watchers);
+		initng_event_hook_register(&EVENT_ERROR_MESSAGE, &print_error);
+		initng_event_hook_register(&EVENT_HANDLE_KILLED, &handle_killed);
 		is_active = TRUE;
 	}
 	/* create a new socket, for reading */
@@ -409,19 +411,24 @@ static int open_initiator_socket(void)
 	 * Add an hook, so when fd_event_acceptor.fds have data,
 	 * fd_event_acceptor.call (event_acceptor()) is called.
 	 */
-	initng_plugin_hook_register(&g.FDWATCHERS, 30, &fd_event_acceptor);
+	initng_plugin_hook_register(&EVENT_FD_WATCHER.hooks, 30, &fd_event_acceptor);
 
 	/* return happily */
 	return (TRUE);
 }
 
 /* this will check socket, and reopen on failure */
-static void check_socket(int signal)
+static int check_socket(s_event * event)
 {
+	int signal;
 	struct stat st;
 
+	assert(event->event_type == &EVENT_SIGNAL);
+
+	signal = (int) event->data;
+
 	if (signal != SIGHUP)
-		return;
+		return (TRUE);
 
 #define PING "<event type=\"ping\"/>\n"
 	send_to_all(PING, sizeof(char) * strlen(PING));
@@ -432,7 +439,7 @@ static void check_socket(int signal)
 	{
 		D_("fd_event_acceptor.fds not set, opening new socket.\n");
 		open_initiator_socket();
-		return;
+		return (TRUE);
 	}
 
 	/* stat the socket, reopen on failure */
@@ -441,7 +448,7 @@ static void check_socket(int signal)
 	{
 		W_("Stat failed! Opening new socket.\n");
 		open_initiator_socket();
-		return;
+		return (TRUE);
 	}
 
 	/* compare socket file, with the one that we know, reopen on failure */
@@ -450,11 +457,11 @@ static void check_socket(int signal)
 	{
 		F_("Invalid socket found, reopening\n");
 		open_initiator_socket();
-		return;
+		return (TRUE);
 	}
 
 	D_("Socket ok.\n");
-	return;
+	return (TRUE);
 }
 
 static int astatus_change(s_event * event)
@@ -526,18 +533,24 @@ static int system_state_change(s_event * event)
 	return (TRUE);
 }
 
-static int system_pipe_watchers(active_db_h * service, process_h * process,
-								pipe_h * pi, char *output)
+static int system_pipe_watchers(s_event * event)
 {
+	s_event_buffer_watcher_data * data;
 	char *buffert = NULL;
 	int len;
-	buffert = i_calloc(100 + strlen(service->name) +
-					   strlen(process->pt->name) + strlen(output),
+
+	assert(event->event_type == &EVENT_BUFFER_WATCHER);
+	assert(event->data);
+
+	data = event->data;
+
+	buffert = i_calloc(100 + strlen(data->service->name) +
+					   strlen(data->process->pt->name) + strlen(data->buffer_pos),
 					   sizeof(char));
 
 	len = sprintf(buffert,
 				  "<event type=\"service_output\" service=\"%s\" process=\"%s\">%s</event>\n",
-				  service->name, process->pt->name, output);
+				  data->service->name, data->process->pt->name, data->buffer_pos);
 
 	if (len > 0)
 		send_to_all(buffert, sizeof(char) * len);
@@ -549,17 +562,21 @@ static int system_pipe_watchers(active_db_h * service, process_h * process,
 	return (FALSE);
 }
 
-static int print_error(e_mt mt, const char *file, const char *func,
-					   int line, const char *format, va_list arg)
+static int print_error(s_event * event)
 {
+	s_event_error_message_data * data;
 	char *buffert = NULL;
-
 	char *msg;
 	int len, size;
 
+	assert(event->event_type == &EVENT_ERROR_MESSAGE);
+	assert(event->data);
+
+	data = event->data;
+
 	size = 256;
 	msg = i_calloc(1, size);
-	len = vsnprintf(msg, size, format, arg);
+	len = vsnprintf(msg, size, data->format, data->arg);
 	while (len < 0 || len >= size)
 	{
 		/* Some glibc versions apparently return -1 if buffer too small.
@@ -568,14 +585,14 @@ static int print_error(e_mt mt, const char *file, const char *func,
 		size = (len < 0 ? size * 2 : len + 1);
 		free(msg);
 		msg = i_calloc(1, size);
-		len = vsnprintf(msg, size, format, arg);
+		len = vsnprintf(msg, size, data->format, data->arg);
 	}
 
-	buffert = i_calloc(100 + len + strlen(file) + strlen(func), sizeof(char));
+	buffert = i_calloc(100 + len + strlen(data->file) + strlen(data->func), sizeof(char));
 
 	len = sprintf(buffert,
 				  "<event type=\"err_msg\" mt=\"%i\" file=\"%s\" func=\"%s\" line=\"%i\">%s</event>\n",
-				  mt, file, func, line, msg);
+				  data->mt, data->file, data->func, data->line, msg);
 
 	send_to_all(buffert, sizeof(char) * len);
 
@@ -623,7 +640,7 @@ int module_init(int api_version)
 	 * Giving initng a SIGHUP, will make initng check that all sockets are open,
 	 * and reopen the sockets that have been deleted.
 	 */
-	initng_plugin_hook_register(&g.SIGNAL, 50, &check_socket);
+	initng_event_hook_register(&EVENT_SIGNAL, &check_socket);
 
 	/* do the first socket directly */
 	open_initiator_socket();
@@ -645,7 +662,7 @@ void module_unload(void)
 	/* dissconect all listeners */
 	close_all_listeners();
 
-	/* remove g.SIGNAL check hook */
-	initng_plugin_hook_unregister(&g.SIGNAL, &check_socket);
+	/* remove EVENT_SIGNAL check hook */
+	initng_event_hook_unregister(&EVENT_SIGNAL, &check_socket);
 
 }

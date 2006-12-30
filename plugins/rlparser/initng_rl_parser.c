@@ -38,6 +38,9 @@
 #include <initng_handler.h>
 #include <initng_static_service_types.h>
 #include <initng_service_types.h>
+#include <initng_static_event_types.h>
+#include <initng_event_hook.h>
+
 #include <initng-paths.h>
 
 INITNG_PLUGIN_MACRO;
@@ -116,22 +119,25 @@ static service_cache_h *parse_file(char *filetoparse,
 
 	if (initng_service_cache_register(n_service))
 		return (n_service);
+
 	return (NULL);
-
-
-
 }
 
 
 /* a simple parser for a runlevel file */
-static service_cache_h *initng_rl_parser(const char *runlevel_name)
+static int initng_rl_parser(s_event * event)
 {
+	s_event_parse_data * data;
 	char *filetoparse = NULL;
 	struct stat file_stat;
 
+	assert(event->event_type == &EVENT_PARSE);
+	assert(event->data);
 
-	assert(runlevel_name);
-	D_("initng_rl_parser(%s);", runlevel_name);
+	data = event->data;
+
+	assert(data->name);
+	D_("initng_rl_parser(%s);", data->name);
 
 	/* make sure service type RUNLEVEL is set */
 	if (!TYPE_RUNLEVEL)
@@ -140,7 +146,7 @@ static service_cache_h *initng_rl_parser(const char *runlevel_name)
 		if (!TYPE_RUNLEVEL)
 		{
 			F_("ERROR, runlevel servicetype is not found, make sure runlevel plugin is loaded.\n");
-			return (NULL);
+			return (TRUE);
 		}
 	}
 
@@ -150,34 +156,35 @@ static service_cache_h *initng_rl_parser(const char *runlevel_name)
 		if (!TYPE_VIRTUAL)
 		{
 			F_("ERROR, virtual servicetype is not found, make sure runlevel plugin is loaded.\n");
-			return (NULL);
+			return (TRUE);
 		}
 	}
 
-	filetoparse = (char *) i_calloc(strlen(INITNG_ROOT) + 1 +
-									strlen(runlevel_name) + 10, sizeof(char));
+	filetoparse = (char *) i_calloc(strlen(INITNG_ROOT) + 1 + strlen(data->name) + 10, sizeof(char));
 
 	/* check /etc/initng/name.virtual */
 	strcpy(filetoparse, INITNG_ROOT "/");
-	strcat(filetoparse, runlevel_name);
+	strcat(filetoparse, data->name);
 	strcat(filetoparse, ".virtual");
 
 	if (stat(filetoparse, &file_stat) == 0 && S_ISREG(file_stat.st_mode))
 	{
-		return (parse_file(filetoparse, runlevel_name, TYPE_VIRTUAL));
+		data->ret = parse_file(filetoparse, data->name, TYPE_VIRTUAL);
+		return (HANDLED);
 	}
 
 	/* check /etc/initng/name.runlevel */
 	strcpy(filetoparse, INITNG_ROOT "/");
-	strcat(filetoparse, runlevel_name);
+	strcat(filetoparse, data->name);
 	strcat(filetoparse, ".runlevel");
 
 	if (stat(filetoparse, &file_stat) == 0 && S_ISREG(file_stat.st_mode))
 	{
-		return (parse_file(filetoparse, runlevel_name, TYPE_RUNLEVEL));
+		data->ret = parse_file(filetoparse, data->name, TYPE_RUNLEVEL);
+		return (HANDLED);
 	}
 
-	return (NULL);
+	return (TRUE);
 }
 
 int module_init(int api_version)
@@ -192,10 +199,10 @@ int module_init(int api_version)
 		return (FALSE);
 	}
 
-	return (initng_plugin_hook_register(&g.PARSERS, 60, &initng_rl_parser));
+	return (initng_event_hook_register(&EVENT_PARSE, &initng_rl_parser));
 }
 
 void module_unload(void)
 {
-	initng_plugin_hook_unregister(&g.PARSERS, &initng_rl_parser);
+	initng_event_hook_unregister(&EVENT_PARSE, &initng_rl_parser);
 }

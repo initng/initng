@@ -63,11 +63,17 @@ a_state_h REQUIRE_FILE_AFTER_FAILED = { "REQUIRE_FILE_AFTER_FAILED", "A file tha
 /*
  * Do this check before START_DEP_MET can be set.
  */
-static int check_files_to_exist(active_db_h * service)
+static int check_files_to_exist(s_event * event)
 {
+	active_db_h * service;
 	const char *file = NULL;
 	s_data *itt = NULL;
 	struct stat file_stat;
+
+	assert(event->event_type == &EVENT_START_DEP_MET);
+	assert(event->data);
+
+	service = event->data;
 
 	/* CHECK WAIT_FOR_FILE */
 	while ((file = get_next_string(&WAIT_FOR_FILE, service, &itt)))
@@ -80,7 +86,7 @@ static int check_files_to_exist(active_db_h * service)
 			initng_global_set_sleep(1);
 
 			/* don't change status of service to START_DEP_MET */
-			return (FALSE);
+			return (FAIL);
 		}
 	}
 
@@ -91,7 +97,7 @@ static int check_files_to_exist(active_db_h * service)
 		if (stat(file, &file_stat) != 0)
 		{
 			initng_common_mark_service(service, &REQUIRE_FILE_FAILED);
-			return (FALSE);
+			return (FAIL);
 		}
 	}
 
@@ -160,7 +166,7 @@ int module_init(int api_version)
 	initng_active_state_register(&REQUIRE_FILE_FAILED);
 	initng_active_state_register(&REQUIRE_FILE_AFTER_FAILED);
 
-	initng_plugin_hook_register(&g.START_DEP_MET, 55, &check_files_to_exist);
+	initng_event_hook_register(&EVENT_START_DEP_MET, &check_files_to_exist);
 	initng_event_hook_register(&EVENT_UP_MET, &check_files_to_exist_after);
 	return (TRUE);
 }
@@ -176,6 +182,6 @@ void module_unload(void)
 	initng_active_state_unregister(&REQUIRE_FILE_FAILED);
 	initng_active_state_unregister(&REQUIRE_FILE_AFTER_FAILED);
 
-	initng_plugin_hook_unregister(&g.START_DEP_MET, &check_files_to_exist);
+	initng_event_hook_unregister(&EVENT_START_DEP_MET, &check_files_to_exist);
 	initng_event_hook_unregister(&EVENT_UP_MET, &check_files_to_exist_after);
 }

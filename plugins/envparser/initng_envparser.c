@@ -31,6 +31,8 @@
 #include <initng_string_tools.h>
 #include <initng_active_db.h>
 #include <initng_env_variable.h>
+#include <initng_static_event_types.h>
+#include <initng_event_hook.h>
 
 INITNG_PLUGIN_MACRO;
 
@@ -44,24 +46,28 @@ s_entry ENV_FILE_REQUIRED = { "env_file_required", STRINGS, NULL,
 static int parse_file(const char *file, service_cache_h * s);
 
 /* Parse all the env_file's when service finished loading */
-static int env_parser(service_cache_h * s)
+static int env_parser(s_event * event)
 {
+	service_cache_h * s;
 	const char *file = NULL;
 	s_data *itt = NULL;
 
-	assert(s);
+	assert(event->event_type == &EVENT_ADDITIONAL_PARSE);
+	assert(event->data);
+
+	s = event->data;
 
 	D_("env_parser(%s)\n", s->name);
 
 	/* TODO, put this into one while loop */
 
 
-	/* Parse all ENV_FILE_REQUIREDs, and stop if files don't exits, or 
+	/* Parse all ENV_FILE_REQUIREDs, and stop if files don't exits, or
 	   not parseable */
 	while ((file = get_next_string(&ENV_FILE_REQUIRED, s, &itt)))
 	{
 		if (parse_file(file, s) == FALSE)
-			return (FALSE);
+			return (FAIL);
 	}
 
 	/* Parse all ENV_FILE's */
@@ -229,8 +235,8 @@ int module_init(int api_version)
 
 	initng_service_data_type_register(&ENV_FILE);
 	initng_service_data_type_register(&ENV_FILE_REQUIRED);
-	return (initng_plugin_hook_register
-			(&g.ADDITIONAL_PARSE, 80, &env_parser));
+	return (initng_event_hook_register
+			(&EVENT_ADDITIONAL_PARSE, &env_parser));
 }
 
 void module_unload(void)
@@ -238,5 +244,5 @@ void module_unload(void)
 	D_("module_unload();\n");
 	initng_service_data_type_unregister(&ENV_FILE);
 	initng_service_data_type_unregister(&ENV_FILE_REQUIRED);
-	initng_plugin_hook_unregister(&g.ADDITIONAL_PARSE, &env_parser);
+	initng_event_hook_unregister(&EVENT_ADDITIONAL_PARSE, &env_parser);
 }

@@ -123,7 +123,7 @@ static int initctl_control_open(void)
 		}
 
 		/* ok, finally add hook */
-		initng_plugin_hook_register(&g.FDWATCHERS, 70, &pipe_fd);
+		initng_plugin_hook_register(&EVENT_FD_WATCHER.hooks, 70, &pipe_fd);
 	}
 	return (TRUE);
 }
@@ -284,16 +284,24 @@ static void initng_reload(void)
 
 
 /* try open FIFO, every started service */
-static void hup_request(int signal)
+static int hup_request(s_event * event)
 {
+	int signal;
+
+	assert(event->event_type == &EVENT_SIGNAL);
+
+	signal = (int) event->data;
+
 	/* Look for the right signal */
 	if (signal != SIGHUP)
-		return;
+		return (TRUE);
 
 	if (!initctl_control_open())
 	{
 		F_("Warning, failed to open /dev/initctl\n");
 	}
+
+	return (TRUE);
 }
 
 static int is_system_up(s_event * event)
@@ -333,7 +341,7 @@ int module_init(int api_version)
 
 	initctl_control_open();
 
-	if ((!initng_plugin_hook_register(&g.SIGNAL, 50, &hup_request))
+	if ((!initng_event_hook_register(&EVENT_SIGNAL, &hup_request))
 		|| (!initng_event_hook_register(&EVENT_SYSTEM_CHANGE, &is_system_up)))
 	{
 		F_("Fail add hook!\n");
@@ -354,7 +362,7 @@ void module_unload(void)
 
 	initctl_control_close();
 	/* remove all hooks */
-	initng_plugin_hook_unregister(&g.FDWATCHERS, &pipe_fd);
+	initng_plugin_hook_unregister(&EVENT_FD_WATCHER.hooks, &pipe_fd);
 	initng_event_hook_unregister(&EVENT_SYSTEM_CHANGE, &is_system_up);
-	initng_plugin_hook_unregister(&g.SIGNAL, &hup_request);
+	initng_event_hook_unregister(&EVENT_SIGNAL, &hup_request);
 }

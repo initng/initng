@@ -46,6 +46,7 @@
 #include "initng_static_states.h"
 #include "initng_depend.h"
 #include "initng_handler.h"
+#include "initng_static_event_types.h"
 
 /*
  * this function walks through the g.Argv, if it founds service name,
@@ -297,39 +298,24 @@ int initng_common_get_service(active_db_h * service)
 #ifdef SERVICE_CACHE
 service_cache_h *initng_common_parse_service(const char *name)
 {
-	s_call *current, *safe = NULL;
 	service_cache_h *service = NULL;
 
 	D_("initng_common_parse_service(%s);\n", name);
 
 	/* first check service cache */
 	service = initng_service_cache_find_by_name(name);
-	if (service)
+
+	if (!service)
 	{
-		/* May be there is plug-ins that will parse extra data */
-		current = NULL;
-		safe = NULL;
-		while_list_safe(current, &g.ADDITIONAL_PARSE, safe)
-		{
-			if (((*current->c.additional_parse) (service)) != TRUE)
-			{
-				initng_service_cache_free(service);
-				return (NULL);
-			}
-		}
+		s_event event;
+		s_event_parse_data data;
 
-		return (service);
-	}
+		event.event_type = &EVENT_PARSE;
+		event.data = &data;
+		data.name = name;
 
-	/* try parse with dynamic loaded parsers */
-	while_list_safe(current, &g.PARSERS, safe)
-	{
-		service = ((*current->c.parser) (name));
-
-		/* break if we found the service */
-		if (service)
-			break;
-
+		if (initng_event_send(&event) == HANDLED)
+			service = data.ret;
 	}
 
 	/* look so we actually got one */
@@ -337,12 +323,13 @@ service_cache_h *initng_common_parse_service(const char *name)
 		return (NULL);
 
 	/* May be there is plug-ins that will parse extra data */
-	current = NULL;
-	safe = NULL;
-	while_list_safe(current, &g.ADDITIONAL_PARSE, safe)
 	{
-		if (((*current->c.additional_parse) (service)) != TRUE)
-		{
+		s_event event;
+
+		event.event_type = &EVENT_ADDITIONAL_PARSE;
+		event.data = service;
+
+		if (initng_event_send(&event) == FAIL) {
 			initng_service_cache_free(service);
 			return (NULL);
 		}

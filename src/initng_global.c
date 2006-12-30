@@ -109,27 +109,6 @@ void initng_global_new(int argc, char *argv[], char *env[], h_i_am i_am)
 	INIT_LIST_HEAD(&g.command_db.list);
 	INIT_LIST_HEAD(&g.stypes.list);
 
-	/* all hooks to hook at */
-#ifdef SERVICE_CACHE
-	INIT_LIST_HEAD(&g.PARSERS.list);
-#endif
-	INIT_LIST_HEAD(&g.FDWATCHERS.list);
-	INIT_LIST_HEAD(&g.BUFFER_WATCHER.list);
-	INIT_LIST_HEAD(&g.SIGNAL.list);
-	INIT_LIST_HEAD(&g.HANDLE_KILLED.list);
-	INIT_LIST_HEAD(&g.COMPENSATE_TIME.list);
-	INIT_LIST_HEAD(&g.ERR_MSG.list);
-	INIT_LIST_HEAD(&g.DEP_ON.list);
-#ifdef SERVICE_CACHE
-	INIT_LIST_HEAD(&g.ADDITIONAL_PARSE.list);
-#endif
-	INIT_LIST_HEAD(&g.DUMP_ACTIVE_DB.list);
-	INIT_LIST_HEAD(&g.RELOAD_ACTIVE_DB.list);
-	INIT_LIST_HEAD(&g.START_DEP_MET.list);
-	INIT_LIST_HEAD(&g.STOP_DEP_MET.list);
-	INIT_LIST_HEAD(&g.NEW_ACTIVE.list);
-	INIT_LIST_HEAD(&g.PIPE_WATCHER.list);
-
 	/*
 	 * default global variables - cleared by memset above
 	 * g.interrupt = FALSE;

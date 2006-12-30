@@ -29,6 +29,7 @@ int initng_event_send(s_event *event)
 {
 	s_call *current;
 	int ret;
+	int ok = FALSE;
 
 	assert(event);
 	assert(event->event_type);
@@ -46,7 +47,10 @@ int initng_event_send(s_event *event)
 			F_("%s event failed on %s\n", event->event_type->name, current->from_file);
 			return (FAIL);
 		}
+
+		if (ret == TRUE)
+			ok = TRUE;
 	}
 
-	return (TRUE);
+	return (ok);
 }

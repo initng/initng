@@ -109,7 +109,7 @@ static dbus_bool_t add_dbus_watch(DBusWatch * watch, void *data)
 	dbus_watch_set_data(watch, w, free_dbus_watch_data);
 	toggled_dbus_watch(watch, data);		/* to set initial state */
 
-	initng_plugin_hook_register(&g.FDWATCHERS, 30, &w->fdw);
+	initng_plugin_hook_register(&EVENT_FD_WATCHER.hooks, 30, &w->fdw);
 
 	return TRUE;
 }
@@ -146,7 +146,7 @@ static void free_dbus_watch_data(void *data)
 	initng_dbus_watch *w = data;
 
 	assert(w);
-	initng_plugin_hook_unregister(&g.FDWATCHERS, &(w->fdw));
+	initng_plugin_hook_unregister(&EVENT_FD_WATCHER.hooks, &(w->fdw));
 	free(w);
 }
 
@@ -280,16 +280,19 @@ static int system_state_change(s_event * event)
 	return (TRUE);
 }
 
-static int system_pipe_watchers(active_db_h * service, process_h * process,
-								pipe_h * pi, char *output)
+static int system_pipe_watchers(s_event * event)
 {
 	DBusMessage *msg;
 	dbus_uint32_t serial = 0;
-	const char *service_name = service->name;
-	const char *process_name = process->pt->name;
+
+	assert(event->event_type == &EVENT_PIPE_WATCHER);
+	assert(event->data);
+
+	const char *service_name = ((s_event_pipe_watcher_data *) event->data)->service->name;
+	const char *process_name = ((s_event_pipe_watcher_data *) event->data)->process->pt->name;
 
 	if (conn == NULL)
-		return (TRUE);
+		return (HANDLED);
 
 	/* create a signal & check for errors */
 	msg = dbus_message_new_signal(OBJECT,	/* object name of the signal */
@@ -298,7 +301,7 @@ static int system_pipe_watchers(active_db_h * service, process_h * process,
 	if (NULL == msg)
 	{
 		F_("Unable to create new dbus signal\n");
-		return (TRUE);
+		return (HANDLED);
 	}
 
 
@@ -308,7 +311,7 @@ static int system_pipe_watchers(active_db_h * service, process_h * process,
 		 &process_name, DBUS_TYPE_STRING, &output, DBUS_TYPE_INVALID))
 	{
 		F_("Unable to append args to dbus signal!\n");
-		return (TRUE);
+		return (HANDLED);
 	}
 
 
@@ -316,7 +319,7 @@ static int system_pipe_watchers(active_db_h * service, process_h * process,
 	if (!dbus_connection_send(conn, msg, &serial))
 	{
 		F_("Unable to send dbus signal!\n");
-		return (TRUE);
+		return (HANDLED);
 	}
 	//dbus_connection_flush(conn);
 
@@ -324,14 +327,19 @@ static int system_pipe_watchers(active_db_h * service, process_h * process,
 	dbus_message_unref(msg);
 
 	D_("Dbus Signal Sent\n");
-	return (TRUE);
+	return (HANDLED);
 }
 
-static int print_error(e_mt mt, const char *file, const char *func,
-					   int line, const char *format, va_list arg)
+static int print_error(s_event * event)
 {
+	s_event_error_message_data * data;
 	DBusMessage *msg;
 	dbus_uint32_t serial = 0;
+
+	assert(event->event_type == &EVENT_ERROR_MESSAGE);
+	assert(event->data);
+
+	data = event->data;
 
 	if (conn == NULL)
 		return (TRUE);
@@ -349,12 +357,12 @@ static int print_error(e_mt mt, const char *file, const char *func,
 	/* compose the message */
 	char *message = i_calloc(1001, sizeof(char));
 
-	vsnprintf(message, 1000, format, arg);
+	vsnprintf(message, 1000, data->format, data->arg);
 
 	/* Append some arguments to the call */
 	if (!dbus_message_append_args
-		(msg, DBUS_TYPE_INT32, &mt, DBUS_TYPE_STRING, &file, DBUS_TYPE_STRING,
-		 &func, DBUS_TYPE_INT32, &line, DBUS_TYPE_STRING, &message,
+		(msg, DBUS_TYPE_INT32, &data->mt, DBUS_TYPE_STRING, &data->file, DBUS_TYPE_STRING,
+		 &data->func, DBUS_TYPE_INT32, &data->line, DBUS_TYPE_STRING, &message,
 		 DBUS_TYPE_INVALID))
 	{
 		F_("Unable to append args to dbus signal!\n");
@@ -382,11 +390,17 @@ static int print_error(e_mt mt, const char *file, const char *func,
 /*
  * On a SIGHUP, close and reopen the socket.
  */
-static void check_socket(int signal)
+static int check_socket(s_event * event)
 {
+	int signal;
+
+	assert(event->event_type == &EVENT_SIGNAL);
+
+	signal = event->data;
+
 	/* only react on a SIGHUP signal */
 	if (signal != SIGHUP)
-		return;
+		return (TRUE);
 
 	/* close if open */
 	if (conn)
@@ -397,6 +411,7 @@ static void check_socket(int signal)
 
 	/* and open again */
 	connect_to_dbus();
+	return (TRUE);
 }
 
 
@@ -455,11 +470,11 @@ int module_init(int api_version)
 	connect_to_dbus();
 
 	/* add the hooks we are monitoring */
-	initng_plugin_hook_register(&g.SIGNAL, 50, &check_socket);
+	initng_event_hook_register(&EVENT_SIGNAL, &check_socket);
 	initng_event_hook_register(&EVENT_STATE_CHANGE, &astatus_change);
 	initng_event_hook_register(&EVENT_SYSTEM_CHANGE, &system_state_change);
-	initng_plugin_hook_register(&g.PIPE_WATCHER, 50, &system_pipe_watchers);
-	initng_plugin_hook_register(&g.ERR_MSG, 50, &print_error);
+	initng_event_hook_register(&EVENT_PIPE_WATCHER, &system_pipe_watchers);
+	initng_event_hook_register(&EVENT_ERROR_MESSAGE, &print_error);
 
 
 	/* return happily */
@@ -477,9 +492,9 @@ void module_unload(void)
 		conn = NULL;
 	}
 
-	initng_plugin_hook_unregister(&g.SIGNAL, &check_socket);
+	initng_event_hook_unregister(&EVENT_SIGNAL, &check_socket);
 	initng_event_hook_unregister(&EVENT_STATE_CHANGE, &astatus_change);
 	initng_event_hook_unregister(&EVENT_SYSTEM_CHANGE, &system_state_change);
-	initng_plugin_hook_unregister(&g.PIPE_WATCHER, &system_pipe_watchers);
-	initng_plugin_hook_unregister(&g.ERR_MSG, &print_error);
+	initng_event_hook_unregister(&EVENT_PIPE_WATCHER, &system_pipe_watchers);
+	initng_event_hook_unregister(&EVENT_ERROR_MESSAGE, &print_error);
 }

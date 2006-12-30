@@ -246,9 +246,14 @@ s_command LOG = { 'l', "log", STRING_COMMAND, STANDARD_COMMAND, USES_OPT,
 
 
 
-static void history_db_compensate_time(time_t skew)
+static int history_db_compensate_time(s_event * event)
 {
+	time_t skew;
 	history_h *current = NULL;
+
+	assert(event->event_type == &EVENT_COMPENSATE_TIME);
+
+	skew = (time_t) event->data;
 
 	D_("history_db_compensate_time(%i);\n", (int) skew);
 
@@ -256,6 +261,8 @@ static void history_db_compensate_time(time_t skew)
 	{
 		current->time.tv_sec += skew;
 	}
+
+	return (TRUE);
 }
 
 
@@ -402,10 +409,15 @@ static int history_add_values(s_event * event)
 	return (TRUE);
 }
 
-static int fetch_output(active_db_h * service, process_h * process,
-						pipe_h * pi, char *buffer_pos)
+static int fetch_output(s_event * event)
 {
+	s_event_buffer_watcher_data * data;
 	history_h *tmp_e = NULL;
+
+	assert(event->event_type == &EVENT_BUFFER_WATCHER);
+	assert(event->data);
+
+	data = event->data;
 
 	/* allocate space for data */
 	if (!(tmp_e = (history_h *) i_calloc(1, sizeof(history_h))))
@@ -415,10 +427,10 @@ static int fetch_output(active_db_h * service, process_h * process,
 	}
 
 	/* set data in struct */
-	tmp_e->service = service;
+	tmp_e->service = data->service;
 	tmp_e->name = NULL;
 	gettimeofday(&tmp_e->time, NULL);
-	tmp_e->data = i_strdup(buffer_pos);
+	tmp_e->data = i_strdup(data->buffer_pos);
 	tmp_e->action = NULL;
 
 	/* add to history struct */
@@ -442,9 +454,8 @@ int module_init(int api_version)
 	initng_command_register(&HISTORYS);
 	initng_command_register(&LOG);
 	initng_event_hook_register(&EVENT_STATE_CHANGE, &history_add_values);
-	initng_plugin_hook_register(&g.COMPENSATE_TIME, 50,
-								&history_db_compensate_time);
-	initng_plugin_hook_register(&g.BUFFER_WATCHER, 50, &fetch_output);
+	initng_event_hook_register(&EVENT_COMPENSATE_TIME, &history_db_compensate_time);
+	initng_event_hook_register(&EVENT_BUFFER_WATCHER, &fetch_output);
 
 	return (TRUE);
 }
@@ -456,7 +467,6 @@ void module_unload(void)
 	initng_command_unregister(&LOG);
 	history_free_all();
 	initng_event_hook_unregister(&EVENT_STATE_CHANGE, &history_add_values);
-	initng_plugin_hook_unregister(&g.COMPENSATE_TIME,
-								  &history_db_compensate_time);
-	initng_plugin_hook_unregister(&g.BUFFER_WATCHER, &fetch_output);
+	initng_event_hook_unregister(&EVENT_COMPENSATE_TIME, &history_db_compensate_time);
+	initng_event_hook_unregister(&EVENT_BUFFER_WATCHER, &fetch_output);
 }

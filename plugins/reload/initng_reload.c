@@ -656,9 +656,11 @@ static int write_file(const char *filename)
 	return success;
 }
 
-static int dump_state(void)
+static int dump_state(s_event * event)
 {
 	const char *file = NULL;
+
+	assert(event->event_type == &EVENT_DUMP_ACTIVE_DB);
 
 	/* set the correct filename */
 	if (g.i_am == I_AM_INIT)
@@ -673,10 +675,12 @@ static int dump_state(void)
 	return (write_file(file));
 }
 
-static int reload_state(void)
+static int reload_state(s_event * event)
 {
 	struct stat st;
 	const char *file = NULL;
+
+	assert(event->event_type == &EVENT_RELOAD_ACTIVE_DB);
 
 	/* set the correct filename */
 	if (g.i_am == I_AM_INIT)
@@ -708,11 +712,8 @@ static int reload_state(void)
 		return (read_file_v13(file));
 	}
 
-
 	D_("No state file found, passing on reload_state request\n");
 	return (FALSE);
-
-
 }
 
 /* Save a reload file for backup if initng segfaults */
@@ -779,8 +780,8 @@ int module_init(int api_version)
 	   } */
 
 	initng_event_hook_register(&EVENT_SYSTEM_CHANGE, &save_backup);
-	initng_plugin_hook_register(&g.DUMP_ACTIVE_DB, 10, &dump_state);
-	initng_plugin_hook_register(&g.RELOAD_ACTIVE_DB, 10, &reload_state);
+	initng_event_hook_register(&EVENT_DUMP_ACTIVE_DB, &dump_state);
+	initng_event_hook_register(&EVENT_RELOAD_ACTIVE_DB, &reload_state);
 	initng_command_register(&FAST_RELOAD);
 	return (TRUE);
 }
@@ -789,7 +790,7 @@ void module_unload(void)
 {
 	D_("module_unload();\n");
 	initng_event_hook_unregister(&EVENT_SYSTEM_CHANGE, &save_backup);
-	initng_plugin_hook_unregister(&g.DUMP_ACTIVE_DB, &dump_state);
-	initng_plugin_hook_unregister(&g.RELOAD_ACTIVE_DB, &reload_state);
+	initng_event_hook_unregister(&EVENT_DUMP_ACTIVE_DB, &dump_state);
+	initng_event_hook_unregister(&EVENT_RELOAD_ACTIVE_DB, &reload_state);
 	initng_command_unregister(&FAST_RELOAD);
 }

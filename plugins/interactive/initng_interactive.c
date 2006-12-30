@@ -23,6 +23,8 @@
 #include <stdio.h>
 #include <string.h>							/* strstr() */
 #include <stdlib.h>							/* free() exit() */
+#include <assert.h>
+
 #include <initng_handler.h>
 #include <initng_global.h>
 #include <initng_plugin_hook.h>
@@ -30,18 +32,26 @@
 #include <initng_toolbox.h>
 #include <initng_load_module.h>
 #include <initng_static_states.h>
+#include <initng_static_event_types.h>
+#include <initng_event_hook.h>
 
 INITNG_PLUGIN_MACRO;
 
 static int active;
-static int interactive_STARTING(active_db_h * service);
-static int interactive_STOP_MARKED(active_db_h * service);
+static int interactive_STARTING(s_event * service);
+static int interactive_STOP_MARKED(s_event * service);
 
 a_state_h INT_DISABLED = { "INTERACTIVELY_DISABLED", "The user choose to not start this service.", IS_FAILED, NULL, NULL, NULL };
 
-static int interactive_STARTING(active_db_h * service)
+static int interactive_STARTING(s_event * event)
 {
+	active_db_h * service;
 	char asw[10];
+
+	assert(event->event_type == &EVENT_START_DEP_MET);
+	assert(event->data);
+
+	service = event->data;
 
 	asw[0] = '\0';
 
@@ -56,9 +66,9 @@ static int interactive_STARTING(active_db_h * service)
 
 	if (asw[0] == 'a' || asw[0] == 'A')
 	{
-		initng_plugin_hook_unregister(&g.START_DEP_MET,
+		initng_event_hook_unregister(&EVENT_START_DEP_MET,
 									  &interactive_STARTING);
-		initng_plugin_hook_unregister(&g.STOP_DEP_MET,
+		initng_event_hook_unregister(&EVENT_STOP_DEP_MET,
 									  &interactive_STOP_MARKED);
 		active = FALSE;
 		return (TRUE);
@@ -68,9 +78,15 @@ static int interactive_STARTING(active_db_h * service)
 	return (FAIL);
 }
 
-static int interactive_STOP_MARKED(active_db_h * service)
+static int interactive_STOP_MARKED(s_event * event)
 {
+	active_db_h * service;
 	char asw[10];
+
+	assert(event->event_type == &EVENT_STOP_DEP_MET);
+	assert(event->data);
+
+	service = event->data;
 
 	asw[0] = '\0';
 
@@ -84,9 +100,9 @@ static int interactive_STOP_MARKED(active_db_h * service)
 
 	if (asw[0] == 'a' || asw[0] == 'A')
 	{
-		initng_plugin_hook_unregister(&g.START_DEP_MET,
+		initng_event_hook_unregister(&EVENT_START_DEP_MET,
 									  &interactive_STARTING);
-		initng_plugin_hook_unregister(&g.STOP_DEP_MET,
+		initng_event_hook_unregister(&EVENT_STOP_DEP_MET,
 									  &interactive_STOP_MARKED);
 		active = FALSE;
 		return (TRUE);
@@ -114,9 +130,9 @@ int module_init(int api_version)
 		{									/* if found */
 
 			P_("Initng is started in interactive mode!\n");
-			initng_plugin_hook_register(&g.START_DEP_MET, 90,
+			initng_event_hook_register(&EVENT_START_DEP_MET,
 										&interactive_STARTING);
-			initng_plugin_hook_register(&g.STOP_DEP_MET, 90,
+			initng_event_hook_register(&EVENT_STOP_DEP_MET,
 										&interactive_STOP_MARKED);
 			active = TRUE;
 			return (TRUE);
@@ -132,9 +148,9 @@ void module_unload(void)
 	D_("module_unload();\n");
 	if (active == TRUE)
 	{
-		initng_plugin_hook_unregister(&g.START_DEP_MET,
+		initng_event_hook_unregister(&EVENT_START_DEP_MET,
 									  &interactive_STARTING);
-		initng_plugin_hook_unregister(&g.STOP_DEP_MET,
+		initng_event_hook_unregister(&EVENT_STOP_DEP_MET,
 									  &interactive_STOP_MARKED);
 	}
 }

@@ -33,6 +33,8 @@
 #include <initng_static_data_id.h>
 #include <initng_static_states.h>
 #include <initng_static_service_types.h>
+#include <initng_static_event_types.h>
+#include <initng_event_hook.h>
 
 INITNG_PLUGIN_MACRO;
 
@@ -42,11 +44,16 @@ s_entry LAST = { "last", SET, NULL,
 
 
 /* returns TRUE if all use deps are started */
-static int check_last(active_db_h * service)
+static int check_last(s_event * event)
 {
+	active_db_h * service;
 	active_db_h *current = NULL;
 
-	assert(service);
+	assert(event->event_type == &EVENT_START_DEP_MET);
+	assert(event->data);
+
+	service = event->data;
+
 	assert(service->name);
 
 	/* And LAST is set. */
@@ -83,7 +90,7 @@ static int check_last(active_db_h * service)
 		{
 			D_("Service %s is also starting, and %s should be started last\n",
 			   current->name, service->name);
-			return (FALSE);
+			return (FAIL);
 		}
 	}
 
@@ -101,7 +108,7 @@ int module_init(int api_version)
 	}
 
 	initng_service_data_type_register(&LAST);
-	initng_plugin_hook_register(&g.START_DEP_MET, 99, &check_last);
+	initng_event_hook_register(&EVENT_START_DEP_MET, &check_last);
 	return (TRUE);
 }
 
@@ -109,5 +116,5 @@ void module_unload(void)
 {
 	D_("module_unload();\n");
 	initng_service_data_type_unregister(&LAST);
-	initng_plugin_hook_unregister(&g.START_DEP_MET, &check_last);
+	initng_event_hook_unregister(&EVENT_START_DEP_MET, &check_last);
 }

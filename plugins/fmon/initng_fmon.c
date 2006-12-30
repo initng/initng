@@ -49,6 +49,8 @@
 #include <initng_plugin.h>
 #include <initng_static_states.h>
 #include <initng_control_command.h>
+#include <initng_static_event_types.h>
+#include <initng_event_hook.h>
 
 #include <initng-paths.h>
 
@@ -301,7 +303,7 @@ int module_init(int api_version)
 #endif
 
 	/* add this hook */
-	initng_plugin_hook_register(&g.FDWATCHERS, 30, &fdh);
+	initng_plugin_hook_register(&EVENT_FD_WATCHER.hooks, 30, &fdh);
 
 	/* printf("Now monitoring...\n"); */
 
@@ -319,5 +321,5 @@ void module_unload(void)
 	close(fdh.fds);
 
 	/* remove hooks */
-	initng_plugin_hook_unregister(&g.FDWATCHERS, &fdh);
+	initng_plugin_hook_unregister(&EVENT_FD_WATCHER.hooks, &fdh);
 }

@@ -47,9 +47,6 @@ static int dep_on(active_db_h * service, active_db_h * check);
  */
 int initng_depend(active_db_h * service, active_db_h * check)
 {
-	s_call *current, *s = NULL;
-	int result = FALSE;
-
 	assert(service);
 	assert(check);
 
@@ -62,9 +59,16 @@ int initng_depend(active_db_h * service, active_db_h * check)
 		return (TRUE);
 
 	/* run the global plugin dep check */
-	while_list_safe(current, &g.DEP_ON, s)
 	{
-		if ((result = (*current->c.dep_on_check) (service, check) == TRUE))
+		s_event event;
+		s_event_dep_on_data data;
+
+		event.event_type = &EVENT_DEP_ON;
+		event.data = &data;
+		data.service = service;
+		data.check = check;
+
+		if (initng_event_send(&event) == TRUE)
 			return (TRUE);
 	}
 
@@ -260,8 +264,6 @@ int initng_depend_start_dep_met(active_db_h * service, int verbose)
 	s_data *current = NULL;
 	char *str = NULL;
 	int count = 0;
-	s_call *currentH, *s = NULL;
-	int ret;
 
 	assert(service);
 	assert(service->name);
@@ -380,26 +382,21 @@ int initng_depend_start_dep_met(active_db_h * service, int verbose)
 	}
 
 	/* run the global plugin dep check */
-	while_list_safe(currentH, &g.START_DEP_MET, s)
 	{
-		/* This is check number i */
-		count++;
+		s_event event;
 
-		/* Only run this check if it has not been run before */
-		if (service->depend_cache >= count)
-			continue;
+		event.event_type = &EVENT_START_DEP_MET;
+		event.data = service;
 
-		if ((ret = (*currentH->c.start_dep_met) (service)) < TRUE)
+		if (initng_event_send(&event) == FAIL)
 		{
 			if (verbose)
 			{
 				F_("Service %s can not be started because a plugin (START_DEP_MET) says so.\n", service->name);
 			}
-			return (ret);
-		}
 
-		/* if this succeds, count up one, so test wont be run again */
-		service->depend_cache = count;
+			return (FALSE);
+		}
 	}
 
 	D_("dep met for %s\n", service->name);
@@ -416,9 +413,7 @@ int initng_depend_start_dep_met(active_db_h * service, int verbose)
  */
 int initng_depend_stop_dep_met(active_db_h * service, int verbose)
 {
-	s_call *current, *s = NULL;
 	active_db_h *currentA = NULL;
-	int ret;
 	int count = 0;
 
 	/*
@@ -482,24 +477,21 @@ int initng_depend_stop_dep_met(active_db_h * service, int verbose)
 
 
 	/* run the global plugin dep check */
-	while_list_safe(current, &g.STOP_DEP_MET, s)
 	{
-		/* This counts how many test thats have succeded before */
-		count++;
-		if (service->depend_cache >= count)
-			continue;
+		s_event event;
 
-		if ((ret = (*current->c.stop_dep_met) (service)) != TRUE)
+		event.event_type = &EVENT_STOP_DEP_MET;
+		event.data = service;
+
+		if (initng_event_send(&event) == FAIL)
 		{
 			if (verbose)
 			{
 				F_("Service %s can not be started because a plugin (START_DEP_MET) says so.\n", service->name);
 			}
+
 			return (FALSE);
 		}
-
-		/* count this check so it wont be run again */
-		service->depend_cache = count;
 	}
 
 	service->depend_cache = 0;

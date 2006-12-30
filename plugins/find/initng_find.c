@@ -29,6 +29,7 @@
 #include <sys/types.h>
 #include <errno.h>
 #include <dirent.h>
+
 #include <initng_global.h>
 #include <initng_string_tools.h>
 #include <initng_service_cache.h>
@@ -37,6 +38,9 @@
 #include <initng_plugin_hook.h>
 #include <initng_plugin_callers.h>
 #include <initng_common.h>
+#include <initng_static_event_types.h>
+#include <initng_event_hook.h>
+
 #include <initng-paths.h>
 
 INITNG_PLUGIN_MACRO;
@@ -110,7 +114,7 @@ static service_cache_h *search_dir(const char *for_service, const char *dir)
 				s[i] = '\0';
 
 				/*
-				 * this was a bug, becouse initng_common_parse_service calls this function, 
+				 * this was a bug, becouse initng_common_parse_service calls this function,
 				 * this could easy be an cirular bug,
 				 * for now we check so that the new parse word is not the same as for_service
 				 * that was orginally looking for.
@@ -132,42 +136,53 @@ static service_cache_h *search_dir(const char *for_service, const char *dir)
 }
 
 /* Load a service from a process_name or process_path */
-static service_cache_h *initng_find(const char *service)
+static int initng_find(s_event * event)
 {
 	/* means that it may not be a direct service request, then we start looking in subfolders */
-
 	service_cache_h *tmp = NULL;
+	s_event_parse_data * data;
 
-	assert(service);
+	assert(event->event_type == &EVENT_PARSE);
+	assert(event->data);
+
+	data = event->data;
+
+	assert(data->name);
 
 	/* Try get by alias file */
 	{
 		char *alias_name = NULL;
 
 		/* try get from alias file */
-		if ((alias_name = get_find_alias(service)))
+		if ((alias_name = get_find_alias(data->name)))
 		{
 			/* also try to find a service with that name */
 			tmp = initng_common_parse_service(alias_name);
 			free(alias_name);
 
 			if (tmp)
-				return (tmp);
+			{
+				data->ret = tmp;
+				return (HANDLED);
+			}
 		}
 	}
 
 	/* Never try to find a service with a '/' in the name, it already have a path */
-	if (strstr(service, "/"))
+	if (strstr(data->name, "/"))
 	{
 		D_("This is a full path, nothing to search on.\n");
-		return (NULL);
+		return (TRUE);
 	}
 
-	/* browser initng root, in searching for a file matching service name */
-	if ((tmp = search_dir(service, INITNG_ROOT)))
-		return (tmp);
+	/* browse initng root, searching for a file matching service name */
+	if ((tmp = search_dir(data->name, INITNG_ROOT)))
+	{
+		data->ret = tmp;
+		return (HANDLED);
+	}
 
-	return (NULL);
+	return (FALSE);
 }
 
 #define ALIAS_FILE  INITNG_PLUGIN_DIR "/service_alias"
@@ -246,12 +261,12 @@ int module_init(int api_version)
 		return (FALSE);
 	}
 
-	return (initng_plugin_hook_register(&g.PARSERS, 70, &initng_find));
+	return (initng_event_hook_register(&EVENT_PARSE, &initng_find));
 
 }
 
 void module_unload(void)
 {
 	D_("module_unload();\n");
-	initng_plugin_hook_unregister(&g.PARSERS, &initng_find);
+	initng_event_hook_unregister(&EVENT_PARSE, &initng_find);
 }
