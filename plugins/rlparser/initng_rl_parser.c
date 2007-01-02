@@ -54,7 +54,7 @@ stype_h *TYPE_RUNLEVEL;
 stype_h *TYPE_VIRTUAL;
 
 static service_cache_h *parse_file(char *filetoparse,
-								   const char *runlevel_name, stype_h * type)
+				   const char *runlevel_name, stype_h * type)
 {
 	service_cache_h *n_service;	/* service struct pointer too   */
 	char *w = NULL;
@@ -82,6 +82,7 @@ static service_cache_h *parse_file(char *filetoparse,
 
 		if (n_service)
 			free(n_service);
+
 		free(filetoparse);
 		return (NULL);
 	}
@@ -119,6 +120,15 @@ static service_cache_h *parse_file(char *filetoparse,
 
 	if (initng_service_cache_register(n_service))
 		return (n_service);
+
+	/* We failed to register, so free it */
+	if (n_service->name)
+		free(n_service->name);
+
+	remove_all(n_service);
+
+	if (n_service)
+		free(n_service);
 
 	return (NULL);
 }

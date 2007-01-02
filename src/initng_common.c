@@ -393,12 +393,13 @@ int initng_common_state_unlock(active_db_h * service)
 
 	/* If locked, decrement the lock counter */
 	if (service->state_lock)
-		service->state_lock--;
-
-	/* Test if locked more than one time */
-	if (service->state_lock) {
-		D_("State of %s is still locked (level: %d)\n", service->name, service->state_lock);
-		return (FALSE);
+	{
+		/* Test if locked more than one time */
+		if (--service->state_lock)
+		{
+			D_("State of %s is still locked (level: %d)\n", service->name, service->state_lock);
+			return (FALSE);
+		}
 	}
 
 	/* Test if state has changed */

@@ -57,6 +57,18 @@ static service_cache_h *search_dir(const char *for_service, const char *dir)
 
 	/*printf("search_dir: %s for %s\n", dir, for_service); */
 
+	/* Check if there is a virtual file */
+
+	strncpy(file, dir, 40);
+	strcat(file, "/");
+	strncat(file, for_service, 50);
+	strcat(file, ".virtual");
+
+	if (stat(file, &fstat) == 0 && S_ISREG(fstat.st_mode))
+		return (NULL);
+
+	/* OK, there wasn't one, so continue */
+
 	path = opendir(dir);
 	if (!path)
 		return (NULL);

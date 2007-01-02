@@ -272,7 +272,7 @@ static int initng_i_parser(s_event * event)
 	if (strlen(data->name) > 50)
 	{
 		F_("Service name to long, initng_i_parser can't look for this service!\n");
-		return (TRUE);
+		return (FALSE);
 	}
 
 	/*
@@ -283,8 +283,10 @@ static int initng_i_parser(s_event * event)
 	if (data->name[0] == '/')
 	{
 		/* sending null returns the first found */
-		data->ret = parse_file(data->name, NULL);
-		return (HANDLED);
+		if ((data->ret = parse_file(data->name, NULL)))
+			return (HANDLED);
+
+		return (FALSE);
 	}
 
 	/*
@@ -301,12 +303,12 @@ static int initng_i_parser(s_event * event)
 	}
 
 	D_("Was not able to parse: %s\n", data->name);
-	return (TRUE);
+	return (FALSE);
 }
 
 /* parse a file for services */
 static service_cache_h *parse_file(const char *filename,
-								   const char *watch_for)
+				   const char *watch_for)
 {
 	/* Pointer to content read, and pointer to where we are reading */
 	char *file_content = NULL;

@@ -43,7 +43,8 @@ int initng_event_send(s_event *event)
 		if (ret == HANDLED)
 			return (HANDLED);
 
-		if (ret == FAIL) {
+		if (ret == FAIL)
+		{
 			F_("%s event failed on %s\n", event->event_type->name, current->from_file);
 			return (FAIL);
 		}

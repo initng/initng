@@ -779,7 +779,7 @@ static int create_new_active(s_event * event)
 			return (FALSE);
 		}
 #else
-		W_("File \"%s\" not found.\n", file);
+		D_("File \"%s\" not found.\n", file);
 		return (FALSE);
 #endif
 	}
@@ -787,7 +787,7 @@ static int create_new_active(s_event * event)
 	/* check that it is a file */
 	if (!S_ISREG(fstat.st_mode))
 	{
-		F_("File \"%s\" is not an regular file.\n", file);
+		D_("File \"%s\" is not an regular file.\n", file);
 		return (FALSE);
 	}
 

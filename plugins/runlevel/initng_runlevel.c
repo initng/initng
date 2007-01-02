@@ -308,7 +308,7 @@ static void init_RUNLEVEL_START_MARKED(active_db_h * new_runlevel)
  */
 static void init_RUNLEVEL_STOP_MARKED(active_db_h * service)
 {
-	/* Stopp all services dependeing on this service */
+	/* Stop all services dependeing on this service */
 	initng_depend_stop_deps(service);
 
 	initng_common_mark_service(service, &RUNLEVEL_WAITING_FOR_STOP_DEP);
