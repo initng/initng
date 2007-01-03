@@ -41,11 +41,14 @@ int initng_event_send(s_event *event)
 		ret = current->c.event(event);
 
 		if (ret == HANDLED)
+		{
+			D_("%s event handled by %s\n", event->event_type->name, current->from_file);
 			return (HANDLED);
+		}
 
 		if (ret == FAIL)
 		{
-			F_("%s event failed on %s\n", event->event_type->name, current->from_file);
+			D_("%s event failed on %s\n", event->event_type->name, current->from_file);
 			return (FAIL);
 		}
 

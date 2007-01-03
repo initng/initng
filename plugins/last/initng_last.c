@@ -42,12 +42,13 @@ s_entry LAST = { "last", SET, NULL,
 	"If this option is set, you will be sure this service is started last."
 };
 
+stype_h * TYPE_PROVIDED;
 
 /* returns TRUE if all use deps are started */
 static int check_last(s_event * event)
 {
 	active_db_h * service;
-	active_db_h *current = NULL;
+	active_db_h * current = NULL;
 
 	assert(event->event_type == &EVENT_START_DEP_MET);
 	assert(event->data);
@@ -60,6 +61,9 @@ static int check_last(s_event * event)
 	if (!is(&LAST, service))
 		return (TRUE);
 
+	if (!TYPE_PROVIDED)
+		TYPE_PROVIDED = initng_service_type_get_by_name("provided");
+
 	/* ok check with all service */
 	D_("LAST: walking through service db\n");
 	while_active_db(current)
@@ -68,10 +72,9 @@ static int check_last(s_event * event)
 		if (current == service)
 			continue;
 
-		/* ignore runlevels */
-		/* TODO 20051105 SaTaN0rX: i do not know why i need to check for this */
-		/*if (current->type == &TYPE_RUNLEVEL)
-		   continue; */
+		/* ignore provided services */
+		if (TYPE_PROVIDED && current->type == TYPE_PROVIDED)
+			continue;
 
 		/* if this service also should be started last, continue */
 		if (is(&LAST, current))

@@ -392,7 +392,7 @@ int initng_depend_start_dep_met(active_db_h * service, int verbose)
 		{
 			if (verbose)
 			{
-				F_("Service %s can not be started because a plugin (START_DEP_MET) says so.\n", service->name);
+				F_("Service %s can not be started because a plugin (EVENT_START_DEP_MET) says so.\n", service->name);
 			}
 
 			return (FALSE);
