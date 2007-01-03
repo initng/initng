@@ -49,6 +49,8 @@
 #include <initng_plugin.h>
 #include <initng_static_states.h>
 #include <initng_control_command.h>
+#include <initng_static_event_types.h>
+#include <initng_event_hook.h>
 
 #include <initng-paths.h>
 #include "initng_ngcs.h"
@@ -74,20 +76,18 @@ void unregister_ngcs_cmds(void);
 static int service_status_watch(s_event * event);
 static void ngcs_cmd_watch(ngcs_request * req);
 static void ngcs_free_watch(ngcs_chan * chan);
-static int service_output_watch(active_db_h * service, process_h * x,
-								pipe_h * pi, char *buffer_pos);
+static int service_output_watch(s_event * event);
 static ngcs_watch *ngcs_add_watch(ngcs_conn * conn, char *svcname, int flags);
 static void ngcs_cmd_start(ngcs_request * req);
 static int ngcs_watch_initial(ngcs_watch * watch);
 static void ngcs_cmd_stop(ngcs_request * req);
 static void ngcs_cmd_hot_reload(ngcs_request * req);
 static void ngcs_cmd_zap(ngcs_request * req);
-static void system_state_watch(s_event * event);
+static int system_state_watch(s_event * event);
 static void ngcs_free_genwatch(ngcs_chan * chan);
 static void ngcs_cmd_swatch(ngcs_request * req);
 static void ngcs_cmd_ewatch(ngcs_request * req);
-static int error_watch(e_mt mt, const char *file, const char *func,
-					   int line, const char *format, va_list arg);
+static int error_watch(s_event * event);
 
 ngcs_cmd ngcs_start_cmd = {
 	"start",
@@ -153,12 +153,12 @@ static int system_state_watch(s_event * event)
 {
 	e_is state;
 	ngcs_genwatch *watch, *nextwatch;
-	int i = state;
+	int i;
 
 	assert(event->event_type == &EVENT_SYSTEM_CHANGE);
 	assert(event->data);
 
-	state = event->data;
+	i = state = (int) event->data;
 
 	list_for_each_entry_prev_safe(watch, nextwatch, &swatches.list, list)
 	{
@@ -230,7 +230,7 @@ static int error_watch(s_event * event)
 
 static int service_status_watch(s_event * event)
 {
-	service_db_h * service;
+	active_db_h * service;
 	ngcs_watch *watch, *nextwatch;
 	int len = 0;
 	char *buf = NULL;
@@ -315,6 +315,9 @@ static int service_output_watch(s_event * event)
 	char *buf = NULL;;
 
 	assert(event->event_type == &EVENT_BUFFER_WATCHER);
+	assert(event->data);
+
+	data = event->data;
 
 	dat[0].type = NGCS_TYPE_STRING;
 	dat[0].len = -1;

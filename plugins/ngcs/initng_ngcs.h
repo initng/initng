@@ -35,11 +35,11 @@ typedef struct ngcs_svr_conn_s ngcs_svr_conn;
 /* int module_init(const char *version);
    void module_unload(void); */
 
-int service_status(active_db_h * service);
+int service_status(s_event * event);
 void is_system_halt(h_sys_state state);
 
 /*! \brief Close the specified channel
- *  Called to close a channel. Sends a message with length -1 on the channel to 
+ *  Called to close a channel. Sends a message with length -1 on the channel to
  *  notify the client (if the connection is still open) and frees the ngcs_chan
  *  structure, calling the ngcs_chan.free callback first if there is one
  *
@@ -48,12 +48,12 @@ void is_system_halt(h_sys_state state);
 void ngcs_close_channel(ngcs_chan * chan);
 
 /* \brief Register an ngcs command
- * Registers an ngcs command. ngcs clients can then call it by sending a 
- *  message on channel 0, consisting of a structure (see ngcs_pack() and 
- *  ngcs_unpack()) containing the command name followed by any arguments. If 
+ * Registers an ngcs command. ngcs clients can then call it by sending a
+ *  message on channel 0, consisting of a structure (see ngcs_pack() and
+ *  ngcs_unpack()) containing the command name followed by any arguments. If
  * more than one registered command has the same name, the results are undefined.
  *
- * \param cmd structure describing the command - must not be freed, modified 
+ * \param cmd structure describing the command - must not be freed, modified
  *        or passed to ngcs_reg_cmd again until ngcs_unreg_cmd(cmd) has been called
  * \sa ngcs_unreg_cmd() ngcs_cmd
  */
@@ -68,7 +68,7 @@ void ngcs_reg_cmd(ngcs_cmd * cmd);
 void ngcs_unreg_cmd(ngcs_cmd * cmd);
 
 /* \brief Open a new channel on the specified connection
- * 
+ *
  * Opens a new channel on the specified connection by assigning a channel number
  * and calling ngcs_chan_reg(). The caller is responsible for communicating the
  * channel number of the new channel to the client.
@@ -94,7 +94,7 @@ ngcs_chan *ngcs_open_channel(ngcs_conn * conn,
  * \param req  the ngcs_request* passed to the handler
  * \param type the data type of the message
  * \param len  the length (in bytes) of the data to send
- * \param data the actual data to send 
+ * \param data the actual data to send
  * \return Zero on success, non-zero on failure
  * \sa ngcs_sendmsg() ngcs_cmd
  */
@@ -104,7 +104,7 @@ int ngcs_send_response(ngcs_request * req, int type, int len,
 /*! \brief Ngcs command handler
  *
  *  Represents an ngcs command handler. Ngcs commands are sent on channel 0 of
- *  a connection and are identified by a (case-sensitive) string, their name 
+ *  a connection and are identified by a (case-sensitive) string, their name
  *
  *  \sa ngcs_reg_cmd() ngcs_unreg_cmd()
  */

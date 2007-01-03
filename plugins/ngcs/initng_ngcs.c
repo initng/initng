@@ -51,6 +51,8 @@
 #include <initng_plugin.h>
 #include <initng_static_states.h>
 #include <initng_control_command.h>
+#include <initng_static_event_types.h>
+#include <initng_event_hook.h>
 
 #include <initng-paths.h>
 
