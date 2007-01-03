@@ -43,11 +43,11 @@ INITNG_PLUGIN_MACRO;
 
 static int ctrlaltdel(s_event * event)
 {
-	int signal;
+	long signal;
 
 	assert(event->event_type == &EVENT_SIGNAL);
 
-	signal = (int) event->data;
+	signal = (long) event->data;
 
 	if (signal != SIGINT)
 		return (TRUE);

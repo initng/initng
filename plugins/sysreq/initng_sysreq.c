@@ -44,12 +44,12 @@ INITNG_PLUGIN_MACRO;
 
 static int sysreq(s_event * event)
 {
-	int signal;
+	long signal;
 	active_db_h *current = NULL;
 
 	assert(event->event_type == &EVENT_SIGNAL);
 
-	signal = (int) event->data;
+	signal = (long) event->data;
 
 	if (signal != SIGWINCH)
 		return (TRUE);

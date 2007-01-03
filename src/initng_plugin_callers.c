@@ -62,7 +62,7 @@ void initng_plugin_callers_signal(int signal)
 	s_event event;
 
 	event.event_type = &EVENT_SIGNAL;
-	event.data = (void *) signal;
+	event.data = (void *) (long)signal;
 
 	initng_event_send(&event);
 }
@@ -89,7 +89,7 @@ void initng_plugin_callers_compensate_time(int t)
 	s_event event;
 
 	event.event_type = &EVENT_COMPENSATE_TIME;
-	event.data = (void *) t;
+	event.data = (void *) (long)t;
 
 	initng_event_send(&event);
 }

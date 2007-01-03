@@ -286,11 +286,11 @@ static void initng_reload(void)
 /* try open FIFO, every started service */
 static int hup_request(s_event * event)
 {
-	int signal;
+	long signal;
 
 	assert(event->event_type == &EVENT_SIGNAL);
 
-	signal = (int) event->data;
+	signal = (long) event->data;
 
 	/* Look for the right signal */
 	if (signal != SIGHUP)

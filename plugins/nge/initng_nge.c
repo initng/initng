@@ -420,12 +420,12 @@ static int open_initiator_socket(void)
 /* this will check socket, and reopen on failure */
 static int check_socket(s_event * event)
 {
-	int signal;
+	long signal;
 	struct stat st;
 
 	assert(event->event_type == &EVENT_SIGNAL);
 
-	signal = (int) event->data;
+	signal = (long) event->data;
 
 	if (signal != SIGHUP)
 		return (TRUE);
