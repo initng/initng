@@ -55,24 +55,27 @@ s_entry SELINUX_CONTEXT = { "selinux_context", STRING, NULL,
 
 static int set_selinux_context(s_event * event)
 {
-	/*
 	s_event_after_fork_data * data;
-	This is unused so it trows a warning and we compile with -Werror so 
-	it causes build to fail.
-	->comment out for now
-	*/
+
 	static int have_selinux = -1;
-	if (have_selinux==-1) {
+
+	assert(event->event_type == &EVENT_AFTER_FORK);
+	assert(event->data);
+
+	data = event->data;
+
+	if (have_selinux == -1) {
 		int rc = is_selinux_enabled();
-		if (rc<0)
+		if (rc < 0)
 			return (TRUE);
 		else
 			have_selinux = rc;
 	}
+
 	if (!have_selinux)
 		return (TRUE);
 
-	const char *selinux_context = get_string(&SELINUX_CONTEXT, s);
+	const char *selinux_context = get_string(&SELINUX_CONTEXT, data->service);
 	char *sestr = NULL;
 	context_t seref = NULL;
 	int rc = 0;
