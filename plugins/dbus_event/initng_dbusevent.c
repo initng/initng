@@ -64,13 +64,11 @@ void send_to_all(char *buf);
 
 
 static int astatus_change(s_event * event);
-static void check_socket(int signal);
+static int check_socket(s_event * event);
 static int connect_to_dbus(void);
-static void system_state_change(s_event * event);
-static int system_pipe_watchers(active_db_h * service, process_h * process,
-								pipe_h * pi, char *output);
-static int print_error(e_mt mt, const char *file, const char *func, int line,
-					   const char *format, va_list arg);
+static int system_state_change(s_event * event);
+static int system_pipe_watchers(s_event * event);
+static int print_error(s_event * event);
 
 static dbus_bool_t add_dbus_watch(DBusWatch * watch, void *data);
 static void rem_dbus_watch(DBusWatch * watch, void *data);
@@ -175,7 +173,7 @@ static void fdw_callback(f_module_h * from, e_fdw what)
 
 static int astatus_change(s_event * event)
 {
-	service_db_h * service;
+	active_db_h * service;
 
 	DBusMessage *msg;
 	dbus_uint32_t serial = 0;
@@ -242,7 +240,7 @@ static int system_state_change(s_event * event)
 	assert(event->event_type == &EVENT_SYSTEM_CHANGE);
 	assert(event->data);
 
-	state = event->data;
+	state = (e_is)event->data;
 
 	if (conn == NULL)
 		return (TRUE);
@@ -292,6 +290,8 @@ static int system_pipe_watchers(s_event * event)
 
 	const char *service_name = ((s_event_pipe_watcher_data *) event->data)->service->name;
 	const char *process_name = ((s_event_pipe_watcher_data *) event->data)->process->pt->name;
+
+	char output[100]; //used for ? needs fix
 
 	if (conn == NULL)
 		return (HANDLED);
@@ -394,11 +394,11 @@ static int print_error(s_event * event)
  */
 static int check_socket(s_event * event)
 {
-	int signal;
+	long signal;
 
 	assert(event->event_type == &EVENT_SIGNAL);
 
-	signal = event->data;
+	signal = (long)event->data;
 
 	/* only react on a SIGHUP signal */
 	if (signal != SIGHUP)
