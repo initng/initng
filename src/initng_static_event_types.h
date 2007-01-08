@@ -18,6 +18,8 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+#ifndef INITNG_STATIC_EVENT_TYPES_H
+
 extern s_event_type EVENT_STATE_CHANGE;
 extern s_event_type EVENT_SYSTEM_CHANGE;
 extern s_event_type EVENT_IS_CHANGE;
@@ -100,3 +102,5 @@ typedef struct {
 	service_cache_h * ret;
 } s_event_parse_data;
 #endif
+
+#endif /* INITNG_STATIC_EVENT_TYPES_H */

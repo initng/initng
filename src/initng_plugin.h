@@ -48,36 +48,8 @@ typedef union
 	void *pointer;
 
 	/* put all hook functions here */
-	int (*status_change) (active_db_h * service);
-#ifdef SERVICE_CACHE
-	service_cache_h *(*parser) (const char *name);
-#endif
-	void (*swatcher) (h_sys_state state);
-	int (*buffer_watcher) (active_db_h * service, process_h * process,
-						   pipe_h * pi, char *buffer_pos);
-	int (*pipe_watcher) (active_db_h * service, process_h * process,
-						 pipe_h * pi);
-	int (*launch) (active_db_h * service, process_h * process,
-				   const char *exec_name);
-	int (*af_launcher) (active_db_h * service, process_h * process);
-	int (*handle_killed) (active_db_h * service, process_h * process);
-	void (*main) (void);
-	void (*compensate_time) (int seconds);
-	int (*err) (e_mt mt, const char *file, const char *func, int line,
-				const char *format, va_list ap);
-	int (*dep_on_check) (active_db_h * service, active_db_h * check);
-	void (*signal_hook) (int signal);
 	f_module_h *fdh;
-#ifdef SERVICE_CACHE
-	int (*additional_parse) (service_cache_h * service);
-#endif
-	int (*dump_active_db) (void);
-	int (*reload_active_db) (void);
-	int (*start_dep_met) (active_db_h * service);
-	int (*stop_dep_met) (active_db_h * service);
-	int (*up_met) (active_db_h * service);
 	int (*event) (s_event * event);
-	active_db_h *(*new_active) (const char *name);
 } uc __attribute__ ((__transparent_union__));
 
 
