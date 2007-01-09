@@ -51,6 +51,8 @@
 #include <initng_control_command.h>
 #include <initng_static_event_types.h>
 #include <initng_event_hook.h>
+#include <initng_string_tools.h>
+#include <initng_fd.h>
 
 #include <initng-paths.h>
 
@@ -64,6 +66,8 @@ INITNG_PLUGIN_MACRO;
 static void initng_reload(void);
 static void filemon_event(f_module_h * from, e_fdw what);
 
+static int fdh_handler(s_event * event);
+
 /* this plugin file descriptor we add to monitor */
 f_module_h fdh = { &filemon_event, FDW_READ, -1 };
 
@@ -71,6 +75,60 @@ f_module_h fdh = { &filemon_event, FDW_READ, -1 };
 int plugins_watch = -1;
 int initng_watch = -1;
 int i_watch = -1;
+
+
+static int fdh_handler(s_event * event)
+{
+	s_event_fd_watcher_data * data;
+
+	assert(event);
+	assert(event->data);
+
+	data = event->data;
+
+	switch (data->action)
+	{
+		case FDW_ACTION_CLOSE:
+			if (fdh.fds > 0)
+				close(fdh.fds);
+			break;
+
+		case FDW_ACTION_CHECK:
+			if (fdh.fds <= 2)
+				break;
+
+			/* This is a expensive test, but better safe then sorry */
+			if (!STILL_OPEN(fdh.fds))
+			{
+				D_("%i is not open anymore.\n", fdh.fds);
+				fdh.fds = -1;
+				break;
+			}
+
+			FD_SET(fdh.fds, data->readset);
+			data->added++;
+			break;
+
+		case FDW_ACTION_CALL:
+			if (!data->added || fdh.fds <= 2)
+				break;
+
+			if(!FD_ISSET(fdh.fds, data->readset))
+				break;
+
+			filemon_event(&fdh, FDW_READ);
+			data->added--;
+			break;
+
+		case FDW_ACTION_DEBUG:
+			if (!data->debug_find_what || strstr(__FILE__, data->debug_find_what))
+				mprintf(data->debug_out, " %i: Used by plugin: %s\n",
+					fdh.fds, __FILE__);
+			break;
+	}
+
+	return (TRUE);
+}
 
 /* This function trys to reload initng if reload plugin is loaded */
 static void initng_reload(void)
@@ -303,7 +361,7 @@ int module_init(int api_version)
 #endif
 
 	/* add this hook */
-	initng_plugin_hook_register(&EVENT_FD_WATCHER.hooks, 30, &fdh);
+	initng_event_hook_register(&EVENT_FD_WATCHER, &fdh_handler);
 
 	/* printf("Now monitoring...\n"); */
 
@@ -321,5 +379,5 @@ void module_unload(void)
 	close(fdh.fds);
 
 	/* remove hooks */
-	initng_plugin_hook_unregister(&EVENT_FD_WATCHER.hooks, &fdh);
+	initng_event_hook_unregister(&EVENT_FD_WATCHER, &fdh_handler);
 }

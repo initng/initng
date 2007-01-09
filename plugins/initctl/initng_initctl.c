@@ -46,6 +46,8 @@
 #include <initng_static_states.h>
 #include <initng_event_hook.h>
 #include <initng_static_event_types.h>
+#include <initng_string_tools.h>
+#include <initng_fd.h>
 
 #include <initng-paths.h>
 
@@ -63,12 +65,66 @@ static int initctl_control_open(void);
 static void makeutmp(int runlevel);
 static void initng_reload(void);
 
+static int pipe_fd_handler(s_event * event);
 
 f_module_h pipe_fd = { &parse_control_input, FDW_READ, -1 };	/* /dev/initctl */
 
 struct stat st, st2;
 
 #define PIPE_FD    10						/* Fileno of initfifo. */
+
+static int pipe_fd_handler(s_event * event)
+{
+	s_event_fd_watcher_data * data;
+
+	assert(event);
+	assert(event->data);
+
+	data = event->data;
+
+	switch (data->action)
+	{
+		case FDW_ACTION_CLOSE:
+			if (pipe_fd.fds > 0)
+				close(pipe_fd.fds);
+			break;
+
+		case FDW_ACTION_CHECK:
+			if (pipe_fd.fds <= 2)
+				break;
+
+			/* This is a expensive test, but better safe then sorry */
+			if (!STILL_OPEN(pipe_fd.fds))
+			{
+				D_("%i is not open anymore.\n", pipe_fd.fds);
+				pipe_fd.fds = -1;
+				break;
+			}
+
+			FD_SET(pipe_fd.fds, data->readset);
+			data->added++;
+			break;
+
+		case FDW_ACTION_CALL:
+			if (!data->added || pipe_fd.fds <= 2)
+				break;
+
+			if(!FD_ISSET(pipe_fd.fds, data->readset))
+				break;
+
+			parse_control_input(&pipe_fd, FDW_READ);
+			data->added--;
+			break;
+
+		case FDW_ACTION_DEBUG:
+			if (!data->debug_find_what || strstr(__FILE__, data->debug_find_what))
+				mprintf(data->debug_out, " %i: Used by plugin: %s\n",
+					pipe_fd.fds, __FILE__);
+			break;
+	}
+
+	return (TRUE);
+}
 
 static void initctl_control_close(void)
 {
@@ -123,7 +179,7 @@ static int initctl_control_open(void)
 		}
 
 		/* ok, finally add hook */
-		initng_plugin_hook_register(&EVENT_FD_WATCHER.hooks, 70, &pipe_fd);
+		initng_event_hook_register(&EVENT_FD_WATCHER, &pipe_fd_handler);
 	}
 	return (TRUE);
 }
@@ -362,7 +418,7 @@ void module_unload(void)
 
 	initctl_control_close();
 	/* remove all hooks */
-	initng_plugin_hook_unregister(&EVENT_FD_WATCHER.hooks, &pipe_fd);
+	initng_event_hook_unregister(&EVENT_FD_WATCHER, &pipe_fd_handler);
 	initng_event_hook_unregister(&EVENT_SYSTEM_CHANGE, &is_system_up);
 	initng_event_hook_unregister(&EVENT_SIGNAL, &hup_request);
 }

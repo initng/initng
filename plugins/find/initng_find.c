@@ -57,7 +57,7 @@ static service_cache_h *search_dir(const char *for_service, const char *dir)
 
 	/*printf("search_dir: %s for %s\n", dir, for_service); */
 
-	/* Check if there is a virtual file */
+	/* check if there is a virtual file */
 
 	strncpy(file, dir, 40);
 	strcat(file, "/");
@@ -67,7 +67,17 @@ static service_cache_h *search_dir(const char *for_service, const char *dir)
 	if (stat(file, &fstat) == 0 && S_ISREG(fstat.st_mode))
 		return (NULL);
 
-	/* OK, there wasn't one, so continue */
+	/* check if there is a runlevel file */
+
+	strncpy(file, dir, 40);
+	strcat(file, "/");
+	strncat(file, for_service, 50);
+	strcat(file, ".runlevel");
+
+	if (stat(file, &fstat) == 0 && S_ISREG(fstat.st_mode))
+		return (NULL);
+
+	/* ok, there was not :) */
 
 	path = opendir(dir);
 	if (!path)

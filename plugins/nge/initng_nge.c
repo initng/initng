@@ -50,6 +50,8 @@
 #include <initng_control_command.h>
 #include <initng_static_event_types.h>
 #include <initng_event_hook.h>
+#include <initng_fd.h>
+#include <initng_string_tools.h>
 
 #include <initng-paths.h>
 
@@ -78,10 +80,65 @@ static int astatus_change(s_event * event);
 static int system_state_change(s_event * event);
 static int system_pipe_watchers(s_event * event);
 static int print_error(s_event * event);
+static int fd_event_acceptor_handler(s_event * event);
 
 /* todo, when last listener closed, del hooks to save cpu cykles */
 
 f_module_h fd_event_acceptor = { &event_acceptor, FDW_READ, -1 };
+
+
+static int fd_event_acceptor_handler(s_event * event)
+{
+	s_event_fd_watcher_data * data;
+
+	assert(event);
+	assert(event->data);
+
+	data = event->data;
+
+	switch (data->action)
+	{
+		case FDW_ACTION_CLOSE:
+			if (fd_event_acceptor.fds > 0)
+				close(fd_event_acceptor.fds);
+			break;
+
+		case FDW_ACTION_CHECK:
+			if (fd_event_acceptor.fds <= 2)
+				break;
+
+			/* This is a expensive test, but better safe then sorry */
+			if (!STILL_OPEN(fd_event_acceptor.fds))
+			{
+				D_("%i is not open anymore.\n", fd_event_acceptor.fds);
+				fd_event_acceptor.fds = -1;
+				break;
+			}
+
+			FD_SET(fd_event_acceptor.fds, data->readset);
+			data->added++;
+			break;
+
+		case FDW_ACTION_CALL:
+			if (!data->added || fd_event_acceptor.fds <= 2)
+				break;
+
+			if(!FD_ISSET(fd_event_acceptor.fds, data->readset))
+				break;
+
+			event_acceptor(&fd_event_acceptor, FDW_READ);
+			data->added--;
+			break;
+
+		case FDW_ACTION_DEBUG:
+			if (!data->debug_find_what || strstr(__FILE__, data->debug_find_what))
+				mprintf(data->debug_out, " %i: Used by plugin: %s\n",
+					fd_event_acceptor.fds, __FILE__);
+			break;
+	}
+
+	return (TRUE);
+}
 
 static void close_all_listeners(void)
 {
@@ -156,7 +213,7 @@ static void close_initiator_socket(void)
 	fd_event_acceptor.fds = -1;
 
 	/* remove tha hook too */
-	initng_plugin_hook_unregister(&EVENT_FD_WATCHER.hooks, &fd_event_acceptor);
+	initng_event_hook_unregister(&EVENT_FD_WATCHER, &fd_event_acceptor_handler);
 }
 
 /* send to all listeners */
@@ -411,7 +468,7 @@ static int open_initiator_socket(void)
 	 * Add an hook, so when fd_event_acceptor.fds have data,
 	 * fd_event_acceptor.call (event_acceptor()) is called.
 	 */
-	initng_plugin_hook_register(&EVENT_FD_WATCHER.hooks, 30, &fd_event_acceptor);
+	initng_event_hook_register(&EVENT_FD_WATCHER, &fd_event_acceptor_handler);
 
 	/* return happily */
 	return (TRUE);

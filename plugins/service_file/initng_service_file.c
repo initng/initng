@@ -52,6 +52,7 @@
 #include <initng_string_tools.h>
 #include <initng_static_event_types.h>
 #include <initng_event_hook.h>
+#include <initng_fd.h>
 
 #ifdef SERVICE_CACHE
 #include <initng_service_cache.h>
@@ -111,7 +112,62 @@ stype_h unset = { "unset", "Service type is not set yet, are still parsing.", FA
 struct stat sock_stat;
 
 #ifdef GLOBAL_SOCKET
+
 f_module_h bpf = { &bp_incoming, FDW_READ, -1 };
+
+static int bpf_handler(s_event * event)
+{
+	s_event_fd_watcher_data * data;
+
+	assert(event);
+	assert(event->data);
+
+	data = event->data;
+
+	switch (data->action)
+	{
+		case FDW_ACTION_CLOSE:
+			if (bpf.fds > 0)
+				close(bpf.fds);
+			break;
+
+		case FDW_ACTION_CHECK:
+			if (bpf.fds <= 2)
+				break;
+
+			/* This is a expensive test, but better safe then sorry */
+			if (!STILL_OPEN(bpf.fds))
+			{
+				D_("%i is not open anymore.\n", bpf.fds);
+				bpf.fds = -1;
+				break;
+			}
+
+			FD_SET(bpf.fds, data->readset);
+			data->added++;
+			break;
+
+		case FDW_ACTION_CALL:
+			if (!data->added || bpf.fds <= 2)
+				break;
+
+			if(!FD_ISSET(bpf.fds, data->readset))
+				break;
+
+			bp_incoming(&bpf, FDW_READ);
+			data->added--;
+			break;
+
+		case FDW_ACTION_DEBUG:
+			if (!data->debug_find_what || strstr(__FILE__, arg))
+				mprintf(data->debug_out, " %i: Used by plugin: %s\n",
+					bpf.fds, __FILE__);
+			break;
+	}
+
+	return (TRUE);
+}
+
 #endif
 
 #define RSCV() (TEMP_FAILURE_RETRY(recv(fd, &req, sizeof(bp_req), 0)))

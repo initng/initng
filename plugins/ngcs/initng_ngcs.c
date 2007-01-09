@@ -53,6 +53,8 @@
 #include <initng_control_command.h>
 #include <initng_static_event_types.h>
 #include <initng_event_hook.h>
+#include <initng_string_tools.h>
+#include <initng_fd.h>
 
 #include <initng-paths.h>
 
@@ -106,6 +108,117 @@ ngcs_svr_conn ngcs_dead_conns;
 ngcs_cmd ngcs_cmds;
 
 f_module_h fdh = { &accepted_client, FDW_READ, -1 };
+
+static int fdh_handler(s_event * event)
+{
+	s_event_fd_watcher_data * data;
+
+	assert(event);
+	assert(event->data);
+
+	data = event->data;
+
+	switch (data->action)
+	{
+		case FDW_ACTION_CLOSE:
+			if (fdh.fds > 0)
+				close(fdh.fds);
+			break;
+
+		case FDW_ACTION_CHECK:
+			if (fdh.fds <= 2)
+				break;
+
+			/* This is a expensive test, but better safe then sorry */
+			if (!STILL_OPEN(fdh.fds))
+			{
+				D_("%i is not open anymore.\n", fdh.fds);
+				fdh.fds = -1;
+				break;
+			}
+
+			FD_SET(fdh.fds, data->readset);
+			data->added++;
+			break;
+
+		case FDW_ACTION_CALL:
+			if (!data->added || fdh.fds <= 2)
+				break;
+
+			if(!FD_ISSET(fdh.fds, data->readset))
+				break;
+
+			accepted_client(&fdh, FDW_READ);
+			data->added--;
+			break;
+
+		case FDW_ACTION_DEBUG:
+			if (!data->debug_find_what || strstr(__FILE__, data->debug_find_what))
+				mprintf(data->debug_out, " %i: Used by plugin: %s\n",
+					fdh.fds, __FILE__);
+			break;
+	}
+
+	return (TRUE);
+}
+
+static int conn_fdw_handler(s_event * event)
+{
+	s_event_fd_watcher_data * data;
+	ngcs_svr_conn *current = NULL;
+
+	assert(event);
+	assert(event->data);
+
+	data = event->data;
+
+	list_for_each_entry(current, &ngcs_conns.list, list);
+	{
+		switch (data->action)
+		{
+			case FDW_ACTION_CLOSE:
+				if (current->fdw.fds > 0)
+					close(current->fdw.fds);
+				break;
+
+			case FDW_ACTION_CHECK:
+				if (current->fdw.fds <= 2)
+					break;
+
+				/* This is a expensive test, but better safe then sorry */
+				if (!STILL_OPEN(current->fdw.fds))
+				{
+					D_("%i is not open anymore.\n", current->fdw.fds);
+					current->fdw.fds = -1;
+					break;
+				}
+
+				FD_SET(current->fdw.fds, data->readset);
+				data->added++;
+				break;
+
+			case FDW_ACTION_CALL:
+				if (!data->added || current->fdw.fds <= 2)
+					break;
+
+				if(!FD_ISSET(current->fdw.fds, data->readset))
+					break;
+
+				current->fdw.call_module(&current->fdw, FDW_READ);
+				data->added--;
+				break;
+
+			case FDW_ACTION_DEBUG:
+				if (!data->debug_find_what || strstr(__FILE__, data->debug_find_what))
+					mprintf(data->debug_out, " %i: Used by plugin: %s\n",
+						current->fdw.fds, __FILE__);
+				break;
+		}
+	}
+
+	return (TRUE);
+}
+
 
 static void closesock(void)
 {
@@ -186,7 +299,6 @@ void accepted_client(f_module_h * from, e_fdw what)
 		conn->list.next = 0;
 		conn->list.prev = 0;
 		list_add(&conn->list, &ngcs_conns.list);
-		initng_plugin_hook_register(&EVENT_FD_WATCHER.hooks, 30, &conn->fdw);
 		return;
 	}
 
@@ -207,7 +319,6 @@ static void handle_close(ngcs_conn * conn)
 {
 	ngcs_svr_conn *sconn = (ngcs_svr_conn *) conn->userdata;
 
-	initng_plugin_hook_unregister(&EVENT_FD_WATCHER.hooks, &(sconn->fdw));
 	sconn->fdw.fds = -1;
 	list_move(&sconn->list, &ngcs_dead_conns.list);
 }
@@ -702,7 +813,8 @@ int module_init(int api_version)
 
 	D_("adding hook, that will reopen socket, for every started service.\n");
 	initng_event_hook_register(&EVENT_IS_CHANGE, &service_status);
-	initng_plugin_hook_register(&EVENT_FD_WATCHER.hooks, 30, &fdh);
+	initng_event_hook_register(&EVENT_FD_WATCHER, &fdh_handler);
+	initng_event_hook_register(&EVENT_FD_WATCHER, &conn_fdw_handler);
 
 	ngcs_reg_cmd(&ngcs_compat_cmds);
 
@@ -737,9 +849,9 @@ void module_unload(void)
 	unregister_ngcs_cmds();
 
 	/* remove hooks */
-	initng_plugin_hook_unregister(&EVENT_FD_WATCHER.hooks, &fdh);
+	initng_event_hook_unregister(&EVENT_FD_WATCHER, &conn_fdw_handler);
+	initng_event_hook_unregister(&EVENT_FD_WATCHER, &fdh_handler);
 	initng_event_hook_unregister(&EVENT_IS_CHANGE, &service_status);
 
 	D_("ngcs.so.0.0 unloaded!\n");
-
 }

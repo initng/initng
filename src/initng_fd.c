@@ -41,20 +41,18 @@
 
 void initng_fd_close_all(void)
 {
-	s_call *current, *safe = NULL;
+	s_event event;
+	s_event_fd_watcher_data data;
 
 	S_;
 
-	while_list_safe(current, &EVENT_FD_WATCHER.hooks, safe)
-	{
-		if (current->c.fdh->fds > 0)
-			close(current->c.fdh->fds);
-		list_del(&current->list);
+	event.event_type = &EVENT_FD_WATCHER;
+	event.data = &data;
+	data.action = FDW_ACTION_CLOSE;
 
-		if (current->from_file)
-			free(current->from_file);
-		free(current);
-	}
+	initng_event_send(&event);
+
+	/* TODO: Should we clear the event hooks list here? */
 }
 
 /*
@@ -270,8 +268,6 @@ void initng_fd_process_read_input(active_db_h * service, process_h * p,
 	}
 }
 
-#define STILL_OPEN(fd) (fcntl(fd, F_GETFD)>=0)
-
 /*
  * FILEDESCRIPTORPOLLNG
  *
@@ -297,7 +293,6 @@ void initng_fd_plugin_poll(int timeout)
 	int retval;
 	int added = 0;
 	active_db_h *currentA, *qA;
-	s_call *currentC, *qC;
 	process_h *currentP, *qP;
 	pipe_h *current_pipe;
 
@@ -318,31 +313,21 @@ void initng_fd_plugin_poll(int timeout)
 
 
 	/* scan through active plug-ins that have listening file descriptors, and add them */
-	currentC = NULL;
-	while_list(currentC, &EVENT_FD_WATCHER.hooks)
 	{
-		/* first, some checking */
-		if (currentC->c.fdh->fds <= 2)
-			continue;
-		if (!currentC->c.fdh->call_module)
-			continue;
+		s_event event;
+		s_event_fd_watcher_data data;
 
-		/* This is a expensive test, but better safe then sorry */
-		if (!STILL_OPEN(currentC->c.fdh->fds))
-		{
-			D_("%i is not open anymore.\n", currentC->c.fdh->fds);
-			currentC->c.fdh->fds = -1;
-			continue;
-		}
+		event.event_type = &EVENT_FD_WATCHER;
+		event.data = &data;
+		data.action = FDW_ACTION_CHECK;
+		data.added = 0;
+		data.readset = &readset;
+		data.writeset = &writeset;
+		data.errset = &errset;
 
-		/*D_("adding fd #%i, from an call_db.\n", current->c.fdh->fds); */
-		if (currentC->c.fdh->what & FDW_READ)
-			FD_SET(currentC->c.fdh->fds, &readset);
-		if (currentC->c.fdh->what & FDW_WRITE)
-			FD_SET(currentC->c.fdh->fds, &writeset);
-		if (currentC->c.fdh->what & FDW_ERROR)
-			FD_SET(currentC->c.fdh->fds, &errset);
-		added++;
+		initng_event_send(&event);
+
+		added += data.added;
 	}
 
 	/* Then add all file descriptors from process read pipes */
@@ -453,35 +438,21 @@ void initng_fd_plugin_poll(int timeout)
 	 */
 
 	/* Now scan through callers */
-	currentC = NULL;
-	qC = NULL;
-	while_list_safe(currentC, &EVENT_FD_WATCHER.hooks, qC)
 	{
-		int what = 0;
+		s_event event;
+		s_event_fd_watcher_data data;
 
-		if (currentC->c.fdh->fds <= 2)
-			continue;
-		if (!currentC->c.fdh->call_module)
-			continue;
+		event.event_type = &EVENT_FD_WATCHER;
+		event.data = &data;
+		data.action = FDW_ACTION_CALL;
+		data.readset = &readset;
+		data.writeset = &writeset;
+		data.errset = &errset;
+		data.added = retval;
 
-		if (FD_ISSET(currentC->c.fdh->fds, &readset))
-			what |= FDW_READ;
-		if (FD_ISSET(currentC->c.fdh->fds, &writeset))
-			what |= FDW_WRITE;
-		if (FD_ISSET(currentC->c.fdh->fds, &errset))
-			what |= FDW_ERROR;
+		initng_event_send(&event);
 
-		if (what == 0)
-			continue;
-
-
-		D_("Calling plugin handler for fd #%i, what=%i\n",
-		   currentC->c.fdh->fds, what);
-		(*currentC->c.fdh->call_module) (currentC->c.fdh, what);
-		D_("Call handler returned.\n");
-
-		/* Found match, that means we need to look for one less, if we've found all we should then return */
-		retval--;
+		retval = data.added;
 		if (retval == 0)
 			return;
 	}

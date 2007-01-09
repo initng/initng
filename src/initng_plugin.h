@@ -48,7 +48,6 @@ typedef union
 	void *pointer;
 
 	/* put all hook functions here */
-	f_module_h *fdh;
 	int (*event) (s_event * event);
 } uc __attribute__ ((__transparent_union__));
 

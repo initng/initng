@@ -19,6 +19,7 @@
  */
 
 #ifndef INITNG_STATIC_EVENT_TYPES_H
+#define INITNG_STATIC_EVENT_TYPES_H
 
 extern s_event_type EVENT_STATE_CHANGE;
 extern s_event_type EVENT_SYSTEM_CHANGE;
@@ -102,5 +103,20 @@ typedef struct {
 	service_cache_h * ret;
 } s_event_parse_data;
 #endif
+
+
+/* EVENT_FD_WATCHER actions */
+#define FDW_ACTION_CLOSE	1
+#define FDW_ACTION_CHECK	2
+#define FDW_ACTION_CALL		3
+#define FDW_ACTION_DEBUG	4
+
+typedef struct {
+	int action;
+	int added;
+	fd_set * readset, * writeset, * errset;
+	char * debug_find_what;
+	char ** debug_out;
+} s_event_fd_watcher_data;
 
 #endif /* INITNG_STATIC_EVENT_TYPES_H */

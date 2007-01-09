@@ -108,27 +108,25 @@ static char *cmd_print_fds(char *arg)
 {
 	char *string = NULL;
 	active_db_h *currentA;
-	s_call *currentC;
 	process_h *currentP;
 	pipe_h *current_pipe;
 	int i;
 
+	{
+		s_event event;
+		s_event_fd_watcher_data data;
+
+		event.event_type = &EVENT_FD_WATCHER;
+		event.data = &data;
+		data.action = FDW_ACTION_DEBUG;
+		data.debug_find_what = arg;
+		data.debug_out = &string;
+
+		initng_event_send(&event);
+	}
+
 	for (i = 0; i < 1024; i++)
 	{
-
-		currentC = NULL;
-		while_list(currentC, &EVENT_FD_WATCHER.hooks)
-		{
-			if (currentC->c.fdh->fds != i)
-				continue;
-
-			if (!arg || strstr(currentC->from_file, arg))
-				mprintf(&string, " %i: Used by plugin: %s\n", i,
-						currentC->from_file);
-			break;
-			/* Call db fs */
-		}
-
 		currentA = NULL;
 
 		/* for every service */

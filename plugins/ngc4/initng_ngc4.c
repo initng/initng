@@ -50,6 +50,8 @@
 #include <initng_control_command.h>
 #include <initng_static_event_types.h>
 #include <initng_event_hook.h>
+#include <initng_string_tools.h>
+#include <initng_fd.h>
 
 #include <initng-paths.h>
 
@@ -63,6 +65,7 @@ static void handle_client(int fd);
 static int sendping(void);
 static int open_socket(void);
 static int check_socket(s_event * event);
+static int fdh_handler(s_event * event);
 
 s_command local_commands_db;
 
@@ -89,6 +92,59 @@ const char *socket_filename;
 
 f_module_h fdh = { &accepted_client, FDW_READ, -1 };
 
+
+static int fdh_handler(s_event * event)
+{
+	s_event_fd_watcher_data * data;
+
+	assert(event);
+	assert(event->data);
+
+	data = event->data;
+
+	switch (data->action)
+	{
+		case FDW_ACTION_CLOSE:
+			if (fdh.fds > 0)
+				close(fdh.fds);
+			break;
+
+		case FDW_ACTION_CHECK:
+			if (fdh.fds <= 2)
+				break;
+
+			/* This is a expensive test, but better safe then sorry */
+			if (!STILL_OPEN(fdh.fds))
+			{
+				D_("%i is not open anymore.\n", fdh.fds);
+				fdh.fds = -1;
+				break;
+			}
+
+			FD_SET(fdh.fds, data->readset);
+			data->added++;
+			break;
+
+		case FDW_ACTION_CALL:
+			if (!data->added || fdh.fds <= 2)
+				break;
+
+			if(!FD_ISSET(fdh.fds, data->readset))
+				break;
+
+			accepted_client(&fdh, FDW_READ);
+			data->added--;
+			break;
+
+		case FDW_ACTION_DEBUG:
+			if (!data->debug_find_what || strstr(__FILE__, data->debug_find_what))
+				mprintf(data->debug_out, " %i: Used by plugin: %s\n",
+					fdh.fds, __FILE__);
+			break;
+	}
+
+	return (TRUE);
+}
 
 /* Function to search for local commands, bound only to ngc4 */
 static s_command *lfbc(char cid)
@@ -1390,7 +1446,7 @@ int module_init(int api_version)
 	D_("Socket is: %s\n", socket_filename);
 
 	D_("adding hook, that will reopen socket, for every started service.\n");
-	initng_plugin_hook_register(&EVENT_FD_WATCHER.hooks, 30, &fdh);
+	initng_event_hook_register(&EVENT_FD_WATCHER, &fdh_handler);
 	initng_event_hook_register(&EVENT_SIGNAL, &check_socket);
 
 	/* add the help command, that list commands to the client */
@@ -1421,7 +1477,7 @@ void module_unload(void)
 	closesock();
 
 	/* remove hooks */
-	initng_plugin_hook_unregister(&EVENT_FD_WATCHER.hooks, &fdh);
+	initng_event_hook_unregister(&EVENT_FD_WATCHER, &fdh_handler);
 	initng_event_hook_unregister(&EVENT_SIGNAL, &check_socket);
 
 	D_("ngc2.so.0.0 unloaded!\n");

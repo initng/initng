@@ -54,6 +54,8 @@
 #include <initng_control_command.h>
 #include <initng_event_hook.h>
 #include <initng_static_event_types.h>
+#include <initng_string_tools.h>
+#include <initng_fd.h>
 
 #include <initng-paths.h>
 #include "initng_dbusevent.h"
@@ -77,13 +79,76 @@ static void fdw_callback(f_module_h * from, e_fdw what);
 
 static void free_dbus_watch_data(void *data);
 
+static int w_handler(s_event * event);
+
 DBusConnection *conn;
 
-typedef struct initng_dbus_watch
+typedef struct
 {
 	f_module_h fdw;
 	DBusWatch *dbus;
+	list_h list;
 } initng_dbus_watch;
+
+initng_dbus_watch dbus_watches;
+
+
+static int w_handler(s_event * event)
+{
+	s_event_fd_watcher_data * data;
+	initng_dbus_watch *current = NULL;
+
+	assert(event);
+	assert(event->data);
+
+	data = event->data;
+
+	list_for_each_entry(current, &dbus_watches.list, list);
+	{
+		switch (data->action)
+		{
+			case FDW_ACTION_CLOSE:
+				if (current->fdw.fds > 0)
+					close(current->fdw.fds);
+				break;
+
+			case FDW_ACTION_CHECK:
+				if (current->fdw.fds <= 2)
+					break;
+
+				/* This is a expensive test, but better safe then sorry */
+				if (!STILL_OPEN(current->fdw.fds))
+				{
+					D_("%i is not open anymore.\n", current->fdw.fds);
+					current->fdw.fds = -1;
+					break;
+				}
+
+				FD_SET(current->fdw.fds, data->readset);
+				data->added++;
+				break;
+
+			case FDW_ACTION_CALL:
+				if (!data->added || current->fdw.fds <= 2)
+					break;
+
+				if(!FD_ISSET(current->fdw.fds, data->readset))
+					break;
+
+				current->fdw.call_module(&current->fdw, FDW_READ);
+				data->added--;
+				break;
+
+			case FDW_ACTION_DEBUG:
+				if (!data->debug_find_what || strstr(__FILE__, data->debug_find_what))
+					mprintf(data->debug_out, " %i: Used by plugin: %s\n",
+						current->fdw.fds, __FILE__);
+				break;
+		}
+	}
+
+	return (TRUE);
+}
 
 /* ------  DBus Watch Handling --------
 
@@ -98,7 +163,7 @@ static dbus_bool_t add_dbus_watch(DBusWatch * watch, void *data)
 	if (w == NULL)
 	{
 		printf("Memory allocation failed\n");
-		return FALSE;
+		return (FALSE);
 	}
 
 	w->fdw.fds = dbus_watch_get_fd(watch);
@@ -109,9 +174,9 @@ static dbus_bool_t add_dbus_watch(DBusWatch * watch, void *data)
 	dbus_watch_set_data(watch, w, free_dbus_watch_data);
 	toggled_dbus_watch(watch, data);		/* to set initial state */
 
-	initng_plugin_hook_register(&EVENT_FD_WATCHER.hooks, 30, &w->fdw);
+	list_add(&w->list, &dbus_watches.list);
 
-	return TRUE;
+	return (TRUE);
 }
 
 static void rem_dbus_watch(DBusWatch * watch, void *data)
@@ -146,7 +211,6 @@ static void free_dbus_watch_data(void *data)
 	initng_dbus_watch *w = data;
 
 	assert(w);
-	initng_plugin_hook_unregister(&EVENT_FD_WATCHER.hooks, &(w->fdw));
 	free(w);
 }
 
@@ -471,18 +535,19 @@ int module_init(int api_version)
 
 	connect_to_dbus();
 
+	INIT_LIST_HEAD(&dbus_watchers.list);
+
 	/* add the hooks we are monitoring */
 	initng_event_hook_register(&EVENT_SIGNAL, &check_socket);
 	initng_event_hook_register(&EVENT_STATE_CHANGE, &astatus_change);
 	initng_event_hook_register(&EVENT_SYSTEM_CHANGE, &system_state_change);
 	initng_event_hook_register(&EVENT_PIPE_WATCHER, &system_pipe_watchers);
 	initng_event_hook_register(&EVENT_ERROR_MESSAGE, &print_error);
-
+	initng_event_hook_register(&EVENT_FD_WATCHER, &w_handler);
 
 	/* return happily */
 	return (TRUE);
 }
-
 
 
 
@@ -499,4 +564,5 @@ void module_unload(void)
 	initng_event_hook_unregister(&EVENT_SYSTEM_CHANGE, &system_state_change);
 	initng_event_hook_unregister(&EVENT_PIPE_WATCHER, &system_pipe_watchers);
 	initng_event_hook_unregister(&EVENT_ERROR_MESSAGE, &print_error);
+	initng_event_hook_unregister(&EVENT_FD_WATCHER, &w_handler);
 }
