@@ -535,7 +535,7 @@ int module_init(int api_version)
 
 	connect_to_dbus();
 
-	INIT_LIST_HEAD(&dbus_watchers.list);
+	INIT_LIST_HEAD(&dbus_watches.list);
 
 	/* add the hooks we are monitoring */
 	initng_event_hook_register(&EVENT_SIGNAL, &check_socket);
