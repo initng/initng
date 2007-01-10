@@ -534,10 +534,7 @@ char *fix_variables(const char *from, active_db_h * s)
 
 
 	if (!rep)
-	{
-		W_("Could not find a match for \"%s\"\n", var_point);
-		return (NULL);
-	}
+		rep = "";
 
 	/* make sure we dont have an cirular */
 	{
@@ -711,10 +708,7 @@ char *fix_variables2(const char *from, service_cache_h * s)
 
 
 	if (!rep)
-	{
-		W_("Could not find a match for \"%s\"\n", var_point);
-		return (NULL);
-	}
+		rep = "";
 
 	/* make sure we dont have an cirular */
 	{
