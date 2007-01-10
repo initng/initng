@@ -30,7 +30,6 @@
 
 #include <initng_handler.h>
 #include <initng_global.h>
-#include <initng_plugin_hook.h>
 #include <initng_common.h>
 #include <initng_toolbox.h>
 #include <initng_env_variable.h>

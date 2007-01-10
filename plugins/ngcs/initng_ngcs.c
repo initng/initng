@@ -44,7 +44,6 @@
 #include <initng_handler.h>
 #include <initng_active_db.h>
 #include <initng_toolbox.h>
-#include <initng_plugin_hook.h>
 #include <initng_load_module.h>
 #include <initng_plugin_callers.h>
 #include <initng_error.h>

@@ -25,7 +25,6 @@
 #include <assert.h>
 #include <initng_handler.h>
 #include <initng_global.h>
-#include <initng_plugin_hook.h>
 #include <initng_toolbox.h>
 #include <initng_open_read_close.h>
 #include <initng_string_tools.h>

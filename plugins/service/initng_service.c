@@ -30,7 +30,6 @@
 
 #include <initng_handler.h>
 #include <initng_global.h>
-#include <initng_plugin_hook.h>
 #include <initng_common.h>
 #include <initng_toolbox.h>
 #include <initng_static_data_id.h>
@@ -143,7 +142,7 @@ a_state_h SERVICE_STOP_MARKED = { "SERVICE_STOP_MARKED", "This service is marked
  */
 a_state_h SERVICE_DONE = { "SERVICE_DONE", "The start code has successfully returned, the service is marked as UP.", IS_UP, NULL, NULL, NULL };
 
-/* 
+/*
  * When services needed by current one is starting, current service is set SERVICE_WAITING_FOR_START_DEP
  */
 a_state_h SERVICE_WAITING_FOR_START_DEP = { "SERVICE_WAITING_FOR_START_DEP", "This service is waiting for all its depdencencies to be met.", IS_STARTING,
@@ -372,7 +371,7 @@ void module_unload(void)
 
 
 /*
- * Everything SERVICE_START_MARKED are gonna do, is to set it SERVICE_WAITING_FOR_START_DEP 
+ * Everything SERVICE_START_MARKED are gonna do, is to set it SERVICE_WAITING_FOR_START_DEP
  */
 static void init_SERVICE_START_MARKED(active_db_h * service)
 {
@@ -388,7 +387,7 @@ static void init_SERVICE_START_MARKED(active_db_h * service)
 }
 
 /*
- * Everything SERVICE_STOP_MARKED are gonna do, is to set it SERVICE_WAITING_FOR_STOP_DEP 
+ * Everything SERVICE_STOP_MARKED are gonna do, is to set it SERVICE_WAITING_FOR_STOP_DEP
  */
 static void init_SERVICE_STOP_MARKED(active_db_h * service)
 {

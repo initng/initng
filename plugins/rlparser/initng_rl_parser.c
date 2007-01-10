@@ -34,7 +34,6 @@
 #include <initng_string_tools.h>
 #include <initng_open_read_close.h>
 #include <initng_toolbox.h>
-#include <initng_plugin_hook.h>
 #include <initng_handler.h>
 #include <initng_static_service_types.h>
 #include <initng_service_types.h>

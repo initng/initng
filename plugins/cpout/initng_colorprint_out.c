@@ -33,7 +33,6 @@
 #include <initng_global.h>
 #include <initng_string_tools.h>
 #include <initng_active_db.h>
-#include <initng_plugin_hook.h>
 #include <initng_static_states.h>
 #include <initng_toolbox.h>
 #include <initng_static_event_types.h>

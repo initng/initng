@@ -35,7 +35,6 @@
 
 #include <initng_active_db.h>
 #include <initng_global.h>
-#include <initng_plugin_hook.h>
 #include <initng_plugin_callers.h>
 #include <initng_execute.h>
 #include <initng_string_tools.h>

@@ -18,7 +18,6 @@ SET(initng_lib_srcs
 	initng_main.c
 	initng_open_read_close.c
 	initng_plugin_callers.c
-	initng_plugin_hook.c
 	initng_process_db.c
 	initng_service_data_types.c
 	initng_static_event_types.c
@@ -83,7 +82,6 @@ SET(initng_headers
 	initng_main.h
 	initng_open_read_close.h
 	initng_plugin_callers.h
-	initng_plugin_hook.h
 	initng_process_db.h
 	initng_service_data_types.h
 	initng_static_event_types.h

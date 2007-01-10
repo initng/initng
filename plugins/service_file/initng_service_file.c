@@ -40,7 +40,6 @@
 #include <initng_handler.h>
 #include <initng_active_db.h>
 #include <initng_toolbox.h>
-#include <initng_plugin_hook.h>
 #include <initng_load_module.h>
 #include <initng_plugin_callers.h>
 #include <initng_error.h>
@@ -159,7 +158,7 @@ static int bpf_handler(s_event * event)
 			break;
 
 		case FDW_ACTION_DEBUG:
-			if (!data->debug_find_what || strstr(__FILE__, arg))
+			if (!data->debug_find_what || strstr(__FILE__, data->debug_find_what))
 				mprintf(data->debug_out, " %i: Used by plugin: %s\n",
 					bpf.fds, __FILE__);
 			break;
@@ -1040,7 +1039,7 @@ int module_init(int api_version)
 	D_("adding hook, that will reopen socket, for every started service.\n");
 	initng_process_db_ptype_register(&parse);
 #ifdef GLOBAL_SOCKET
-	initng_plugin_hook_register(&EVENT_FD_WATCHER.hooks, 30, &bpf);
+	initng_event_hook_register(&EVENT_FD_WATCHER, &bpf_handler);
 	initng_event_hook_register(&EVENT_SIGNAL, &bp_check_socket);
 #endif
 	initng_event_hook_register(&EVENT_NEW_ACTIVE, &create_new_active);
@@ -1073,7 +1072,7 @@ void module_unload(void)
 	/* remove hooks */
 	initng_process_db_ptype_unregister(&parse);
 #ifdef GLOBAL_SOCKET
-	initng_plugin_hook_unregister(&EVENT_FD_WATCHER.hooks, &bpf);
+	initng_event_hook_unregister(&EVENT_FD_WATCHER, &bpf_handler);
 	initng_event_hook_unregister(&EVENT_SIGNAL, &bp_check_socket);
 #endif
 	initng_event_hook_unregister(&EVENT_NEW_ACTIVE, &create_new_active);

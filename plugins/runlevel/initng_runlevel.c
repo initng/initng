@@ -27,7 +27,6 @@
 
 #include <initng_handler.h>
 #include <initng_global.h>
-#include <initng_plugin_hook.h>
 #include <initng_common.h>
 #include <initng_toolbox.h>
 #include <initng_static_data_id.h>
@@ -87,7 +86,7 @@ a_state_h RUNLEVEL_STOP_MARKED = { "STOP_MARKED", "This runlevel is marked to be
  */
 a_state_h RUNLEVEL_UP = { "UP", "This runlevel is UP.", IS_UP, NULL, NULL, NULL };
 
-/* 
+/*
  * When services needed by current one is starting, current service is set RUNLEVEL_WAITING_FOR_START_DEP
  */
 a_state_h RUNLEVEL_WAITING_FOR_START_DEP = { "WAITING_FOR_START_DEP", "Waiting for all services in this runlevel to start.", IS_STARTING,
@@ -221,7 +220,7 @@ void module_unload(void)
 
 
 /*
- * Everything RUNLEVEL_START_MARKED are gonna do, is to set it RUNLEVEL_WAITING_FOR_START_DEP 
+ * Everything RUNLEVEL_START_MARKED are gonna do, is to set it RUNLEVEL_WAITING_FOR_START_DEP
  */
 static void init_RUNLEVEL_START_MARKED(active_db_h * new_runlevel)
 {
@@ -304,7 +303,7 @@ static void init_RUNLEVEL_START_MARKED(active_db_h * new_runlevel)
 }
 
 /*
- * Everything RUNLEVEL_STOP_MARKED are gonna do, is to set it RUNLEVEL_WAITING_FOR_STOP_DEP 
+ * Everything RUNLEVEL_STOP_MARKED are gonna do, is to set it RUNLEVEL_WAITING_FOR_STOP_DEP
  */
 static void init_RUNLEVEL_STOP_MARKED(active_db_h * service)
 {

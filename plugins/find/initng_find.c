@@ -35,7 +35,6 @@
 #include <initng_service_cache.h>
 #include <initng_open_read_close.h>
 #include <initng_toolbox.h>
-#include <initng_plugin_hook.h>
 #include <initng_plugin_callers.h>
 #include <initng_common.h>
 #include <initng_static_event_types.h>

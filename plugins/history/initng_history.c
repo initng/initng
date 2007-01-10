@@ -31,7 +31,6 @@
 #include <initng_global.h>
 #include "../ngc4/initng_ngc4.h"
 #include <initng_toolbox.h>
-#include <initng_plugin_hook.h>
 #include <initng_static_states.h>
 #include <initng_string_tools.h>
 #include <initng_static_event_types.h>
@@ -279,6 +278,7 @@ static void history_db_clear_service(active_db_h * service)
 		{
 			current->service = NULL;
 			current->name = i_strdup(service->name);
+			break;
 		}
 	}
 }

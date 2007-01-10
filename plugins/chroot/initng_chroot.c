@@ -27,7 +27,6 @@
 
 #include <initng_handler.h>
 #include <initng_global.h>
-#include <initng_plugin_hook.h>
 #include <initng_env_variable.h>
 #include <initng_static_event_types.h>
 #include <initng_event_hook.h>
