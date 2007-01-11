@@ -437,3 +437,24 @@ int mprintf(char **p, const char *format, ...)
 	/* will never go here */
 	return (-1);
 }
+
+void st_replace(char * dest, char * src, const char * n, const char * r)
+{
+	char *p;
+	char *d = dest;
+	char *last = src;
+	int nlen = strlen(n);
+	int rlen = strlen(r);
+
+	while ((p = strstr(last, n)))
+	{
+		memmove(d, last, p - last);
+		d += p - last;
+		memmove(d, r, rlen);
+		d += rlen;
+		last = p + nlen;
+	}
+
+	if (d != last)
+		memmove(d, last, strlen(last));
+}

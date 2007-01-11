@@ -70,6 +70,8 @@ const char *st_strip_path(const char *string);
 int st_strip_end(char **string);
 char *st_get_path(const char *string);
 
+void st_replace(char * dest, char * str, const char * n, const char * r);
+
 /* to use with split_delim */
 #define WHITESPACE " \t\n\r\v"
 char **split_delim(char *string, const char *delim, size_t * argc, int ofs);
