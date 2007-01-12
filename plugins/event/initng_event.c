@@ -92,7 +92,7 @@ ptype_h RUN_EVENT = { "run_event", &handle_event_leave };
  */
 
 s_entry TRIGGER = { "trigger", STRINGS, NULL, "Add requirements here for events to run" };
-s_entry AUTO_RESET = { "reset_trigger", SET, &TYPE_EVENT, "Reset event when done" };
+s_entry ONCE = { "once", SET, &TYPE_EVENT, "Event should run only once" };
 
 /*
  * ############################################################################
@@ -160,7 +160,7 @@ int module_init(int api_version)
 	initng_active_state_register(&EVENT_DONE);
 
 	initng_service_data_type_register(&TRIGGER);
-	initng_service_data_type_register(&AUTO_RESET);
+	initng_service_data_type_register(&ONCE);
 
 	initng_event_type_register(&EVENT_EXTERNAL);
 	initng_event_hook_register(&EVENT_EXTERNAL, &handle_event);
@@ -186,7 +186,7 @@ void module_unload(void)
 	initng_active_state_unregister(&EVENT_DONE);
 
 	initng_service_data_type_unregister(&TRIGGER);
-	initng_service_data_type_unregister(&AUTO_RESET);
+	initng_service_data_type_unregister(&ONCE);
 
 	initng_event_hook_unregister(&EVENT_EXTERNAL, &handle_event);
 	initng_event_type_unregister(&EVENT_EXTERNAL);
@@ -240,14 +240,14 @@ static int event_triggerer(s_event * pevent)
 /* to do when event is done */
 static void handle_event_leave(active_db_h * killed_event, process_h * process)
 {
-	if (is(&AUTO_RESET, killed_event))
+	if (is(&ONCE, killed_event))
 	{
-		initng_process_db_free(process);
-		initng_common_mark_service(killed_event, &EVENT_WAITING);
+		initng_common_mark_service(killed_event, &EVENT_DONE);
 	}
 	else
 	{
-		initng_common_mark_service(killed_event, &EVENT_DONE);
+		initng_process_db_free(process);
+		initng_common_mark_service(killed_event, &EVENT_WAITING);
 	}
 }
 
