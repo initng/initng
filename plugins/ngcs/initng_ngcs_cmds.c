@@ -150,18 +150,14 @@ ngcs_genwatch ewatches;
 
 static int system_state_watch(s_event * event)
 {
-	e_is state;
 	ngcs_genwatch *watch, *nextwatch;
-	int i;
 
 	assert(event->event_type == &EVENT_SYSTEM_CHANGE);
 	assert(event->data);
 
-	i = state = (int) event->data;
-
 	list_for_each_entry_prev_safe(watch, nextwatch, &swatches.list, list)
 	{
-		ngcs_chan_send(watch->chan, NGCS_TYPE_INT, sizeof(int), (char *) &i);
+		ngcs_chan_send(watch->chan, NGCS_TYPE_INT, sizeof(int), (char *) event->data);
 	}
 
 	return (TRUE);
