@@ -169,7 +169,7 @@ static char *expand_exec(char *exec)
 	sprintf(newfile,"sh -c \"%s\"",filename);
 	return newfile;
 #endif
-	return filename;
+	return(filename);
 }
 
 static int simple_exec_fork(process_h * process_to_exec, active_db_h * s,
@@ -422,7 +422,7 @@ static int simple_run(active_db_h * service, process_h * process)
 			fix_free(exec_fixed, exec);
 			return (FALSE);
 		}
-		argv[0] = argv0;
+		argv[0] = argv0; // Check this before freeing!
 	}
 
 
@@ -430,15 +430,21 @@ static int simple_run(active_db_h * service, process_h * process)
 	result = simple_exec_fork(process, service, argc, argv);
 
 	/* clean up */
-	split_delim_free(argv);
-	argv = NULL;
-	fix_free(exec_fixed, exec);
-	if (argv0)
+	
+	// First free the fixed argv0 if its not a plain link to argv[0]
+	if (argv0 && argv0 != argv[0])
 	{
 		free(argv0);
-		argv0 = NULL;
 	}
-
+	argv0 = NULL;
+	
+	// Later free the big argv array
+	split_delim_free(argv);	
+	argv = NULL;
+	
+	// then free this one.
+	fix_free(exec_fixed, exec);
+ 
 	/* return result */
 	if (result == FAIL)
 		return (FALSE);

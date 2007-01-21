@@ -418,6 +418,9 @@ static int fetch_output(s_event * event)
 	assert(event->data);
 
 	data = event->data;
+	assert(data->buffer_pos);
+	
+	D_("fetch_output()\n");
 
 	/* allocate space for data */
 	if (!(tmp_e = (history_h *) i_calloc(1, sizeof(history_h))))

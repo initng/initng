@@ -117,7 +117,7 @@ void initng_fd_process_read_input(active_db_h * service, process_h * p,
 	int read_ret = 0;
 	char *tmp;
 
-	D_("\ninitng_fd_process_read_input(%s, %s, %i);\n", service->name,
+	D_("\ninitng_fd_process_read_input(%s, %s);\n", service->name,
 	   p->pt->name);
 
 	if (pi->pipe[0] <= 0)
@@ -147,12 +147,12 @@ void initng_fd_process_read_input(active_db_h * service, process_h * p,
 		/* OBSERVE, i_realloc may change the path to the data, so dont set buffer_pos to early */
 
 		/* Make sure there is room for 100 more chars */
-		D_("left: %i > %i\n", pi->buffer_len + 100, pi->buffer_allocated);
+		D_(" %i (needed buffersize) > %i(current buffersize)\n", pi->buffer_len + 100, pi->buffer_allocated);
 		if (pi->buffer_len + 100 >= pi->buffer_allocated)
 		{
 			/* do a realloc */
-			D_("Changing size of buffer %p to: %i\n", pi->buffer,
-			   pi->buffer_allocated + 100 + 1);
+			D_("Changing size of buffer %p from %i to: %i bytes.\n", pi->buffer, pi->buffer_allocated,
+			   pi->buffer_allocated + 100 + 1 );
 			tmp = i_realloc(pi->buffer,
 							(pi->buffer_allocated + 100 + 1) * sizeof(char));
 
@@ -177,9 +177,10 @@ void initng_fd_process_read_input(active_db_h * service, process_h * p,
 		}
 
 		/* read the data */
-		D_("Reading 100 chars.\n");
+		D_("Trying to read 100 chars:\n");
 		read_ret = read(pi->pipe[0], &pi->buffer[pi->buffer_len], 100);
 		/*printf("read_ret = %i  : \"%.100s\"\n", read_ret, read_pos); */
+		D_("And got %i chars...\n", read_ret);
 
 		/* make sure read does not return -1 */
 		if (read_ret <= 0)
@@ -195,10 +196,12 @@ void initng_fd_process_read_input(active_db_h * service, process_h * p,
 	while (read_ret >= 100 || errno == EINTR);
 
 
+	D_("Done reading (read_ret=%i) (errno == %i).\n", read_ret, errno);
 
 	/* make sure there is any */
 	if (pi->buffer_len > old_content_offset)
 	{
+		D_("Calling plugins for new buffer content...");
 		/* let all plugin take part of data */
 		initng_fd_plugin_readpipe(service, p, pi,
 								  pi->buffer + old_content_offset);
@@ -207,6 +210,7 @@ void initng_fd_process_read_input(active_db_h * service, process_h * p,
 	/*if empty, dont waist memory */
 	if (pi->buffer_len == 0 && pi->buffer)
 	{
+		D_("Freeing empty buffer..");
 		free(pi->buffer);
 		pi->buffer = NULL;
 		pi->buffer_allocated = 0;
@@ -244,6 +248,7 @@ void initng_fd_process_read_input(active_db_h * service, process_h * p,
 	/* if buffer reached 10000 chars */
 	if (pi->buffer_len > 10000)
 	{
+		D_("Buffer to big (%i > 10000), purging...", pi->buffer_len);
 		/* copy the last 9000 chars to start */
 		memmove(pi->buffer, &pi->buffer[pi->buffer_len - 9000],
 				9000 * sizeof(char));
@@ -266,6 +271,8 @@ void initng_fd_process_read_input(active_db_h * service, process_h * p,
 		pi->buffer_len = 9000;				/* shortened by 1000 chars */
 		pi->buffer[9000] = '\0';			/* shortened by 1000 chars */
 	}
+	
+	D_("function done...");
 }
 
 /*

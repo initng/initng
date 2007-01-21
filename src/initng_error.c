@@ -320,7 +320,7 @@ int initng_error_print_debug(const char *file, const char *func, int line,
 
 	if (g.i_am != I_AM_INIT && getpid() != 1)
 	{
-		fprintf(stderr, " NON_INIT: ");
+		fprintf(stderr, " [%i]: ", getpid());
 	}
 
 	/* Don't fetch time, until we know we wanna print on screen */
@@ -328,7 +328,7 @@ int initng_error_print_debug(const char *file, const char *func, int line,
 	ts = localtime(&t);
 
 
-	fprintf(stderr, " %.2i:%.2i:%.2i -- line:%i\t", ts->tm_hour,
+	fprintf(stderr, " %.2i:%.2i:%.2i -- l:%i\t", ts->tm_hour,
 			ts->tm_min, ts->tm_sec, line);
 
 	msgs++;
