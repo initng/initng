@@ -45,6 +45,7 @@
  * @idea DEac-
  * @author TheLich
  * @got_it_working powerj
+ * @improved_it ismael
  */
 char **split_delim(char *string, const char *delim, size_t * argc, int ofs)
 {
@@ -62,12 +63,7 @@ char **split_delim(char *string, const char *delim, size_t * argc, int ofs)
 		{
 			i++;
 			array = (char **) i_realloc(array, sizeof(char *) * (i + 1));
-			array[i - 1] = string + ofs;
-			if (string[len + ofs] != '\0')
-			{
-				string[len + ofs] = '\0';
-				len++;
-			}
+			array[i - 1] = strndup(string + ofs, len);
 		}
 		else
 			len = 1;
@@ -80,6 +76,18 @@ char **split_delim(char *string, const char *delim, size_t * argc, int ofs)
 	return array;
 }
 
+void split_delim_free(char **strs)
+{
+	int i;
+
+	if (!strs)
+		return;
+
+	for (i = 0; strs[i] != NULL; i++)
+		free(strs[i]);
+
+	free(strs);
+}
 
 /*
  * a simple strncasecmp, which only returns TRUE or FALSE

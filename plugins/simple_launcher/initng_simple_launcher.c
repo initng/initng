@@ -157,7 +157,7 @@ static char *expand_exec(char *exec)
 
 	/* free */
 	free(PATH);
-	free(path_argv);
+	split_delim_free(path_argv);
 	PATH = NULL;
 	path_argv = NULL;
 
@@ -301,6 +301,9 @@ static int simple_exec_try(char * exec, active_db_h * service,
 		/* make sure it succeeded */
 		if (!argv || !argv[0])
 		{
+			if (argv)
+				split_delim_free(argv);
+
 			F_("split_delim exec_args returns NULL.\n");
 			fix_free(exec_args, exec_args_unfixed);
 			return (FALSE);
@@ -398,6 +401,9 @@ static int simple_run(active_db_h * service, process_h * process)
 	/* make sure we got something from the split */
 	if (!argv || !argv[0])
 	{
+		if (argv)
+			split_delim_free(argv);
+
 		D_("split_delim on exec returns NULL.\n");
 		fix_free(exec_fixed, exec);
 		return (FALSE);
@@ -411,7 +417,7 @@ static int simple_run(active_db_h * service, process_h * process)
 		{
 			F_("SERVICE: %s %s -- %s was not found in search path.\n",
 			   service->name, process->pt->name, argv[0]);
-			free(argv);
+			split_delim_free(argv);
 			argv = NULL;
 			fix_free(exec_fixed, exec);
 			return (FALSE);
@@ -424,7 +430,7 @@ static int simple_run(active_db_h * service, process_h * process)
 	result = simple_exec_fork(process, service, argc, argv);
 
 	/* clean up */
-	free(argv);
+	split_delim_free(argv);
 	argv = NULL;
 	fix_free(exec_fixed, exec);
 	if (argv0)
