@@ -271,8 +271,10 @@ static int simple_exec_try(char * exec, active_db_h * service,
 						   process_h * process)
 {
 	const char *exec_args_unfixed = NULL;
+	char *exec_args = NULL;
 	char **argv = NULL;
 	size_t argc = 0;
+	int ret;
 
 	D_("exec: %s, service: %s, process: %s\n", exec, service->name,
 	   process->pt->name);
@@ -282,7 +284,6 @@ static int simple_exec_try(char * exec, active_db_h * service,
 									   process->pt->name, service);
 	if (exec_args_unfixed)
 	{
-		char *exec_args = NULL;
 
 
 		/* get some fixed variables, with ${VARIABLES} fixed, be aware that this is a new malloc and needs to be free() */
@@ -321,7 +322,15 @@ static int simple_exec_try(char * exec, active_db_h * service,
 
 	argv[0] = exec;
 
-	return (simple_exec_fork(process, service, argc, argv));
+	ret=simple_exec_fork(process, service, argc, argv);
+	
+	// Do some cleanup
+	if(exec_args)
+	    fix_free(exec_args, exec_args_unfixed);
+	if(argv)
+	    split_delim_free(argv);
+
+	return (ret);
 
 }
 
@@ -422,6 +431,8 @@ static int simple_run(active_db_h * service, process_h * process)
 			fix_free(exec_fixed, exec);
 			return (FALSE);
 		}
+		
+		free(argv[0]);
 		argv[0] = argv0; // Check this before freeing!
 	}
 
