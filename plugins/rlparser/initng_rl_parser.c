@@ -193,6 +193,7 @@ static int initng_rl_parser(s_event * event)
 		return (HANDLED);
 	}
 
+	free(filetoparse);
 	return (FALSE);
 }
 
