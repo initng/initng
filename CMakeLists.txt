@@ -37,7 +37,7 @@ PKGCONFIG(dbus-1 DBUS_INCLUDE_DIR DBUS_LINK_DIR DBUS_LINK_FLAGS DBUS_CFLAGS)
 SET(DBUS_DEFINITIONS ${DBUS_CFLAGS})
 FIND_LIBRARY(DBUS_LIBS NAMES dbus-1 PATHS ${DBUS_LINK_DIR} /usr/lib /usr/local/lib)
 
-SUBDIRS(src plugins tools devtool doc extras) 
+SUBDIRS(src plugins tools devtool doc extras)
 
 INSTALL_FILES(${INCLUDE_INSTALL_DIR}/initng FILES initng-paths.h)
 
@@ -57,7 +57,7 @@ OPTION(BUILD_DEBUG_COMMANDS "Build debug_commands plugin" ON)
 OPTION(BUILD_EVENT "Build event service type plugin" ON)
 OPTION(BUILD_FMON "Build fmon plugin" ON)
 OPTION(BUILD_FSTAT "Build fstat plugin" ON)
-OPTION(BUILD_HISTORY "Build history plugin" ON)
+OPTION(BUILD_HISTORY "Build history plugin" OFF)
 OPTION(BUILD_INITCTL "Build initctl plugin" ON)
 OPTION(BUILD_INTERACTIVE "Build interactive plugin" ON)
 OPTION(BUILD_LAST "Build last plugin" ON)
@@ -101,7 +101,7 @@ OPTION(WITH_BUSYBOX "Hacks to make initng work nice with busybox distros" OFF)
 OPTION(COUNT_ME "Send a simple http reqest to initng server, with initng version data to count initng users out there" OFF)
 
 
-IF(BUILD_SELINUX) 
+IF(BUILD_SELINUX)
 	CHECK_INCLUDE_FILES(selinux/selinux.h HAVE_SELINUX_H)
 	CHECK_LIBRARY_EXISTS(selinux freecon "" HAVE_SELINUX)
 	CHECK_LIBRARY_EXISTS(selinux selinux_init_load_policy "" HAVE_SELINUX_NEW)
@@ -115,7 +115,7 @@ IF(BUILD_SELINUX)
 	IF(NOT HAVE_SELINUX_NEW)
 		ADD_DEFINITIONS(-DOLDSELINUX)
 	ENDIF(NOT HAVE_SELINUX_NEW)
-ENDIF(BUILD_SELINUX) 
+ENDIF(BUILD_SELINUX)
 
 IF(DEBUG)
 	CHECK_INCLUDE_FILES(google/coredumper.h HAVE_COREDUMPER_H)
@@ -142,4 +142,4 @@ CONFIGURE_FILE(
 
 ADD_CUSTOM_TARGET(uninstall
 	"${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
-	
+
