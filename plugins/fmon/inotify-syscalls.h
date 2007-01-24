@@ -23,6 +23,10 @@
 # define __NR_inotify_init	1277
 # define __NR_inotify_add_watch	1278
 # define __NR_inotify_rm_watch	1279
+#elif defined (__arm__)
+# define __NR_inotify_init	316
+# define __NR_inotify_add_watch	317
+# define __NR_inotify_rm_watch	318
 #else
 # error "Unsupported architecture!"
 #endif
