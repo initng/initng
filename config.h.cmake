@@ -3,3 +3,4 @@
 #cmakedefine CHECK_RO
 #cmakedefine FORCE_NOCOLOR
 #cmakedefine SERVICE_CACHE
+#cmakedefine FORCE_POSIX_IFILES

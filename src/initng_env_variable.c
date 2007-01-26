@@ -58,6 +58,9 @@ const char *initng_environ[] = {
 	"HOME=/root",
 	"USER=root",
 	"TERM=linux",
+#ifdef FORCE_POSIX_IFILES
+	"POSIXLY_CORRECT=1",
+#endif
 	NULL
 };
 
