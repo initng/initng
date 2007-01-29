@@ -50,11 +50,13 @@
 char **split_delim(char *string, const char *delim, size_t * argc, int ofs)
 {
 	int len;
-	char **array = (char **) i_calloc(1, sizeof(char *));
+	char **array;
 	size_t i = 0;
 
 	if (!string)
 		return (NULL);
+
+	array = (char **) i_calloc(1, sizeof(char *));
 
 	while (string[ofs] != '\0')
 	{
@@ -72,7 +74,10 @@ char **split_delim(char *string, const char *delim, size_t * argc, int ofs)
 	}
 
 	array[i] = NULL;
-	*argc = i;
+
+	if (argc)
+		*argc = i;
+
 	return array;
 }
 
