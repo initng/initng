@@ -1,0 +1,72 @@
+The InitNG Release Method
+
+1.- Prologue
+2.- Updating the documentation files
+3.- Updating distribution's package meta-data
+3.1.- Updating the deb's meta-data
+3.2.- Updating the rpm's meta-data
+3.3.- Generating ebuilds
+4.- Packaging and naming conventions
+4.1.- Source tarballs
+4.2.- Binary packages
+4.2.1.- Generation of deb packages
+4.2.2.- Generation of rpm packages
+5.- Upload the release
+6.- Update the wiki
+
+
+
+1. Prologue
+
+    With this document I'm establishing the release method, to avoid any
+    inconsistencies between releases, and to ease the task for new release
+    managers and package maintainers.
+
+
+2. Updating the documentation files
+
+    It's necessary to update the NEWS file with any relevant changes since
+    the last release. This doesn't apply to pre-releases.
+
+    Entries should be marked with the release date (GMT).
+
+    For pre-releases, a file called RELEASE_NOTES should be built,
+    containing all known bugs relevant for the next release, and any
+    relevant changes done since the last release, this file shouldn't be
+    put in the repository.
+
+
+3. Updating distribution's package meta-data
+
+3.1. Updating the deb's meta-data
+3.2. Updating the rpm's meta-data
+3.3. Generating ebuilds
+
+4. Packaging and naming conventions
+
+4.1. Source tarballs
+
+    bzipped tarballs are mandatory, gzipped ones are optional, and should
+    be named initng[-component]-<version>[_pre#]
+
+    They must be GPG signed by the release manager.
+
+
+4.2. Binary packages
+
+    The package maintainers for distributions are responsible of the
+    package generation, and for signing it (if applicable).
+
+    These packages should follow the naming conventions of their respective
+    distributions.
+
+    Binary packages are optional for pre-releases.
+
+    Pre-releases should include the RELEASE_NOTES file.
+
+
+4.2.1. Generation of deb packages
+4.2.2. Generation of rpm packages
+
+5. Upload the release
+6. Update the wiki
