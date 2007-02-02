@@ -12,11 +12,10 @@ SYSTEM REQUIREMENTS
 ===================
 * A computer running linux (support for BSD-based operating systems is under
 development) on one of the following architectures: alpha, amd64, hppa, i386,
-ia64, m68k, mips, mipsel, ppc, sparc.
+ia64, m68k, mips, mipsel, ppc, sparc. (others may or may not work).
 * GNU GCC 3.4.x, 4.0.x or 4.1.x
 * CMake 2.2.0 or newer
-* ncurses development libs
-
+* ncurses development libs (optional)
 
 COMPILING INITNG
 ================
@@ -94,11 +93,12 @@ service from the bootloader.
 2: Daemons and Services
 -----------------------
 
-If you are installing initng for the first time, you can use
-gen_system_runlevel to automatically generate the default runlevel based on
-installed applications.
+Before proceeding with this step, you need to install the official ifiles.
 
-# gen_system_runlevel -all
+If you are installing initng for the first time, you can use genrunlevel to
+automatically generate the default runlevel based on installed applications.
+
+# genrunlevel -all
 
 To add services to runlevels, you can edit the two runlevel files with your
 favourite text editor: (note 'system' is technically no longer counted as a

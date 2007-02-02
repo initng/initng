@@ -26,7 +26,7 @@ give you more control and statistics over your system.
 The basic premise is that startup commands can be launched as soon as their
 dependencies are met. This limits the effect of bottlenecks like I/O operations;
 while one program is performing I/O, another can be utilizing the processor.
-Initng tracks the individual service dependencies in its configuration files. 
+Initng tracks the individual service dependencies in its configuration files.
 
 It is designed to use a minimum of system resources and to boot your system
 quickly and safely.
@@ -34,6 +34,7 @@ quickly and safely.
 
 Website:        http://www.initng.org
 Mailing list:   http://www.initng.org/wiki/Contact_Lists
+Forums:         http://forum.initng.org
 
 
 This package currently includes:
@@ -46,6 +47,8 @@ This package currently includes:
 1.1 Developers
 --------------
 
+You can see the full list of developers in the AUTHORS file.
+
 If you find this little piece of software useful, please email me
 <jimmy.wennlund@gmail.com> with some feedback.
 
@@ -53,8 +56,12 @@ If you find this little piece of software useful, please email me
 * Jimmy Wennlund <jimmy.wennlund@gmail.com>
 
   I am the original author of the initng project, which was created in my spare
-time and mostly for fun. I live in Sweden, outside Uppsala. 
+time and mostly for fun. I live in Sweden, outside Uppsala.
 
+
+* Ismael Luceno <ismael.luceno@gmail.com>
+
+  I'm the project lead and maintainer, and I like to receive feedback too ;).
 
 
 2 Initng: An Overview
@@ -94,65 +101,23 @@ displays extended help.
 3 How to get initng
 -------------------
 
-For now, a test or relay first beta is located at http://jw.dyndns.org/initng/.
-You are free to test AT YOUR OWN RISK! REMEMBER, this is a beta release
-and many new features that are on the TODO list are not yet fixed.
+You can download InitNG sources from http://download.initng.org/ .
 
 
 3.1 How to Install
 -----------------
 
-1. Download the latest version from www.initng.org
-
-2. Unzip the tarball, enter the directory, and install as super-user
-
-    # tar -zxvf initng-<version>.tar.gz
-    # cd initng-<version>
-	# cmake
-    # make install
-
-3. Instruct your bootloader to use the initng instead of the traditional 'init'
-
-    WARNING: initng is beta software, and must be used with caution. However,
-    it can be installed side-by-side with init. It is recommended that you
-    duplicate the relevant blocks of your bootloader configuration to add the
-    above changes. That is, copy your existing entry (eg, the one labeled
-    "linux") to a new section (say, "linux-initng") before you add the "init="
-    line. This way you can always boot with the original (default) init.
-
-* LILO
-    Edit lilo.conf and add the line append="init=/sbin/initng" after the
-    image specifier. 
-
-    # Sample LILO entry
-    image = /boot/vmlinuz-2.6.9
-      root = /dev/hda6
-      label = linux-initng
-      append = "init=/sbin/initng"
-      read-only
-
-
-* GRUB
-    Edit /etc/grub/grub.conf and append init=/sbin/initng to the image specifier
-
-    # Sample GRUB entry
-    title  linux-initng
-    kernel (hd0,1)/vmlinuz root=/dev/hda6 init=/sbin/initng
-
-
-[Note: 'make uninstall' is available]
-
+For installation instructions, see the doc/INSTALL file.
 
 
 3.2 Caveats/Known Issues
 ------------------------
 
 initng is beta software - expect incomplete features and possible instability.
-Use this piece of software with care; it is not yet recommended for use on
-production platforms.
 
-This program controls many low level systems, including partition related
-services.  Back up your data before you use it.
+InitNG is somewhat stable now, at least on x86. If you have any other
+achitecture, please try it and help the developers to make it work on your
+platform.
 
 
 4 Terms of Licensing

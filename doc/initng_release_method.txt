@@ -6,19 +6,20 @@ The InitNG Release Method
 3.1.- Updating the deb's meta-data
 3.2.- Updating the rpm's meta-data
 3.3.- Generating ebuilds
-4.- Packaging and naming conventions
-4.1.- Source tarballs
-4.2.- Binary packages
-4.2.1.- Generation of deb packages
-4.2.2.- Generation of rpm packages
-5.- Upload the release
-6.- Update the wiki
+4.- Tagging the release
+5.- Packaging and naming conventions
+5.1.- Source tarballs
+5.2.- Binary packages
+5.2.1.- Generation of deb packages
+5.2.2.- Generation of rpm packages
+6.- Upload the release
+7.- Update the wiki
 
 
 
 1. Prologue
 
-    With this document I'm establishing the release method, to avoid any
+    This document establishes the release method, to avoid any
     inconsistencies between releases, and to ease the task for new release
     managers and package maintainers.
 
@@ -42,9 +43,19 @@ The InitNG Release Method
 3.2. Updating the rpm's meta-data
 3.3. Generating ebuilds
 
-4. Packaging and naming conventions
 
-4.1. Source tarballs
+4. Tagging the release
+
+    Before proceeding to packaging, you need to tag the release. It's as
+    easy as doing:
+
+    $ svn cp [-r rev] https://svn.initng.org/initng/trunk \
+                      https://svn.initng.org/initng/tags/x.y.z
+
+
+5. Packaging and naming conventions
+
+5.1. Source tarballs
 
     bzipped tarballs are mandatory, gzipped ones are optional, and should
     be named initng[-component]-<version>[_pre#]
@@ -52,7 +63,7 @@ The InitNG Release Method
     They must be GPG signed by the release manager.
 
 
-4.2. Binary packages
+5.2. Binary packages
 
     The package maintainers for distributions are responsible of the
     package generation, and for signing it (if applicable).
@@ -65,8 +76,21 @@ The InitNG Release Method
     Pre-releases should include the RELEASE_NOTES file.
 
 
-4.2.1. Generation of deb packages
-4.2.2. Generation of rpm packages
+5.2.1. Generation of deb packages
+5.2.2. Generation of rpm packages
 
-5. Upload the release
-6. Update the wiki
+
+6. Upload the release
+
+    You simply need to copy your locally generated files and signatures to
+    the server:
+
+    $ scp initng-<version>.tar.bz2 initng-<version>.tar.bz2.sign \
+      [username@]www.initng.org:/home/initng/ftp/initng/initng/vX.Y
+
+    $ scp initng-ifiles-<version.tar.bz2 initng-ifiles-<version>.tar.bz2.sign \
+      [username@]www.initng.org:/home/initng/ftp/initng/initng-ifiles/vX.Y
+
+
+7. Update the wiki
+
