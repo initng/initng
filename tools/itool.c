@@ -99,7 +99,8 @@ int main(int argc, char *argv[], char *env[])
 	   argv[1], argv[2]); */
 
 	/* initialise global variables */
-	initng_global_new(argc, argv, env, I_AM_UTILITY);
+	initng_global_new(argc, argv, env);
+	g.i_am = I_AM_UTILITY;
 
 	/* Load all plugins */
 	if (!initng_load_module_load_all(INITNG_PLUGIN_DIR))

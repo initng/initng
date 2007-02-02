@@ -401,15 +401,9 @@ int main(int argc, char *argv[], char *env[])
 	/* get the time */
 	gettimeofday(&last, NULL);
 
-	/* initialise global variables */
-	if (getpid() == 1)
-	{
-		initng_global_new(argc, argv, env, I_AM_INIT);
-	}
-	else
-	{
-		initng_global_new(argc, argv, env, I_AM_FAKE_INIT);
-	}
+
+	/* initialize global variables */
+	initng_global_new(argc, argv, env);
 
 	if (getuid() != 0)
 	{

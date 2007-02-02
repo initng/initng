@@ -40,7 +40,7 @@ static void initng_global_parse_argv(char **argv);
  * This function initziates the global data struct, with some standard values.
  * This must be set before libinitng can be used in any way
  */
-void initng_global_new(int argc, char *argv[], char *env[], h_i_am i_am)
+void initng_global_new(int argc, char *argv[], char *env[])
 {
 	int i;
 
@@ -56,7 +56,7 @@ void initng_global_new(int argc, char *argv[], char *env[], h_i_am i_am)
 	memset(&g, 0, sizeof(s_global));
 
 	/* Set the i_am */
-	g.i_am = i_am;
+	g.i_am = I_AM_INIT;
 
 	/* we want to keep a copy of the arguments passed to us, this will be overwritten by set_title() */
 	g.Argc = argc;
@@ -181,15 +181,15 @@ static void initng_global_parse_argv(char **argv)
 		if (strcmp(opt, "verbose") == 0)
 			g.verbose = TRUE;
 #endif
-		if (strcmp(opt, "i_am_init") == 0)
-			g.i_am = I_AM_INIT;
+
 		if (strcmp(opt, "hot_reload") == 0)
 		{
 			D_(" Will start after a hot reload ...\n");
 			g.hot_reload = TRUE;
 		}
-		if (strcmp(opt, "i_am_not_init") == 0)
-			g.i_am = I_AM_INIT;
+
+		if (strcmp(opt, "fake") == 0)
+			g.i_am = I_AM_FAKE_INIT;
 
 		if (strcmp(opt, "no_circular") == 0)
 			g.no_circular = TRUE;

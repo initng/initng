@@ -95,7 +95,8 @@ int main(int argc, char *argv[], char *env[])
 	service_cache_h *current = NULL;
 
 	/* initialise global variables */
-	initng_global_new(argc, argv, env, I_AM_UTILITY);
+	initng_global_new(argc, argv, env);
+	g.i_am = I_AM_UTILITY;
 
 	if (!initng_load_module_load_all(INITNG_PLUGIN_DIR))
 	{
@@ -308,7 +309,7 @@ static int load_service(const char *name, int level)
 	service = initng_common_parse_service(name);
 	if (!service)
 	{
-		/* unload all modules 
+		/* unload all modules
 		   initng_unload_all_modules();
 		   initng_free();
 		   exit(2);

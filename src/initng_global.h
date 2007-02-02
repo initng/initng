@@ -119,7 +119,7 @@ typedef struct
 extern s_global g;
 
 /* functions for initialize and free s_global g */
-void initng_global_new(int argc, char *argv[], char *env[], h_i_am i_am);
+void initng_global_new(int argc, char *argv[], char *env[]);
 void initng_global_free(void);
 
 /* fast macros to set entrys in g */
