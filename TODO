@@ -1,7 +1,5 @@
 This is the project-wide TODO list.
 
-- UP_CHECK hook is not ever checked or called, fix (maybe it works now).
-
 - Make reload plugin, save sys_state, and current runlevel and more static
   global stuff. Maby we can call ngc -c, when system is stopping or starting
   without problems.

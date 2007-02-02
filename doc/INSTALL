@@ -17,6 +17,7 @@ ia64, m68k, mips, mipsel, ppc, sparc. (others may or may not work).
 * CMake 2.2.0 or newer
 * ncurses development libs (optional)
 
+
 COMPILING INITNG
 ================
 To avoid any potential problems during compilation, you need to create a
@@ -90,38 +91,4 @@ service from the bootloader.
         runlevel:single +system/modules -net/lo
 
 
-2: Daemons and Services
------------------------
-
-Before proceeding with this step, you need to install the official ifiles.
-
-If you are installing initng for the first time, you can use genrunlevel to
-automatically generate the default runlevel based on installed applications.
-
-# genrunlevel -all
-
-To add services to runlevels, you can edit the two runlevel files with your
-favourite text editor: (note 'system' is technically no longer counted as a
-runlevel, you can still edit it this way, but do exercise caution).
-
-# vi /etc/initng/default.runlevel
-# vi /etc/initng/system.virtual
-
-Alternately, ng-update has been provided to make the process easier.  For
-example, to start sound on boot and save mixer settings on shutdown/restore on
-boot, you would run:
-
-# ng-update add system/alsasound default
-# ng-update add system/alsasound/mixerstate default
-
-Or to run hdparm:
-
-# ng-update add system/hdparm default
-
-To remove a service:
-
-# ng-update del system/alsasound default
-
-To list services in a runlevel:
-
-# ng-update show default
+Now you are ready to install the official initng ifiles.

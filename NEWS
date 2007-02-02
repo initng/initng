@@ -1,5 +1,21 @@
 Version History:
 ---------------
+2007/02/03
+initng-0.6.9
+	* Implemented an internal event system, that replaces plugin-hooks.
+	* Added event plugin, the skeleton for ifiles event support.
+	* Added FORCE_POSIX_IFILES option, to force POSIX compliance on ifiles.
+	* Changed the beviahour of initng when pid != 1, now fake-mode is activated via a parameter (--fake)
+	* Updated the documentation.
+	* A lot of bugfixing.
+
+2006/09/19
+initng-0.6.8
+	* Optimized the depend algorithm.
+	* Automatically zap failed services if the source changes.
+	* Added service_file plugin (experimental).
+	* Some bug fixes.
+
 2006/04/18
 initng-0.6.7 Never been so good (Part 4)
 	* Code listed by accident under the LGPL is now GPL again
