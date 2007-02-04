@@ -2,10 +2,11 @@ The InitNG Release Method
 
 1.- Prologue
 2.- Updating the documentation files
-3.- Updating distribution's package meta-data
-3.1.- Updating the deb's meta-data
-3.2.- Updating the rpm's meta-data
-3.3.- Generating ebuilds
+3.- Updating the package's meta-data
+3.1.- Updating the cmake files
+3.2.- Updating the deb's meta-data
+3.3.- Updating the rpm's meta-data
+3.4.- Generating ebuilds
 4.- Tagging the release
 5.- Packaging and naming conventions
 5.1.- Source tarballs
@@ -39,9 +40,10 @@ The InitNG Release Method
 
 3. Updating distribution's package meta-data
 
-3.1. Updating the deb's meta-data
-3.2. Updating the rpm's meta-data
-3.3. Generating ebuilds
+3.1. Updating the cmake files
+3.2. Updating the deb's meta-data
+3.3. Updating the rpm's meta-data
+3.4. Generating ebuilds
 
 
 4. Tagging the release

@@ -1,7 +1,7 @@
 PROJECT(initng C)
 
-SET(VERSION "0.6.8svn" CACHE STRING "Version number of the project")
-SET(VERSION_NAME "Bleeding edge" CACHE STRING "Version string")
+SET(VERSION "0.6.9" CACHE STRING "Version number of the project")
+SET(VERSION_NAME "Shappire Sparks" CACHE STRING "Version string")
 
 IF(CMAKE_BACKWARDS_COMPATIBILITY LESS 2.2)
 	MESSAGE(FATAL_ERROR "Error: Your CMake version is too old. This project requires version 2.2 or newer.")
