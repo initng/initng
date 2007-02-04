@@ -1,7 +1,7 @@
 Version History:
 ---------------
 2007/02/03
-initng-0.6.9
+initng-0.6.9 Shappire Sparks
 	* Implemented an internal event system, that replaces plugin-hooks.
 	* Added event plugin, the skeleton for ifiles event support.
 	* Added FORCE_POSIX_IFILES option, to force POSIX compliance on ifiles.
