@@ -26,8 +26,8 @@ The InitNG Release Method
 
 2. Updating the documentation files
 
-    It's necessary to update the NEWS file with any relevant changes since
-    the last release. This doesn't apply to pre-releases.
+    It's necessary to update the NEWS or Changelog file with any relevant
+    changes since the last release. This doesn't apply to pre-releases.
 
     Entries should be marked with the release date (GMT).
 
@@ -62,6 +62,8 @@ The InitNG Release Method
 
     They must be GPG signed by the release manager.
 
+    Pre-releases should include the RELEASE_NOTES file.
+
 
 5.2. Binary packages
 
@@ -93,4 +95,9 @@ The InitNG Release Method
 
 
 7. Update the wiki
+
+    The following pages need to be updated after the release:
+
+    WikiStart: Update the NEWS section.
+    Documents_Release_Page: Add the release and edit it's page.
 
