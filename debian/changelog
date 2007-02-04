@@ -1,3 +1,9 @@
+initng (0.6.9+svn-1) experimental; urgency=low
+
+  * New upstream release
+
+ -- Florian Knauf <f.knauf@mmkf.de>  Sun, 04 Feb 2007 03:50:25 +0100
+
 initng (0.6.9-1) experimental; urgency=low
 
   * New upstream release
