@@ -8,15 +8,15 @@ The InitNG Release Method
 4.2.- Updating the deb's meta-data
 4.3.- Updating the rpm's meta-data
 4.4.- Generating ebuilds
-5.- Tagging the release
-6.- Merging the changes
-7.- Packaging
-7.1.- Source tarballs
-7.2.- Binary packages
-7.2.1.- Generation of deb packages
-7.2.2.- Generation of rpm packages
-8.- Upload the release
-9.- Update the wiki
+5.- Committing and tagging the release
+6.- Packaging
+6.1.- Source tarballs
+6.2.- Binary packages
+6.2.1.- Generation of deb packages
+6.2.2.- Generation of rpm packages
+7.- Upload the release
+8.- Update the wiki
+9.- Applying the changes to trunk
 10.- Announce the release
 
 
@@ -46,15 +46,12 @@ The InitNG Release Method
 
     Do it then:
 
-    $ svn cp https://svn.initng.org/initng/trunk \
-             https://svn.initng.org/initng/branches/x.y.z
-
-    Please remember the revision number given by the above command, as it
-    will be needed for merging changes to trunk.
+    $ svn cp https://svn.initng.org/initng[-component]/trunk \
+             https://svn.initng.org/initng[-component]/branches/x.y.z
 
     Then you need to switch your working-copy to the new branch:
 
-    $ svn switch https://svn.initng.org/initng/branches/x.y.z
+    $ svn switch https://svn.initng.org/initng[-component]/branches/x.y.z
 
 
 3. Updating the documentation files
@@ -63,6 +60,10 @@ The InitNG Release Method
     changes since the last release. This doesn't apply to pre-releases.
 
     Entries should be marked with the release date (GMT).
+
+    After updating it, you must do a diff to apply to trunk latter.
+
+    $ svn diff > $HOME/doc-changes.diff
 
     For pre-releases, a file called RELEASE_NOTES should be built,
     containing all known bugs relevant for the next release, and any
@@ -79,54 +80,54 @@ The InitNG Release Method
 
 
 4.2. Updating the deb's meta-data
+
+    Edit debian/changelog and add the release and any relevant info.
+
+
 4.3. Updating the rpm's meta-data
 4.4. Generating ebuilds
 
 
-5. Tagging the release
+5. Committing and tagging the release
+
+    You're done with the changes, so we will commit the changes:
+
+    $ svn ci -m "Updated version info"
 
     Before proceeding to packaging, you need to tag the release. It's as
     easy as doing:
 
-    $ svn cp https://svn.initng.org/initng/braches/x.y.z \
-             https://svn.initng.org/initng/tags/x.y.z
+    $ svn cp https://svn.initng.org/initng[-component]/braches/x.y.z \
+             https://svn.initng.org/initng[-component]/tags/x.y.z
 
 
-6. Merging the changes
+6. Packaging
 
-    This step doesn't applies to pre-releases.
-
-    We're done with the changes, so we need to merge some of the changes we
-    did to files like NEWS.
-
-    First we need to switch the branch again:
-
-    $ svn switch https://svn.initng.org/initng/trunk
-
-    Merge the files:
-
-    $ svn merge -r <brev>:HEAD https://svn.initng.org/initng/tagsbranches/x.y.z/<NEWS|ChangeLog>
-
-    Where <brev> is the revision when we branched.
-
-    Also you need to edit the CMakeLists.txt to update the version information.
-
-
-7. Packaging
-
-7.1. Source tarballs
+6.1. Source tarballs
 
     bzipped tarballs are mandatory, gzipped ones are optional, and should
-    be named initng[-component]-<version>[_pre#]
+    be named initng[-component]-<version>[_pre#|.p]
+
+    $ cd $HOME
+    $ svn export path/to/your/working/copy \
+                 initng[-component]-<version>
+
+    Pre-releases should include the RELEASE_NOTES file, so copy it now.
+
+
+    $ tar -jcf initng[-component]-<version>.tar.bz2 \
+               initng[-component]-<version>
+
+    and optionally:
+
+    $ tar -zcf initng[-component]-<version>.tar.gz \
+               initng[-component]-<version>
 
     They must be GPG signed by the release manager:
 
     $ gpg -b file
 
-    Pre-releases should include the RELEASE_NOTES file.
-
-
-7.2. Binary packages
+6.2. Binary packages
 
     The package maintainers for distributions are responsible of the
     package generation, and for signing it (if applicable).
@@ -139,21 +140,21 @@ The InitNG Release Method
     Pre-releases should include the RELEASE_NOTES file.
 
 
-7.2.1. Generation of deb packages
-7.2.2. Generation of rpm packages
+6.2.1. Generation of deb packages
+6.2.2. Generation of rpm packages
 
 
-8. Upload the release
+7. Upload the release
 
     You simply need to copy your locally generated files and signatures to
     the server:
 
     $ scp initng[-component]-<version>[_pre#].tar.bz2 \
           initng[-component]-<version>[_pre#].tar.bz2.sig \
-          [username@]www.initng.org:/home/initng/ftp/initng/initng/vX.Y
+          [username@]www.initng.org:/home/initng/ftp/initng/initng[-component]/vX.Y
 
 
-9. Update the wiki
+8. Update the wiki
 
     This step isn't mandatory for pre-releases.
 
@@ -162,6 +163,26 @@ The InitNG Release Method
     * WikiStart: Update the news section.
     * Documents_Release_Page: Basically, you need to put the same info that
       you have put in the NEWS file.
+
+
+9. Applying the changes to trunk
+
+    This step doesn't applies to pre-releases.
+
+    We're done with the changes, so we need to merge some of the changes we
+    did to files like NEWS.
+
+    First we need to switch the branch again:
+
+    $ svn switch https://svn.initng.org/initng[-component]/trunk
+
+    Merge the files:
+
+    $ svn merge -r <brev>:HEAD https://svn.initng.org/initng[-component]/tagsbranches/x.y.z/<NEWS|ChangeLog>
+
+    Where <brev> is the revision when we branched.
+
+    Also you need to edit the CMakeLists.txt to update the version information.
 
 
 10. Announce the release
