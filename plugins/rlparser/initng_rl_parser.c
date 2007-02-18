@@ -42,6 +42,8 @@
 
 #include <initng-paths.h>
 
+#define RUNLEVEL_PREFIX INITNG_ROOT "/runlevel/"
+
 INITNG_PLUGIN_MACRO;
 
 const char *module_needs[] = {
@@ -169,10 +171,10 @@ static int initng_rl_parser(s_event * event)
 		}
 	}
 
-	filetoparse = (char *) i_calloc(strlen(INITNG_ROOT) + 1 + strlen(data->name) + 10, sizeof(char));
+	filetoparse = (char *) i_calloc(sizeof(RUNLEVEL_PREFIX) + strlen(data->name) + 10, sizeof(char));
 
 	/* check /etc/initng/name.virtual */
-	strcpy(filetoparse, INITNG_ROOT "/");
+	strcpy(filetoparse, RUNLEVEL_PREFIX);
 	strcat(filetoparse, data->name);
 	strcat(filetoparse, ".virtual");
 
@@ -183,7 +185,7 @@ static int initng_rl_parser(s_event * event)
 	}
 
 	/* check /etc/initng/name.runlevel */
-	strcpy(filetoparse, INITNG_ROOT "/");
+	strcpy(filetoparse, RUNLEVEL_PREFIX);
 	strcat(filetoparse, data->name);
 	strcat(filetoparse, ".runlevel");
 
