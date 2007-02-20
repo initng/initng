@@ -9,6 +9,6 @@ Will:  Return a hit like "net/eth0", BUT! The '/' must be right.
 Equal: service_match(string, pattern)
 
 Using: find_in_name(eth)
-Will:  Return a hit like "net/eth0", becouse eth contains in "net/eth0" string.
+Will:  Return a hit like "net/eth0", because eth contains in "net/eth0" string.
 	   The real difference is that the '/' chars dont have to be right.
 Equal: match_in_service(string, pattern)

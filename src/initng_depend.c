@@ -170,7 +170,7 @@ static int dep_on(active_db_h * service, active_db_h * check)
 	assert(check);
 	assert(check->name);
 
-	/* walk all possible entrys, use get_next with NULL becouse we want both REQUIRE and NEED */
+	/* walk all possible entrys, use get_next with NULL because we want both REQUIRE and NEED */
 	while ((current = get_next(NULL, service, current)))
 	{
 		/* only intreseted in two types */

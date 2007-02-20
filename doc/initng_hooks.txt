@@ -24,7 +24,7 @@ Major state change watch
     Return value    : (bool) All status_change calls must return true, or next hook
                       in line wont be called.
     Caller location : initng_common.c initng_common_mark_service(service, state);
-    
+
 
 Parsers
 -------
@@ -38,7 +38,7 @@ Parsers
                       service_cache_h struct, fill it with data and return
 		      the pointer to it, if not found, return NULL.
     Caller location : initng_common.c initng_common_parse_service(name)
-    
+
 
 Additional Parse
 ----------------
@@ -67,12 +67,12 @@ FileDescriptor Watchers
     List Head       : g.FDWATCHERS
     Function call   : void (*f_module_h->call_module) (f_module_h * module)
     Description     : If you do an open() in a plugin, and want to get notified
-		      when a socket or pipe is ready for reading or writing, 
+		      when a socket or pipe is ready for reading or writing,
 		      you can register a hook that will be called when this occurs.
 
 		      You don't add the function hook directly here, but create
 		      a static f_module_h struct where you fill in the function
-		      pointer, the fd, and the events you're interested in 
+		      pointer, the fd, and the events you're interested in
 		      (FDW_READ, FDW_WRITE, FDW_ERROR, or some combination thereof),
 		      then add that struct.
     Return value    : The return is void.
@@ -96,7 +96,7 @@ Service Output Watchers
 		      (or alternative console set) to make sure that no service output ever
 		      gets lost, even if no plugin wants it.
     Caller location : initng_fd.c initng_fd_plugin_readpipe(service, process, buffer_pos)
-    
+
 
 Signal Wathers
 --------------
@@ -114,7 +114,7 @@ Main hook
 ---------
     List Head       : g.MAIN
     Function call   : void (*main) (void);
-    Description     : This is the main loop hook, use carefully becouse it will be
+    Description     : This is the main loop hook, use carefully because it will be
                       executed a lot when main loop is rolling, but almoast never when
 		      initng is waiting for input.
     Return value    : The return is void.
@@ -123,7 +123,7 @@ Main hook
                       to go before mainloop will loop again.
 
 
-    
+
 After Fork
 ----------
     List Head       : g.A_FORK
@@ -133,7 +133,7 @@ After Fork
 		      not change any pid 1 (initng) data.
     Retrun value    : (bool) if any return false here, the fork will stop and exit with failure.
     Caller location : initng_fork.c initng_fork()
-    
+
 
 
 Handle Killed
@@ -148,7 +148,7 @@ Handle Killed
 		      initng_process_db_free(process); }
 		      to clean up if you return TRUE.
     Caller location : initng_plugin_callers.c initng_plugin_callers_handle_killed(s, p)
-    
+
 
 Compensate Time
 ---------------
@@ -177,7 +177,7 @@ Error Messages
 
 
 LAUNCH - Liftoff
-----------------    
+----------------
     List Head       : g.LAUNCH
     Function call   : int (*launch) (active_db_h * service, process_h * process);
     Description     : The launcer is the code that actually launches the code.
@@ -207,10 +207,10 @@ Dump active_db
                       it calls this hook to try and find some plugin to try
 		      and find some plugin willing to dump the active_db.
 
-		      Also called once when the system goes up to make a 
+		      Also called once when the system goes up to make a
 		      backup of the active_db in case InitNG segfaults.
-		      
-		      (Currently only used by the reload plugin, but it's 
+
+		      (Currently only used by the reload plugin, but it's
 		      theoretically possible to add further plugins)
 
     Return value    : TRUE if the active_db was successfully dumped;
@@ -231,7 +231,7 @@ Reload active_db
 		          further reload_active_db hooks are not called
 		      FALSE if the plugin didn't find an active_db dump created
 			  by itself; the next hook is called
-		      FAIL if the plugin found its active_db dump, but 
+		      FAIL if the plugin found its active_db dump, but
 		          encountered an error loading it; further hooks are
 			  not called and InitNG immediately offers a sulogin
     Caller location : initng_plugin_callers.c initng_plugin_callers_reload_active_db()

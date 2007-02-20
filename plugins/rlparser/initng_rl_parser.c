@@ -173,7 +173,7 @@ static int initng_rl_parser(s_event * event)
 
 	filetoparse = (char *) i_calloc(sizeof(RUNLEVEL_PREFIX) + strlen(data->name) + 10, sizeof(char));
 
-	/* check /etc/initng/name.virtual */
+	/* check /etc/initng/runlevel/name.virtual */
 	strcpy(filetoparse, RUNLEVEL_PREFIX);
 	strcat(filetoparse, data->name);
 	strcat(filetoparse, ".virtual");
@@ -184,7 +184,7 @@ static int initng_rl_parser(s_event * event)
 		return (HANDLED);
 	}
 
-	/* check /etc/initng/name.runlevel */
+	/* check /etc/initng/runlevel/name.runlevel */
 	strcpy(filetoparse, RUNLEVEL_PREFIX);
 	strcat(filetoparse, data->name);
 	strcat(filetoparse, ".runlevel");

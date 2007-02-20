@@ -10,7 +10,7 @@ This is the project-wide TODO list.
 - The i parser shud not only know '=' but '+=' and '=+' or maby '=-' to reset
   a multistring variable, needs core rewrite.
 
-- A service that stops becouse the dependency stoped, will atomaticly be
+- A service that stops because the dependency stoped, will atomaticly be
   started again when the dep is up again. Need to rewrite pars of core to
   make this nice?
 
@@ -27,3 +27,5 @@ This is the project-wide TODO list.
 - write inetd plugin. [BIG_TASK]
 
 - finish splash plugin for graphical boot display (progress bars, etc)
+
+- Remove doc/initng_hooks.txt and document the new static event_types.

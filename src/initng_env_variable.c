@@ -366,7 +366,7 @@ char *fix_redefined_variable(const char *name, const char *oldval,
 
 }
 
-/* use a macro, becouse so this works on any data_head target */
+/* use a macro, so this works on any data_head target */
 #define get_data_env(from, len, serv) get_data_env_int(from, len, &(serv)->data)
 static const char *get_data_env_int(const char *from, int len, data_head * s)
 {

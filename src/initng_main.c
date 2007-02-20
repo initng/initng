@@ -75,7 +75,7 @@ int initng_main_ready_to_quit(void)
 
 		/*
 		 * if we got here,
-		 * its must be an non failing service, 
+		 * its must be an non failing service,
 		 * left.
 		 */
 		return (FALSE);
@@ -589,7 +589,7 @@ void initng_main_segfault(void)
 
 	}
 
-	/* Looop forever ever, becouse init cant die */
+	/* Loop forever ever, because init can't die */
 	while (1)
 	{
 		sleep(10);

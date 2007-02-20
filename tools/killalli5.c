@@ -825,7 +825,7 @@ int main(int argc, char **argv)
 			{
 				if (q->mark == 0 && q->sid == p->sid)
 				{
-					/*printf(" Process %i-%i, %s wont be killed, becouse it has same sid as %i, %s.\n", 
+					/*printf(" Process %i-%i, %s won't be killed, because it has same sid as %i, %s.\n",
 					   q->pid, q->sid, q->argv0, p->pid, p->argv0); */
 					q->mark = 1;
 				}
