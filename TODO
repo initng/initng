@@ -26,6 +26,4 @@ This is the project-wide TODO list.
 
 - write inetd plugin. [BIG_TASK]
 
-- finish splash plugin for graphical boot display (progress bars, etc)
-
 - Remove doc/initng_hooks.txt and document the new static event_types.
