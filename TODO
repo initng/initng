@@ -1,5 +1,3 @@
-This is the project-wide TODO list.
-
 - Make reload plugin, save sys_state, and current runlevel and more static
   global stuff. Maby we can call ngc -c, when system is stopping or starting
   without problems.
@@ -21,9 +19,5 @@ This is the project-wide TODO list.
 - Fix the/A xml parser. [BIG_TASK]
 
 - create ngc5 with an shiny new xml data backend. [BIG_TASK]
-
-- finish cron plugin. [BIG_TASK]
-
-- write inetd plugin. [BIG_TASK]
 
 - Remove doc/initng_hooks.txt and document the new static event_types.
