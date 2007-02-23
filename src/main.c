@@ -452,7 +452,7 @@ int main(int argc, char *argv[], char *env[])
 		/* when last service stopped, offer a sulogin */
 		g.when_out = THEN_SULOGIN;
 		if (!g.runlevel)
-			initng_main_set_runlevel("default");
+			initng_main_set_runlevel(RUNLEVEL_PREFIX "default");
 
 		if (!g.hot_reload)
 		{
@@ -466,7 +466,7 @@ int main(int argc, char *argv[], char *env[])
 		/* when last service stopped, quit initng */
 		W_("Initng is running in fake-mode, fake-default runlevel will be started instead.\n");
 		g.when_out = THEN_QUIT;
-		initng_main_set_runlevel("fake-default");
+		initng_main_set_runlevel(RUNLEVEL_PREFIX "fake-default");
 	}
 
 	D_("MAIN_LOAD_MODULES\n");
