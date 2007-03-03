@@ -24,8 +24,7 @@
 #include <unistd.h>
 #include <stdio.h>
 
-
-#define DEFAULT_PATH "/etc/initng/"
+#include <initng-paths.h>
 
 extern char **environ;
 
@@ -90,7 +89,7 @@ int main(int argc, char *argv[])
 	/* else, guess the full path */
 	else
 	{
-		strcpy(path, DEFAULT_PATH);
+		strcpy(path, INITNG_ROOT);
 		strncat(path, argv[1], 1024 - strlen(path));
 	}
 
@@ -102,7 +101,6 @@ int main(int argc, char *argv[])
 		exit(2);
 	}
 
-
 	/* cut service name from the last '/' found in service path */
 	servname = getenv("SERVICE");
 	if (!servname)
@@ -112,7 +110,6 @@ int main(int argc, char *argv[])
 		printf("SERVICE is not known!\n");
 		exit(3);
 	}
-
 
 	/* check if command shud forward to a ngc command */
 	{
@@ -125,7 +122,7 @@ int main(int argc, char *argv[])
 			if (strcmp(argv[2], ngc_args[i]) == 0)
 			{
 				/* set up an arg like "/sbin/ngc --start service" */
-				new_argv[0] = "/sbin/ngc";
+				new_argv[0] = (char *) "/sbin/ngc";
 				/* put new_argv = "--start" */
 				new_argv[1] = calloc(strlen(ngc_args[i] + 4), sizeof(char));
 				new_argv[1][0] = '-';
@@ -169,8 +166,8 @@ int main(int argc, char *argv[])
 	strcat(script, &argv[2][9]);
 
 	/* set up new argv */
-	new_argv[0] = "/bin/sh";
-	new_argv[1] = "-c";
+	new_argv[0] = (char *) "/bin/sh";
+	new_argv[1] = (char *) "-c";
 	new_argv[2] = script;
 	new_argv[3] = NULL;
 
