@@ -125,14 +125,14 @@ int main(int argc, char *argv[])
 			if (strcmp(argv[2], ngc_args[i]) == 0)
 			{
 				/* set up an arg like "/sbin/ngc --start service" */
-				new_argv[0] = strdup("/sbin/ngc");
+				new_argv[0] = "/sbin/ngc";
 				/* put new_argv = "--start" */
 				new_argv[1] = calloc(strlen(ngc_args[i] + 4), sizeof(char));
 				new_argv[1][0] = '-';
 				new_argv[1][1] = '-';
 				strcat(new_argv[1], ngc_args[i]);
 				/* put service name */
-				new_argv[2] = strdup(servname);
+				new_argv[2] = servname;
 				new_argv[3] = NULL;
 
 				/* execute this call */
@@ -157,8 +157,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* set up the bash script to run */
-	strcpy(script, "#/bin/bash\n");
-	strcat(script, &argv[2][9]);
+	strcpy(script, &argv[2][9]);
 	strcat(script, "() {\necho \"ERROR: ");
 	strcat(script, servname);
 	strcat(script, " command ");
@@ -168,24 +167,22 @@ int main(int argc, char *argv[])
 	strcat(script, path);
 	strcat(script, "\n");
 	strcat(script, &argv[2][9]);
-	strcat(script, "\nexit $?\n");
 
 	/* set up new argv */
-	new_argv[0] = strdup("/bin/bash");
-	new_argv[1] = strdup("-c");
+	new_argv[0] = "/bin/sh";
+	new_argv[1] = "-c";
 	new_argv[2] = script;
 	new_argv[3] = NULL;
 
 	/* set up the environments */
-	setenv("SERVICE_FILE", strdup(path), 1);
-	setenv("SERVICE", strdup(servname), 1);
-	setenv("COMMAND", strdup(argv[2]), 1);
-	setenv("THE_RIGHT_WAY", "TRUE", 1);
+	setenv("SERVICE_FILE", path, 1);
+	setenv("SERVICE", servname, 1);
+	setenv("COMMAND", argv[2], 1);
 
 	/* now call the bash script */
 	execve(new_argv[0], new_argv, environ);
 
 	/* Newer get here */
-	printf("error exeuting /bin/bash.\n");
+	printf("error executing /bin/sh.\n");
 	exit(3);
 }
