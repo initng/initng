@@ -420,6 +420,8 @@ static int open_initiator_socket(void)
 		return (FALSE);
 	}
 
+	initng_fd_set_cloexec(fd_event_acceptor.fds);
+
 	/* Bind a name to the socket. */
 	serv_sockname.sun_family = AF_UNIX;
 

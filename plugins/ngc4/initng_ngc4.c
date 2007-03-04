@@ -610,6 +610,8 @@ static int sendping()
 		return FALSE;
 	}
 
+	initng_fd_set_cloexec(client);
+
 	/* Bind a name to the socket. */
 	sockname.sun_family = AF_UNIX;
 
@@ -697,6 +699,8 @@ static int open_socket()
 		fdh.fds = -1;
 		return (FALSE);
 	}
+
+	initng_fd_set_cloexec(fdh.fds);
 
 	/* Set socket to non blocking mode */
 	/*    flags = fcntl(fdh.fds, F_GETFL);

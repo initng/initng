@@ -671,6 +671,8 @@ static int bp_open_socket()
 		return (FALSE);
 	}
 
+	initng_fd_set_cloexec(bpf.fds);
+
 	/* Bind a name to the socket. */
 	serv_sockname.sun_family = AF_UNIX;
 

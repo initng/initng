@@ -271,7 +271,7 @@ void initng_fd_process_read_input(active_db_h * service, process_h * p,
 		pi->buffer_len = 9000;				/* shortened by 1000 chars */
 		pi->buffer[9000] = '\0';			/* shortened by 1000 chars */
 	}
-	
+
 	D_("function done...");
 }
 
@@ -542,4 +542,9 @@ void initng_fd_plugin_poll(int timeout)
 	}
 
 	return;
+}
+
+int initng_fd_set_cloexec(int fd)
+{
+	return fcntl(fd, F_SETFD, fcntl(fd, F_GETFD, 0) | FD_CLOEXEC);
 }

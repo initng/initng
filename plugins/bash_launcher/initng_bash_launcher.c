@@ -21,7 +21,7 @@
 
 #include <time.h>							/* time() */
 #include <fcntl.h>							/* fcntl() */
-#include <unistd.h>							/* execv() pipe() usleep() pause() chown() */
+#include <unistd.h>							/* execv() usleep() pause() chown() */
 #include <sys/wait.h>						/* waitpid() sa */
 #include <sys/ioctl.h>						/* ioctl() */
 #include <stdlib.h>							/* free() exit() */
@@ -168,13 +168,8 @@ static int bash_exec(process_h * process_to_exec, active_db_h * s,
 
 	if ((pid_fork = initng_fork(s, process_to_exec)) == 0)
 	{
-		int i;
-
 		/* run afterfork hooks from other plugins */
 		initng_fork_aforkhooks(s, process_to_exec);
-
-		for (i = 3; i < 1024; i++)
-			close(i);
 
 		/* execute code */
 		bash_this(script, s, args);

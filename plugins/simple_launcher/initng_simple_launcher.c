@@ -21,7 +21,7 @@
 
 #include <time.h>							/* time() */
 #include <fcntl.h>							/* fcntl() */
-#include <unistd.h>							/* execv() pipe() usleep() pause() chown() */
+#include <unistd.h>							/* execv() usleep() pause() chown() */
 #include <sys/wait.h>						/* waitpid() sa */
 #include <sys/ioctl.h>						/* ioctl() */
 #include <stdlib.h>							/* free() exit() */
@@ -183,11 +183,6 @@ static int simple_exec_fork(process_h * process_to_exec, active_db_h * s,
 		/* run g.AFTER_FORK from other plugins */
 		initng_fork_aforkhooks(s, process_to_exec);
 
-		int i;
-
-		for (i = 3; i < 1024; i++)
-			close(i);
-
 #ifdef DEBUG
 		D_("FROM_FORK simple_exec(%i,%s, ...);\n", argc, argv[0]);
 		/*D_argv("simple_exec: ", argv); */
@@ -323,7 +318,7 @@ static int simple_exec_try(char * exec, active_db_h * service,
 	argv[0] = exec;
 
 	ret=simple_exec_fork(process, service, argc, argv);
-	
+
 	// Do some cleanup
 	if(exec_args)
 	    fix_free(exec_args, exec_args_unfixed);
@@ -431,7 +426,7 @@ static int simple_run(active_db_h * service, process_h * process)
 			fix_free(exec_fixed, exec);
 			return (FALSE);
 		}
-		
+
 		free(argv[0]);
 		argv[0] = argv0; // Check this before freeing!
 	}
@@ -441,21 +436,21 @@ static int simple_run(active_db_h * service, process_h * process)
 	result = simple_exec_fork(process, service, argc, argv);
 
 	/* clean up */
-	
+
 	// First free the fixed argv0 if its not a plain link to argv[0]
 	if (argv0 && argv0 != argv[0])
 	{
 		free(argv0);
 	}
 	argv0 = NULL;
-	
+
 	// Later free the big argv array
-	split_delim_free(argv);	
+	split_delim_free(argv);
 	argv = NULL;
-	
+
 	// then free this one.
 	fix_free(exec_fixed, exec);
- 
+
 	/* return result */
 	if (result == FAIL)
 		return (FALSE);

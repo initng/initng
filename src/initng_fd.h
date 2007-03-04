@@ -27,4 +27,6 @@ void initng_fd_process_read_input(active_db_h * service, process_h * p,
 void initng_fd_close_all(void);
 void initng_fd_plugin_poll(int timeout);
 
+int initng_fd_set_cloexec(int fd);
+
 #endif

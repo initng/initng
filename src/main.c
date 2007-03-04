@@ -415,7 +415,12 @@ int main(int argc, char *argv[], char *env[])
 	{
 		/*load selinux policy and rexec*/
 #ifdef SELINUX
-		if ((fopen("/selinux/enforce", "r")) != NULL) goto BOOT;
+		FILE *tmp_f;
+		if ((tmp_f = fopen("/selinux/enforce", "r")) != NULL) {
+			fclose(tmp_f);
+			goto BOOT;
+		}
+
 		int enforce = -1;
 		char *nonconst;
 

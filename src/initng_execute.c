@@ -21,7 +21,7 @@
 
 #include <time.h>							/* time() */
 #include <fcntl.h>							/* fcntl() */
-#include <unistd.h>							/* execv() pipe() usleep() pause() chown() */
+#include <unistd.h>							/* execv() usleep() pause() chown() */
 #include <sys/wait.h>						/* waitpid() sa */
 #include <sys/ioctl.h>						/* ioctl() */
 #include <stdlib.h>							/* free() exit() */

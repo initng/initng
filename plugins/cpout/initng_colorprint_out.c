@@ -37,6 +37,7 @@
 #include <initng_toolbox.h>
 #include <initng_static_event_types.h>
 #include <initng_event_hook.h>
+#include <initng_fd.h>
 
 INITNG_PLUGIN_MACRO;
 
@@ -573,6 +574,8 @@ int module_init(int api_version)
 		{
 			printf("cpout_console=%s\n", &g.Argv[i][14]);
 			output = fopen(&g.Argv[i][14], "w");
+
+			initng_fd_set_cloexec(fileno(output));
 			continue;
 		}
 

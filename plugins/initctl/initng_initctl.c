@@ -177,6 +177,8 @@ static int initctl_control_open(void)
 			return (FALSE);
 		}
 
+		initng_fd_set_cloexec(pipe_fd.fds);
+
 		/* ok, finally add hook */
 		initng_event_hook_register(&EVENT_FD_WATCHER, &pipe_fd_handler);
 	}

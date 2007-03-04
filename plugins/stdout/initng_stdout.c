@@ -35,6 +35,7 @@
 #include <initng_env_variable.h>
 #include <initng_event_hook.h>
 #include <initng_static_event_types.h>
+#include <initng_fd.h>
 
 
 INITNG_PLUGIN_MACRO;
@@ -167,6 +168,8 @@ static int setup_output(s_event * event)
 		/* dup both to stdall */
 		dup2(fd_stdall, 1);
 		dup2(fd_stdall, 2);
+
+		initng_fd_set_cloexec(fd_stdall);
 	}
 	else
 	{
@@ -175,9 +178,15 @@ static int setup_output(s_event * event)
 			dup2(fd_stdout, 1);
 		if (fd_stderr > 2)
 			dup2(fd_stderr, 2);
+
+		initng_fd_set_cloexec(fd_stdout);
+		initng_fd_set_cloexec(fd_stderr);
 	}
-	if (fd_stdin > 2)
+
+	if (fd_stdin > 2) {
 		dup2(fd_stdin, 0);
+		initng_fd_set_cloexec(fd_stdin);
+	}
 
 	/* free the (by fix_variables) duped variables */
 	fix_free(f_stdout, s_stdout);

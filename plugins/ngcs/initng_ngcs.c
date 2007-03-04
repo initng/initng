@@ -262,6 +262,8 @@ void accepted_client(f_module_h * from, e_fdw what)
 	/* create a new socket, for reading */
 	if ((newsock = accept(fdh.fds, NULL, NULL)) > 0)
 	{
+		initng_fd_set_cloexec(newsock);
+
 		D_("read socket open, now setting options\n");
 		conn = (ngcs_svr_conn *) i_calloc(1, sizeof(ngcs_svr_conn));
 		if (conn == NULL)
@@ -288,6 +290,7 @@ void accepted_client(f_module_h * from, e_fdw what)
 			F_("Couldn't register channel 0!");
 			ngcs_conn_free(conn->conn);
 			free(conn);
+			close(newsock);
 			return;
 		}
 
@@ -595,6 +598,8 @@ static int sendping()
 		return FALSE;
 	}
 
+	initng_fd_set_cloexec(client);
+
 	/* Bind a name to the socket. */
 	sockname.sun_family = AF_UNIX;
 
@@ -676,6 +681,8 @@ static int open_socket()
 		fdh.fds = -1;
 		return (FALSE);
 	}
+
+	initng_fd_set_cloexec(fdh.fds);
 
 	/* Bind a name to the socket. */
 	serv_sockname.sun_family = AF_UNIX;

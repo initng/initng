@@ -37,6 +37,7 @@
 #include <initng_static_states.h>
 #include <initng_static_event_types.h>
 #include <initng_event_hook.h>
+#include <initng_fd.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -115,6 +116,7 @@ static int is_cpu_idle(int wait)
 	if (!fp_proc)
 	{
 		fp_proc = fopen("/proc/stat", "r");
+		initng_fd_set_cloexec(fileno(fp_proc));
 	}
 
 	/* if still not open, return false */

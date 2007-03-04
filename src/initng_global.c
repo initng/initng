@@ -241,6 +241,7 @@ void initng_global_free(void)
 
 
 	/* close all open fd, over 3, this may hang boot */
+	/* TODO: should we close all fds here? */
 	for (i = 3; i <= 1013; i++)
 	{
 		close(i);

@@ -37,6 +37,7 @@
 #include <initng_control_command.h>
 #include <initng_static_event_types.h>
 #include <initng_event_hook.h>
+#include <initng_fd.h>
 
 #include <initng-paths.h>
 
