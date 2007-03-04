@@ -47,7 +47,7 @@
  * @got_it_working powerj
  * @improved_it ismael
  */
-char **split_delim(char *string, const char *delim, size_t * argc, int ofs)
+char **split_delim(const char *string, const char *delim, size_t * argc, int ofs)
 {
 	int len;
 	char **array;

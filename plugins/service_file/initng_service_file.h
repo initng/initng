@@ -22,7 +22,6 @@
 
 #define SERVICE_FILE_VERSION 1
 #define SOCKET_PATH "/dev/initng/bp"
-#define SCRIPT_PATH "/etc/initng"
 
 /* incoming type */
 typedef enum

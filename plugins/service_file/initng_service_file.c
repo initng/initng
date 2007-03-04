@@ -797,11 +797,14 @@ static void handle_killed(active_db_h * service, process_h * process)
 static int create_new_active(s_event * event)
 {
 	s_event_new_active_data * data;
-	char file[1024] = SCRIPT_PATH "/";
 	struct stat fstat;
 	active_db_h *new_active;
 	process_h *process;
 	pipe_h *current_pipe;
+
+	char *file;
+	char **path_comp;
+	int i;
 
 	assert(event->event_type == &EVENT_NEW_ACTIVE);
 	assert(event->data);
@@ -811,14 +814,23 @@ static int create_new_active(s_event * event)
 	/*printf("create_new_active(%s);\n", data->name); */
 	/*printf("service \"%s\" ", data->name); */
 
-	/* Make the filename, cutting on first '/' in name */
-	{
-		int i = 0;
+	/* Search the file */
+	file = malloc(sizeof(INITNG_ROOT) + strlen(data->name) + 1);
+	strcpy(file, INITNG_ROOT "/");
 
-		while (data->name[i] && i < 500 && data->name[i] != '/')
-			i++;
-		strncat(file, data->name, i);
+	path_comp = split_delim(data->name, "/", NULL, 0);
+
+	for (i = 0; path_comp[i] != NULL; i++)
+	{
+		strcat(file, path_comp[i]);
+
+		if (stat(file, &fstat) == 0 && S_ISREG(fstat.st_mode)) {
+			/* We found it, yay! */
+			break;
+		}
 	}
+
+	split_delim_free(path_comp);
 
 	/* printf(" parsing file \"%s\"\n", file); */
 
@@ -831,13 +843,11 @@ static int create_new_active(s_event * event)
 		strncat(file, data->name, 1020 - strlen("/etc/init.d/"));
 
 		if (stat(file, &fstat) != 0)
+#else
 		{
-			/* file not found */
+			D_("File \"%s\" not found.\n", file);
 			return (FALSE);
 		}
-#else
-		D_("File \"%s\" not found.\n", file);
-		return (FALSE);
 #endif
 	}
 

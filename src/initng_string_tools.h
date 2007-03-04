@@ -74,7 +74,7 @@ void st_replace(char * dest, char * str, const char * n, const char * r);
 
 /* to use with split_delim */
 #define WHITESPACE " \t\n\r\v"
-char **split_delim(char *string, const char *delim, size_t * argc, int ofs);
+char **split_delim(const char *string, const char *delim, size_t * argc, int ofs);
 void split_delim_free(char **strs);
 
 
