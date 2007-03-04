@@ -816,12 +816,13 @@ static int create_new_active(s_event * event)
 
 	/* Search the file */
 	file = malloc(sizeof(INITNG_ROOT) + strlen(data->name) + 1);
-	strcpy(file, INITNG_ROOT "/");
+	strcpy(file, INITNG_ROOT);
 
 	path_comp = split_delim(data->name, "/", NULL, 0);
 
 	for (i = 0; path_comp[i] != NULL; i++)
 	{
+		strcat(file, "/");
 		strcat(file, path_comp[i]);
 
 		if (stat(file, &fstat) == 0 && S_ISREG(fstat.st_mode)) {
