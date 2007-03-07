@@ -83,7 +83,7 @@ static void bp_abort(bp_rep * rep, const char *service);
 
 static void handle_killed(active_db_h * service, process_h * process);
 
-#define SOCKET_4_ROOTPATH "/dev/initng"
+#define SOCKET_4_ROOTPATH DEVDIR "/initng"
 
 a_state_h PARSING = { "PARSING", "This is service is parsing by service_file.", IS_NEW, NULL, NULL, NULL };
 a_state_h PARSING_FOR_START = { "PARSING_FOR_START", "This is service is parsing by service_file.", IS_NEW, NULL, NULL, NULL };
@@ -804,6 +804,7 @@ static int create_new_active(s_event * event)
 
 	char *file;
 	char **path_comp;
+	int found = 0;
 	int i;
 
 	assert(event->event_type == &EVENT_NEW_ACTIVE);
@@ -827,6 +828,7 @@ static int create_new_active(s_event * event)
 
 		if (stat(file, &fstat) == 0 && S_ISREG(fstat.st_mode)) {
 			/* We found it, yay! */
+			found++;
 			break;
 		}
 	}
@@ -835,27 +837,9 @@ static int create_new_active(s_event * event)
 
 	/* printf(" parsing file \"%s\"\n", file); */
 
-	/* check so that file exists */
-	if (stat(file, &fstat) != 0)
+	if (!found)
 	{
-#if 0
-		/* Gentoo support disabled for now - doesn't work properly yet */
-		strcpy(file, "/etc/init.d/");
-		strncat(file, data->name, 1020 - strlen("/etc/init.d/"));
-
-		if (stat(file, &fstat) != 0)
-#else
-		{
-			D_("File \"%s\" not found.\n", file);
-			return (FALSE);
-		}
-#endif
-	}
-
-	/* check that it is a file */
-	if (!S_ISREG(fstat.st_mode))
-	{
-		D_("File \"%s\" is not an regular file.\n", file);
+		D_("File \"%s\" not found or it isn't a regular file.\n", file);
 		return (FALSE);
 	}
 
@@ -906,7 +890,7 @@ static int create_new_active(s_event * event)
 		char *new_env[4];
 
 		new_argv[0] = file;
-		new_argv[1] = i_strdup("internal_setup");
+		new_argv[1] = "internal_setup";
 		new_argv[2] = NULL;
 
 		/* SERVICE=getty/tty1 */
