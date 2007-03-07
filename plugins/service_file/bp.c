@@ -62,19 +62,11 @@ typedef struct
 } command_entry;
 
 command_entry commands[] = {
-	{"abort", &bp_abort},
 	{"iabort", &bp_abort},
-	{"register", &bp_new_active},
 	{"iregister", &bp_new_active},
-	{"done", &bp_done},
 	{"idone", &bp_done},
-	{"get", &bp_get_variable},
 	{"iget", &bp_get_variable},
-	{"set", &bp_set_variable},
 	{"iset", &bp_set_variable},
-	{"add_exec", &bp_add_exec},
-	{"iadd_exec", &bp_add_exec},
-	{"exec", &bp_add_exec},
 	{"iexec", &bp_add_exec},
 	{NULL, NULL}
 };
@@ -191,7 +183,7 @@ int main(int argc, char **argv)
 }
 
 /*
- * usage: iexec start           will run /etc/initng/service internal_start 
+ * usage: iexec start           will run /etc/initng/service internal_start
  *        iexec start = dodo    will run /etc/initng/service internal_dodo
  */
 int bp_add_exec(char *service, int argc, char **argv)
@@ -254,6 +246,7 @@ int bp_abort(char *service, int argc, char **argv)
 
 	return (bp_send(&to_send));
 }
+
 int bp_done(char *service, int argc, char **argv)
 {
 	/* the request to send */

@@ -423,8 +423,6 @@ void initng_main_exit(int i)
 	/* Free all global variables */
 	initng_global_free();
 
-	/* TODO: Should we close all open fds here? */
-
 	/* Then, unload all modules */
 	initng_unload_module_unload_all();
 
