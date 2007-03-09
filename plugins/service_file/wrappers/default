@@ -1,0 +1,11 @@
+#!/bin/sh
+
+eval "${COMMAND}() {
+	echo \"ERROR: ${SERVICE} command ${COMMAND} not found.\"
+	return 1
+}"
+
+export PATH="/lib/ibin:${PATH}"
+source "${SERVICE_FILE}"
+
+${COMMAND}

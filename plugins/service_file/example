@@ -1,32 +1,30 @@
-#!/sbin/runiscript
+#!/sbin/runiscript default
 
 setup()
 {
-	# register new service type, the $SERVICE will be "example" here.
-    iregister service $SERVICE
+	# You can omit the "-s service_name" if it's in $SERVICE, we use
+	# it here as an example.
 
-    #iset $SERVICE need = "checkroot mountroot"
-	
-	# These 2 lines will be macro defined in the future.
-	iset $SERVICE exec start = "$SERVICE_FILE internal_start"
-	iset $SERVICE exec stop = "$SERVICE_FILE internal_stop"
-	
+	# Register new service type, the $SERVICE will be "example" here.
+	iregister -s $SERVICE service
+		iset -s $SERVICE need = "system/bootmisc"
+
+		iexec -s $SERVICE start = strange_name_for_start
+		iexec -s $SERVICE stop
 	# Tell initng this service is done parsing.
-    idone $SERVICE
+	idone -s $SERVICE
 }
 
-start()
+strange_name_for_start()
 {
 	echo "Starting $SERVICE"
-    echo "init3g v0.0.1" > /etc/issue
 	echo "env:"
 	/usr/bin/env
-    exit 0
+	exit 0
 }
 
 stop()
 {
 	echo "Stopping $SERVICE here"
-    rm /etc/issue
-    exit 0
+	exit 0
 }

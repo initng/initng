@@ -1,0 +1,4 @@
+INSTALL_PROGRAMS(${CMAKE_INSTALL_PREFIX}${LIB_INSTALL_DIR}/initng/wrappers FILES
+	default
+	compat
+)

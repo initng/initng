@@ -1,0 +1,15 @@
+#!/bin/sh
+export PATH="/lib/ibin:${PATH}"
+
+set -- "${COMMAND}"
+
+if [ "${1}" = "setup" ]; then
+	iregister service
+		iset need = "system/bootmisc"
+		iexec start
+		iexec stop
+	idone
+	exit 0
+fi
+
+. "${SERVICE_FILE}"

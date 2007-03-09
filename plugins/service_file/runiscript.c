@@ -26,6 +26,8 @@
 
 #include <initng-paths.h>
 
+#define WRAPPER_PATH INITNG_PLUGIN_DIR "/wrappers/"
+
 extern char **environ;
 
 /* These commands will be forwarded to /sbin/ngc if issued */
@@ -47,17 +49,16 @@ static void print_usage(void)
 int main(int argc, char *argv[])
 {
 	char path[1025];			/* the argv[0] is not always the full path, so we make a full path and put in here */
-	char script[1024];			/* plenty of space for the bash script header we crate to execute. */
 	char *new_argv[24];			/* used for execve, 24 arguments is really enoght */
 	char *servname;				/* local storage of the service name, cut from / pointing in path abow */
 	struct stat st;				/* file stat storage, used to check that files exist */
 
 	/* check to no of arguments */
-	if (argc != 3)
+	if (argc != 4)
 	{
 		int i;
 		printf("Bad command: ");
-		for(i=0; argv[i];i++)
+		for(i = 0; argv[i]; i++)
 			printf(" %s", argv[i]);
 		printf("\n");
 		print_usage();
@@ -65,7 +66,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* replace starting '.' with full path to local cwd */
-	if (argv[1][0] == '.')
+	if (argv[2][0] == '.')
 	{
 		if (!getcwd(path, 1024))
 		{
@@ -73,24 +74,24 @@ int main(int argc, char *argv[])
 			print_usage();
 			exit(1);
 		}
-		strncat(path, &argv[1][1], 1024 - strlen(path));
+		strncat(path, &argv[2][1], 1024 - strlen(path));
 	}
 	/* replace starting '~' with path to HOME */
-	else if (argv[1][0] == '~')
+	else if (argv[2][0] == '~')
 	{
 		strncpy(path, getenv("HOME"), 1024);
-		strncpy(path, &argv[1][1], 1024 - strlen(path));
+		strncpy(path, &argv[2][1], 1024 - strlen(path));
 	}
 	/* if it is a full path, this is really good */
-	else if (argv[1][0] == '/')
+	else if (argv[2][0] == '/')
 	{
-		strncpy(path, argv[1], 1024);
+		strncpy(path, argv[2], 1024);
 	}
 	/* else, guess the full path */
 	else
 	{
 		strcpy(path, INITNG_ROOT);
-		strncat(path, argv[1], 1024 - strlen(path));
+		strncat(path, argv[2], 1024 - strlen(path));
 	}
 
 	/* check that path is correct */
@@ -119,7 +120,7 @@ int main(int argc, char *argv[])
 		{
 
 			/* check if these are direct commands, then use ngc */
-			if (strcmp(argv[2], ngc_args[i]) == 0)
+			if (strcmp(argv[3], ngc_args[i]) == 0)
 			{
 				/* set up an arg like "/sbin/ngc --start service" */
 				new_argv[0] = (char *) "/sbin/ngc";
@@ -142,41 +143,29 @@ int main(int argc, char *argv[])
 	/* end check */
 
 	/* check if command is valid */
-	if (strncmp(argv[2], "internal_", 9) != 0)
+	if (strncmp(argv[3], "internal_", 9) != 0)
 	{
 		int i;
 		printf("Bad command: ");
-		for(i=0; argv[i];i++)
+		for(i = 0; argv[i]; i++)
 			printf(" %s", argv[i]);
 		printf("\n");
 		print_usage();
 		exit(3);
 	}
 
-	/* set up the bash script to run */
-	strcpy(script, &argv[2][9]);
-	strcat(script, "() {\necho \"ERROR: ");
-	strcat(script, servname);
-	strcat(script, " command ");
-	strcat(script, &argv[2][9]);
-	strcat(script,
-		   " not found.\"\nreturn 1\n}\nexport PATH=/lib/ibin:$PATH\nsource ");
-	strcat(script, path);
-	strcat(script, "\n");
-	strcat(script, &argv[2][9]);
-
 	/* set up new argv */
-	new_argv[0] = (char *) "/bin/sh";
-	new_argv[1] = (char *) "-c";
-	new_argv[2] = script;
-	new_argv[3] = NULL;
+	new_argv[0] = malloc(sizeof(WRAPPER_PATH) + strlen(argv[1]));
+	strcpy(new_argv[0], WRAPPER_PATH);
+	strcat(new_argv[0], argv[1]);
+	new_argv[1] = NULL;
 
 	/* set up the environments */
 	setenv("SERVICE_FILE", path, 1);
 	setenv("SERVICE", servname, 1);
-	setenv("COMMAND", argv[2], 1);
+	setenv("COMMAND", &argv[3][9], 1);
 
-	/* now call the bash script */
+	/* now call the wrapper */
 	execve(new_argv[0], new_argv, environ);
 
 	/* Newer get here */
