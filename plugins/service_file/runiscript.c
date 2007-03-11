@@ -30,6 +30,8 @@
 
 extern char **environ;
 
+char *wrapper = "default";
+
 /* These commands will be forwarded to /sbin/ngc if issued */
 const char *ngc_args[] = { "start", "stop", "restart", "zap", "status", NULL
 };
@@ -45,6 +47,20 @@ static void print_usage(void)
 	printf("\n");
 }
 
+char *wipe_cmd(int p, int *argc, char ***argv)
+{
+	char *ret;
+	int i;
+
+	ret = *argv[p];
+
+	*argc--;
+	for (i = p; i < *argc; i++)
+		*argv[i] = *argv[i + 1];
+
+	return (ret);
+}
+
 /* here is main */
 int main(int argc, char *argv[])
 {
@@ -54,7 +70,7 @@ int main(int argc, char *argv[])
 	struct stat st;				/* file stat storage, used to check that files exist */
 
 	/* check to no of arguments */
-	if (argc != 4)
+	if (argc < 3 || argc > 4)
 	{
 		int i;
 		printf("Bad command: ");
@@ -65,8 +81,11 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
+	if (argc == 4)
+		wrapper = wipe_cmd(1, &argc, &argv);
+
 	/* replace starting '.' with full path to local cwd */
-	if (argv[2][0] == '.')
+	if (argv[1][0] == '.')
 	{
 		if (!getcwd(path, 1024))
 		{
@@ -74,24 +93,24 @@ int main(int argc, char *argv[])
 			print_usage();
 			exit(1);
 		}
-		strncat(path, &argv[2][1], 1024 - strlen(path));
+		strncat(path, &argv[1][1], 1024 - strlen(path));
 	}
 	/* replace starting '~' with path to HOME */
-	else if (argv[2][0] == '~')
+	else if (argv[1][0] == '~')
 	{
 		strncpy(path, getenv("HOME"), 1024);
-		strncpy(path, &argv[2][1], 1024 - strlen(path));
+		strncpy(path, &argv[1][1], 1024 - strlen(path));
 	}
 	/* if it is a full path, this is really good */
-	else if (argv[2][0] == '/')
+	else if (argv[1][0] == '/')
 	{
-		strncpy(path, argv[2], 1024);
+		strncpy(path, argv[1], 1024);
 	}
 	/* else, guess the full path */
 	else
 	{
 		strcpy(path, INITNG_ROOT);
-		strncat(path, argv[2], 1024 - strlen(path));
+		strncat(path, argv[1], 1024 - strlen(path));
 	}
 
 	/* check that path is correct */
@@ -120,7 +139,7 @@ int main(int argc, char *argv[])
 		{
 
 			/* check if these are direct commands, then use ngc */
-			if (strcmp(argv[3], ngc_args[i]) == 0)
+			if (strcmp(argv[2], ngc_args[i]) == 0)
 			{
 				/* set up an arg like "/sbin/ngc --start service" */
 				new_argv[0] = (char *) "/sbin/ngc";
@@ -143,7 +162,7 @@ int main(int argc, char *argv[])
 	/* end check */
 
 	/* check if command is valid */
-	if (strncmp(argv[3], "internal_", 9) != 0)
+	if (strncmp(argv[2], "internal_", 9) != 0)
 	{
 		int i;
 		printf("Bad command: ");
@@ -155,15 +174,15 @@ int main(int argc, char *argv[])
 	}
 
 	/* set up new argv */
-	new_argv[0] = malloc(sizeof(WRAPPER_PATH) + strlen(argv[1]));
+	new_argv[0] = malloc(sizeof(WRAPPER_PATH) + strlen(wrapper));
 	strcpy(new_argv[0], WRAPPER_PATH);
-	strcat(new_argv[0], argv[1]);
+	strcat(new_argv[0], wrapper);
 	new_argv[1] = NULL;
 
 	/* set up the environments */
 	setenv("SERVICE_FILE", path, 1);
 	setenv("SERVICE", servname, 1);
-	setenv("COMMAND", &argv[3][9], 1);
+	setenv("COMMAND", &argv[2][9], 1);
 
 	/* now call the wrapper */
 	execve(new_argv[0], new_argv, environ);
