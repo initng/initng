@@ -53,7 +53,7 @@ s_entry EXEC = { "exec", VARIABLE_STRING, NULL,
 };
 
 s_entry EXECS = { "exec_path", VARIABLE_STRINGS, NULL,
-	"The path for one ore more executables."
+	"The path for one or more executables."
 };
 s_entry EXEC_ARGS = { "exec_args", VARIABLE_STRING, NULL,
 	"The arguments for the executable."

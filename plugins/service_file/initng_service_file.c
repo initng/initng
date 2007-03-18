@@ -803,9 +803,7 @@ static int create_new_active(s_event * event)
 	pipe_h *current_pipe;
 
 	char *file;
-	char **path_comp;
 	int found = 0;
-	int i;
 
 	assert(event->event_type == &EVENT_NEW_ACTIVE);
 	assert(event->data);
@@ -815,44 +813,63 @@ static int create_new_active(s_event * event)
 	/*printf("create_new_active(%s);\n", data->name); */
 	/*printf("service \"%s\" ", data->name); */
 
-	/* Search the file */
 	file = malloc(sizeof(INITNG_ROOT) + strlen(data->name) + 1);
-	strcpy(file, INITNG_ROOT);
 
-	path_comp = split_delim(data->name, "/", NULL, 0);
-
-	for (i = 0; path_comp[i] != NULL; i++)
+	/* Search the file */
 	{
-		strcat(file, "/");
-		strcat(file, path_comp[i]);
+		char **path_comp;
+		int try_again;
+		int i;
 
-		if (stat(file, &fstat) == 0 && S_ISREG(fstat.st_mode)) {
-			/* We found it, yay! */
-			found++;
-			break;
+		strcpy(file, INITNG_ROOT);
+
+		path_comp = split_delim(data->name, "/", NULL, 0);
+
+		for (try_again = 1, i = 0; path_comp[i] != NULL; i++)
+		{
+			strcat(file, "/");
+			strcat(file, path_comp[i]);
+
+			if (stat(file, &fstat) == 0 && S_ISREG(fstat.st_mode))
+			{
+				/* We found it, yay! */
+				found = 1;
+				break;
+			}
+
+			if (path_comp[i + 1] == NULL && try_again)
+			{
+				try_again = 0;
+				i--;
+			}
 		}
+		split_delim_free(path_comp);
 	}
 
-	split_delim_free(path_comp);
 
 	/* printf(" parsing file \"%s\"\n", file); */
 
 	if (!found)
 	{
-		D_("File \"%s\" not found or it isn't a regular file.\n", file);
+		D_("File \"%s\" not found or it is not a regular file.\n", file);
+		free(file);
 		return (FALSE);
 	}
 
 	if (!(fstat.st_mode & S_IXUSR))
 	{
-		F_("File \"%s\" cant be executed!\n", file);
+		F_("File \"%s\" can not be executed!\n", file);
+		free(file);
 		return (FALSE);
 	}
 
 	/* create new service */
 	new_active = initng_active_db_new(data->name);
 	if (!new_active)
+	{
+		free(file);
 		return (FALSE);
+	}
 
 	/* set type */
 	new_active->current_state = &PARSING_FOR_START;
@@ -865,6 +882,7 @@ static int create_new_active(s_event * event)
 	if (!initng_active_db_register(new_active))
 	{
 		initng_active_db_free(new_active);
+		free(file);
 		return (FALSE);
 	}
 
@@ -890,7 +908,7 @@ static int create_new_active(s_event * event)
 		char *new_env[4];
 
 		new_argv[0] = file;
-		new_argv[1] = "internal_setup";
+		new_argv[1] = (char *) "internal_setup";
 		new_argv[2] = NULL;
 
 		/* SERVICE=getty/tty1 */
@@ -930,6 +948,7 @@ static int create_new_active(s_event * event)
 		_exit(10);
 	}
 
+	free(file);
 	/* return the newly created */
 	data->ret = new_active;
 	return (HANDLED);

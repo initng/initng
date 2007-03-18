@@ -30,10 +30,16 @@
 
 extern char **environ;
 
-char *wrapper = "default";
+const char *wrapper = "default";
 
 /* These commands will be forwarded to /sbin/ngc if issued */
-const char *ngc_args[] = { "start", "stop", "restart", "zap", "status", NULL
+const char *ngc_args[] = {
+	"start",
+	"stop",
+	"restart",
+	"zap",
+	"status",
+	NULL
 };
 
 /* this lists the commands the service can be executed with directly */
@@ -42,12 +48,14 @@ static void print_usage(void)
 	int i;
 
 	printf("Usage: /etc/init/service");
+
 	for (i = 0; ngc_args[i]; i++)
 		printf(" <%s>", ngc_args[i]);
+
 	printf("\n");
 }
 
-char *wipe_cmd(int p, int *argc, char ***argv)
+static char *wipe_cmd(int p, int *argc, char ***argv)
 {
 	char *ret;
 	int i;
