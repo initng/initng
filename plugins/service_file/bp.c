@@ -194,29 +194,28 @@ int bp_add_exec(char *service, int argc, char **argv)
 	memset(&to_send, 0, sizeof(bp_req));
 	to_send.request = SET_VARIABLE;
 
-	/* "/etc/initng/file" */
-	strncpy(to_send.u.set_variable.value, argv[0], 1024);
 
-	/* " internal_" */
-	strncat(to_send.u.set_variable.value, " internal_",
-			1024 - strlen(to_send.u.set_variable.value));
+	if (argc == 1 || (argc == 3 && argv[2][0] == '=')) {
+		if (argc != 3 || argv[3][0] != '/') {
+			/* "/etc/initng/file" */
+			strncpy(to_send.u.set_variable.value, argv[0], 1024);
 
+			/* " internal_" */
+			strncat(to_send.u.set_variable.value, " internal_",
+					1024 - strlen(to_send.u.set_variable.value));
+		}
 
-	if (argc == 3 && argv[2][0] == '=')
-	{
-
-		/* "dodo" */
-		strncat(to_send.u.set_variable.value, argv[3],
-				1024 - strlen(to_send.u.set_variable.value));
-
-	}
-	else if (argc == 1)
-	{
-
-		/* "start" */
-		strncat(to_send.u.set_variable.value, argv[1],
-				1024 - strlen(to_send.u.set_variable.value));
-
+		if (argc == 1) {
+			/* "start" */
+			strncat(to_send.u.set_variable.value, argv[1],
+					1024 - strlen(to_send.u.set_variable.value));
+		}
+		else
+		{
+			/* "dodo" */
+			strncat(to_send.u.set_variable.value, argv[3],
+					1024 - strlen(to_send.u.set_variable.value));
+		}
 	}
 	else
 		return (FALSE);

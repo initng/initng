@@ -12,4 +12,4 @@ if [ "${1}" = "setup" ]; then
 	exit 0
 fi
 
-. "${SERVICE_FILE}"
+source "${SERVICE_FILE}"
