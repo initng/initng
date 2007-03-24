@@ -259,7 +259,7 @@ static void bp_new_active(bp_rep * rep, const char *type, const char *service,
 	stype = initng_service_type_get_by_name(type);
 	if (!stype)
 	{
-		strcpy(rep->message, "Unable to find servicetype \"");
+		strcpy(rep->message, "Unable to find service type \"");
 		strncat(rep->message, type, 500);
 		strcat(rep->message, "\" .");
 		rep->success = FALSE;
@@ -364,7 +364,7 @@ static void bp_set_variable(bp_rep * rep, const char *service,
 		return;
 	}
 
-	/* now we now if variable is required or not */
+	/* now we know if variable is required or not */
 	if (!value)
 	{
 		if ((type->opt_type != SET && type->opt_type != VARIABLE_SET))
@@ -916,33 +916,7 @@ static int create_new_active(s_event * event)
 		strcpy(new_env[0], "SERVICE=");
 		strcat(new_env[0], data->name);
 
-		/* SERVICE_FILE=/etc/init/getty */
-		new_env[1] = i_calloc(strlen(file) + 20, sizeof(char));
-		strcpy(new_env[1], "SERVICE_FILE=");
-		strcat(new_env[1], file);
-
-		/* NAME=tty1 */
-		{
-			char *tmp = strrchr(data->name, '/');
-
-			if (tmp && tmp[0] == '/')
-				tmp++;
-
-			if (tmp && tmp[0])
-			{
-				new_env[2] = i_calloc(strlen(tmp) + 20, sizeof(char));
-				strcpy(new_env[2], "NAME=");
-				strcat(new_env[2], tmp);
-			}
-			else
-			{
-				new_env[2] = i_calloc(strlen(data->name) + 20, sizeof(char));
-				strcpy(new_env[2], "NAME=");
-				strcat(new_env[2], data->name);
-			}
-		}
-
-		new_env[3] = NULL;
+		new_env[1] = NULL;
 
 		execve(new_argv[0], new_argv, new_env);
 		_exit(10);

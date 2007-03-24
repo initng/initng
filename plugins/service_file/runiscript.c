@@ -132,11 +132,27 @@ int main(int argc, char *argv[])
 	/* cut service name from the last '/' found in service path */
 	servname = getenv("SERVICE");
 	if (!servname)
-		servname = strrchr(path, '/') + 1;
-	if (!servname)
 	{
-		printf("SERVICE is not known!\n");
-		exit(3);
+		servname = strrchr(path, '/') + 1;
+		if (!servname)
+		{
+			printf("SERVICE is not known!\n");
+			exit(3);
+		}
+
+		setenv("SERVICE", servname, 1);
+	}
+
+	/* NAME=tty1 */
+	{
+		char *tmp = strrchr(servname, '/');
+
+		if (tmp)
+			tmp++;
+		else
+			tmp = servname;
+
+		setenv("NAME", tmp, 1);
 	}
 
 	/* check if command shud forward to a ngc command */
@@ -189,13 +205,12 @@ int main(int argc, char *argv[])
 
 	/* set up the environments */
 	setenv("SERVICE_FILE", path, 1);
-	setenv("SERVICE", servname, 1);
 	setenv("COMMAND", &argv[2][9], 1);
 
 	/* now call the wrapper */
 	execve(new_argv[0], new_argv, environ);
 
 	/* Newer get here */
-	printf("error executing /bin/sh.\n");
+	printf("error executing %s.\n", new_argv[0]);
 	exit(3);
 }
