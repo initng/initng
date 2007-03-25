@@ -1,5 +1,13 @@
 Version History:
 ---------------
+2007/03/25
+initng-0.6.10 Adesso e Fortuna
+	* Disabled the find plugin, it's problematic.
+	* Added RUNLEVEL_PREFIX option, defaults to "runlevel/".
+	* Set close-on-exec flag on the opened files to avoid explicitely
+	  closing them.
+	* Finished the service_file plugin, it's usable now.
+
 2007/02/03
 initng-0.6.9 Shappire Sparks
 	* Implemented an internal event system, that replaces plugin-hooks.
@@ -43,7 +51,7 @@ initng-0.6.6 Never been so good (Part 3)
 	* selinux is hopefully working now, please test and report.
 	* Some bugfixing all over.
 	* set cpout_console:/dev/tty10 in grub to redirect the nice cpout console somewhere else.
-	
+
 initng-0.6.5 Never been so good (Part 2)
 	* A bug in iparser made initng segfault if trying to start a service like test/*/* with ngc -u test/abc/def.
 	* Add a state REQ_NOT_FOUND that will be put on services that require = not_found; instead of refusing to start them.
@@ -94,9 +102,9 @@ initng-0.6.1 Progressing fast
 	* Rewrote process buffer handling
 	* Filecache updates: Initng won't read an i file over and over again for each entry in it
 	* Completely rewritten ngc4 plugin: nicer output, written as an clientpart so writing gui-tools using ngc is now possible.
-	* Added comments to the code    
+	* Added comments to the code
 	* Documentation/templates added for all plugins
-	* Cleanups in the code and output  
+	* Cleanups in the code and output
 	* Fixed segfault from DBus plugin
 	* Initng data storage backend rewritten.
 	* Fond and fixed a lot of memoryholes
@@ -135,7 +143,7 @@ initng-0.5.5 Major bugfixing
 	* newer_kill option added, for services that are to important (like fsck) so there should not be any timeout.
 	* suid and find plugins got some bugfixing.
 	* The svn is reorganized, to get support for tags and releases, all current svn, is stored in folder trunk.
-    
+
 2006/02/22 12:00 (swedish timezone GMT+1)
 initng-0.5.4 One month later.
 	Thanks to havy internal changes, this release have been delayed a month, I believe there will be more frequent releases in the future.
@@ -146,7 +154,7 @@ initng-0.5.4 One month later.
 	* ngc2 will try not use more then 80 chars wide.
 	* A new test suite from makomk added.
 	* make dist, now works again.
-	* ngc -l, is now less verbose then ngc -L again.	
+	* ngc -l, is now less verbose then ngc -L again.
 	* Added colors to ngc.
 	* Ngc output cleanup.
 	* Ability to stop, a not yet started service, and to start a not yet started service.
@@ -190,7 +198,7 @@ initng-0.5.3 Next step.
 	* ngc output prettifyer.
 	* udev/hal fixes.
 	* slackware is know known.
-    
+
 2006/01/14 12:00 (swedish timezone GMT+1)
 initng-0.5.2 Small step ahead.
 	* env_file bug fixed.
@@ -201,7 +209,7 @@ initng-0.5.2 Small step ahead.
 	* initng_find.c will now work.
 	* Random fixes all over.
 	* Lots of bugfixing.
-    
+
 2006/01/07 15:00 (swedish timezone GMT+1)
 initng-0.5.1 Better late then never.
 	* make dist fix.
@@ -227,7 +235,7 @@ initng-0.5.1 Better late then never.
 	* Report time in ms.
 	* readded untested xml parser again.
 	* lots of bugfixing, and added services.
-    
+
 2005/12/24 12:00 (swedish timezone GMT+1)
 initng-0.5.0 Happy Xmas
 	* Remove start_udev on fedora.
@@ -258,7 +266,7 @@ initng-0.5.0 Happy Xmas
 	* Some work to make readahead read ahead while udevplug is running.
 	* Set respawn entry, fixes bug 346.
 	* Make checks before mount rw (/dev, /proc, /sys), not create new dirs.
-	
+
 2005/12/14 13:00 (swedish timezone GMT+1)
 initng-0.4.8 Xmas bugfixes
 	* Fixed to work with recent udev systems.
@@ -274,7 +282,7 @@ initng-0.4.8 Xmas bugfixes
 	* Fixed compilewarnings with -D_FORTIFY_SOURCE=2
 	* The launchers was rewritten, to be made more bug proof.
 	* Lots of work, and lots of bugfixes.
-    
+
 2005/12/01 12:00 (swedish timezone GMT+1)
 initng-0.4.7 Snowrelease
 	* gen_system_runlevel got some work to probe existing services when migrating from sysvinit.
@@ -286,11 +294,11 @@ initng-0.4.7 Snowrelease
 	* ngc -L is now more beutifull.
 	* Fixed a typo that made syslog plugin not work.
 	* Lots of bugfixing.
-    
+
 2005/11/28 00:30 (swedish timezone GMT+1)
 initng-0.4.6 Sorrt for the delay.
 	* Last minues bug found in .ii, install_services cant handle #ifd in a #ifd.
-    
+
 2005/11/28 00:00 (swedish timezone GMT+1)
 initng-0.4.5 Sorry for the delay.
 	* Lots of work for compatibily with fedora by Daniel Malmgren
@@ -314,11 +322,11 @@ initng-0.4.5 Sorry for the delay.
 	* Lots of bugfixes.
 	* Lots of new bugs.
 	* Lots of hard work.
-    
+
 2005/11/19 05:00 (swedish timezone GMT+1)
 initng-0.4.4 Better then last time.
 	* Fixed an hang on halt/reboot bug.
-    
+
 2005/11/19 00:00 (swedish timezone GMT+1)
 initng-0.4.3 Better then last time.
 	* Now avoiding circular dependencies.
@@ -334,12 +342,12 @@ initng-0.4.3 Better then last time.
 	* fixes in install_service
 	* Added limit plugin, now services can be limited, in cpu, mem and so on..
 	* Lots of bugfixing.
-    
+
 2005/11/14 05:10 (swedish timezone GMT+1)
 initng-0.4.2 Fixed some bugs.
 	* Fixed a bug, services not respawned correctly.
 	* Fixed bug, ngc -u started service, but stuck until Ctrl + C
-    
+
 2005/11/14 03:30 (swedish timezone GMT+1)
 initng-0.4.1 Report ALL bugs.
 	* Tell users trying to use ngc non-root that this won't work.
@@ -366,7 +374,7 @@ initng-0.4.1 Report ALL bugs.
 	* Almoast all .ii files got rewritten.
 	* And i am terribly tired working with initng for the last 12h, the clock is past 3, and i am going to work tomorrow selling icecream from my icecream truck :-)
 	* Over an out.
-    
+
 2005/11/07 13:00 (swedish timezone GMT+1)
 initng-0.4.0 Try this one.
 	* New imanual.txt, tnx to Thomas Ilnseher
@@ -391,7 +399,7 @@ initng-0.4.0 Try this one.
 	* Lots of bugfixing.
 	* Lots of updates to .ii files.
 	* Lots of unpaid work by the initng team.
-	
+
 2005/11/02 22:00 (swedish timezone GMT+1)
 initng-0.3.5 Getting closer to perfection.
 	* Added an runlevelEditor gui using python and pykde
@@ -407,7 +415,7 @@ initng-0.3.5 Getting closer to perfection.
 	* Hard-tage on initng variables, can be set daemon, service or internal, or standard option so that will be inpossible to set a variable wrong.
 	* New internal fixes for dependency checking, Much more nice.
 	* Bugfixes all over.
-	
+
 2005/10/28 16:00 (swedish timezone GMT+1)
 initng-0.3.4 After my vacation
 	* Fix bug #232
@@ -435,7 +443,7 @@ initng-0.3.4 After my vacation
 	* Added an own working copy of killall5.c stolen from sysvinit, this was hard time to get compiling du to the hard compilation warnings initng uses, neded a lot of cleanup.
 	* removed up_when_pid_set, not to be used again.
 	* fixed bug #175 and a lot of other.
-	
+
 2005/10/11 23:00 (swedish timezone GMT+1)
 initng-0.3.3 Looking forward
 	* Pipe handeling code.
@@ -457,8 +465,8 @@ initng-0.3.2 Now can't hang.
 	* Errors are printed thru plugins, all plugins can collect them now.
 	* Many lists seems to be browsed backwards, now they are browsed in correct order.
 	* Bug, now hooks is added in order.
-	* Added ALIAS support, we can now set REQUIRE to same as DEEP in configs.	
-	
+	* Added ALIAS support, we can now set REQUIRE to same as DEEP in configs.
+
 2005/10/05 12:00 (swedish timezone GMT+1)
 initng-0.3.1 Now uses syslogd.
 	* moved variables from the active_h struct, to s_data entrys.
@@ -488,14 +496,14 @@ initng-0.3.0 Its getting better.
 	* Removed strange echo in numlock.ii
 	* Added files_to_exist_after, to .i, can be used for daemons, that might not be up when they are started, set this variable to a file, that is usually created, (like a pid file), the service won't be set STATUS_RUNNING, until this file exists.'
 	* Lots of random fixes, bugfixing, and cleanups.
-	
+
 2005/09/26 12:00 (swedish timezone GMT+1)
 initng-0.2.5 Bugs never rest.
 	* Virtual work, now added the ngc -V, to be used like ngc -V virtual/networking to set a virtual, from a script.
 	* Fixed bug, to segfault when a command is called that does not exists.
 	* Fix, never print negative time.
 	* Default shut down the mashine, don't halt it.
-	
+
 2005/09/25 23:00 (swedish timezone GMT+1)
 initng-0.2.4 Bugfixing.
 	* Fixed bug, trying to reboot/halt with sysvinit halt and reboot command.
@@ -503,18 +511,18 @@ initng-0.2.4 Bugfixing.
 	* Let ngc recive bigger data then 10k.
 	* Check out verry nice, ngc -A
 	* mailinglist for svnupdates addad initng-svn@initng.thinktux.net
-	
+
 2005/09/23 12:00 (swedish timezone GMT+1)
 initng-0.2.3
 	* Fixed bug #150, #152, #174
 	* Remmoved badly included header in splash plugins.
 	* made ngc -c don't hang.
-	* added daemon/ivman	
+	* added daemon/ivman
 
 2005/09/22 01:00 (swedish timezone GMT+1)
 initng-0.2.2
 	* Fixed bug, when i set the version name, with a bad char.
-	* put the history_db to an optional plugin, if you not want ngc -l support, remove the history_plugin, that takes a bit of memory.	
+	* put the history_db to an optional plugin, if you not want ngc -l support, remove the history_plugin, that takes a bit of memory.
 	* reactivated module unloading support, that was disabled.
 
 2005/09/21 00:00 (swedish timezone GMT+1)
@@ -565,7 +573,7 @@ initng-0.1.9 - Hopefully Rebooting
 	* Now making sure that modules, is compiled for the same version, or it won't load.
 	* Plugin timers added.
 	* And more.
-	
+
 2005/08/12 20:00 (swedish timezone GMT+1)
 initng-0.1.8 - Now Reloading
 	* Fixed bug, ngc -l, after a ngc -c when history_db is empty.
@@ -589,7 +597,7 @@ initng-0.1.8 - Now Reloading
 	* cleanup in autotools script, we desperatly need someone to work on auto[conf:make] scripts, please help us!
 	* Tons of bugfixes, and cleanups.
 	* The compleate code got an indention.
-	
+
 2005/08/05 18:00 (swedish timezone GMT+1)
 initng-0.1.7 - Now virtual
 	* Cleanup in all .i files, to reduce unnesseasry screen clutter.
@@ -653,7 +661,7 @@ initng-0.1.5 - More or less bugs?
 	* made xfs.i load before x.
 	* point TODO to wiki todo.
 	* Lots of bugfixing, and new bugs added :-)
-	
+
 2005/07/17 21:00 (Swedish timezone GMT+1)
 initng-0.1.4
 	* Added some missing daemons.
@@ -682,7 +690,7 @@ initng-0.1.4
 	* Some variable names in .i files have changed, make sure you change depends to need in your scripts.
 	* Please report any bugs direcly to the bugzilla.initng.thinktux.net and send the "core" file aswell.
 	* Happy hacking / Jimmy, Neuron and all others that did make initng possible.
-	
+
 2005/06/18 00:00 (Swedish timezone GMT+1)
 initng-0.1.3 - I am taking a week of / J.w.
 	* Fixed a last minute bug, making a random plugin hook fail, the add_hook did return struct point no, insted true or false.
@@ -737,7 +745,7 @@ initng-0.1.2 - A lot has happend.
 	* More than one DAEMON or START, make initng probe for one working.
 	* sysvinit reboot fixes.
 	* Random bug fixes.
-	
+
 
 2005/05/29 15:00 (Swedish timezone GMT+1)
 initng-0.1.1 - Bugfix.
@@ -745,7 +753,7 @@ initng-0.1.1 - Bugfix.
 	* sysvinit/halt and reboot should now be usable.
 	* Fixed for waitpid problem.
 	* Random bug fixing.
-	
+
 2005/05/26 12:00 (Swedish timezone GMT+1)
 initng-0.1.0 - tnx neuron.
 	* Added /dev/initctl emulation layer support, should work with sysvinit tools.
@@ -786,7 +794,7 @@ initng-0.0.18 - Stable Bump.
 	* Tweaks to system/coldplg (emiliano)
 	* ng-update fixes (emiliano)
 	* Random bugs fixed
-	
+
 2005/05/14 00:30 (Swedish timezone GMT+1)
 initng-0.0.17 - Splash Progressbar.
 	* Added a splash progressbar output plugin.
@@ -813,7 +821,7 @@ initng-0.0.15 - Bug and plug.
 2005/05/11 01:00 (Swedish timezone GMT+1)
 initng-0.0.14 - Verbose on demand.
 	* Replacing printf with D_ and F_ macros on demand.
-	* Debug messages can be turned of and on on demand with ngc -v, initial state can be set in main.c int verbose=TRUE;	  
+	* Debug messages can be turned of and on on demand with ngc -v, initial state can be set in main.c int verbose=TRUE;
 	* Peter wrote an FAQ, keep up the good work Peter.
 
 2005/05/10 13:20 (Swedish timezone GMT+1)
@@ -828,7 +836,7 @@ initng-0.0.12 - Again, a new xml lightwait parser
 	* Wrote a new parser using a simple and good xml parser named ezxml
 	* Added reboot and halt script on install
 	* Bug fixing
-	  
+
 2005/05/09 16:10 (Swedish timezone GMT+1)
 initng-0.0.11 - XML parser, and plugins
 	* Added an xml parser, this seems to be little overhead, someone pointed out expat for me, i might give it a try
@@ -848,7 +856,7 @@ initng-0.0.9 - Now with bootsplash
 	* Added support to set enviromental variables in config, use env or environ, environ = "PATH=test"
 	* Added a bootsplash support, tru a helping daemon, enable with ng-update add daemon/splash_update
 	* Random bug fixing, there is lot to do yet.
-	
+
 2005/05/07 14:00 (Swedish timezone GMT+1)
 initng-0.0.8 - Now with stdout
 	* Added stdout and stderr options, now output can be directed to a tty or file, make sure system mounted rw before direct to a file

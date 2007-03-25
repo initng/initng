@@ -1,6 +1,6 @@
 PROJECT(initng C)
 
-SET(VERSION "0.6.9-svn" CACHE STRING "Version number of the project")
+SET(VERSION "0.6.10-svn" CACHE STRING "Version number of the project")
 SET(VERSION_NAME "Bleeding Edge" CACHE STRING "Version string")
 
 IF(CMAKE_BACKWARDS_COMPATIBILITY LESS 2.2)
