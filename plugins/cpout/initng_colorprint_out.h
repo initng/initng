@@ -21,10 +21,10 @@
 #define INITNG_COLORPRINT_OUT_H
 
 #define C_OFF "\033[0m"
-#define C_BLUE "\033[34;01m"
-#define C_RED "\033[01;31m"
-#define C_GREEN "\033[32;01m"
-#define C_CYAN "\033[36;01m"
+#define C_BLUE "\033[34m"
+#define C_RED "\033[31m"
+#define C_GREEN "\033[32m"
+#define C_CYAN "\033[36m"
 #define MOVE_TO_R "\033[36G"
 #define MOVE_TO_P "\033[A\033[90G"
 
