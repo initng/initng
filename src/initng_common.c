@@ -353,6 +353,12 @@ int initng_common_mark_service(active_db_h * service, a_state_h * state)
 	assert(service->current_state);
 	assert(state);
 
+	if (service->state_lock && service->next_state != NULL) {
+		W_("Trying to set state %s on locked service %s!\n",
+		   state->state_name, service->name);
+		return (FALSE);
+	}
+
 	/* Test if already set */
 	if (service->current_state == state)
 	{
