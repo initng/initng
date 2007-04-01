@@ -263,13 +263,8 @@ static int handle_event(s_event * event)
 
 	if (!(target = initng_active_db_find_by_exact_name(target_name)))
 	{
-#ifdef SERVICE_CACHE
-		if (!(target = initng_common_load_to_active(target_name)))
-#endif
-		{
-			F_("Target service %s not found\n", target_name);
-			return (FALSE);
-		}
+		F_("Target service %s not found\n", target_name);
+		return (FALSE);
 	}
 
 	if (target->type != &TYPE_EVENT)

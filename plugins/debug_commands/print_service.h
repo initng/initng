@@ -19,10 +19,4 @@
 
 #include <stdio.h>
 
-
-#ifdef SERVICE_CACHE
-#include <initng_service_cache.h>
-char *service_db_print_all(char *matching);
-#endif
-
 char *active_db_print_all(char *matching);

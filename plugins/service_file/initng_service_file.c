@@ -53,10 +53,6 @@
 #include <initng_event_hook.h>
 #include <initng_fd.h>
 
-#ifdef SERVICE_CACHE
-#include <initng_service_cache.h>
-#endif
-
 #include <initng-paths.h>
 
 #include "initng_service_file.h"
@@ -287,9 +283,6 @@ static void bp_new_active(bp_rep * rep, const char *type, const char *service,
 
 		/* set type */
 		new_active->current_state = &PARSING;
-#ifdef SERVICE_CACHE
-		new_active->from_service = &NO_CACHE;
-#endif
 
 		/* register it */
 		if (!initng_active_db_register(new_active))
@@ -873,9 +866,6 @@ static int create_new_active(s_event * event)
 
 	/* set type */
 	new_active->current_state = &PARSING_FOR_START;
-#ifdef SERVICE_CACHE
-	new_active->from_service = &NO_CACHE;
-#endif
 	new_active->type = &unset;
 
 	/* register it */

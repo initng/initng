@@ -35,7 +35,6 @@
 
 #include <initng_global.h>
 #include <initng_process_db.h>
-#include <initng_service_cache.h>
 #include <initng_handler.h>
 #include <initng_active_db.h>
 #include <initng_toolbox.h>

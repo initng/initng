@@ -106,9 +106,6 @@ static pid_t get_pidfile(active_db_h * s);
 static int check_respawn(active_db_h * service);
 static int try_get_pid(active_db_h * s);
 
-#ifdef SERVICE_CACHE
-static int check_valid_pidfile_path(s_event * event);
-#endif
 /*
  * ############################################################################
  * #                         STYPE HANDLERS FUNCTION DEFINES                  #
@@ -459,10 +456,6 @@ int module_init(int api_version)
 	initng_active_state_register(&DAEMON_UP_CHECK_FAILED);
 	initng_active_state_register(&DAEMON_RESPAWN_RATE_EXCEEDED);
 
-#ifdef SERVICE_CACHE
-	initng_event_hook_register(&EVENT_ADDITIONAL_PARSE, &check_valid_pidfile_path);
-
-#endif
 	/* return happily */
 	return (TRUE);
 }
@@ -514,11 +507,6 @@ void module_unload(void)
 
 	/* Last, delete the servicetype */
 	initng_service_type_unregister(&TYPE_DAEMON);
-
-#ifdef SERVICE_CACHE
-
-	initng_event_hook_unregister(&EVENT_ADDITIONAL_PARSE, &check_valid_pidfile_path);
-#endif
 }
 
 /*
@@ -1235,35 +1223,6 @@ static void clear_pidfile(active_db_h * s)
 		}
 	}
 }
-
-#ifdef SERVICE_CACHE
-/* Chack pid_file path is reasonable - mainly to protect against
-   us deleting something we shouldn't due to a missing semicolon
-   (see bug #414). [FIXME] Note that for some reason, this can't stop
-   the daemon with the problem from being loaded and started! */
-static int check_valid_pidfile_path(s_event * event)
-{
-	service_cache_h * s;
-	const char *pidfile = NULL;
-	s_data *itt = NULL;
-
-	assert(event->event_type == &EVENT_ADDITIONAL_PARSE);
-	assert(event->data);
-
-	s = event->data;
-
-	while ((pidfile = get_next_string(&PIDFILE, s, &itt)))
-	{
-		if (pidfile && pidfile[0] != '/' && pidfile[0] != '$')
-		{
-			F_("%s has pid_file with relative path \"%s\"\n", s->name,
-			   pidfile);
-			return (FAIL);
-		}
-	}
-	return (TRUE);
-}
-#endif
 
 /*
  * ############################################################################

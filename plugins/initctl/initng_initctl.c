@@ -261,14 +261,12 @@ void parse_control_input(f_module_h * from_module, e_fdw what)
 			initng_reload();
 			return;
 
-#ifdef SERVICE_CACHE
 			/* reload /etc/inittab */
 		case 'Q':
 		case 'q':
 			D_("init Q, freeing complete service cache\n");
-			initng_service_cache_free_all();
+			/* should we do something here? */
 			return;
-#endif
 
 			/* go singleuser */
 		case 'S':

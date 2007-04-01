@@ -147,11 +147,6 @@ static active_db_h *net_create(const char *name)
 	/* set type */
 	netdev->type = &NETDEV;
 
-#ifdef SERVICE_CACHE
-	/* make sure it wont try to parse this entry */
-	netdev->from_service = &NO_CACHE;
-#endif
-
 	/* register it */
 	if (!initng_active_db_register(netdev))
 	{

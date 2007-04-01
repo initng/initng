@@ -38,7 +38,6 @@
 #include <initng_active_state.h>
 #include <initng_active_db.h>
 #include <initng_process_db.h>
-#include <initng_service_cache.h>
 #include <initng_handler.h>
 #include <initng_active_db.h>
 #include <initng_toolbox.h>
@@ -155,9 +154,6 @@ void filemon_event(f_module_h * from, e_fdw what)
 	int len = 0;
 	int i = 0;
 
-#ifdef SERVICE_CACHE
-	char *tmp;
-#endif
 	char buf[BUF_LEN];
 
 	/* read events */
@@ -215,46 +211,6 @@ void filemon_event(f_module_h * from, e_fdw what)
 
 				return;
 			}
-
-#ifdef SERVICE_CACHE
-			/* check if there are any data file updated */
-			if (((tmp = strstr(event->name, ".i")) && tmp[2] == '\0')
-				|| strstr(event->name, ".runlevel")
-				|| strstr(event->name, ".virtual"))
-			{
-				/* if cache is not cleared */
-				if (!list_empty(&g.service_cache.list))
-				{
-
-					/* zap failing services using this file */
-					{
-						active_db_h *active = NULL;
-						active_db_h *safe = NULL;
-						const char *fn;
-
-						while_active_db_safe(active, safe)
-						{
-							/* if we got a string from FROM_FILE */
-							if ((fn = get_string(&FROM_FILE, active)) &&
-								/* and we found the file in that string */
-								strstr(fn, event->name) &&
-								/* and the service is marked FAILED */
-								IS_FAILED(active))
-							{
-								W_("Zapping %s because the source %s has changed, and it might work again.\n", active->name, event->name);
-								initng_active_db_free(active);
-							}
-						}
-					}
-
-					W_("Source file \"%s\" changed, flushing file cache.\n",
-					   event->len ? event->name : "unkown");
-					initng_service_cache_free_all();
-				}
-
-			}
-#endif
-
 		}
 
 		i += EVENT_SIZE + event->len;
@@ -354,10 +310,6 @@ int module_init(int api_version)
 		F_("Fail to monitor \"/sbin/initng\"\n");
 		return (FALSE);
 	}
-
-#ifdef SERVICE_CACHE
-	mon_dir("/etc/initng");
-#endif
 
 	/* add this hook */
 	initng_event_hook_register(&EVENT_FD_WATCHER, &fdh_handler);

@@ -29,7 +29,6 @@
 
 #include <initng_toolbox.h>
 #include <initng_global.h>
-#include <initng_service_cache.h>
 #include <initng_active_db.h>
 #include <initng_active_state.h>
 #include <initng_string_tools.h>
@@ -40,9 +39,6 @@ INITNG_PLUGIN_MACRO;
 
 #define IS_PRINTABLE(x) (x >= 32 || x == '\n' || x == '\t' || x == '\r')
 
-#ifdef SERVICE_CACHE
-static void service_db_print_u(service_cache_h * s, char **string);
-#endif
 static void active_db_print_u(active_db_h * s, char **string);
 static void print_string_value(char *string, char **to);
 
@@ -121,43 +117,6 @@ static void print_sdata(s_data * tmp, char **string)
 	}
 
 }
-
-
-
-static void service_db_print_u(service_cache_h * s, char **string)
-{
-	/*data path */
-	s_data *tmp = NULL;
-
-	assert(s);
-	assert(s->name);
-
-	mprintf(string, "\n# service_cache_entry: %s  \"%s", s->type->name,
-			s->name);
-
-	if (s->father_name)
-		mprintf(string, " : %s", s->father_name);
-
-	mprintf(string, "\"\n");
-
-	mprintf(string, "    ---------------------------------- \n");
-
-	list_for_each_entry(tmp, &s->data.head.list, list)
-	{
-		print_sdata(tmp, string);
-	}
-
-	/* if father with data exits, print it */
-	if (s->father)
-	{
-		D_("FATHER FOUND %s\n", s->name);
-		service_db_print_u(s->father, string);
-	}
-	else
-		D_("FATHER NOT FOUND %s\n", s->name);
-}
-
-
 
 static void active_db_print_process(process_h * p, char **string)
 {
@@ -249,16 +208,6 @@ static void active_db_print_u(active_db_h * s, char **string)
 	struct timeval now;
 
 	mprintf(string, "\n %s  \"%s", s->type->name, s->name);
-#ifdef SERVICE_CACHE
-	if (s->from_service)
-	{
-		mprintf(string, " :: %s", s->from_service->name);
-		if (s->from_service->father_name)
-		{
-			mprintf(string, " : %s", s->from_service->father_name);
-		}
-	}
-#endif
 
 	if (s->current_state && s->current_state->state_name)
 	{
@@ -296,18 +245,6 @@ static void active_db_print_u(active_db_h * s, char **string)
 			print_sdata(tmp, string);
 		}
 	}
-
-#ifdef SERVICE_CACHE
-	if (s->from_service && !list_empty(&s->from_service->data.head.list))
-	{
-		mprintf(string, "\tFILE_CACHE_VARIABLES:\n");
-		tmp = NULL;
-		list_for_each_entry(tmp, &(s->from_service->data.head.list), list)
-		{
-			print_sdata(tmp, string);
-		}
-	}
-#endif
 }
 
 /* Walk through every service and print it all */
@@ -326,23 +263,3 @@ char *active_db_print_all(char *matching)
 
 	return (string);
 }
-
-#ifdef SERVICE_CACHE
-/* Walk through every service and print it all */
-char *service_db_print_all(char *matching)
-{
-	char *string = NULL;
-	service_cache_h *current = NULL;
-
-
-	D_("service_db_print_all(%s):\n", matching);
-
-	while_service_cache(current)
-	{
-		if (!matching || service_match(current->name, matching))
-			service_db_print_u(current, &string);
-	}
-
-	return (string);
-}
-#endif

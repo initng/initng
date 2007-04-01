@@ -36,7 +36,6 @@
 
 #include <initng_global.h>
 #include <initng_process_db.h>
-//#include <initng_service_cache.h>
 #include <initng_handler.h>
 #include <initng_active_db.h>
 #include <initng_toolbox.h>
@@ -65,11 +64,6 @@ static int cmd_load_module(char *arg);
 
 /* static int cmd_unload_module(char *arg); */
 static int cmd_percent_done(char *arg);
-
-#ifdef SERVICE_CACHE
-static char *cmd_get_father_of(char *arg);
-static int cmd_reload(char *arg);
-#endif
 
 static char *cmd_get_depends_on(char *arg);
 static char *cmd_get_depends_on_deep(char *arg);
@@ -100,18 +94,6 @@ s_command PRINT_UPTIME = { 'T', "time", STRING_COMMAND, ADVANCHED_COMMAND, REQUI
 	{(void *) &cmd_print_uptime},
 	"Print uptime"
 };
-
-#ifdef SERVICE_CACHE
-s_command SERVICE_RELOAD = { 'R', "reload_service", TRUE_OR_FALSE_COMMAND, STANDARD_COMMAND,
-	USES_OPT,
-	{(void *) &cmd_reload},
-	"Reload service data from disk ( reparse /etc/initng )"
-};
-s_command GET_FATHER_OF = { 'f', "father", STRING_COMMAND, ADVANCHED_COMMAND, REQUIRES_OPT,
-	{(void *) &cmd_get_father_of},
-	"Print father to"
-};
-#endif
 
 s_command POWEROFF_INITNG = { '0', "poweroff", TRUE_OR_FALSE_COMMAND, STANDARD_COMMAND, NO_OPT,
 	{(void *) &cmd_initng_poweroff},
@@ -245,10 +227,6 @@ static int cmd_free_service(char *arg)
 		}
 	}
 
-#ifdef SERVICE_CACHE
-	/* also flush file cache */
-	cmd_reload(arg);
-#endif
 	return (ret);
 }
 
@@ -272,13 +250,6 @@ static int cmd_restart(char *arg)
 
 	D_("removing service data for %s, to make sure .ii file is reloaded!\n",
 	   arg);
-#ifdef SERVICE_CACHE
-	if (apt->from_service)
-	{
-		list_del(&apt->from_service->list);
-		initng_service_cache_free(apt->from_service);
-	}
-#endif
 
 	D_("Restarting service %s\n", apt->name);
 	return (initng_handler_restart_service(apt));
@@ -315,33 +286,6 @@ static char *cmd_print_uptime(char *arg)
 		return (string);
 	}
 }
-
-#ifdef SERVICE_CACHE
-static int cmd_reload(char *arg)
-{
-	service_cache_h *s;
-
-	/* if no arg, or empty arg set, remove all content */
-	if (!arg || strlen(arg) < 2)
-	{
-		D_("Clearing complete db.\n");
-		initng_service_cache_free_all();
-		return (TRUE);
-	}
-
-	s = initng_service_cache_find_in_name(arg);
-	if (!s)
-	{
-		D_("Did not find service %s to release cache for!\n", arg);
-		return (FALSE);
-	}
-
-	D_("removing service data for %s!\n", arg);
-	list_del(&s->list);
-	initng_service_cache_free(s);
-	return (TRUE);
-}
-#endif
 
 static int cmd_initng_reboot(char *arg)
 {
@@ -414,11 +358,6 @@ static int cmd_load_module(char *arg)
 	if (initng_load_module(arg) == NULL)
 		return (FALSE);
 
-#ifdef SERVICE_CACHE
-	/* clear the service cache, so new variables will be read next time */
-	initng_service_cache_free_all();
-#endif
-
 	return (TRUE);
 }
 
@@ -427,8 +366,6 @@ static int cmd_load_module(char *arg)
    {
    if (!arg)
    return (FALSE);
-
-   initng_service_cache_free_all();
 
    return (initng_unload_module_named(arg));
    } */
@@ -439,29 +376,6 @@ static int cmd_percent_done(char *arg)
 
 	return (initng_active_db_percent_started());
 }
-
-
-#ifdef SERVICE_CACHE
-static char *cmd_get_father_of(char *arg)
-{
-	char *string = NULL;
-	service_cache_h *s;
-
-	s = initng_service_cache_find_in_name(arg);
-	if (!s)
-	{
-		return (i_strdup("Can't find service."));
-	}
-
-	if (s->father_name)
-		mprintf(&string, "Father to service %s is %s\n", s->name,
-				s->father_name);
-	else
-		mprintf(&string, "Service %s has no father\n", s->name);
-
-	return (string);
-}
-#endif
 
 static char *cmd_get_depends_on(char *arg)
 {
@@ -652,10 +566,6 @@ int module_init(int api_version)
 	initng_command_register(&FREE_SERVICE);
 	initng_command_register(&RESTART_SERVICE);
 	initng_command_register(&PRINT_UPTIME);
-#ifdef SERVICE_CACHE
-	initng_command_register(&GET_FATHER_OF);
-	initng_command_register(&SERVICE_RELOAD);
-#endif
 	if (g.i_am == I_AM_INIT)
 	{
 		initng_command_register(&REBOOT_INITNG);
@@ -687,10 +597,6 @@ void module_unload(void)
 	initng_command_unregister(&FREE_SERVICE);
 	initng_command_unregister(&RESTART_SERVICE);
 	initng_command_unregister(&PRINT_UPTIME);
-#ifdef SERVICE_CACHE
-	initng_command_unregister(&SERVICE_RELOAD);
-	initng_command_unregister(&GET_FATHER_OF);
-#endif
 	if (g.i_am == I_AM_INIT)
 	{
 		initng_command_unregister(&REBOOT_INITNG);
