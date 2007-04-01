@@ -19,7 +19,6 @@
 
 #ifndef INITNG_PLUGIN_CALLERS
 #define INITNG_PLUGIN_CALLERS
-//#include "initng_service_cache.h"
 #include "initng_active_db.h"
 #include "initng_global.h"
 #include "initng_system_states.h"

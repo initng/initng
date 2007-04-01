@@ -21,9 +21,6 @@
 #define INITNG_GLOBAL_H
 #include "initng.h"
 #include "initng_active_db.h"
-#ifdef SERVICE_CACHE
-#include "initng_service_cache.h"
-#endif
 #include "initng_module.h"
 #include "initng_plugin.h"
 #include "initng_struct_data.h"
@@ -57,9 +54,6 @@ typedef enum
 typedef struct
 {
 	/* all the databases */
-#ifdef SERVICE_CACHE
-	service_cache_h service_cache;
-#endif
 	active_db_h active_database;
 	a_state_h states;
 	ptype_h ptypes;

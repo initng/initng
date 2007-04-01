@@ -25,9 +25,6 @@ typedef struct active_type active_db_h;
 
 #include <sys/types.h>
 #include <unistd.h>
-#ifdef SERVICE_CACHE
-#include "initng_service_cache.h"
-#endif
 
 #include "initng_struct_data.h"
 #include "initng_list.h"
@@ -88,11 +85,6 @@ struct active_type
 	/* list of system processes that are connected to this service */
 	process_h processes;
 
-#ifdef SERVICE_CACHE
-	/* a pointer to the entry in service_cache_db that matches our service */
-	service_cache_h *from_service;
-#endif
-
 	/*
 	 * list of data
 	 * Storage for all dynamic variables that are set to this
@@ -129,19 +121,8 @@ active_db_h *initng_active_db_find_by_name(const char *service);
 active_db_h *initng_active_db_find_in_name(const char *service);
 active_db_h *initng_active_db_find_by_pid(pid_t pid);
 
-
-/* service cache calls */
-#ifdef SERVICE_CACHE
-active_db_h *initng_active_db_find_by_service_h(service_cache_h * service);
-void initng_active_db_change_service_h(service_cache_h * from,
-									   service_cache_h * to);
-#endif
-
 /* mangling */
 void initng_active_db_compensate_time(time_t skew);
-
-/* reload service cache if not set */
-int reload_service_cache(data_head * data);
 
 /* the db */
 #define initng_active_db_unregister(serv) list_del(&(serv)->list)

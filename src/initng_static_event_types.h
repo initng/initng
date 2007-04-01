@@ -41,12 +41,6 @@ extern s_event_type EVENT_HANDLE_KILLED;
 extern s_event_type EVENT_SIGNAL;
 extern s_event_type EVENT_BUFFER_WATCHER;
 extern s_event_type EVENT_FD_WATCHER;
-
-#ifdef SERVICE_CACHE
-extern s_event_type EVENT_PARSE;
-extern s_event_type EVENT_ADDITIONAL_PARSE;
-#endif
-
 extern s_event_type EVENT_INTERRUPT;
 extern s_event_type HALT;
 extern s_event_type REBOOT;
@@ -96,14 +90,6 @@ typedef struct {
 	pipe_h * pipe;
 	char * buffer_pos;
 } s_event_buffer_watcher_data;
-
-#ifdef SERVICE_CACHE
-typedef struct {
-	const char * name;
-	service_cache_h * ret;
-} s_event_parse_data;
-#endif
-
 
 /* EVENT_FD_WATCHER actions */
 #define FDW_ACTION_CLOSE	1

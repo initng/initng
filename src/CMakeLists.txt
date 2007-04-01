@@ -34,12 +34,6 @@ SET(initng_lib_srcs
 	initng_event.c
 )
 
-IF(SERVICE_CACHE)
-	SET(initng_lib_srcs ${initng_lib_srcs}
-		initng_service_cache.c
-	)
-ENDIF(SERVICE_CACHE)
-
 SET(initng_bin_srcs
 	main.c
 	initng_global.c
@@ -98,11 +92,5 @@ SET(initng_headers
 	initng_event_hook.h
 	initng_event.h
 )
-
-IF(SERVICE_CACHE)
-	SET(initng_headers ${initng_headers}
-		initng_service_cache.h
-	)
-ENDIF(SERVICE_CACHE)
 
 INSTALL_FILES(${INCLUDE_INSTALL_DIR}/initng FILES ${initng_headers})

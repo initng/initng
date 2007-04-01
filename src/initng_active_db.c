@@ -99,41 +99,6 @@ active_db_h *initng_active_db_find_by_name(const char *service)
 	}
 }
 
-#ifdef SERVICE_CACHE
-/*
- * This is called before dynamic data fetchers goes resursive.
- * and give us a chanse to try to set head->res if possible
- */
-int reload_service_cache(data_head * head)
-{
-	active_db_h *service = NULL;
-
-	/*printf("reload_service_cache();\n"); */
-	if (head->res)
-		return (TRUE);
-
-	/* Get the service pointer */
-	service = list_entry(head, active_db_h, data);
-
-	/* Check if from_service is set */
-	if (service->from_service)
-		/* point the resursive data pointer, to the service_cache data head */
-		head->res = &service->from_service->data;
-
-	/* OK, try reload data from disk then */
-	if (initng_common_get_service(service) && service->from_service)
-	{
-		/* point the resursive data pointer, to the service_cache data head */
-		head->res = &service->from_service->data;
-		return (TRUE);
-	}
-
-	D_("Failed to reload service_cache for %s\n", service->name);
-	service->from_service = &NO_CACHE;
-	return (FALSE);
-}
-#endif
-
 /*
  * This will search and find the best possible.
  * Search for "eth" will get you "net/eth0"
@@ -162,29 +127,6 @@ active_db_h *initng_active_db_find_in_name(const char *service)
 	/* did not find any */
 	return (NULL);
 }
-
-#ifdef SERVICE_CACHE
-/* return index of service in active data structure or -1 if not found */
-active_db_h *initng_active_db_find_by_service_h(service_cache_h * service)
-{
-	active_db_h *current = NULL;
-
-	assert(service);
-	assert(service->name);
-
-	/* walk the active_db */
-	while_active_db(current)
-	{
-		assert(current->name);
-		/* check if this service->from_service is like service */
-		if (current->from_service && current->from_service == service)
-			return (current);				/* return it */
-
-	}
-
-	return NULL;
-}
-#endif
 
 /* returns pointer to active_h process belongs to, and sets process_type */
 active_db_h *initng_active_db_find_by_pid(pid_t pid)
@@ -261,12 +203,7 @@ active_db_h *initng_active_db_new(const char *name)
 		return (NULL);
 	}
 
-#ifdef SERVICE_CACHE
-	/* initiate the data list, little special here sense data list relays on service->from_service */
-	DATA_HEAD_INIT_REQUEST(&new_active->data, NULL, &reload_service_cache);
-#else
 	DATA_HEAD_INIT_REQUEST(&new_active->data, NULL, NULL);
-#endif
 
 	/* get the time, and copy that time to all time entries */
 	gettimeofday(&new_active->time_current_state, NULL);
@@ -311,17 +248,6 @@ void initng_active_db_free(active_db_h * pf)
 	/* remove every data entry */
 	remove_all(pf);
 
-#ifdef SERVICE_CACHE
-	/* remove file cache of entry if present, so we got a fresh read from file when this service is restarted */
-	if (pf->from_service)
-	{
-		/* remove from cache list */
-		list_del(&pf->from_service->list);
-		/* free entry */
-		initng_service_cache_free(pf->from_service);
-	}
-#endif
-
 	/* free service name */
 	if (pf->name)
 		free(pf->name);
@@ -361,35 +287,6 @@ void initng_active_db_compensate_time(time_t skew)
 		current->alarm += skew;
 	}
 }
-
-#ifdef SERVICE_CACHE
-/* update all service_h pointers in whole active_db */
-void initng_active_db_change_service_h(service_cache_h * from,
-									   service_cache_h * to)
-{
-	active_db_h *current = NULL;
-
-	assert(from);
-	/* !assert(to) to can be NULL, if we want clear that entry */
-
-	/* walk the active_db */
-	while_active_db(current)
-	{
-		assert(current->name);
-		/* change this time */
-		if (current->from_service == from)
-		{
-			current->from_service = to;
-
-			/* Reset data resursive pointer, will be set by reload_service_cache */
-			if (current->from_service)
-				current->data.res = &current->from_service->data;
-			else
-				current->data.res = NULL;
-		}
-	}
-}
-#endif
 
 /* active_db_count counts a type, if null, count all */
 int initng_active_db_count(a_state_h * current_state_to_count)

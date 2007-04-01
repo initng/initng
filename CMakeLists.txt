@@ -45,7 +45,6 @@ SUBDIRS(src plugins tools devtool doc extras)
 
 INSTALL_FILES(${INCLUDE_INSTALL_DIR}/initng FILES initng-paths.h)
 
-OPTION(SERVICE_CACHE "Include functions for separate data with temporary data inside of initng core, needed by the i_parser and friends" ON)
 OPTION(BUILD_ALSO "Build also plugin" ON)
 OPTION(BUILD_SERVICE_FILE "Build service_file plugin" ON )
 OPTION(BUILD_CHDIR "Build chdir plugin" ON)
@@ -87,11 +86,6 @@ OPTION(BUILD_SYSLOG "Build syslog plugin" ON)
 OPTION(BUILD_SYSREQ "Build sysreq plugin" ON)
 OPTION(BUILD_UNNEEDED "Build unneeded plugin" ON)
 OPTION(BUILD_USPLASH "Build initng with usplash support" OFF)
-
-# NEEDS SERVICE_CACHE
-IF(SERVICE_CACHE)
-	OPTION(BUILD_RLPARSER "Build rlparser plugin" ON)
-ENDIF(SERVICE_CACHE)
 
 OPTION(INSTALL_AS_INIT "Install initng as complete replacement for SysVInit" OFF)
 OPTION(DEBUG "Build with developer tools, turns on additional warnings and Werror" ON)

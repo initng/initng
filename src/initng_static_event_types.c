@@ -48,12 +48,6 @@ s_event_type EVENT_SIGNAL = { "signal", "Triggered when initng rescives a signal
 s_event_type EVENT_BUFFER_WATCHER = { "buffer_watcher", "Triggered when a service have outputed, and initng have filled its output buffer" };
 s_event_type EVENT_FD_WATCHER = { "fd_watcher", "Triggered when initng open file descriptors receive data" };
 
-#ifdef SERVICE_CACHE
-s_event_type EVENT_PARSE = { "parse", "Triggered when a service needs its data" };
-s_event_type EVENT_ADDITIONAL_PARSE = { "additional_parse", "Triggered after a service been parsed, and extra parsing may exist" };
-#endif
-
-
 s_event_type EVENT_INTERRUPT = { "interrupt", "When initng gets an sysreq, it will get here" };
 s_event_type HALT = { "halt", "Initng got a request to halt" };
 s_event_type REBOOT = { "reboot", "Initng got a request to reboot" };
@@ -80,14 +74,7 @@ void initng_register_static_event_types(void)
     initng_event_type_register(&EVENT_SIGNAL);
     initng_event_type_register(&EVENT_BUFFER_WATCHER);
     initng_event_type_register(&EVENT_FD_WATCHER);
-
-#ifdef SERVICE_CACHE
-    initng_event_type_register(&EVENT_PARSE);
-    initng_event_type_register(&EVENT_ADDITIONAL_PARSE);
-#endif
-
     initng_event_type_register(&EVENT_INTERRUPT);
     initng_event_type_register(&HALT);
     initng_event_type_register(&REBOOT);
 }
-

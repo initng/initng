@@ -28,7 +28,6 @@
 #include <errno.h>
 #include "initng.h"
 #include "initng_global.h"
-//#include "initng_service_cache.h"
 #include "initng_load_module.h"
 #include "initng_module.h"
 #include "initng_toolbox.h"
@@ -36,7 +35,7 @@
 #include "initng_common.h"
 #include <initng-paths.h>
 
-/* 
+/*
  * Some modules depend on other modules.
  *
  * A module declares its dependencies by adding an array called
@@ -75,7 +74,7 @@
  *   invoked in the order that they are loaded.
  *
  * - Ability for modules to refuse to unload.
- * 
+ *
  * Hopefully these will not matter!
  */
 
@@ -105,7 +104,7 @@ static int initng_load_module_is_loaded(const char *module_name)
 	return FALSE;
 }
 
-/* 
+/*
  * Returns TRUE if module has its dependencies met, else FALSE.
  */
 static int initng_load_module_needs_are_loaded(const m_h * m)
@@ -139,7 +138,7 @@ static int initng_load_module_needs_are_loaded(const m_h * m)
 	return retval;
 }
 
-/* 
+/*
  * Read the module information from the file. Does not actually call
  * module_init() for the module, so it is not "loaded" at this point.
  */
@@ -173,9 +172,9 @@ m_h *initng_load_module_open(const char *module_path, const char *module_name)
 	/* open module */
 	dlerror();								/* clear any existing error */
 	m->module_dlhandle = dlopen(module_path, RTLD_LAZY);
-	/* 
-	 * this breaks ngc2 on my testbox - neuron : 
-	 * g.modules[i].module = dlopen(module_name, RTLD_NOW | RTLD_GLOBAL); 
+	/*
+	 * this breaks ngc2 on my testbox - neuron :
+	 * g.modules[i].module = dlopen(module_name, RTLD_NOW | RTLD_GLOBAL);
 	 * */
 	if (m->module_dlhandle == NULL)
 	{
@@ -233,7 +232,7 @@ m_h *initng_load_module_open(const char *module_path, const char *module_name)
 	/* get dependency list (may be NULL - this is not an error) */
 	dlerror();								/* clear any existing error */
 	m->module_needs = (char **) dlsym(m->module_dlhandle, "module_needs");
-	/* XXX: is there any way to check for "not found", since we don't 
+	/* XXX: is there any way to check for "not found", since we don't
 	 * consider that an error? */
 
 	/* set module name in database */
@@ -243,7 +242,7 @@ m_h *initng_load_module_open(const char *module_path, const char *module_name)
 	return (m);
 }
 
-/* 
+/*
  * Close the module.
  */
 void initng_load_module_close_and_free(m_h * m)
@@ -616,8 +615,8 @@ int initng_load_module_load_all(const char *plugin_path)
 /* this will dlclose all arrays */
 /* XXX: more information needed */
 
-/* 
- * We can simply unload modules in order, because 
+/*
+ * We can simply unload modules in order, because
  */
 void initng_unload_module_unload_all(void)
 {
@@ -634,7 +633,7 @@ void initng_unload_module_unload_all(void)
 	D_("initng_load_module_close_all()\n");
 }
 
-/* 
+/*
  * We can simply unload marked modules in order.
  */
 void initng_unload_module_unload_marked(void)
