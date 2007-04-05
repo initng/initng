@@ -1,18 +1,15 @@
-#!/sbin/runiscript default
+#!/sbin/runiscript
 
 setup()
 {
-	# You can omit the "-s service_name" if it's in $SERVICE, we use
-	# it here as an example.
-
 	# Register new service type, the $SERVICE will be "example" here.
-	iregister -s $SERVICE service
-		iset -s $SERVICE need = "system/bootmisc"
+	ireg service $SERVICE
+		iset need = "system/bootmisc"
 
-		iexec -s $SERVICE start = strange_name_for_start
-		iexec -s $SERVICE stop
+		iexec start = strange_name_for_start
+		iexec stop
 	# Tell initng this service is done parsing.
-	idone -s $SERVICE
+	idone
 }
 
 strange_name_for_start()
