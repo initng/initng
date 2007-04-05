@@ -149,8 +149,8 @@ int main(int argc, char **argv)
 		for (i = 0; commands[i].name; i++)
 		{
 			if (strcasecmp(argv0, commands[i].name) == 0)
-				status = (*commands[i].function) (service, new_argc,
-												  new_argv);
+				status = (*commands[i].function) (service,
+						new_argc, new_argv);
 			if (status != 99)
 				break;
 		}

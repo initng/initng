@@ -1,15 +1,15 @@
 #!/bin/sh
-export PATH="/lib/ibin:${PATH}"
+export PATH="@LIB_INSTALL_DIR@/ibin:${PATH}"
 
-set -- "${COMMAND}"
-
-if [ "${1}" = "setup" ]; then
-	iregister service
+if [ "${COMMAND}" = "setup" ]; then
+	iregister service || exit 1
 		iset need = "system/bootmisc"
 		iexec start
 		iexec stop
 	idone
 	exit 0
 fi
+
+set -- "${COMMAND}"
 
 source "${SERVICE_FILE}"
