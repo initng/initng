@@ -92,10 +92,10 @@ int main(int argc, char **argv)
 	new_argv = calloc(argc + 1, sizeof(char *));
 
 	/* first is the full path to service file */
-	new_argv[0] = getenv("SERVICE_FILE");
+	new_argv[0] = getenv("SFILE");
 	if (!new_argv[0])
 	{
-		printf("SERVICE_FILE path is unset!\n");
+		printf("SFILE path is unset!\n");
 		exit(1);
 	}
 

@@ -2,6 +2,7 @@ SET(WRAPPERS
 	default
 	runlevel
 	compat
+	gentoo
 )
 
 FOREACH(WRAPPER ${WRAPPERS})

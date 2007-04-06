@@ -194,8 +194,8 @@ int main(int argc, char *argv[])
 	new_argv[1] = NULL;
 
 	/* set up the environments */
-	setenv("SERVICE_FILE", path, 1);
-	setenv("COMMAND", &argv[ca][9], 1);
+	setenv("SFILE", path, 1);
+	setenv("CMD", &argv[ca][9], 1);
 
 	/* now call the wrapper */
 	execve(new_argv[0], new_argv, environ);
