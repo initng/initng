@@ -24,6 +24,6 @@ is_service()
 }
 
 export PATH="@LIB_INSTALL_DIR@/ibin:${PATH}"
-source "${SFILE}" || exit ${?}
+source "${SFILE}"
 
 ${CMD}
