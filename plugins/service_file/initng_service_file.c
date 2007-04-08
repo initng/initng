@@ -66,6 +66,8 @@ static void bp_check_socket(int signal);
 static void bp_closesock(void);
 #endif
 
+static int parse_new_service_file(s_event * event, char *file);
+
 static void bp_handle_client(int fd);
 static void bp_new_active(bp_rep * rep, const char *type,
 						  const char *service, const char *from_file);
@@ -790,10 +792,6 @@ static void handle_killed(active_db_h * service, process_h * process)
 static int create_new_active(s_event * event)
 {
 	s_event_new_active_data * data;
-	struct stat fstat;
-	active_db_h *new_active;
-	process_h *process;
-	pipe_h *current_pipe;
 
 	char *file;
 	int found = 0;
@@ -803,58 +801,78 @@ static int create_new_active(s_event * event)
 
 	data = event->data;
 
-	/*printf("create_new_active(%s);\n", data->name); */
+	printf("create_new_active(%s);\n", data->name);
 	/*printf("service \"%s\" ", data->name); */
 
 	file = malloc(sizeof(char)*(strlen(INITNG_ROOT) + strlen(data->name) + 1));
 
+
+	// If data->name == "rulevel/fake-default
+	// try /etc/initng/runevel/fake-default
+	strcpy(file, INITNG_ROOT);
+	strcat(file, "/");
+	strcat(file, data->name);
+	if((found=parse_new_service_file(event, file)))
+	{
+	    free(file);
+	    return(found);
+	}
+
+
+	// Second, cut the prefix and just search by service name.
+	// ex
+	// data->name == "runevel/fake-default"
+	// try /etc/initng/fake-default"
+	
 	/* Search the file */
 	{
 		char **path_comp;
-		int try_again;
-		int i;
-
 
 		path_comp = split_delim(data->name, "/", NULL, 0);
+
+		strcpy(file, INITNG_ROOT);
+		strcat(file, "/");
+		strcat(file, path_comp[1]);
 		
-		/*for(i=0;path_comp[i];i++)
-		    printf("%i: \"%s\"\n", i, path_comp[i]);*/
-
-		for (try_again = 1, i = 0; path_comp[i] != NULL; i++)
+		if((found=parse_new_service_file(event, file)))
 		{
-			strcpy(file, INITNG_ROOT);
-			strcat(file, "/");
-			strcat(file, path_comp[i]);
-
-			if (stat(file, &fstat) == 0 && S_ISREG(fstat.st_mode))
-			{
-				/* We found it, yay! */
-				found = 1;
-				break;
-			}
-
-			if (path_comp[i + 1] == NULL && try_again)
-			{
-				try_again = 0;
-				i--;
-			}
+		    free(file);
+		    return(found);
 		}
-
-		/*for(i=0;path_comp[i];i++)
-		    printf("%i: \"%s\"\n", i, path_comp[i]);*/
-
 		split_delim_free(path_comp);
 	}
+	
 
 
-	/* printf(" parsing file \"%s\"\n", file); */
 
-	if (!found)
-	{
-		D_("File \"%s\" not found or it is not a regular file.\n", file);
-		free(file);
-		return (FALSE);
-	}
+	D_("File \"%s\" not found or it is not a regular file.\n", file);
+	free(file);
+	return (FALSE);
+}
+
+static int parse_new_service_file(s_event * event, char *file)
+{
+
+	s_event_new_active_data * data;
+	active_db_h *new_active;
+	process_h *process;
+	pipe_h *current_pipe;
+	struct stat fstat;
+	data = event->data;
+
+    printf(" parsing file \"%s\"\n", file);
+
+
+    // Take stat on file
+    if (stat(file, &fstat) != 0)
+	return(FALSE);
+    
+    // Is a regular file
+    if(!S_ISREG(fstat.st_mode))
+    {
+	return(FALSE);
+    }
+
 
 	if (!(fstat.st_mode & S_IXUSR))
 	{
