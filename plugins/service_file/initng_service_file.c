@@ -817,8 +817,8 @@ static int create_new_active(s_event * event)
 
 		path_comp = split_delim(data->name, "/", NULL, 0);
 		
-		for(i=0;path_comp[i];i++)
-		    printf("%i: \"%s\"\n", i, path_comp[i]);
+		/*for(i=0;path_comp[i];i++)
+		    printf("%i: \"%s\"\n", i, path_comp[i]);*/
 
 		for (try_again = 1, i = 0; path_comp[i] != NULL; i++)
 		{
@@ -840,8 +840,8 @@ static int create_new_active(s_event * event)
 			}
 		}
 
-		for(i=0;path_comp[i];i++)
-		    printf("%i: \"%s\"\n", i, path_comp[i]);
+		/*for(i=0;path_comp[i];i++)
+		    printf("%i: \"%s\"\n", i, path_comp[i]);*/
 
 		split_delim_free(path_comp);
 	}
