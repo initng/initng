@@ -806,7 +806,7 @@ static int create_new_active(s_event * event)
 	/*printf("create_new_active(%s);\n", data->name); */
 	/*printf("service \"%s\" ", data->name); */
 
-	file = malloc(sizeof(INITNG_ROOT) + strlen(data->name) + 1);
+	file = malloc(sizeof(char)*(strlen(INITNG_ROOT) + strlen(data->name) + 1));
 
 	/* Search the file */
 	{
@@ -814,12 +814,15 @@ static int create_new_active(s_event * event)
 		int try_again;
 		int i;
 
-		strcpy(file, INITNG_ROOT);
 
 		path_comp = split_delim(data->name, "/", NULL, 0);
+		
+		for(i=0;path_comp[i];i++)
+		    printf("%i: \"%s\"\n", i, path_comp[i]);
 
 		for (try_again = 1, i = 0; path_comp[i] != NULL; i++)
 		{
+			strcpy(file, INITNG_ROOT);
 			strcat(file, "/");
 			strcat(file, path_comp[i]);
 
@@ -836,6 +839,10 @@ static int create_new_active(s_event * event)
 				i--;
 			}
 		}
+
+		for(i=0;path_comp[i];i++)
+		    printf("%i: \"%s\"\n", i, path_comp[i]);
+
 		split_delim_free(path_comp);
 	}
 
