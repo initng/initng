@@ -804,7 +804,7 @@ static int create_new_active(s_event * event)
 	printf("create_new_active(%s);\n", data->name);
 	/*printf("service \"%s\" ", data->name); */
 
-	file = malloc(sizeof(char)*(strlen(INITNG_ROOT) + strlen(data->name) + 1));
+	file = malloc(sizeof(INITNG_ROOT) + (sizeof(char)*(strlen(data->name) + 2)));
 
 
 	// If data->name == "rulevel/fake-default
@@ -937,7 +937,6 @@ static int parse_new_service_file(s_event * event, char *file)
 		_exit(10);
 	}
 
-	free(file);
 	/* return the newly created */
 	data->ret = new_active;
 	return (HANDLED);
