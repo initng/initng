@@ -43,7 +43,6 @@ static int program_output(s_event * event)
 {
 	s_event_buffer_watcher_data * data;
 	const char *filename = NULL;
-	char *filename_fixed = NULL;
 	int len = 0;
 	int fd = -1;
 
@@ -67,9 +66,6 @@ static int program_output(s_event * event)
 		return (FALSE);
 	}
 
-	/* Fix $variables in filename string */
-	filename_fixed = fix_variables(filename, data->service);
-
 	/* open the file */
 	fd = open(filename, O_WRONLY | O_CREAT | O_APPEND);
 	if (fd < 1)
@@ -86,7 +82,6 @@ static int program_output(s_event * event)
 		F_("Error writing to %s's log, err : %s\n", data->service->name,
 		   strerror(errno));
 
-	fix_free(filename_fixed, filename);
 	close(fd);
 
 	return (TRUE);

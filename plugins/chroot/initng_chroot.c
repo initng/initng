@@ -43,7 +43,6 @@ static int do_chroot(s_event * event)
 	s_event_after_fork_data * data;
 
 	const char *tmp = NULL;
-	char *tmp_fixed = NULL;
 
 	assert(event->event_type == &EVENT_AFTER_FORK);
 	assert(event->data);
@@ -61,22 +60,16 @@ static int do_chroot(s_event * event)
 		return (TRUE);
 	}
 
-	/* fix ev.${VARIABLES} */
-	tmp_fixed = fix_variables(tmp, data->service);
-
-	if (chdir(tmp_fixed) == -1)
+	if (chdir(tmp) == -1)
 	{
-		F_("Chdir %s failed with %s\n", tmp_fixed, strerror(errno));
-		fix_free(tmp_fixed, tmp);
+		F_("Chdir %s failed with %s\n", tmp, strerror(errno));
 		return (FAIL);
 	}
-	if (chroot(tmp_fixed) == -1)
+	if (chroot(tmp) == -1)
 	{
-		F_("Chroot %s failed with %s\n", tmp_fixed, strerror(errno));
-		fix_free(tmp_fixed, tmp);
+		F_("Chroot %s failed with %s\n", tmp, strerror(errno));
 		return (FAIL);
 	}
-	fix_free(tmp_fixed, tmp);
 	return (TRUE);
 }
 

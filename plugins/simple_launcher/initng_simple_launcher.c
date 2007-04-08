@@ -262,10 +262,9 @@ static void fix_escapes(char * str)
 }
 
 
-static int simple_exec_try(char * exec, active_db_h * service,
+static int simple_exec_try(const char * exec, active_db_h * service,
 						   process_h * process)
 {
-	const char *exec_args_unfixed = NULL;
 	char *exec_args = NULL;
 	char **argv = NULL;
 	size_t argc = 0;
@@ -275,20 +274,9 @@ static int simple_exec_try(char * exec, active_db_h * service,
 	   process->pt->name);
 
 	/* exec_args should be parsed at the moment, too */
-	exec_args_unfixed = get_string_var(&EXEC_ARGS,
-									   process->pt->name, service);
-	if (exec_args_unfixed)
+	exec_args = (char *) get_string_var(&EXEC_ARGS, process->pt->name, service);
+	if (exec_args)
 	{
-
-
-		/* get some fixed variables, with ${VARIABLES} fixed, be aware that this is a new malloc and needs to be free() */
-		exec_args = fix_variables(exec_args_unfixed, service);
-		if (!exec_args)
-		{
-			F_("Failed to fix_variables: \"%s\"\n", exec_args);
-			return (FALSE);
-		}
-
 		fix_escapes(exec_args);
 
 		/* split the string, with entries to an array of strings */
@@ -301,11 +289,8 @@ static int simple_exec_try(char * exec, active_db_h * service,
 				split_delim_free(argv);
 
 			F_("split_delim exec_args returns NULL.\n");
-			fix_free(exec_args, exec_args_unfixed);
 			return (FALSE);
 		}
-
-
 	}
 	else
 	{
@@ -315,18 +300,14 @@ static int simple_exec_try(char * exec, active_db_h * service,
 		argc = 0;
 	}
 
-	argv[0] = exec;
+	argv[0] = (char *) exec;
 
-	ret=simple_exec_fork(process, service, argc, argv);
+	ret = simple_exec_fork(process, service, argc, argv);
 
-	// Do some cleanup
-	if(exec_args)
-	    fix_free(exec_args, exec_args_unfixed);
 	if(argv)
-	    split_delim_free(argv);
+		split_delim_free(argv);
 
 	return (ret);
-
 }
 
 static int simple_exec(active_db_h * service, process_h * process)
@@ -337,37 +318,23 @@ static int simple_exec(active_db_h * service, process_h * process)
 
 	D_("service: %s, process: %s\n", service->name, process->pt->name);
 
-	while ((exec =
-			get_next_string_var(&EXECS, process->pt->name, service, &itt)))
+	while ((exec = get_next_string_var(&EXECS, process->pt->name, service, &itt)))
 	{
 		int res = FALSE;
-		char *exec_fixed = NULL;
-
-		exec_fixed = fix_variables(exec, service);
-
-		if (!exec_fixed)
-		{
-			F_("Unable to fix_variables!\n");
-			return (FALSE);
-		}
 
 		/* check if the file exist */
-		if (stat(exec_fixed, &stat_struct) != 0)
+		if (stat(exec, &stat_struct) != 0)
 		{
-			D_(" note, %s exec_fixed does not exist. \n", exec_fixed);
+			D_(" note, %s exec_fixed does not exist. \n", exec);
 			continue;
 		}
 
 		/* Try to execute that one */
-		res = simple_exec_try(exec_fixed, service, process);
-
-		/* cleanup */
-		fix_free(exec_fixed, exec);
+		res = simple_exec_try(exec, service, process);
 
 		/* Return true if successfully */
 		if (res == TRUE)
 			return (TRUE);
-
 	}
 
 	return (FALSE);
@@ -375,8 +342,7 @@ static int simple_exec(active_db_h * service, process_h * process)
 
 static int simple_run(active_db_h * service, process_h * process)
 {
-	const char *exec = NULL;
-	char *exec_fixed = NULL;
+	char *exec = NULL;
 	char **argv = NULL;
 	size_t argc = 0;
 	int result = FALSE;
@@ -384,23 +350,14 @@ static int simple_run(active_db_h * service, process_h * process)
 
 	D_("service: %s process: %s.\n", service->name, process->pt->name);
 
-	exec = get_string_var(&EXEC, process->pt->name, service);
+	exec = (char *) get_string_var(&EXEC, process->pt->name, service);
 	if (!exec)
 		return (FALSE);
 
-
-	/* be aware that fix_variables() return is a malloc, and needs to be free */
-	exec_fixed = fix_variables(exec, service);
-	if (!exec_fixed)
-	{
-		F_("Unable to fix_variables!\n");
-		return (FALSE);
-	}
-
-	fix_escapes(exec_fixed);
+	fix_escapes(exec);
 
 	/* argv-entries are pointer to exec_t[x] */
-	argv = split_delim(exec_fixed, WHITESPACE, &argc, 0);
+	argv = split_delim(exec, WHITESPACE, &argc, 0);
 
 	/* make sure we got something from the split */
 	if (!argv || !argv[0])
@@ -409,7 +366,6 @@ static int simple_run(active_db_h * service, process_h * process)
 			split_delim_free(argv);
 
 		D_("split_delim on exec returns NULL.\n");
-		fix_free(exec_fixed, exec);
 		return (FALSE);
 	}
 
@@ -423,7 +379,6 @@ static int simple_run(active_db_h * service, process_h * process)
 			   service->name, process->pt->name, argv[0]);
 			split_delim_free(argv);
 			argv = NULL;
-			fix_free(exec_fixed, exec);
 			return (FALSE);
 		}
 
@@ -437,7 +392,7 @@ static int simple_run(active_db_h * service, process_h * process)
 
 	/* clean up */
 
-	// First free the fixed argv0 if its not a plain link to argv[0]
+	/* First free the fixed argv0 if its not a plain link to argv[0] */
 	if (argv0 && argv0 != argv[0])
 	{
 		free(argv0);
@@ -447,9 +402,6 @@ static int simple_run(active_db_h * service, process_h * process)
 	// Later free the big argv array
 	split_delim_free(argv);
 	argv = NULL;
-
-	// then free this one.
-	fix_free(exec_fixed, exec);
 
 	/* return result */
 	if (result == FAIL)

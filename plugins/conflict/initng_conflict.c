@@ -64,11 +64,9 @@ static int check_conflict(s_event * event)
 		active_db_h *s = NULL;
 
 		/*D_("Making sure that %s is not running.\n", conflict_entry); */
-		char *fixed = fix_variables(conflict_entry, service);
 
-		s = initng_active_db_find_by_name(fixed);
+		s = initng_active_db_find_by_name(conflict_entry);
 
-		fix_free(fixed, conflict_entry);
 		/* this is actually good */
 		if (!s)
 		{

@@ -64,31 +64,24 @@ static int service_state(s_event * event)
 
 		while ((tmp = get_next_string(&ALSO_START, service, &itt)))
 		{
-			char *fixed = NULL;
-
-			fixed = fix_variables(tmp, service);
-			if ((current = initng_active_db_find_by_name(fixed)))
+			if ((current = initng_active_db_find_by_name(tmp)))
 			{
 				if (!initng_handler_start_service(current))
 				{
-					F_("Failed to also_start %s.\n", fixed);
-					free(fixed);
+					F_("Failed to also_start %s.\n", tmp);
 					continue;
 				}
-				D_("Service also_start %s already running.\n", fixed);
-				fix_free(fixed, tmp);
+				D_("Service also_start %s already running.\n", tmp);
 				continue;
 			}
 
-			if (!initng_handler_start_new_service_named(fixed))
+			if (!initng_handler_start_new_service_named(tmp))
 			{
 				F_("%s also_start %s could not start!\n", service->name,
-				   fixed);
+				   tmp);
 				initng_handler_stop_service(service);
-				fix_free(fixed, tmp);
 				return (FALSE);
 			}
-			fix_free(fixed, tmp);
 		}
 		return (TRUE);
 	}
@@ -102,13 +95,10 @@ static int service_state(s_event * event)
 
 		while ((tmp = get_next_string(&ALSO_STOP, service, &itt)))
 		{
-			char *fixed = NULL;
-
-			fixed = fix_variables(tmp, service);
-			if ((current = initng_active_db_find_by_name(fixed)))
+			if ((current = initng_active_db_find_by_name(tmp)))
 			{
 				/* Tell this verbose */
-				D_("service %s also stops %s\n", service->name, fixed);
+				D_("service %s also stops %s\n", service->name, tmp);
 
 				if (!initng_handler_stop_service(current))
 				{
@@ -116,7 +106,6 @@ static int service_state(s_event * event)
 					   current->name);
 				}
 			}
-			fix_free(fixed, tmp);
 		}
 		return (TRUE);
 	}

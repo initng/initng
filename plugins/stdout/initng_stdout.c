@@ -65,12 +65,6 @@ static int setup_output(s_event * event)
 	const char *s_stdall = NULL;
 	const char *s_stdin = NULL;
 
-	/* string containing the variable parser output */
-	char *f_stdout = NULL;
-	char *f_stderr = NULL;
-	char *f_stdall = NULL;
-	char *f_stdin = NULL;
-
 	/* file descriptors */
 	int fd_stdout = -1;
 	int fd_stderr = -1;
@@ -109,57 +103,45 @@ static int setup_output(s_event * event)
 		s_stderr = NULL;
 	}
 
-
-	/* fix variables */
-	if (s_stdout)
-		f_stdout = fix_variables(s_stdout, data->service);
-	if (s_stderr)
-		f_stderr = fix_variables(s_stderr, data->service);
-	if (s_stdall)
-		f_stdall = fix_variables(s_stdall, data->service);
-	if (s_stdin)
-		f_stdin = fix_variables(s_stdin, data->service);
-
-
 	/* if stdall string is set */
-	if (f_stdall)
+	if (s_stdall)
 	{
 		/* output all to this */
-		fd_stdall = open(f_stdall, O_WRONLY | O_NOCTTY | O_CREAT | O_APPEND,
-						 0644);
+		fd_stdall = open(s_stdall,
+				 O_WRONLY | O_NOCTTY | O_CREAT | O_APPEND, 0644);
 	}
 	else
 	{
 		/* else set them to different files */
-		if (f_stdout)
-			fd_stdout = open(f_stdout,
-							 O_WRONLY | O_NOCTTY | O_CREAT | O_APPEND, 0644);
-		if (f_stderr)
-			fd_stderr = open(f_stderr,
-							 O_WRONLY | O_NOCTTY | O_CREAT | O_APPEND, 0644);
+		if (s_stdout)
+			fd_stdout = open(s_stdout,
+					 O_WRONLY | O_NOCTTY | O_CREAT | O_APPEND, 0644);
+		if (s_stderr)
+			fd_stderr = open(s_stderr,
+					 O_WRONLY | O_NOCTTY | O_CREAT | O_APPEND, 0644);
 	}
-	if (f_stdin)
-		fd_stdin = open(f_stdin, O_RDONLY | O_NOCTTY, 0644);
+	if (s_stdin)
+		fd_stdin = open(s_stdin, O_RDONLY | O_NOCTTY, 0644);
 
 	/* print fail messages, if the files did not open */
-	if (f_stdall && fd_stdall < 2)
-		F_("StdALL: %s, fd %i\n", f_stdall, fd_stdall);
-	if (f_stdout && fd_stdout < 2)
-		F_("StdOUT: %s, fd %i\n", f_stdout, fd_stdout);
-	if (f_stderr && fd_stderr < 2)
-		F_("StdERR: %s, fd %i\n", f_stderr, fd_stderr);
-	if (f_stdin && fd_stdin < 2)
-		F_("StdIN: %s, fd %i\n", f_stdin, fd_stdin);
+	if (s_stdall && fd_stdall < 2)
+		F_("StdALL: %s, fd %i\n", s_stdall, fd_stdall);
+	if (s_stdout && fd_stdout < 2)
+		F_("StdOUT: %s, fd %i\n", s_stdout, fd_stdout);
+	if (s_stderr && fd_stderr < 2)
+		F_("StdERR: %s, fd %i\n", s_stderr, fd_stderr);
+	if (s_stdin && fd_stdin < 2)
+		F_("StdIN: %s, fd %i\n", s_stdin, fd_stdin);
 
 #ifdef DEBUG
-	if (f_stdall)
-		D_("StdALL: %s, fd %i\n", f_stdall, fd_stdall);
-	if (f_stdout)
-		D_("StdOUT: %s, fd %i\n", f_stdout, fd_stdout);
-	if (f_stderr)
-		D_("StdERR: %s, fd %i\n", f_stderr, fd_stderr);
-	if (f_stdin)
-		D_("StdIN:  %s, fd %i\n", f_stdin, fd_stdin);
+	if (s_stdall)
+		D_("StdALL: %s, fd %i\n", s_stdall, fd_stdall);
+	if (s_stdout)
+		D_("StdOUT: %s, fd %i\n", s_stdout, fd_stdout);
+	if (s_stderr)
+		D_("StdERR: %s, fd %i\n", s_stderr, fd_stderr);
+	if (s_stdin)
+		D_("StdIN:  %s, fd %i\n", s_stdin, fd_stdin);
 #endif
 
 	/* if fd succeeded to open */
@@ -187,12 +169,6 @@ static int setup_output(s_event * event)
 		dup2(fd_stdin, 0);
 		initng_fd_set_cloexec(fd_stdin);
 	}
-
-	/* free the (by fix_variables) duped variables */
-	fix_free(f_stdout, s_stdout);
-	fix_free(f_stderr, s_stderr);
-	fix_free(f_stdall, s_stdall);
-	fix_free(f_stdin, s_stdin);
 
 	return (TRUE);
 }

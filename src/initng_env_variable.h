@@ -23,12 +23,8 @@
 #include "initng.h"
 #include "initng_active_db.h"
 
-#define fix_free(variable, from) { if(variable && variable != from) free(variable); variable=NULL; }
-
 char *fix_redefined_variable(const char *name, const char *oldval,
 							 const char *newdef);
-char *fix_variables(const char *from, active_db_h * s);
-
 char **new_environ(active_db_h * s);
 void free_environ(char **tf);
 int is_same_env_var(char *var1, char *var2);

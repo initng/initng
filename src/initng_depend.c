@@ -19,7 +19,6 @@
 
 #include "initng.h"
 
-
 #include <stdio.h>
 #include <stdlib.h>							/* free() exit() */
 #include <string.h>
@@ -163,7 +162,6 @@ int initng_any_depends_on(active_db_h * service)
 static int dep_on(active_db_h * service, active_db_h * check)
 {
 	s_data *current = NULL;
-	char *str = NULL;
 
 	assert(service);
 	assert(service->name);
@@ -182,16 +180,8 @@ static int dep_on(active_db_h * service, active_db_h * check)
 		if (!current->t.s)
 			continue;
 
-		/* fix the variables */
-		if (!(str = fix_variables(current->t.s, service)))
-			continue;
-
-		if (strcmp(str, check->name) == 0)
-		{
-			fix_free(str, current->t.s);
+		if (strcmp(current->t.s, check->name) == 0)
 			return (TRUE);
-		}
-		fix_free(str, current->t.s);
 	}
 
 	/* No, it did not */
@@ -261,7 +251,6 @@ int initng_depend_start_dep_met(active_db_h * service, int verbose)
 {
 	active_db_h *dep = NULL;
 	s_data *current = NULL;
-	char *str = NULL;
 	int count = 0;
 
 	assert(service);
@@ -299,32 +288,25 @@ int initng_depend_start_dep_met(active_db_h * service, int verbose)
 			D_(" %s uses %s\n", service->name, current->t.s);
 #endif
 
-		/* fix the variables */
-		if (!(str = fix_variables(current->t.s, service)))
-			continue;
-
 		/* look if it exits already */
-		if (!(dep = initng_active_db_find_by_exact_name(str)))
+		if (!(dep = initng_active_db_find_by_exact_name(current->t.s)))
 		{
 			if (current->type == &USE)
 			{
 				/* if its not yet found, and i dont care */
-				fix_free(str, current->t.s);
 				continue;
 			}
 			else if (current->type == &REQUIRE)
 			{
 				F_("%s required dep \"%s\" could not start!\n", service->name,
-				   str);
+				   current->t.s);
 				initng_common_mark_service(service, &REQ_NOT_FOUND);
 				/* if its not yet found, this dep is not reached */
-				fix_free(str, current->t.s);
 				return (FAIL);
 			}
 			else
-			{								/* NEED */
+			{	/* NEED */
 				/* if its not yet found, this dep is not reached */
-				fix_free(str, current->t.s);
 				return (FALSE);
 			}
 		}
@@ -336,7 +318,6 @@ int initng_depend_start_dep_met(active_db_h * service, int verbose)
 			{
 				F_("Could not start service %s because it depends on service %s that is still starting.\n", service->name, dep->name);
 			}
-			fix_free(str, current->t.s);
 			return (FALSE);
 		}
 
@@ -347,14 +328,12 @@ int initng_depend_start_dep_met(active_db_h * service, int verbose)
 			{
 				F_("Could not start service %s because it depends on service %s that is failed.\n", service->name, dep->name);
 			}
-			fix_free(str, current->t.s);
 			return (FAIL);
 		}
 
 		/* if its this fresh, we dont do anything */
 		if (IS_NEW(dep))
 		{
-			fix_free(str, current->t.s);
 			return(FALSE);
 		}
 
@@ -362,7 +341,6 @@ int initng_depend_start_dep_met(active_db_h * service, int verbose)
 		if (IS_DOWN(dep))
 		{
 		   initng_handler_start_service(dep);
-		   fix_free(str, current->t.s);
 		   return (FALSE);
 		}
 
@@ -370,7 +348,6 @@ int initng_depend_start_dep_met(active_db_h * service, int verbose)
 		if (!IS_UP(dep))
 		{
 			F_("Could not start service %s because it depends on service %s has state %s\n", service->name, dep->name, dep->current_state->state_name);
-			fix_free(str, current->t.s);
 			return (FALSE);
 		}
 
@@ -505,7 +482,6 @@ int initng_depend_start_deps(active_db_h * service)
 {
 	active_db_h *dep = NULL;
 	s_data *current = NULL;
-	char *str = NULL;
 
 	assert(service);
 	assert(service->name);
@@ -528,48 +504,38 @@ int initng_depend_start_deps(active_db_h * service)
 		D_(" %s %s %s\n", service->name,
 		   current->type == &REQUIRE ? "requires" : "needs", current->t.s);
 
-		/* fix the variables */
-		if (!(str = fix_variables(current->t.s, service)))
-			continue;
-
 		/* look if it exits already */
-		if ((dep = initng_active_db_find_by_exact_name(str)))
+		if ((dep = initng_active_db_find_by_exact_name(current->t.s)))
 		{
-			D_("No need to LOAD \"%s\" == \"%s\", state %s it is already loaded!\n", str, dep->name, dep->current_state->state_name);
+			D_("No need to LOAD \"%s\" == \"%s\", state %s it is already loaded!\n", current->t.s, dep->name, dep->current_state->state_name);
 			/* start the service if its down */
 			if (IS_DOWN(dep))
 			{
 				D_("Service %s is down, starting.\n", dep->name);
 				initng_handler_start_service(dep);
 			}
-
-			fix_free(str, current->t.s);
 			continue;
 		}
 
-		D_("Starting new_service becouse not found: %s\n", str);
+		D_("Starting new_service becouse not found: %s\n", current->t.s);
 		/* if we where not succeded to start this new one */
-		if (!initng_handler_start_new_service_named(str))
+		if (!initng_handler_start_new_service_named(current->t.s))
 		{
 			/* if its NEED */
 			if (current->type == &NEED)
 			{
-				D_("service \"%s\" needs service \"%s\", that could not be found!\n", service->name, str);
-				fix_free(str, current->t.s);
+				D_("service \"%s\" needs service \"%s\", that could not be found!\n", service->name, current->t.s);
 				continue;
-				/* else its REQUIRE */
 			}
+			/* else its REQUIRE */
 			else
 			{
-
 				F_("%s required dep \"%s\" could not start!\n", service->name,
-				   str);
+				   current->t.s);
 				initng_common_mark_service(service, &REQ_NOT_FOUND);
-				fix_free(str, current->t.s);
 				return (FALSE);
 			}
 		}
-		fix_free(str, current->t.s);
 		/* continue ; */
 	}
 

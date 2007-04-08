@@ -63,13 +63,10 @@ static int do_suid(s_event * event)
 	/* NOTE: why we have ret here? */
 	int ret = TRUE;
 
-	int i = 0;
 	int gid = 0;
 	int uid = 0;
-	const char *tmp = NULL;
-	const char *tmp2 = NULL;
-	char *groupname = NULL;
-	char *username = NULL;
+	const char *groupname = NULL;
+	const char *username = NULL;
 
 	assert(event->event_type == &EVENT_AFTER_FORK);
 	assert(event->data);
@@ -79,22 +76,8 @@ static int do_suid(s_event * event)
 	assert(data->service);
 	assert(data->service->name);
 
-	if ((tmp = get_string(&SGID, data->service)))
-		groupname = fix_variables(tmp, data->service);
-
-	if ((tmp2 = get_string(&SUID, data->service)))
-		username = fix_variables(tmp2, data->service);
-
-	if (username && !groupname)
-	{
-		i = strcspn(username, ":");
-		if (username[i] == ':')
-		{
-			groupname = strdup(username + i + 1);
-			username[i] = 0;
-		}
-	}
-
+	groupname = get_string(&SGID, data->service);
+	username = get_string(&SUID, data->service);
 
 	if (groupname)
 		group = getgrnam(groupname);
@@ -140,10 +123,7 @@ static int do_suid(s_event * event)
 		adjust_env(data->service, "PATH", "/bin:/usr/bin");
 	}
 
-	fix_free(groupname, tmp);
-	fix_free(username, tmp2);
 	/* group and passwd are static data structures - don't free */
-
 	return (TRUE);
 }
 

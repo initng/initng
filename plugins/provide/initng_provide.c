@@ -183,7 +183,6 @@ static int service_state(s_event * event)
 	active_db_h * service;
 	const char *tmp = NULL;
 	s_data *itt = NULL;
-	char *fixed;
 
 	assert(event->event_type == &EVENT_IS_CHANGE);
 	assert(event->data);
@@ -202,14 +201,9 @@ static int service_state(s_event * event)
 		/* get the provide strings */
 		while ((tmp = get_next_string(&PROVIDE, service, &itt)))
 		{
-			/* fix $vars */
-			fixed = fix_variables(tmp, service);
-
 			/* add that provide */
-			if (!add_virtual_service(fixed))
+			if (!add_virtual_service(tmp))
 				return (FALSE);
-
-			fix_free(fixed, tmp);
 		}
 	}
 	else if (IS_UP(service))
@@ -221,14 +215,9 @@ static int service_state(s_event * event)
 		/* get the provide strings */
 		while ((tmp = get_next_string(&PROVIDE, service, &itt)))
 		{
-			/* fix $vars */
-			fixed = fix_variables(tmp, service);
-
 			/* add that provide */
-			if (!virtual_service_set_up(fixed))
+			if (!virtual_service_set_up(tmp))
 				return (FALSE);
-
-			fix_free(fixed, tmp);
 		}
 	}
 	/* else - its down */
@@ -237,13 +226,8 @@ static int service_state(s_event * event)
 		/* get the provide strings */
 		while ((tmp = get_next_string(&PROVIDE, service, &itt)))
 		{
-			/* fix $vars */
-			fixed = fix_variables(tmp, service);
-
 			/* remove that provide */
-			remove_virtual_service(fixed);
-
-			fix_free(fixed, tmp);
+			remove_virtual_service(tmp);
 		}
 	}
 

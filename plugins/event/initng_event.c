@@ -205,7 +205,6 @@ static int event_triggerer(s_event * pevent)
 
 	s_data *itt = NULL;
 	const char *tmp = NULL;
-	char *fixed;
 
 	assert(pevent);
 	assert(pevent->event_type == &EVENT_IS_CHANGE);
@@ -223,13 +222,8 @@ static int event_triggerer(s_event * pevent)
 		/* get the trigger strings */
 		while ((tmp = get_next_string(&TRIGGER, service, &itt)))
 		{
-			/* fix $vars */
-			fixed = fix_variables(tmp, service);
-
-			event.data = fixed;
+			event.data = tmp;
 			initng_event_send(&event);
-
-			fix_free(fixed, tmp);
 		}
 	}
 

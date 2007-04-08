@@ -1127,23 +1127,13 @@ static pid_t pid_from_file(const char *name)
 
 static pid_t get_pidof(active_db_h * s)
 {
-	pid_t pid;
 	const char *pidof;
-	char *pidof_fixed = NULL;
 
 	pidof = get_string(&PIDOF, s);
 	if (!pidof)
 		return (-1);
 
-
-	pidof_fixed = fix_variables(pidof, s);
-	if (!pidof_fixed)
-		return (-1);
-
-	pid = pid_of(pidof_fixed);
-
-	fix_free(pidof_fixed, pidof);
-	return (pid);
+	return pid_of(pidof);
 }
 
 /* this will get the pid of PIDFILE entry of service */
@@ -1151,35 +1141,23 @@ static pid_t get_pidfile(active_db_h * s)
 {
 	pid_t pid;
 	const char *pidfile = NULL;
-	char *pidfile_fixed = NULL;
 	s_data *itt = NULL;
 
 	/* get the pidfile */
 	while ((pidfile = get_next_string(&PIDFILE, s, &itt)))
 	{
-		/* fix the variables in the string */
-		pidfile_fixed = fix_variables(pidfile, s);
-
-		/* check so we got the string */
-		if (!pidfile_fixed)
-			return (-1);
-
 		/* make sure the first char is a '/' so its a full path */
-		if (pidfile_fixed[0] != '/')
+		if (pidfile[0] != '/')
 		{
 			F_("%s has pid_file with relative path \"%s\"\n", s->name,
-			   pidfile_fixed);
+			   pidfile);
 			/* check_valid_pidfile_path() can detect certain dangerous
 			   typos, but it can't prevent loading. Stop to be safe */
-			if (pidfile_fixed && pidfile_fixed != pidfile)
-				free(pidfile_fixed);
 			return (-1);
 		}
 
 		/* get the pid from the file */
-		pid = pid_from_file(pidfile_fixed);
-
-		fix_free(pidfile_fixed, pidfile);
+		pid = pid_from_file(pidfile);
 
 		/* return the pid */
 		if (pid > 1)
@@ -1191,7 +1169,6 @@ static pid_t get_pidfile(active_db_h * s)
 static void clear_pidfile(active_db_h * s)
 {
 	const char *pidfile = NULL;
-	char *pidfile_fixed = NULL;
 	s_data *itt = NULL;
 
 	/* ok, search for pidfiles */
@@ -1199,27 +1176,22 @@ static void clear_pidfile(active_db_h * s)
 	{
 		if (pidfile)
 		{
-			/* fix the variables in the string */
-			pidfile_fixed = fix_variables(pidfile, s);
-
 			/* check it's an absolute path after variable substitution */
-			if (pidfile_fixed[0] == '/')
+			if (pidfile[0] == '/')
 			{
-				if (unlink(pidfile_fixed) != 0 && errno != ENOENT)
+				if (unlink(pidfile) != 0 && errno != ENOENT)
 					F_("Could not remove stale pidfile \"%s\"\n",
-					   pidfile_fixed);
+					   pidfile);
 				break;
 			}
 			else
 			{
 				F_("%s has pid_file with relative path \"%s\"\n", s->name,
-				   pidfile_fixed);
+				   pidfile);
 				/* check_valid_pidfile_path() can detect certain dangerous
 				   typos, but it can't prevent loading. Stop to be safe */
-				fix_free(pidfile_fixed, pidfile);
 				return;
 			}
-			fix_free(pidfile_fixed, pidfile);
 		}
 	}
 }

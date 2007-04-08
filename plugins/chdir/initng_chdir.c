@@ -42,7 +42,6 @@ static int do_chdir(s_event * event)
 	s_event_after_fork_data * data;
 
 	const char *tmp = NULL;
-	char *tmp_fixed = NULL;
 
 	assert(event->event_type == &EVENT_AFTER_FORK);
 	assert(event->data);
@@ -61,17 +60,13 @@ static int do_chdir(s_event * event)
 		return (TRUE);
 	}
 
-	tmp_fixed = fix_variables(tmp, data->service);
-	D_("CHDIR TO %s\n", tmp_fixed);
+	D_("CHDIR TO %s\n", tmp);
 
-	if (chdir(tmp_fixed) == -1)
+	if (chdir(tmp) == -1)
 	{
 		F_("Chdir failed with %s\n", strerror(errno));
-		fix_free(tmp_fixed, tmp);
 		return (FAIL);
 	}
-
-	fix_free(tmp_fixed, tmp);
 	return (TRUE);
 }
 
