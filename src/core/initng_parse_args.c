@@ -7,7 +7,36 @@
 typedef struct {
 	const char *name;
 	void (*handle)(char *val);
+	const char *desc;
 } opts_t;
+
+
+static void opt_verbose(char *val);
+static void opt_verbose_add(char *val);
+static void opt_no_circular(char *val);
+static void opt_hot_reload(char *val);
+static void opt_fake(char *val);
+static void opt_no_fake(char *val);
+static void opt_runlevel(char *val);
+static void opt_console(char *val);
+static void list_options(char *val);
+
+
+
+opts_t opts[] = {
+	{ "console",	&opt_console,	"Specify what dev to use as console"	},
+	{ "help",	&list_options,	"Show this help list"			},
+	{ "runlevel",	&opt_runlevel,	"Specify default runlevel"		},
+	{ "fake",	&opt_fake,	"Start fake_runlvel and access initng with ngdc instead of ngc"	},
+	{ "no_fake",	&opt_no_fake,	"Prevent initng to enter fake mode"	},
+	{ "hot_reload",	&opt_hot_reload,	NULL				}, // Shud never issue for user
+	{ "no_circular",	&opt_no_circular, "Make extra checkings for cirular depencenis in service, takes some extra cpu but might work when initng wont."	},
+#ifdef DEBUG
+	{ "verbose_add",	&opt_verbose_add, "Add one function to the list of debug-arguments that will be printed"	},
+	{ "verbose",	&opt_verbose,	"Make initng be verry verbose about whats happening."		},
+#endif
+	{ NULL,			NULL,		NULL					}
+};
 
 
 #ifdef DEBUG
@@ -39,6 +68,11 @@ static void opt_fake(char *val)
 	g.i_am = I_AM_FAKE_INIT;
 }
 
+static void opt_no_fake(char *val)
+{
+	g.i_am = I_AM_INIT;
+}
+
 static void opt_runlevel(char *val)
 {
 	if (val)
@@ -51,20 +85,23 @@ static void opt_console(char *val)
 		g.dev_console = i_strdup(val);
 }
 
+static void list_options(char *val)
+{
+    int i,j;
+    printf("options are given to initng by linux bootloader, you can use option=value, or option:value to set an option.\n\n");
+    printf("Possible options: \n");
+    for(i=0;opts[i].name;i++)
+	if(opts[i].desc)
+	{
+	    printf(" %s:", opts[i].name);
+	    for(j=strlen(opts[i].name);j<16;j++)
+		printf(" ");
+	    printf("%s\n", opts[i].desc);
+	}
+    printf("\n\n");
+    _exit(0);
+}
 
-
-opts_t opts[] = {
-	{ "console",		&opt_console		},
-	{ "runlevel",		&opt_runlevel		},
-	{ "fake",		&opt_fake		},
-	{ "hot_reload",		&opt_hot_reload		},
-	{ "no_circular",	&opt_no_circular	},
-#ifdef DEBUG
-	{ "verbose_add",	&opt_verbose_add	},
-	{ "verbose",		&opt_verbose		},
-#endif
-	{ NULL,			NULL			}
-};
 
 
 void initng_parse_args(char **argv)
