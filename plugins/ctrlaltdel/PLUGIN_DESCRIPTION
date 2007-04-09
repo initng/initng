@@ -1,7 +1,0 @@
-          name : ctrlaltdel
-        author : Jimmy Wennlund <jimmy.wennlund@gmail.com>
-  contributors : 
-      commands : 
-       options : 
-   description : If this plugin is loaded, initng will make the system reboot
-                 on a CTRL+ALT+DEL press.

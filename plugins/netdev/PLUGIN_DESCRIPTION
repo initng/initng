@@ -1,6 +1,0 @@
-          name : netdev
-        author : Jimmy Wennlund <jimmy.wennlund@gmail.com>
-  contributors : 
-      commands : 
-       options :
-   description : Provides interlan services deps like net/eth0, net/eth1, net/lo, net/ppp

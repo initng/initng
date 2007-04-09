@@ -1,6 +1,0 @@
-          name : syslog
-        author : Jimmy Wennlund <jimmy.wennlund@gmail.com>
-  contributors : 
-      commands : 
-       options : 
-   description : This plugin outputs events and process output to syslogd.
