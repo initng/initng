@@ -1,0 +1,18 @@
+MESSAGE("-- Creating links")
+SET(TARGETS
+	iabort
+	idone
+	iget
+	iregister
+	iset
+	iexec
+)
+
+FOREACH(target ${TARGETS})
+	EXEC_PROGRAM(ln $ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}@LIB_INSTALL_DIR@/ibin
+		ARGS -sf bp ${target})
+	SET(CMAKE_INSTALL_MANIFEST_FILES 
+		${CMAKE_INSTALL_PREFIX}@LIB_INSTALL_DIR@/ibin/${target}
+		${CMAKE_INSTALL_MANIFEST_FILES})
+ENDFOREACH(target)
+

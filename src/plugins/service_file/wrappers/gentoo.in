@@ -1,0 +1,24 @@
+#!/bin/bash
+export PATH="@LIB_INSTALL_DIR@/ibin:${PATH}"
+
+. /sbin/functions.sh
+[ -f "/etc/conf.d/${NAME}" ] && source "/etc/conf.d/${NAME}"
+. "${SFILE}"
+
+if [ "${CMD}" = setup ]; then
+	iregister service || exit ${?}
+	iexec start
+	for i in stop ${opts}; do
+		if typeset -F \"${i}\" &>/dev/null; then
+			iexec ${i}
+			echo ${i}
+		fi
+	done
+
+	need() { iset need = "${@}"; }
+	use() { iset use = "${@}"; }
+	depend
+	idone
+else
+	${CMD}
+fi

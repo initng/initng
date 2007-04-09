@@ -1,0 +1,15 @@
+#!/bin/sh
+export PATH="@LIB_INSTALL_DIR@/ibin:${PATH}"
+
+if [ "${CMD}" = "setup" ]; then
+	iregister service || exit ${?}
+	iset need = system/bootmisc
+	iexec start
+	iexec stop
+	idone
+	exit 0
+fi
+
+set -- "${CMD}"
+
+. "${SFILE}"

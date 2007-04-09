@@ -1,0 +1,20 @@
+SUBDIRS( wrappers )
+INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/src/include ${CMAKE_BINARY_DIR} )
+
+ADD_LIBRARY(service_file MODULE initng_service_file.c)
+INSTALL_TARGETS(${LIB_INSTALL_DIR}/initng service_file)
+
+ADD_EXECUTABLE(bp bp.c)
+SET_TARGET_PROPERTIES(bp PROPERTIES POST_INSTALL_SCRIPT
+	${CMAKE_CURRENT_BINARY_DIR}/create_links.cmake)
+INSTALL_TARGETS(${LIB_INSTALL_DIR}/ibin bp)
+
+ADD_EXECUTABLE(runiscript runiscript.c)
+INSTALL_TARGETS(${SBIN_INSTALL_DIR} runiscript)
+
+INSTALL_PROGRAMS(${SYSCONF_INSTALL_DIR}/initng FILES example)
+
+CONFIGURE_FILE(
+	"${CMAKE_CURRENT_SOURCE_DIR}/create_links.cmake.in"
+	"${CMAKE_CURRENT_BINARY_DIR}/create_links.cmake"
+	IMMEDIATE @ONLY)
