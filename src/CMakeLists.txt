@@ -32,6 +32,7 @@ SET(initng_lib_srcs
 	initng_event_types.c
 	initng_event_hook.c
 	initng_event.c
+	initng_parse_args.c
 )
 
 SET(initng_bin_srcs

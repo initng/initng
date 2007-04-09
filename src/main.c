@@ -59,6 +59,7 @@
 #include "initng_process_db.h"
 #include "initng_global.h"
 #include "initng_static_event_types.h"
+#include "initng_parse_args.h"
 
 #ifdef SELINUX
 #include <stdlib.h>
@@ -402,6 +403,7 @@ int main(int argc, char *argv[], char *env[])
 
 	/* initialize global variables */
 	initng_global_new(argc, argv, env);
+	initng_parse_args(argv);
 
 	if (getuid() != 0)
 	{

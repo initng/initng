@@ -33,7 +33,6 @@
 
 /* HERE IS THE GLOBAL DEFINED STRUCT, WE OFTEN RELATE TO */
 s_global g;
-static void initng_global_parse_argv(char **argv);
 
 /*
  * initng_global_new.
@@ -133,72 +132,6 @@ void initng_global_new(int argc, char *argv[], char *env[])
 	 */
 
 	/* parse all options, set in argv */
-	initng_global_parse_argv(argv);
-}
-
-
-
-static void initng_global_parse_argv(char **argv)
-{
-	int i;
-
-	for (i = 0; argv[i]; i++)
-	{
-		/* set opt to argv */
-		char *opt = argv[i];
-
-		/* don't parse options starting with an '+' */
-		if (opt[0] == '+')
-			continue;
-		/*
-		 * if arg is --verbose, skip the two -- here, and start checking.
-		 * if arg is -verbose, skip and continue for loop.
-		 * if arg is verbose, check it below
-		 */
-
-		/* if its a double --, its ok */
-		if (opt[0] == '-' && opt[1] == '-')
-			opt += 2;
-		/* but a single is not ! */
-		if (opt[0] == '-')
-			continue;
-
-
-#define R_L "runlevel="
-#define KR_L "runlevel:"
-#define V_T "verbose_add="
-#define C_L "console="
-
-#ifdef DEBUG
-		if (strcmp(opt, "verbose") == 0)
-			g.verbose = TRUE;
-		else
-#endif
-
-		if (strcmp(opt, "hot_reload") == 0)
-		{
-			D_(" Will start after a hot reload ...\n");
-			g.hot_reload = TRUE;
-		}
-
-		else if (strcmp(opt, "fake") == 0)
-			g.i_am = I_AM_FAKE_INIT;
-
-		else if (strcmp(opt, "no_circular") == 0)
-			g.no_circular = TRUE;
-
-		/* the ones with a value */
-		if (strncmp(opt, R_L, strlen(R_L)) == 0)
-			g.runlevel = i_strdup((opt) + strlen(R_L));
-		if (!g.runlevel && strncmp(opt, KR_L, strlen(KR_L)) == 0)
-			g.runlevel = i_strdup((opt) + strlen(KR_L));
-		if (strncmp(opt, C_L, strlen(C_L)) == 0)
-			g.dev_console = i_strdup((opt) + strlen(C_L));
-#ifdef DEBUG
-		if (strncmp(opt, V_T, strlen(V_T)) == 0)
-			initng_error_verbose_add((opt) + strlen(V_T));
-#endif
-	}
 }
 
 void initng_global_free(void)
