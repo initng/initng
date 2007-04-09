@@ -400,10 +400,15 @@ int main(int argc, char *argv[], char *env[])
 	/* get the time */
 	gettimeofday(&last, NULL);
 
-
 	/* initialize global variables */
 	initng_global_new(argc, argv, env);
+	
+	// run initng in fake mode if not pid 1 and --no-fake is not issued
+	g.i_am = (getpid() == 1) ? I_AM_INIT : I_AM_FAKE_INIT;
+	
+	// Parse options given on argv.
 	initng_parse_args(argv);
+	
 
 	if (getuid() != 0)
 	{
@@ -470,7 +475,7 @@ int main(int argc, char *argv[], char *env[])
 	else if (g.i_am == I_AM_FAKE_INIT)
 	{
 		/* when last service stopped, quit initng */
-		W_("Initng is running in fake-mode, fake-default runlevel will be started instead.\n");
+		W_("Starting initng in fake mode becouse pid is not 1 (now %i) or --fake is issued, running fake-default runlevel as default, issue no-fake at boot-prompt is this is real init.", getpid());
 		g.when_out = THEN_QUIT;
 		initng_main_set_runlevel(RUNLEVEL_PREFIX "fake-default");
 	}
