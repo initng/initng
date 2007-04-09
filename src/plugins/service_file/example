@@ -4,7 +4,7 @@ setup()
 {
 	# Register new service type, the $SERVICE will be "example" here.
 	ireg service $SERVICE
-		iset need = "system/bootmisc"
+	#	iset need = "system/bootmisc"
 
 		iexec start = strange_name_for_start
 		iexec stop
