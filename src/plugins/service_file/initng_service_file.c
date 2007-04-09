@@ -803,7 +803,7 @@ static int create_new_active(s_event * event)
 
 	data = event->data;
 
-	printf("create_new_active(%s);\n", data->name);
+	//printf("create_new_active(%s);\n", data->name);
 	/*printf("service \"%s\" ", data->name); */
 
 	file = malloc(sizeof(INITNG_ROOT "/default") +
@@ -814,7 +814,7 @@ static int create_new_active(s_event * event)
 	    if(data->name[i]=='/')
 		slashes++;
 	
-	printf("%i slashes", slashes);
+	//printf("%i slashes", slashes);
 	/*
 	 * scheme: "daemon/samba/smbd"
 	 * try 1 "daemon/samba/smbd"
@@ -869,7 +869,7 @@ static int parse_new_service_file(s_event * event, char *file)
 	struct stat fstat;
 	data = event->data;
 
-	printf(" parsing file \"%s\"\n", file);
+	//printf(" parsing file \"%s\"\n", file);
 
 
 	/* Take stat on file */
@@ -1004,7 +1004,7 @@ static int initng_bash_run(s_event * event)
 		/* check that it exists */
 		if (!file || stat(file, &fstat) != 0)
 		{
-			printf("Service file not found.\n");
+			F_("Service file not found.\n");
 			_exit(1);
 		}
 
