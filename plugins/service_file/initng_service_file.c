@@ -814,6 +814,7 @@ static int create_new_active(s_event * event)
 	    if(data->name[i]=='/')
 		slashes++;
 	
+	printf("%i slashes", slashes);
 	/*
 	 * scheme: "daemon/samba/smbd"
 	 * try 1 "daemon/samba/smbd"
@@ -825,7 +826,7 @@ static int create_new_active(s_event * event)
 	 */
 	
 	// Now try by cuting with the last slach everyting to search
-	for(i=0; i<slashes; i++)
+	for(i=0; i<slashes || i==0; i++)
 	{
 	    strcpy(file, INITNG_ROOT);
 	    strcat(file, "/");
