@@ -12,4 +12,4 @@ fi
 
 set -- "${CMD}"
 
-source "${SFILE}"
+. "${SFILE}"

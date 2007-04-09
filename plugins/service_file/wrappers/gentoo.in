@@ -1,9 +1,9 @@
 #!/bin/bash
 export PATH="@LIB_INSTALL_DIR@/ibin:${PATH}"
 
-source /sbin/functions.sh
+. /sbin/functions.sh
 [ -f "/etc/conf.d/${NAME}" ] && source "/etc/conf.d/${NAME}"
-source "${SFILE}"
+. "${SFILE}"
 
 if [ "${CMD}" = setup ]; then
 	iregister service || exit ${?}
