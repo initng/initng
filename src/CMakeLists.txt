@@ -1,1 +1,1 @@
-SUBDIRS(core include libinitng)
+SUBDIRS(core include libinitng plugins)

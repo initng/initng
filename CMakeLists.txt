@@ -41,7 +41,7 @@ PKGCONFIG(dbus-1 DBUS_INCLUDE_DIR DBUS_LINK_DIR DBUS_LINK_FLAGS DBUS_CFLAGS)
 SET(DBUS_DEFINITIONS ${DBUS_CFLAGS})
 FIND_LIBRARY(DBUS_LIBS NAMES dbus-1 PATHS ${DBUS_LINK_DIR} /usr/lib /usr/local/lib)
 
-SUBDIRS(src plugins tools devtool doc extras)
+SUBDIRS(src tools devtool doc extras)
 
 INSTALL_FILES(${INCLUDE_INSTALL_DIR}/initng FILES initng-paths.h)
 
