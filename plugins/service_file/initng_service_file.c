@@ -795,6 +795,8 @@ static int create_new_active(s_event * event)
 
 	char *file;
 	int found = 0;
+	char **path_comp;
+	int i;
 
 	assert(event->event_type == &EVENT_NEW_ACTIVE);
 	assert(event->data);
@@ -804,50 +806,40 @@ static int create_new_active(s_event * event)
 	printf("create_new_active(%s);\n", data->name);
 	/*printf("service \"%s\" ", data->name); */
 
-	file = malloc(sizeof(INITNG_ROOT) + (sizeof(char)*(strlen(data->name) + 2)));
+	file = malloc(sizeof(INITNG_ROOT "/default") +
+	              sizeof(char) * (strlen(data->name) + 2));
 
-
-	// If data->name == "rulevel/fake-default
-	// try /etc/initng/runevel/fake-default
 	strcpy(file, INITNG_ROOT);
-	strcat(file, "/");
-	strcat(file, data->name);
-	if((found=parse_new_service_file(event, file)))
+
+	path_comp = split_delim(data->name, "/", NULL, 0);
+
+	for (i = 0; path_comp[i] != NULL; i++)
 	{
-	    free(file);
-	    return(found);
-	}
-
-
-	// Second, cut the prefix and just search by service name.
-	// ex
-	// data->name == "runevel/fake-default"
-	// try /etc/initng/fake-default"
-	
-	/* Search the file */
-	{
-		char **path_comp;
-
-		path_comp = split_delim(data->name, "/", NULL, 0);
-
-		strcpy(file, INITNG_ROOT);
 		strcat(file, "/");
-		strcat(file, path_comp[1]);
-		
-		if((found=parse_new_service_file(event, file)))
+		strcat(file, path_comp[i]);
+
+		if ((found = parse_new_service_file(event, file)))
 		{
-		    free(file);
-		    return(found);
+			/* We found it, yay! */
+			break;
 		}
-		split_delim_free(path_comp);
 	}
-	
 
+	if (path_comp[i + 1] == NULL && try_again)
+	{
+		try_again = 0;
+		i--;
+	}
 
+	if (!found)
+	{
+		strcat(file, "/default");
+		found = parse_new_service_file(event, file);
+	}
 
-	D_("File \"%s\" not found or it is not a regular file.\n", file);
+	split_delim_free(path_comp);
 	free(file);
-	return (FALSE);
+	return(found);
 }
 
 static int parse_new_service_file(s_event * event, char *file)
@@ -860,18 +852,16 @@ static int parse_new_service_file(s_event * event, char *file)
 	struct stat fstat;
 	data = event->data;
 
-    printf(" parsing file \"%s\"\n", file);
+	printf(" parsing file \"%s\"\n", file);
 
 
-    // Take stat on file
-    if (stat(file, &fstat) != 0)
-	return(FALSE);
-    
-    // Is a regular file
-    if(!S_ISREG(fstat.st_mode))
-    {
-	return(FALSE);
-    }
+	/* Take stat on file */
+	if (stat(file, &fstat) != 0)
+		return(FALSE);
+
+	/* Is a regular file */
+	if(!S_ISREG(fstat.st_mode))
+		return(FALSE);
 
 
 	if (!(fstat.st_mode & S_IXUSR))
