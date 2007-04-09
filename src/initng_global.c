@@ -172,6 +172,7 @@ static void initng_global_parse_argv(char **argv)
 #ifdef DEBUG
 		if (strcmp(opt, "verbose") == 0)
 			g.verbose = TRUE;
+		else
 #endif
 
 		if (strcmp(opt, "hot_reload") == 0)
@@ -180,10 +181,10 @@ static void initng_global_parse_argv(char **argv)
 			g.hot_reload = TRUE;
 		}
 
-		if (strcmp(opt, "fake") == 0)
+		else if (strcmp(opt, "fake") == 0)
 			g.i_am = I_AM_FAKE_INIT;
 
-		if (strcmp(opt, "no_circular") == 0)
+		else if (strcmp(opt, "no_circular") == 0)
 			g.no_circular = TRUE;
 
 		/* the ones with a value */

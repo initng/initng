@@ -825,12 +825,6 @@ static int create_new_active(s_event * event)
 		}
 	}
 
-	if (path_comp[i + 1] == NULL && try_again)
-	{
-		try_again = 0;
-		i--;
-	}
-
 	if (!found)
 	{
 		strcat(file, "/default");
