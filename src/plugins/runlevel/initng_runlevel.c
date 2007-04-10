@@ -276,7 +276,8 @@ static void init_RUNLEVEL_START_MARKED(active_db_h * new_runlevel)
 
 
 				/* If the service found in old runlevel, does not exsist i new one, stop it */
-				if (found == 0)
+
+				/*if (found == 0)
 				{
 					active_db_h *service_to_stop = initng_active_db_find_by_name(dep_old);
 
@@ -286,7 +287,7 @@ static void init_RUNLEVEL_START_MARKED(active_db_h * new_runlevel)
 						   service_to_stop->name, new_runlevel->name);
 						initng_handler_stop_service(service_to_stop);
 					}
-				}
+				}*/
 			}
 			/* check that it also exists in new runlevel */
 
