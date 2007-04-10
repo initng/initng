@@ -204,7 +204,7 @@ void active_db_print(active_db_h * s)
 
 
 	struct timeval now;
-	printf("\n\n\n\n\n#####################################################################################\n#SERVICE DATA DUMP:\n#");
+	printf("\n\n\n\n\n################################################################################\n#SERVICE DATA DUMP:\n#");
 	printf( "\n# %s  \"%s", s->type->name, s->name);
 
 	if (s->current_state && s->current_state->state_name)
@@ -243,6 +243,6 @@ void active_db_print(active_db_h * s)
 		}
 	}
 
-	printf("#####################################################################################\n\n\n");
+	printf("################################################################################\n\n\n");
 }
 
