@@ -23,7 +23,6 @@
 #include "initng.h"
 #include "initng_active_db.h"
 
-active_db_h *initng_common_load_to_active(const char *new_s_name);
 int initng_common_get_service(active_db_h * service);
 int initng_common_mark_service(active_db_h * service, a_state_h * state);
 int initng_common_service_blacklisted(const char *name);
