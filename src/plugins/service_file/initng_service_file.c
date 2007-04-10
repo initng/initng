@@ -194,7 +194,7 @@ static void bp_handle_client(int fd)
 
 	if (r != (signed) sizeof(bp_req))
 	{
-		F_("Could not read incoming service_file req.\n");
+		F_("Could not read incoming service_file req. (fd %i)\n", fd);
 		strcpy(rep.message, "Unable to read request");
 		rep.success = FALSE;
 		SEND();
