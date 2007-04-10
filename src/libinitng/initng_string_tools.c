@@ -471,3 +471,57 @@ void st_replace(char * dest, char * src, const char * n, const char * r)
 	if (d != last)
 		memmove(d, last, strlen(last));
 }
+
+void fix_escapes(char * str)
+{
+	int s, d;
+
+	if (!str)
+		return;
+
+	for (s = 0, d = 0; str[s] != '\0'; s++, d++)
+	{
+		if (str[s] != '\\') {
+			if (s != d)
+				str[d] = str[s];
+			continue;
+		}
+
+		s++;
+		switch(str[s])
+		{
+			case 'a':
+				str[d] = '\a';
+				break;
+
+			case 'b':
+				str[d] = '\b';
+				break;
+
+			case 'f':
+				str[d] = '\f';
+				break;
+
+			case 'n':
+				str[d] = '\n';
+				break;
+
+			case 'r':
+				str[d] = '\r';
+				break;
+
+			case 't':
+				str[d] = '\t';
+				break;
+
+			case 'v':
+				str[d] = '\v';
+				break;
+
+			default:
+				str[d] = str[s];
+		}
+	}
+
+	str[d] = '\0';
+}

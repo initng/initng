@@ -209,59 +209,6 @@ static int simple_exec_fork(process_h * process_to_exec, active_db_h * s,
 	/* if to test want to lock this up until fork is done ...   waitpid(pid_fork,0,0); */
 }											/* end fork_and_exec() */
 
-
-static void fix_escapes(char * str)
-{
-	int s, d;
-
-	for (s = 0, d = 0; str[s] != '\0'; s++, d++)
-	{
-		if (str[s] != '\\') {
-			if (s != d)
-				str[d] = str[s];
-			continue;
-		}
-
-		s++;
-		switch(str[s])
-		{
-			case 'a':
-				str[d] = '\a';
-				break;
-
-			case 'b':
-				str[d] = '\b';
-				break;
-
-			case 'f':
-				str[d] = '\f';
-				break;
-
-			case 'n':
-				str[d] = '\n';
-				break;
-
-			case 'r':
-				str[d] = '\r';
-				break;
-
-			case 't':
-				str[d] = '\t';
-				break;
-
-			case 'v':
-				str[d] = '\v';
-				break;
-
-			default:
-				str[d] = str[s];
-		}
-	}
-
-	str[d] = '\0';
-}
-
-
 static int simple_exec_try(const char * exec, active_db_h * service,
 						   process_h * process)
 {

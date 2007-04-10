@@ -4,6 +4,7 @@ SET(initng_bin_srcs
 	main.c
 	initng_global.c
 	initng_parse_args.c
+	initng_static_event_types.c
 )
 
 ADD_EXECUTABLE(initng_bin ${initng_bin_srcs})

@@ -20,7 +20,6 @@ SET(initng_lib_srcs
 	initng_plugin_callers.c
 	initng_process_db.c
 	initng_service_data_types.c
-	initng_static_event_types.c
 	initng_service_types.c
 	initng_signal.c
 	initng_static_data_id.c

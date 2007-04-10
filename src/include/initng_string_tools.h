@@ -88,5 +88,6 @@ int match_in_service(const char *string, const char *pattern);
  */
 int mprintf(char **p, const char *format, ...);
 
+void fix_escapes(char * str);
 
 #endif

@@ -792,29 +792,21 @@ static void handle_killed(active_db_h * service, process_h * process)
 static int create_new_active(s_event * event)
 {
 	s_event_new_active_data * data;
-
+	char *r = NULL;
 	char *file;
 	int found = 0;
-	int slashes=0;
-	int i,j;
 
 	assert(event->event_type == &EVENT_NEW_ACTIVE);
 	assert(event->data);
 
 	data = event->data;
 
-	//printf("create_new_active(%s);\n", data->name);
-	/*printf("service \"%s\" ", data->name); */
+	/* printf("create_new_active(%s);\n", data->name); */
+	/* printf("service \"%s\" ", data->name); */
 
-	file = malloc(sizeof(INITNG_ROOT "/default") +
+	file = malloc(sizeof(INITNG_ROOT) + sizeof("/default") +
 	              sizeof(char) * (strlen(data->name) + 2));
 
-	// Count the number of '/' found in service name
-	for(i=0;data->name[i];i++)
-	    if(data->name[i]=='/')
-		slashes++;
-	
-	//printf("%i slashes", slashes);
 	/*
 	 * scheme: "daemon/samba/smbd"
 	 * try 1 "daemon/samba/smbd"
@@ -824,36 +816,29 @@ static int create_new_active(s_event * event)
 	 * try 5 "daemon"
 	 * try 6 "daemon/default"
 	 */
-	
-	// Now try by cuting with the last slach everyting to search
-	for(i=0; i<slashes || i==0; i++)
-	{
-	    strcpy(file, INITNG_ROOT);
-	    strcat(file, "/");
-	    strcat(file, data->name);
-	    
-	    // cut string by last '/' i times.
-	    for(j=0;j<i;j++)
-	    {
-		char * r = strrchr(file, '/');
-		if(r) r[0]='\0';
-	    }
 
-	    // Try find with that
-	    if ((found = parse_new_service_file(event, file)))
-	    {
-		free(file);
-		return(found);
-	    }
-	    
-	    // Add this and see if there is better luck
-	    strcat(file, "/default");
-	    if ((found = parse_new_service_file(event, file)))
-	    {
-		free(file);
-		return(found);
-	    }
-	}
+	strcpy(file, INITNG_ROOT "/");
+	strcat(file, data->name);
+
+	do
+	{
+		/* Cut the string at r, if set */
+		if (r)
+			r[0] = '\0';
+
+		/* Try find with that */
+		if ((found = parse_new_service_file(event, file)))
+			break;
+
+		/* Save the last slash before trying anything else, */
+		/* that way we can cut at it later */
+		r = strrchr(file, '/');
+
+		/* Add this and see if there is better luck */
+		strcat(file, "/default");
+
+		found = parse_new_service_file(event, file);
+	} while (!found && r);
 
 	free(file);
 	return(found);
