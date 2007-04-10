@@ -24,6 +24,13 @@ is_service()
 }
 
 export PATH="@LIB_INSTALL_DIR@/ibin:${PATH}"
-. "${SFILE}"
+if [ -x "${SFILE}" ]
+then
+    . "${SFILE}"
 
-${CMD}
+    ${CMD}
+    exit $?
+fi
+
+echo "File ${SFILE} ${CMD} not found."
+exit 1
