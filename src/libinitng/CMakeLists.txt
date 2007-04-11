@@ -4,6 +4,9 @@ SET(initng_lib_srcs
 	active_db/find.c
 	active_db/register.c
 	active_db/utils.c
+	module/depend.c
+	module/load.c
+	module/unload.c
 
 	initng_active_state.c
 	initng_common.c
@@ -17,7 +20,6 @@ SET(initng_lib_srcs
 	initng_handler.c
 	initng_interrupt.c
 	initng_kill_handler.c
-	initng_load_module.c
 	initng_open_read_close.c
 	initng_plugin_callers.c
 	initng_process_db.c
