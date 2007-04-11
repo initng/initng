@@ -15,16 +15,12 @@ SET(initng_lib_srcs
 	initng_interrupt.c
 	initng_kill_handler.c
 	initng_load_module.c
-	initng_main.c
 	initng_open_read_close.c
 	initng_plugin_callers.c
 	initng_process_db.c
 	initng_service_data_types.c
 	initng_service_types.c
 	initng_signal.c
-	initng_static_data_id.c
-	initng_static_states.c
-	initng_static_service_types.c
 	initng_string_tools.c
 	initng_struct_data.c
 	initng_toolbox.c
