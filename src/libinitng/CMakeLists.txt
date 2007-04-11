@@ -1,7 +1,10 @@
 INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/src/include ${CMAKE_BINARY_DIR} )
-
 SET(initng_lib_srcs
-	initng_active_db.c
+	active_db/alloc.c
+	active_db/find.c
+	active_db/register.c
+	active_db/utils.c
+
 	initng_active_state.c
 	initng_common.c
 	initng_control_command.c
