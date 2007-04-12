@@ -89,10 +89,6 @@ char **new_environ(active_db_h * s)
 	allocate = 114;
 
 	/* count existing env's */
-#ifdef USE_OLD_ENV							/* DO NOT USE - BROKEN */
-	while (environ[nr])
-		allocate++;
-#endif
 
 	/* count ENVs in service ENV variable */
 	if (s)
@@ -101,14 +97,6 @@ char **new_environ(active_db_h * s)
 
 	/* finally allocate */
 	env = (char **) i_calloc(allocate, sizeof(char *));
-
-	/* duplicate */
-#ifdef USE_OLD_ENV
-	for (nr = 0; environ[nr] && nr < allocate; nr++)
-	{
-		env[nr] = i_strdup(environ[nr]);
-	}
-#endif
 
 	/* add all static defined above in initng_environ */
 	for (nr = 0; initng_environ[nr]; nr++)
@@ -240,18 +228,4 @@ void free_environ(char **tf)
 		free(tf[i]);
 	}
 	free(tf);
-}
-
-int is_same_env_var(char *var1, char *var2)
-{
-	int i = 0;
-
-	if (!var1 || !var2)
-		return 0;							/* bad error checking in caller! */
-
-	for (i = 0; var1[i] && var2[i] && var1[i] != '=' && var1[i] == var2[i];
-		 i++)
-		;
-
-	return var1[i] == var2[i];
 }

@@ -7,6 +7,25 @@ SET(initng_lib_srcs
 	module/depend.c
 	module/load.c
 	module/unload.c
+	event/hook.c
+	event/send.c
+	event/type.c
+	process_db/alloc.c
+	process_db/find.c
+	process_db/pipe.c
+	process_db/type.c
+	service/data_type.c
+	service/type.c
+	string/dup.c
+	string/mprintf.c
+	string/replace.c
+	string/match.c
+	string/path.c
+	string/split_delim.c
+	toolbox/alloc.c
+	toolbox/set_proc_title.c
+	env/alloc.c
+	env/match.c
 
 	initng_active_state.c
 	initng_common.c
@@ -14,7 +33,6 @@ SET(initng_lib_srcs
 	initng_depend.c
 	initng_error.c
 	initng_execute.c
-	initng_env_variable.c
 	initng_fd.c
 	initng_fork.c
 	initng_handler.c
@@ -22,16 +40,8 @@ SET(initng_lib_srcs
 	initng_kill_handler.c
 	initng_open_read_close.c
 	initng_plugin_callers.c
-	initng_process_db.c
-	initng_service_data_types.c
-	initng_service_types.c
 	initng_signal.c
-	initng_string_tools.c
 	initng_struct_data.c
-	initng_toolbox.c
-	initng_event_types.c
-	initng_event_hook.c
-	initng_event.c
 )
 
 ADD_LIBRARY(initng SHARED ${initng_lib_srcs})
