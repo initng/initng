@@ -49,33 +49,6 @@
 #include "initng_static_event_types.h"
 
 /*
- * this function walks through the g.Argv, if it founds service name,
- * with an starting -service, this function will return FALSE, and
- * the service wont be able to load, means that is it blacklisted.
- * return TRUE if service is okay to load.
- */
-int initng_common_service_blacklisted(const char *name)
-{
-	int i;
-
-	assert(name);
-	assert(g.Argv);
-
-	/* walk through arguments looking for this dep to be blacklisted */
-	for (i = 1; (g.Argv)[i]; i++)
-	{
-		/* if we got a match */
-		if ((g.Argv)[i][0] == '-')
-		{
-			if (strcmp(name, (g.Argv)[i] + 1) == 0
-				|| service_match(name, (g.Argv)[i] + 1))
-				return (TRUE);
-		}
-	}
-	return (FALSE);
-}
-
-/*
  * Use this function to change the status of an service, this
  * function might refuse to change to that state, and if that
  * it will return FALSE, please always check the return value

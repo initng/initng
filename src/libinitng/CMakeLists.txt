@@ -26,23 +26,37 @@ SET(initng_lib_srcs
 	toolbox/set_proc_title.c
 	env/alloc.c
 	env/match.c
+	active_state/register.c
+	active_state/find.c
+	fork/fork.c
+	signal/set.c
+	signal/handle.c
+	fd/cloexec.c
+	fd/close_all.c
+	fd/pipe.c
+	fd/pool.c
+	fd/read_input.c
+	common/blacklist.c
+	common/state.c
+	error/failsafe_print.c
+	error/print.c
 
-	initng_active_state.c
-	initng_common.c
 	initng_control_command.c
 	initng_depend.c
-	initng_error.c
 	initng_execute.c
-	initng_fd.c
-	initng_fork.c
 	initng_handler.c
 	initng_interrupt.c
 	initng_kill_handler.c
 	initng_open_read_close.c
 	initng_plugin_callers.c
-	initng_signal.c
 	initng_struct_data.c
 )
+
+IF(DEBUG)
+	SET(initng_lib_srcs ${initng_lib_srcs}
+		error/debug.c
+	)
+ENDIF(DEBUG)
 
 ADD_LIBRARY(initng SHARED ${initng_lib_srcs})
 TARGET_LINK_LIBRARIES(initng dl ${COREDUMPER_LIBS} ${SELINUX_LIBS})

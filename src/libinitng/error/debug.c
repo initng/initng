@@ -35,111 +35,7 @@
 
 #include "initng_static_event_types.h"
 
-int lock_error_printing = 0;
 
-static void initng_failsafe_print_error(e_mt mt, const char *file,
-										const char *func, int line,
-										const char *format, va_list arg)
-{
-	struct tm *ts;
-	time_t t;
-
-	t = time(0);
-	ts = localtime(&t);
-
-
-	switch (mt)
-	{
-		case MSG_FAIL:
-			if (file && func)
-				fprintf(stderr,
-						"\n\n FAILSAFE ERROR ** \"%s\", %s() line %i:\n",
-						file, func, line);
-			fprintf(stderr, " %.2i:%.2i:%.2i -- FAIL:\t", ts->tm_hour,
-					ts->tm_min, ts->tm_sec);
-			break;
-		case MSG_WARN:
-			if (file && func)
-				fprintf(stderr,
-						"\n\n FAILSAFE ERROR ** \"%s\", %s() line %i:\n",
-						file, func, line);
-			fprintf(stderr, " %.2i:%.2i:%.2i -- WARN:\t", ts->tm_hour,
-					ts->tm_min, ts->tm_sec);
-			break;
-		default:
-			break;
-	}
-
-	vfprintf(stderr, format, arg);
-
-}
-
-int initng_error_print(e_mt mt, const char *file, const char *func, int line,
-					   const char *format, ...)
-{
-	assert(file);
-	assert(func);
-	assert(format);
-
-	int delivered = FALSE;
-	va_list arg;
-
-	/* This lock is to make sure we don't get into an endless print loop */
-	if (lock_error_printing == 1)
-		return (0);
-
-	/* put the lock, to avoid a circular bug */
-	lock_error_printing = 1;
-
-	/* start the variable list */
-	va_start(arg, format);
-
-	/* check for hooks */
-	{
-		s_event event;
-		s_event_error_message_data data;
-
-		event.event_type = &EVENT_ERROR_MESSAGE;
-		event.data = &data;
-		data.mt = mt;
-		data.file = file;
-		data.func = func;
-		data.line = line;
-		data.format = format;
-
-		va_copy(data.arg, arg);
-
-		if (initng_event_send(&event) == TRUE)
-			delivered = TRUE;
-
-		va_end(data.arg);
-	}
-
-	/* Print on failsafe if no hook is to listen. */
-	if (!delivered)
-	{
-		va_list pass;
-
-		va_copy(pass, arg);
-
-		initng_failsafe_print_error(mt, file, func, line, format, pass);
-
-		va_end(pass);
-	}
-
-	va_end(arg);
-
-	lock_error_printing = 0;
-	return (TRUE);
-}
-
-
-
-/*      ***************           Below are only extra prints, used with DEBUG defined!    ***********************   */
-
-
-
-#ifdef DEBUG
 static int msgs = 0;
 static const char *last_file = NULL;
 static const char *last_func = NULL;
@@ -349,5 +245,3 @@ int initng_error_print_debug(const char *file, const char *func, int line,
 	lock_error_printing = 0;
 	return (done);
 }
-
-#endif
