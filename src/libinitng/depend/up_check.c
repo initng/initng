@@ -19,36 +19,32 @@
 
 #include "initng.h"
 
-#define _GNU_SOURCE
-#include <fnmatch.h>
-
-#include <string.h>
 #include <stdio.h>
-#include <ctype.h>
+#include <stdlib.h>							/* free() exit() */
+#include <string.h>
 #include <assert.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#include "initng_string_tools.h"
+
+#include "initng_handler.h"
+#include "initng_global.h"
+#include "initng_common.h"
 #include "initng_toolbox.h"
+#include "initng_static_data_id.h"
+#include "initng_static_states.h"
+#include "initng_env_variable.h"
+#include "initng_static_event_types.h"
+
+#include "initng_depend.h"
 
 
-void st_replace(char * dest, char * src, const char * n, const char * r)
+/*
+ * This is a final check, before a daemon or service can be marked as UP.
+ */
+int initng_depend_up_check(active_db_h * service)
 {
-	char *p;
-	char *d = dest;
-	char *last = src;
-	int nlen = strlen(n);
-	int rlen = strlen(r);
+	s_event event;
 
-	while ((p = strstr(last, n)))
-	{
-		memmove(d, last, p - last);
-		d += p - last;
-		memmove(d, r, rlen);
-		d += rlen;
-		last = p + nlen;
-	}
+	event.event_type = &EVENT_UP_MET;
+	event.data = service;
 
-	if (d != last)
-		memmove(d, last, strlen(last));
+	return (initng_event_send(&event));
 }

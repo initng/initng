@@ -18,37 +18,39 @@
  */
 
 #include "initng.h"
-
 #define _GNU_SOURCE
-#include <fnmatch.h>
-
-#include <string.h>
-#include <stdio.h>
-#include <ctype.h>
 #include <assert.h>
 #include <stdlib.h>
-#include <stdarg.h>
-#include "initng_string_tools.h"
+#include <string.h>
+
+#include "initng_control_command.h"
+
+#include "initng_global.h"
 #include "initng_toolbox.h"
 
 
-void st_replace(char * dest, char * src, const char * n, const char * r)
+/* look for a command by command_id */
+s_command *initng_command_find_by_command_id(char cid)
 {
-	char *p;
-	char *d = dest;
-	char *last = src;
-	int nlen = strlen(n);
-	int rlen = strlen(r);
+	s_command *current = NULL;
 
-	while ((p = strstr(last, n)))
+	while_command_db(current)
 	{
-		memmove(d, last, p - last);
-		d += p - last;
-		memmove(d, r, rlen);
-		d += rlen;
-		last = p + nlen;
+		if (current->command_id == cid)
+			return (current);
 	}
+	return (NULL);
+}
 
-	if (d != last)
-		memmove(d, last, strlen(last));
+/* look for a command by command_id */
+s_command *initng_command_find_by_command_string(char *name)
+{
+	s_command *current = NULL;
+
+	while_command_db(current)
+	{
+		if (current->long_id && strcmp(current->long_id, name) == 0)
+			return (current);
+	}
+	return (NULL);
 }

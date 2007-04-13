@@ -19,36 +19,39 @@
 
 #include "initng.h"
 
-#define _GNU_SOURCE
-#include <fnmatch.h>
-
-#include <string.h>
 #include <stdio.h>
-#include <ctype.h>
+#include <stdlib.h>							/* free() exit() */
+#include <string.h>
 #include <assert.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#include "initng_string_tools.h"
+
+#include "initng_handler.h"
+#include "initng_global.h"
+#include "initng_common.h"
 #include "initng_toolbox.h"
+#include "initng_static_data_id.h"
+#include "initng_static_states.h"
+#include "initng_env_variable.h"
+#include "initng_static_event_types.h"
+
+#include "initng_depend.h"
 
 
-void st_replace(char * dest, char * src, const char * n, const char * r)
+int initng_depend_restart_deps(active_db_h * service)
 {
-	char *p;
-	char *d = dest;
-	char *last = src;
-	int nlen = strlen(n);
-	int rlen = strlen(r);
+	active_db_h *current = NULL;
+	active_db_h *safe = NULL;
 
-	while ((p = strstr(last, n)))
+	/* also stop all service depending on service_to_stop */
+	while_active_db_safe(current, safe)
 	{
-		memmove(d, last, p - last);
-		d += p - last;
-		memmove(d, r, rlen);
-		d += rlen;
-		last = p + nlen;
+		/* Dont mind stop itself */
+		if (current == service)
+			continue;
+
+		/* if current depends on the one we are stopping */
+		if (initng_depend_deep(current, service) == TRUE)
+			initng_handler_restart_service(current);
 	}
 
-	if (d != last)
-		memmove(d, last, strlen(last));
+	return (TRUE);
 }
