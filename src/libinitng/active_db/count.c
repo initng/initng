@@ -1,0 +1,83 @@
+/*
+ * Initng, a next generation sysvinit replacement.
+ * Copyright (C) 2006 Jimmy Wennlund <jimmy.wennlund@gmail.com>
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+
+#include "initng.h"
+
+#include <sys/types.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <alloca.h>
+#include <assert.h>
+#include <fnmatch.h>
+#include <sys/time.h>
+#include <time.h>
+
+#include "initng_global.h"
+#include "initng_active_db.h"
+#include "initng_process_db.h"
+#include "initng_toolbox.h"
+#include "initng_common.h"
+#include "initng_static_data_id.h"
+#include "initng_plugin_callers.h"
+#include "initng_string_tools.h"
+#include "initng_static_states.h"
+#include "initng_depend.h"
+
+
+/* active_db_count counts a type, if null, count all */
+int initng_active_db_count(a_state_h * current_state_to_count)
+{
+	int counter = 0;			/* actives counter */
+	active_db_h *current = NULL;
+
+	/* ok, go COUNT ALL */
+	if (!current_state_to_count)
+	{
+		/* ok, go through all */
+		while_active_db(current)
+		{
+			assert(current->name);
+
+			/* count almost all */
+
+			/* but not failed services */
+			if (IS_FAILED(current))
+				continue;
+			/* and not stopped */
+			if (IS_DOWN(current))
+				continue;
+
+			counter++;
+		}
+
+		return (counter);
+	}
+
+	/* ok, go COUNT A SPECIAL */
+	while_active_db(current)
+	{
+		assert(current->name);
+		/* check if this is the status to count */
+		if (current->current_state == current_state_to_count)
+			counter++;
+	}
+	/* return counter */
+	return (counter);
+}

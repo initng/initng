@@ -41,65 +41,6 @@
 #include "initng_depend.h"
 
 
-/* compensate time */
-void initng_active_db_compensate_time(time_t skew)
-{
-	active_db_h *current = NULL;
-
-	/* walk the active_db */
-	while_active_db(current)
-	{
-		assert(current->name);
-		/* change this time */
-		current->time_current_state.tv_sec += skew;
-		current->time_last_state.tv_sec += skew;
-		current->last_rought_time.tv_sec += skew;
-		current->alarm += skew;
-	}
-}
-
-/* active_db_count counts a type, if null, count all */
-int initng_active_db_count(a_state_h * current_state_to_count)
-{
-	int counter = 0;			/* actives counter */
-	active_db_h *current = NULL;
-
-	/* ok, go COUNT ALL */
-	if (!current_state_to_count)
-	{
-		/* ok, go through all */
-		while_active_db(current)
-		{
-			assert(current->name);
-
-			/* count almost all */
-
-			/* but not failed services */
-			if (IS_FAILED(current))
-				continue;
-			/* and not stopped */
-			if (IS_DOWN(current))
-				continue;
-
-			counter++;
-		}
-
-		return (counter);
-	}
-
-	/* ok, go COUNT A SPECIAL */
-	while_active_db(current)
-	{
-		assert(current->name);
-		/* check if this is the status to count */
-		if (current->current_state == current_state_to_count)
-			counter++;
-	}
-	/* return counter */
-	return (counter);
-}
-
-
 /* calculate percent of processes started */
 int initng_active_db_percent_started(void)
 {
@@ -197,33 +138,4 @@ int initng_active_db_percent_stopped(void)
 		return ((int) tmp);
 	}
 	return 0;
-}
-
-
-
-/*
- * Walk the active db, searching for services that are down, and been so for a minute.
- * It will remove this entry to save memory.
- * CLEAN_DELAY are defined in initng.h
- */
-void initng_active_db_clean_down(void)
-{
-	active_db_h *current = NULL;
-	active_db_h *safe = NULL;
-
-	while_active_db_safe(current, safe)
-	{
-		assert(current->name);
-		assert(current->current_state);
-		if (g.now.tv_sec > current->time_current_state.tv_sec + CLEAN_DELAY)
-		{
-			initng_process_db_clear_freed(current);
-
-			/* count stopped services */
-			if (!IS_DOWN(current))
-				continue;
-
-			initng_active_db_free(current);
-		}
-	}
 }

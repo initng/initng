@@ -213,19 +213,3 @@ char **new_environ(active_db_h * s)
 	/* return new environ */
 	return (env);
 }
-
-/* this frees an environment variable - not to be used on the output of
- * new_environ!
- */
-void free_environ(char **tf)
-{
-	int i = 0;
-
-	D_("free_environ();\n");
-	assert(tf);
-	for (i = 0; tf[i]; tf++)
-	{
-		free(tf[i]);
-	}
-	free(tf);
-}
