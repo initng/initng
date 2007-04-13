@@ -46,23 +46,6 @@
 
 #include "initng_fork.h"
 
-void initng_fork_aforkhooks(active_db_h * service, process_h * process)
-{
-	s_event event;
-	s_event_after_fork_data data;
-
-	event.event_type = &EVENT_AFTER_FORK;
-	event.data = &data;
-
-	data.process = process;
-	data.service = service;
-
-	if (initng_event_send(&event) == FAIL) {
-		F_("Some plugin did fail in after fork launch.\n");
-		_exit(1);
-	}
-}
-
 pid_t initng_fork(active_db_h * service, process_h * process)
 {
 	/* This is the real service kicker */

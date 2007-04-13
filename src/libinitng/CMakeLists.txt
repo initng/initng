@@ -1,16 +1,21 @@
 INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/src/include ${CMAKE_BINARY_DIR} )
 SET(initng_lib_srcs
-	active_db/alloc.c
+	active_db/new.c
+	active_db/free.c
 	active_db/find.c
+	active_db/clean_down.c
+	active_db/count.c
+	active_db/percent.c
+	active_db/compensate_time.c
 	active_db/register.c
-	active_db/utils.c
 	module/depend.c
 	module/load.c
 	module/unload.c
 	event/hook.c
 	event/send.c
 	event/type.c
-	process_db/alloc.c
+	process_db/new.c
+	process_db/free.c
 	process_db/find.c
 	process_db/pipe.c
 	process_db/type.c
@@ -19,18 +24,21 @@ SET(initng_lib_srcs
 	string/dup.c
 	string/mprintf.c
 	string/replace.c
+	string/fix_escapes.c
 	string/match.c
 	string/path.c
 	string/split_delim.c
 	toolbox/alloc.c
 	toolbox/set_proc_title.c
-	env/alloc.c
+	env/new.c
+	env/free.c
 	env/match.c
 	active_state/register.c
 	active_state/find.c
 	fork/fork.c
+	fork/aforkhooks.c
 	signal/set.c
-	signal/handle.c
+	signal/handlers.c
 	fd/cloexec.c
 	fd/close_all.c
 	fd/pipe.c
@@ -40,12 +48,33 @@ SET(initng_lib_srcs
 	common/state.c
 	error/failsafe_print.c
 	error/print.c
+	control_command/register.c
+	control_command/find.c
+	control_command/execute.c
+	execute/launch.c
+	handler/restart_restarting.c
+	handler/start_service.c
+	handler/restart_service.c
+	handler/stop_all.c
+	handler/run_alarm.c
+	handler/stop_service.c
+	handler/start_new_service_named.c
+	depend/any_depends_on.c
+	depend/restart_deps.c
+	depend/stop_deps.c
+	depend/depend.c
+	depend/start_dep_met.c
+	depend/up_check.c
+	depend/depend_deep.c
+	depend/start_deps.c
+	depend/dep_on.c
+	depend/stop_dep_met.c
+	interrupt/check_sys_state.c
+	interrupt/handle.c
+	interrupt/run_handlers.c
+	interrupt/dep_failed.c
+	interrupt/interrupt.c
 
-	initng_control_command.c
-	initng_depend.c
-	initng_execute.c
-	initng_handler.c
-	initng_interrupt.c
 	initng_kill_handler.c
 	initng_open_read_close.c
 	initng_plugin_callers.c
