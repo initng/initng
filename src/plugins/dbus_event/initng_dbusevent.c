@@ -352,7 +352,7 @@ static void system_pipe_watchers(s_event * event)
 	char output[100]; //used for ? needs fix
 
 	if (conn == NULL) {
-		event.status = HANDLED;
+		event->status = HANDLED;
 		return;
 	}
 
@@ -363,7 +363,7 @@ static void system_pipe_watchers(s_event * event)
 	if (NULL == msg)
 	{
 		F_("Unable to create new dbus signal\n");
-		event.status = HANDLED;
+		event->status = HANDLED;
 		return;
 	}
 
@@ -374,7 +374,7 @@ static void system_pipe_watchers(s_event * event)
 		 &process_name, DBUS_TYPE_STRING, &output, DBUS_TYPE_INVALID))
 	{
 		F_("Unable to append args to dbus signal!\n");
-		event.status = HANDLED;
+		event->status = HANDLED;
 		return;
 	}
 
@@ -383,7 +383,7 @@ static void system_pipe_watchers(s_event * event)
 	if (!dbus_connection_send(conn, msg, &serial))
 	{
 		F_("Unable to send dbus signal!\n");
-		event.status = HANDLED;
+		event->status = HANDLED;
 		return;
 	}
 	//dbus_connection_flush(conn);
@@ -392,7 +392,7 @@ static void system_pipe_watchers(s_event * event)
 	dbus_message_unref(msg);
 
 	D_("Dbus Signal Sent\n");
-	event.status = HANDLED;
+	event->status = HANDLED;
 }
 
 static void print_error(s_event * event)
