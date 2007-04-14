@@ -47,11 +47,6 @@
 #define FALSE   0
 #define FAIL    -1
 
-
-/* Event-specific return values */
-#define HANDLED 2
-
-
 #ifdef _SVN_REF
 #define INITNG_VERSION VERSION "+svn " _SVN_REF " " VERSION_NAME
 #else

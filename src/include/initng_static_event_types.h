@@ -68,11 +68,6 @@ typedef struct {
 } s_event_pipe_watcher_data;
 
 typedef struct {
-	const char * name;
-	active_db_h * ret;
-} s_event_new_active_data;
-
-typedef struct {
 	active_db_h * service, * check;
 } s_event_dep_on_data;
 

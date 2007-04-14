@@ -17,8 +17,8 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef INITNG_SYSTEM_STATES
-#define INITNG_SYSTEM_STATES
+#ifndef INITNG_SYSTEM_STATES_H
+#define INITNG_SYSTEM_STATES_H
 /* System states */
 typedef enum
 {

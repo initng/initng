@@ -21,12 +21,21 @@
 #ifndef INITNG_EVENT_H
 #define INITNG_EVENT_H
 
+typedef enum {
+	WAITING = 0, /* reserved for future use */
+	OK,
+	HANDLED,
+	FAILED = -1,
+} event_status_t;
+
 typedef struct {
-	struct s_event_type_s * event_type;
-	void * data;
+	struct s_event_type_s *event_type;
+	void *data;
+	void *ret;
+	event_status_t status;
 } s_event;
 
 
-int initng_event_send(s_event *event);
+void initng_event_send(s_event *event);
 
 #endif
