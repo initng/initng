@@ -51,6 +51,7 @@
 /* self */
 #include "initng_interrupt.h"
 
+#include "local.h"
 
 int initng_interrupt(void)
 {

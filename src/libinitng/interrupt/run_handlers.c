@@ -51,12 +51,13 @@
 /* self */
 #include "initng_interrupt.h"
 
+#include "local.h"
 
 /*
  * This function is run from main when g.interrupt is set.
  * Will do special actions, for some status mode.
  */
-static void initng_handler_run_interrupt_handlers(void)
+void initng_handler_run_interrupt_handlers(void)
 {
 	active_db_h *current, *q = NULL;
 

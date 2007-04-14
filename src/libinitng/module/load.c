@@ -35,6 +35,7 @@
 #include "initng_common.h"
 #include <initng-paths.h>
 
+#include "local.h"
 
 /*
  * Read the module information from the file. Does not actually call

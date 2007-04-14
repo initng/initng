@@ -35,6 +35,7 @@
 #include "initng_common.h"
 #include <initng-paths.h>
 
+#include "local.h"
 
 /*
  * Invoke callback, clean up module.

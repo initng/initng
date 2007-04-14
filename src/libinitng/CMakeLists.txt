@@ -42,11 +42,10 @@ SET(initng_lib_srcs
 	fd/cloexec.c
 	fd/close_all.c
 	fd/pipe.c
-	fd/pool.c
+	fd/poll.c
 	fd/read_input.c
 	common/blacklist.c
 	common/state.c
-	error/failsafe_print.c
 	error/print.c
 	control_command/register.c
 	control_command/find.c
@@ -79,13 +78,11 @@ SET(initng_lib_srcs
 	initng_open_read_close.c
 	initng_plugin_callers.c
 	initng_struct_data.c
+	initng_static_service_types.c
+	initng_static_states.c
+	initng_static_data_id.c
+	initng_main.c
 )
-
-IF(DEBUG)
-	SET(initng_lib_srcs ${initng_lib_srcs}
-		error/debug.c
-	)
-ENDIF(DEBUG)
 
 ADD_LIBRARY(initng SHARED ${initng_lib_srcs})
 TARGET_LINK_LIBRARIES(initng dl ${COREDUMPER_LIBS} ${SELINUX_LIBS})

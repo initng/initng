@@ -34,6 +34,7 @@
 #include "initng_global.h"
 #include "initng_main.h"
 
+#include "local.h"
 
 /*
  * If we got an child that died, this handler is called.
@@ -102,7 +103,7 @@ void initng_signal_handle_sigchild(void)
 }
 
 /* called by signal SIGSEGV */
-static void sigsegv(int sig)
+void sigsegv(int sig)
 {
 	(void) sig;
 	printf("SEGFAULTED!\n");

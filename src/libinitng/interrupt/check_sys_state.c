@@ -51,8 +51,9 @@
 /* self */
 #include "initng_interrupt.h"
 
+#include "local.h"
 
-static void check_sys_state_up(void)
+void check_sys_state_up(void)
 {
 	active_db_h *current = NULL;
 

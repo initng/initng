@@ -2,13 +2,9 @@ INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/src/include ${CMAKE_BINARY_DIR} )
 
 SET(initng_bin_srcs
 	main.c
-	initng_main.c
 	initng_global.c
 	initng_parse_args.c
 	initng_static_event_types.c
-	initng_static_states.c
-	initng_static_service_types.c
-	initng_static_data_id.c
 )
 
 ADD_EXECUTABLE(initng_bin ${initng_bin_srcs})

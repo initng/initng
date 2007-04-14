@@ -34,6 +34,7 @@
 #include "initng_global.h"
 #include "initng_main.h"
 
+#include "local.h"
 
 volatile int signals_got[SIGNAL_STACK];
 

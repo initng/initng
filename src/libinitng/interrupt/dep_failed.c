@@ -51,12 +51,13 @@
 /* self */
 #include "initng_interrupt.h"
 
+#include "local.h"
 
 /*
  * when a service fails to start, this function
  * walks through all its dependencies, and mark it "dependency failed to start"
  */
-static void dep_failed_to_start(active_db_h * service)
+void dep_failed_to_start(active_db_h * service)
 {
 	/* TODO, find a way to handle this */
 #ifdef NONO
@@ -80,7 +81,7 @@ static void dep_failed_to_start(active_db_h * service)
  * when a service fails to stop, this function
  * walks through all its dependencies, and mark it "dependency failed to stop"
  */
-static void dep_failed_to_stop(active_db_h * service)
+void dep_failed_to_stop(active_db_h * service)
 {
 	active_db_h *current = NULL;
 

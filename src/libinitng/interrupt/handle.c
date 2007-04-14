@@ -51,8 +51,9 @@
 /* self */
 #include "initng_interrupt.h"
 
+#include "local.h"
 
-static void handle(active_db_h * service)
+void handle(active_db_h * service)
 {
 	s_event event;
 	a_state_h *state = service->current_state;

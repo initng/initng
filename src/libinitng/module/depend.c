@@ -35,6 +35,7 @@
 #include "initng_common.h"
 #include <initng-paths.h>
 
+#include "local.h"
 
 /*
  * Some modules depend on other modules.
@@ -88,7 +89,7 @@
  *
  * Returns TRUE if already loaded, else FALSE.
  */
-static int initng_load_module_is_loaded(const char *module_name)
+int initng_load_module_is_loaded(const char *module_name)
 {
 	m_h *m = NULL;
 
@@ -108,7 +109,7 @@ static int initng_load_module_is_loaded(const char *module_name)
 /*
  * Returns TRUE if module has its dependencies met, else FALSE.
  */
-static int initng_load_module_needs_are_loaded(const m_h * m)
+int initng_load_module_needs_are_loaded(const m_h * m)
 {
 	char **needs;
 	int retval;
@@ -144,7 +145,7 @@ static int initng_load_module_needs_are_loaded(const m_h * m)
  *
  * Returns TRUE if the module is needed, else FALSE.
  */
-static int initng_load_module_is_needed(const char *module_name)
+int initng_load_module_is_needed(const char *module_name)
 {
 	char **needs;
 	m_h *m = NULL;
