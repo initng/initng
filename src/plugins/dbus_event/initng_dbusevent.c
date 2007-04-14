@@ -41,7 +41,6 @@
 #include <initng_active_state.h>
 #include <initng_active_db.h>
 #include <initng_process_db.h>
-#include <initng_service_cache.h>
 #include <initng_handler.h>
 #include <initng_active_db.h>
 #include <initng_toolbox.h>
@@ -64,12 +63,12 @@ INITNG_PLUGIN_MACRO;
 void send_to_all(char *buf);
 
 
-static int astatus_change(s_event * event);
-static int check_socket(s_event * event);
+static void astatus_change(s_event * event);
+static void check_socket(s_event * event);
 static int connect_to_dbus(void);
-static int system_state_change(s_event * event);
-static int system_pipe_watchers(s_event * event);
-static int print_error(s_event * event);
+static void system_state_change(s_event * event);
+static void system_pipe_watchers(s_event * event);
+static void print_error(s_event * event);
 
 static dbus_bool_t add_dbus_watch(DBusWatch * watch, void *data);
 static void rem_dbus_watch(DBusWatch * watch, void *data);
