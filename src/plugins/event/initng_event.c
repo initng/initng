@@ -46,8 +46,8 @@
 INITNG_PLUGIN_MACRO;
 
 
-static int handle_event(s_event * event);
-static int event_triggerer(s_event * pevent);
+static void handle_event(s_event * event);
+static void event_triggerer(s_event * pevent);
 
 /*
  * ############################################################################
@@ -198,7 +198,7 @@ void module_unload(void)
  * ############################################################################
  */
 
-static int event_triggerer(s_event * pevent)
+static void event_triggerer(s_event * pevent)
 {
 	active_db_h * service;
 	s_event event;
@@ -226,8 +226,6 @@ static int event_triggerer(s_event * pevent)
 			initng_event_send(&event);
 		}
 	}
-
-	return (TRUE);
 }
 
 
@@ -245,7 +243,7 @@ static void handle_event_leave(active_db_h * killed_event, process_h * process)
 	}
 }
 
-static int handle_event(s_event * event)
+static void handle_event(s_event * event)
 {
 	active_db_h * target;
 	char * target_name;
@@ -258,19 +256,19 @@ static int handle_event(s_event * event)
 	if (!(target = initng_active_db_find_by_exact_name(target_name)))
 	{
 		F_("Target service %s not found\n", target_name);
-		return (FALSE);
+		return;
 	}
 
 	if (target->type != &TYPE_EVENT)
 	{
 		F_("Target service %s is not event type\n", target_name);
-		return (FALSE);
+		return;
 	}
 
 	if (!IS_DOWN(target))
 	{
 		W_("Target service %s has been triggered already\n", target_name);
-		return (FALSE);
+		return;
 	}
 
 	initng_common_mark_service(target, &EVENT_RUNNING);
@@ -280,12 +278,10 @@ static int handle_event(s_event * event)
 		case FALSE:
 			F_("Did not find a run_event entry to run\n");
 			initng_common_mark_service(target, &EVENT_FAILED);
-			return (FALSE);
+			break;
 		case FAIL:
 			F_("Could not launch run_event\n");
 			initng_common_mark_service(target, &EVENT_FAILED);
-			return (FALSE);
+			break;
 	}
-
-	return (TRUE);
 }
