@@ -1,6 +1,7 @@
 SET(WRAPPERS
 	default
 	runlevel
+	virtual
 	compat
 	gentoo
 )
