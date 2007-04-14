@@ -54,8 +54,7 @@ s_entry STDIN = { "stdin", STRING, NULL,
 };
 
 
-
-static int setup_output(s_event * event)
+static void setup_output(s_event * event)
 {
 	s_event_after_fork_data * data;
 
@@ -92,7 +91,7 @@ static int setup_output(s_event * event)
 	if (!(s_stdout || s_stderr || s_stdall || s_stdin))
 	{
 		D_("This plugin won't do anything, because no opt set!\n");
-		return (TRUE);
+		return;
 	}
 
 	/* if stdout points to same as stderr, set s_stdall */
@@ -108,17 +107,20 @@ static int setup_output(s_event * event)
 	{
 		/* output all to this */
 		fd_stdall = open(s_stdall,
-				 O_WRONLY | O_NOCTTY | O_CREAT | O_APPEND, 0644);
+				 O_WRONLY | O_NOCTTY | O_CREAT | O_APPEND,
+				 0644);
 	}
 	else
 	{
 		/* else set them to different files */
 		if (s_stdout)
 			fd_stdout = open(s_stdout,
-					 O_WRONLY | O_NOCTTY | O_CREAT | O_APPEND, 0644);
+					 O_WRONLY | O_NOCTTY | O_CREAT |
+					 O_APPEND, 0644);
 		if (s_stderr)
 			fd_stderr = open(s_stderr,
-					 O_WRONLY | O_NOCTTY | O_CREAT | O_APPEND, 0644);
+					 O_WRONLY | O_NOCTTY | O_CREAT |
+					 O_APPEND, 0644);
 	}
 	if (s_stdin)
 		fd_stdin = open(s_stdin, O_RDONLY | O_NOCTTY, 0644);
@@ -169,8 +171,6 @@ static int setup_output(s_event * event)
 		dup2(fd_stdin, 0);
 		initng_fd_set_cloexec(fd_stdin);
 	}
-
-	return (TRUE);
 }
 
 

@@ -41,17 +41,17 @@
 
 INITNG_PLUGIN_MACRO;
 
-static int sysreq(s_event * event)
+static void sysreq(s_event * event)
 {
-	long signal;
+	int *signal;
 	active_db_h *current = NULL;
 
 	assert(event->event_type == &EVENT_SIGNAL);
 
-	signal = (long) event->data;
+	signal = event->data;
 
-	if (signal != SIGWINCH)
-		return (TRUE);
+	if (*signal != SIGWINCH)
+		return;
 
 	printf(" %-36s   %-15s (I)\n", "Service", "State");
 	printf(" ----------------------------------------------------------\n");
@@ -61,8 +61,6 @@ static int sysreq(s_event * event)
 			   current->current_state->state_name,
 			   current->current_state->is);
 	}
-
-	return (TRUE);
 }
 
 int module_init(int api_version)

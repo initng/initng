@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 eval "
 ${CMD}()
@@ -10,28 +10,12 @@ ${CMD}()
 
 ireg()
 {
-	[ -n "${2}" ] && export SERVICE="${2}"
+	[ -n "${2}" -a "${SERVICE}" != "${2}" ] && return 1
 	iregister "${1}" || exit ${?}
-}
-
-is_service()
-{
-    echo "is_service() $SERVICE $1 "
-	while [ ${#} -gt 0 ]; do
-		[ "${SERVICE}" = "${1}" ] && return 0
-		shift
-	done
-	return 1
+	_atexit="idone"
 }
 
 export PATH="@LIB_INSTALL_DIR@/ibin:${PATH}"
-if [ -x "${SFILE}" ]
-then
-    . "${SFILE}"
-
-    ${CMD}
-    exit $?
-fi
-
-echo "File ${SFILE} ${CMD} not found."
-exit 1
+. "${SFILE}"
+${CMD}
+${_atexit}

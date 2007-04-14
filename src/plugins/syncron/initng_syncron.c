@@ -61,7 +61,7 @@ static int resolv_SSR(void)
 
 
 /* Make sure if service syncron=module_loading, only one of the services with module_loading runs at once */
-static int check_syncronicly_service(s_event * event)
+static void check_syncronicly_service(s_event * event)
 {
 	active_db_h * service;
 	active_db_h *current, *q = NULL;
@@ -77,10 +77,10 @@ static int check_syncronicly_service(s_event * event)
 
 	/* we must have this state resolve, to compare it */
 	if (!resolv_SSR())
-		return (TRUE);
+		return;
 
 	if ((service_syncron = get_string(&SYNCRON, service)) == NULL)
-		return (TRUE);
+		return;
 
 	while_active_db_safe(current, q)
 	{
@@ -98,16 +98,16 @@ static int check_syncronicly_service(s_event * event)
 					D_("Service %s has to wait for %s\n", service->name,
 					   current->name);
 					/* refuse to change status */
-					return (FAIL);
+					event->status = FAILED;
+					return;
 				}
 			}
 		}
 	}
-	return (TRUE);
 }
 
 /* Make sure there is only one service starting */
-static int check_syncronicly(s_event * event)
+static void check_syncronicly(s_event * event)
 {
 	active_db_h * service;
 	active_db_h *current, *q = NULL;
@@ -119,7 +119,7 @@ static int check_syncronicly(s_event * event)
 
 	/* we must have this state resolve, to compare it */
 	if (!resolv_SSR())
-		return (TRUE);
+		return;
 
 	while_active_db_safe(current, q)
 	{
@@ -130,11 +130,10 @@ static int check_syncronicly(s_event * event)
 		if (IS_MARK(service, SERVICE_START_RUN))
 		{
 			/* no i cant set this status yet */
-			return (FAIL);
+			event->status = FAILED;
+			return;
 		}
 	}
-
-	return (TRUE);
 }
 
 int module_init(int api_version)
@@ -156,7 +155,7 @@ int module_init(int api_version)
 		{
 			check = TRUE;
 			initng_event_hook_register(&EVENT_START_DEP_MET,
-										&check_syncronicly);
+							&check_syncronicly);
 
 			return (TRUE);
 		}
@@ -164,7 +163,7 @@ int module_init(int api_version)
 	/* Notice this is only added if we don't have --synchronously */
 	D_("Adding synchron\n");
 	initng_event_hook_register(&EVENT_START_DEP_MET,
-								&check_syncronicly_service);
+					&check_syncronicly_service);
 
 
 	return (TRUE);
@@ -174,8 +173,12 @@ void module_unload(void)
 {
 
 	if (check == TRUE)
-		initng_event_hook_unregister(&EVENT_START_DEP_MET, &check_syncronicly);
+	{
+		initng_event_hook_unregister(&EVENT_START_DEP_MET,
+						&check_syncronicly);
+	}
+
 	initng_event_hook_unregister(&EVENT_START_DEP_MET,
-								  &check_syncronicly_service);
+					  &check_syncronicly_service);
 	initng_service_data_type_unregister(&SYNCRON);
 }

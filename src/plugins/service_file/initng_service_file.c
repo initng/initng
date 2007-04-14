@@ -1,3 +1,4 @@
+
 /*
  * Initng, a next generation sysvinit replacement.
  * Copyright (C) 2006 Jimmy Wennlund <jimmy.wennlund@gmail.com>
@@ -622,9 +623,7 @@ void bp_incoming(f_module_h * from, e_fdw what)
 	bp_closesock();
 	return;
 }
-#endif
 
-#ifdef GLOBAL_SOCKET
 /* this will try to open a new socket */
 static int bp_open_socket()
 {
@@ -789,23 +788,23 @@ static void handle_killed(active_db_h * service, process_h * process)
 	initng_handler_start_service(service);
 }
 
-static int create_new_active(s_event * event)
+static void create_new_active(s_event * event)
 {
-	s_event_new_active_data * data;
 	char *r = NULL;
 	char *file;
+	char *name;
 	int found = 0;
 
 	assert(event->event_type == &EVENT_NEW_ACTIVE);
 	assert(event->data);
 
-	data = event->data;
+	name = event->data;
 
-	/* printf("create_new_active(%s);\n", data->name); */
-	/* printf("service \"%s\" ", data->name); */
+	/* printf("create_new_active(%s);\n", name); */
+	/* printf("service \"%s\" ", name); */
 
 	file = malloc(sizeof(INITNG_ROOT) + sizeof("/default") +
-	              sizeof(char) * (strlen(data->name) + 2));
+	              sizeof(char) * (strlen(name) + 2));
 
 	/*
 	 * scheme: "daemon/samba/smbd"
@@ -818,7 +817,7 @@ static int create_new_active(s_event * event)
 	 */
 
 	strcpy(file, INITNG_ROOT "/");
-	strcat(file, data->name);
+	strcat(file, name);
 
 	do
 	{
@@ -840,21 +839,24 @@ static int create_new_active(s_event * event)
 		found = parse_new_service_file(event, file);
 	} while (!found && r);
 
+	if (found)
+		event->status = HANDLED;
+
 	free(file);
-	return(found);
 }
 
 static int parse_new_service_file(s_event * event, char *file)
 {
 
-	s_event_new_active_data * data;
+	char * name;
 	active_db_h *new_active;
 	process_h *process;
 	pipe_h *current_pipe;
 	struct stat fstat;
-	data = event->data;
 
-	//printf(" parsing file \"%s\"\n", file);
+	name = event->data;
+
+	/* printf(" parsing file \"%s\"\n", file); */
 
 
 	/* Take stat on file */
@@ -874,7 +876,7 @@ static int parse_new_service_file(s_event * event, char *file)
 	}
 
 	/* create new service */
-	new_active = initng_active_db_new(data->name);
+	new_active = initng_active_db_new(name);
 	if (!new_active)
 	{
 		free(file);
@@ -919,9 +921,9 @@ static int parse_new_service_file(s_event * event, char *file)
 		new_argv[2] = NULL;
 
 		/* SERVICE=getty/tty1 */
-		new_env[0] = i_calloc(strlen(data->name) + 20, sizeof(char));
+		new_env[0] = i_calloc(strlen(name) + 20, sizeof(char));
 		strcpy(new_env[0], "SERVICE=");
-		strcat(new_env[0], data->name);
+		strcat(new_env[0], name);
 
 		new_env[1] = NULL;
 
@@ -930,11 +932,11 @@ static int parse_new_service_file(s_event * event, char *file)
 	}
 
 	/* return the newly created */
-	data->ret = new_active;
-	return (HANDLED);
+	event->ret = new_active;
+	return (TRUE);
 }
 
-static int get_pipe(s_event * event)
+static void get_pipe(s_event * event)
 {
 	s_event_pipe_watcher_data * data;
 
@@ -947,17 +949,17 @@ static int get_pipe(s_event * event)
 
 	/* extra check */
 	if (data->pipe->dir != IN_AND_OUT_PIPE)
-		return (FALSE);
+		return;
 
 	/* the pipe we opened was on fd 3 */
 	if (data->pipe->targets[0] != 3)
-		return (FALSE);
+		return;
 
 	/* handle the client in the same way, as a fifo connected one */
 	bp_handle_client(data->pipe->pipe[1]);
 
 	/* return happy */
-	return (HANDLED);
+	event->status = HANDLED;
 }
 
 #ifdef USE_LOCALEXEC
@@ -1009,10 +1011,11 @@ static int initng_bash_run(s_event * event)
 	if (pid_fork > 0)
 	{
 		data->process->pid = pid_fork;
-		return (HANDLED);
+		event->status = HANDLED;
+		return;
 	}
+
 	data->process->pid = 0;
-	return (FALSE);
 }
 #endif
 

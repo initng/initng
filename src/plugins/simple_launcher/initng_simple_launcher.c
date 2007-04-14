@@ -356,7 +356,7 @@ static int simple_run(active_db_h * service, process_h * process)
 	return (result);
 }
 
-static int initng_s_launch(s_event * event)
+static void initng_s_launch(s_event * event)
 {
 	s_event_launch_data * data;
 
@@ -373,14 +373,21 @@ static int initng_s_launch(s_event * event)
 	D_("service: %s, process: %s\n", data->service->name, data->process->pt->name);
 
 	if (is_var(&EXECS, data->exec_name, data->service))
+	{
 		if (simple_exec(data->service, data->process))
-			return (HANDLED);
+		{
+			event->status = HANDLED;
+			return;
+		}
+	}
 
 	if (is_var(&EXEC, data->exec_name, data->service))
+	{
 		if (simple_run(data->service, data->process))
-			return (HANDLED);
-
-	return (FALSE);
+		{
+			event->status = HANDLED;
+		}
+	}
 }
 
 

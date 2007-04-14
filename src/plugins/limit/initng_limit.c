@@ -173,7 +173,7 @@ static int set_limit(s_entry * soft, s_entry * hard, active_db_h * service,
 	return (0);
 }
 
-static int do_limit(s_event * event)
+static void do_limit(s_event * event)
 {
 	s_event_after_fork_data * data;
 
@@ -236,10 +236,7 @@ static int do_limit(s_event * event)
 
 	/* make sure every rlimit suceeded */
 	if (ret != 0)
-		return (FAIL);
-
-	/* return happily */
-	return (TRUE);
+		event->status = FAILED;
 }
 
 int module_init(int api_version)

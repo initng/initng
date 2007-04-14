@@ -62,8 +62,8 @@ static void closesock(void);
 static void handle_client(int fd);
 static int sendping(void);
 static int open_socket(void);
-static int check_socket(s_event * event);
-static int fdh_handler(s_event * event);
+static void check_socket(s_event * event);
+static void fdh_handler(s_event * event);
 
 s_command local_commands_db;
 
@@ -91,7 +91,7 @@ const char *socket_filename;
 f_module_h fdh = { &accepted_client, FDW_READ, -1 };
 
 
-static int fdh_handler(s_event * event)
+static void fdh_handler(s_event * event)
 {
 	s_event_fd_watcher_data * data;
 
@@ -140,8 +140,6 @@ static int fdh_handler(s_event * event)
 					fdh.fds, __FILE__);
 			break;
 	}
-
-	return (TRUE);
 }
 
 /* Function to search for local commands, bound only to ngc4 */
@@ -774,17 +772,17 @@ static int open_socket()
 }
 
 /* this will check socket, and reopen on failure */
-static int check_socket(s_event * event)
+static void check_socket(s_event * event)
 {
-	long signal;
+	int *signal;
 	struct stat st;
 
 	assert(event->event_type == &EVENT_SIGNAL);
 
-	signal = (long) event->data;
+	signal = event->data;
 
-	if (signal != SIGHUP)
-		return (TRUE);
+	if (*signal != SIGHUP)
+		return;
 
 	D_("Checking socket\n");
 
@@ -793,7 +791,7 @@ static int check_socket(s_event * event)
 	{
 		D_("fdh.fds not set, opening new socket.\n");
 		open_socket();
-		return (TRUE);
+		return;
 	}
 
 	/* stat the socket, reopen on failure */
@@ -802,7 +800,7 @@ static int check_socket(s_event * event)
 	{
 		W_("Stat failed! Opening new socket.\n");
 		open_socket();
-		return (TRUE);
+		return;
 	}
 
 	/* compare socket file, with the one that we know, reopen on failure */
@@ -811,11 +809,10 @@ static int check_socket(s_event * event)
 	{
 		F_("Invalid socket found, reopening\n");
 		open_socket();
-		return (TRUE);
+		return;
 	}
 
 	D_("Socket ok.\n");
-	return (TRUE);
 }
 
 
@@ -1483,5 +1480,4 @@ void module_unload(void)
 	initng_event_hook_unregister(&EVENT_SIGNAL, &check_socket);
 
 	D_("ngc2.so.0.0 unloaded!\n");
-
 }

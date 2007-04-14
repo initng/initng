@@ -107,7 +107,7 @@ ngcs_cmd ngcs_cmds;
 
 f_module_h fdh = { &accepted_client, FDW_READ, -1 };
 
-static int fdh_handler(s_event * event)
+static void fdh_handler(s_event * event)
 {
 	s_event_fd_watcher_data * data;
 
@@ -156,11 +156,9 @@ static int fdh_handler(s_event * event)
 					fdh.fds, __FILE__);
 			break;
 	}
-
-	return (TRUE);
 }
 
-static int conn_fdw_handler(s_event * event)
+static void conn_fdw_handler(s_event * event)
 {
 	s_event_fd_watcher_data * data;
 	ngcs_svr_conn *current = NULL;
@@ -213,8 +211,6 @@ static int conn_fdw_handler(s_event * event)
 				break;
 		}
 	}
-
-	return (TRUE);
 }
 
 
@@ -774,7 +770,7 @@ static void check_socket()
 }
 
 /* this function, will make a check for socket, on every new service that goes up */
-int service_status(s_event * event)
+void service_status(s_event * event)
 {
 	active_db_h * service;
 
@@ -786,8 +782,6 @@ int service_status(s_event * event)
 	/* only try open, when a service got up */
 	if (IS_UP(service))
 		check_socket();
-
-	return (TRUE);
 }
 
 int module_init(int api_version)

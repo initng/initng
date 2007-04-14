@@ -255,7 +255,7 @@ static void net_remove(const char *name)
 }
 
 
-static int probe_network_devices(s_event *event)
+static void probe_network_devices(s_event *event)
 {
 	struct ifconf ifc;
 	struct ifreq *ifr;
@@ -266,7 +266,7 @@ static int probe_network_devices(s_event *event)
 
 	/* no monitoring on system_stopping */
 	if (g.sys_state == STATE_STOPPING)
-		return (TRUE);
+		return;
 
 	devs_reset();
 
@@ -274,7 +274,7 @@ static int probe_network_devices(s_event *event)
 	if (netsock < 0)
 	{
 		F_("Unable to open a socket!\n");
-		return (FALSE);
+		return;
 	}
 
 	ifc.ifc_len = sizeof(buffert);
@@ -283,7 +283,7 @@ static int probe_network_devices(s_event *event)
 	if (ioctl(netsock, SIOCGIFCONF, &ifc) < 0)
 	{
 		F_("error: SIOCGIFCONF\n");
-		return (FALSE);
+		return;
 	}
 
 	/* now add all nics */
@@ -304,12 +304,10 @@ static int probe_network_devices(s_event *event)
 
 	/* Make sure mainloop will run within 2 mins. */
 	initng_global_set_sleep(120);
-
-	return (TRUE);
 }
 
 
-static int system_stopping(s_event * event)
+static void system_stopping(s_event * event)
 {
 	h_sys_state * state;
 	active_db_h *current = NULL;
@@ -321,7 +319,7 @@ static int system_stopping(s_event * event)
 
 	/* only do this if system is stopping */
 	if (*state != STATE_STOPPING)
-		return (TRUE);
+		return;
 
 	/* find all netdev types and stop them */
 	while_active_db(current)
@@ -332,8 +330,6 @@ static int system_stopping(s_event * event)
 			initng_common_mark_service(current, &NIC_DOWN);
 		}
 	}
-
-	return (TRUE);
 }
 
 

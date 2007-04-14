@@ -39,7 +39,7 @@ INITNG_PLUGIN_MACRO;
 
 s_entry LOGFILE = { "logfile", STRING, NULL, "An extra output of service output." };
 
-static int program_output(s_event * event)
+static void program_output(s_event * event)
 {
 	s_event_buffer_watcher_data * data;
 	const char *filename = NULL;
@@ -63,7 +63,7 @@ static int program_output(s_event * event)
 	if (!filename)
 	{
 		D_("Logfile not set\n");
-		return (FALSE);
+		return;
 	}
 
 	/* open the file */
@@ -71,7 +71,7 @@ static int program_output(s_event * event)
 	if (fd < 1)
 	{
 		F_("Error opening %s, err : %s\n", filename, strerror(errno));
-		return (FALSE);
+		return;
 	}
 
 	/* Write data to logfile */
@@ -83,8 +83,6 @@ static int program_output(s_event * event)
 		   strerror(errno));
 
 	close(fd);
-
-	return (TRUE);
 }
 
 int module_init(int api_version)

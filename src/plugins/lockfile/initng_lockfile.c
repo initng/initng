@@ -45,7 +45,7 @@ s_entry LOCKFILE = { "lockfile", SET, NULL,
 
 #define LOCKDIR "/var/lock/subsys/"
 
-static int status_change(s_event * event)
+static void status_change(s_event * event)
 {
 	active_db_h * service;
 
@@ -73,9 +73,7 @@ static int status_change(s_event * event)
 			D_("service got up\n");
 			fd = creat(lockfile, 0640);
 			if (fd != -1)
-			{
 				close(fd);
-			}
 		}
 		else if (IS_DOWN(service))
 		{
@@ -83,8 +81,6 @@ static int status_change(s_event * event)
 			unlink(lockfile);
 		}
 	}
-
-	return (TRUE);
 }
 
 int module_init(int api_version)

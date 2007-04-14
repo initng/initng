@@ -33,7 +33,7 @@ INITNG_PLUGIN_MACRO;
 
 s_entry NICE = { "nice", INT, NULL, "Set this nice value before executing service." };
 
-static int do_renice(s_event * event)
+static void do_renice(s_event * event)
 {
 	s_event_after_fork_data * data;
 
@@ -53,11 +53,10 @@ static int do_renice(s_event * event)
 		if (nice(get_int(&NICE, data->service)) == -1 && errno != 0)
 		{
 			F_("Failed to set the nice value: %s\n", strerror(errno));
-			return (FAIL);
+			event->status = FAILED;
+			return;
 		}
 	}
-
-	return (TRUE);
 }
 
 int module_init(int api_version)

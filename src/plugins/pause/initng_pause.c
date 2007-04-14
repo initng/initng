@@ -38,7 +38,7 @@ s_entry MS_DELAY = { "exec_m_delay", VARIABLE_INT, NULL,
 	"Pause this much microseconds before service is launched."
 };
 
-static int do_pause(s_event * event)
+static void do_pause(s_event * event)
 {
 	s_event_after_fork_data * data;
 
@@ -72,8 +72,6 @@ static int do_pause(s_event * event)
 		D_("Sleeping for %i milliseconds.\n", ms_delay);
 		usleep(ms_delay);
 	}
-
-	return (TRUE);
 }
 
 int module_init(int api_version)

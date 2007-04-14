@@ -53,7 +53,7 @@ void adjust_env(active_db_h * service, const char *vn, const char *vv)
 	}
 }
 
-static int do_suid(s_event * event)
+static void do_suid(s_event * event)
 {
 	s_event_after_fork_data * data;
 
@@ -124,7 +124,6 @@ static int do_suid(s_event * event)
 	}
 
 	/* group and passwd are static data structures - don't free */
-	return (TRUE);
 }
 
 int module_init(int api_version)

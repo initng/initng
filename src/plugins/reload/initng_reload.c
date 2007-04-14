@@ -655,7 +655,7 @@ static int write_file(const char *filename)
 	return success;
 }
 
-static int dump_state(s_event * event)
+static void dump_state(s_event * event)
 {
 	const char *file = NULL;
 
@@ -669,12 +669,13 @@ static int dump_state(s_event * event)
 
 	/* if there is a file */
 	if (!file)
-		return (TRUE);
+		return;
 
-	return (write_file(file));
+	if (write_file(file) != TRUE)
+		event->status = FAILED;
 }
 
-static int reload_state(s_event * event)
+static void reload_state(s_event * event)
 {
 	struct stat st;
 	const char *file = NULL;
@@ -689,13 +690,14 @@ static int reload_state(s_event * event)
 
 	/* if there is a file */
 	if (!file)
-		return (TRUE);
+		return;
 
 	/* check that file exits */
 	if (stat(file, &st) == 0)
 	{
-		/* return with file */
-		return (read_file(file));
+		if (read_file(file) != TRUE)
+			event->status = FAILED;
+		return;
 	}
 
 	/* set the correct filename for import of v13 statefiles */
@@ -707,16 +709,16 @@ static int reload_state(s_event * event)
 	/* check that file exits */
 	if (stat(file, &st) == 0)
 	{
-		/* return with file */
-		return (read_file_v13(file));
+		if (read_file_v13(file))
+			event->status = FAILED;
+		return;
 	}
 
 	D_("No state file found, passing on reload_state request\n");
-	return (FALSE);
 }
 
 /* Save a reload file for backup if initng segfaults */
-static int save_backup(s_event * event)
+static void save_backup(s_event * event)
 {
 	h_sys_state * state;
 
@@ -730,31 +732,21 @@ static int save_backup(s_event * event)
 	{
 		/* save file */
 		if (g.i_am == I_AM_INIT)
-		{
 			write_file(SAVE_FILE);
-		}
 		else if (g.i_am == I_AM_FAKE_INIT)
-		{
 			write_file(SAVE_FILE_FAKE);
-		}
-		return (TRUE);
+		return;
 	}
 
 	/* if system is stopping, remove the SAVE_FILE */
 	if (*state == STATE_STOPPING)
 	{
 		if (g.i_am == I_AM_INIT)
-		{
 			unlink(SAVE_FILE);
-		}
 		else if (g.i_am == I_AM_FAKE_INIT)
-		{
 			unlink(SAVE_FILE_FAKE);
-		}
-		return (TRUE);
+		return;
 	}
-
-	return (TRUE);
 }
 
 int module_init(int api_version)

@@ -44,7 +44,7 @@ s_entry LAST = { "last", SET, NULL,
 stype_h * TYPE_PROVIDED;
 
 /* returns TRUE if all use deps are started */
-static int check_last(s_event * event)
+static void check_last(s_event * event)
 {
 	active_db_h * service;
 	active_db_h * current = NULL;
@@ -58,7 +58,7 @@ static int check_last(s_event * event)
 
 	/* And LAST is set. */
 	if (!is(&LAST, service))
-		return (TRUE);
+		return;
 
 	if (!TYPE_PROVIDED)
 		TYPE_PROVIDED = initng_service_type_get_by_name("provided");
@@ -92,12 +92,12 @@ static int check_last(s_event * event)
 		{
 			D_("Service %s is also starting, and %s should be started last\n",
 			   current->name, service->name);
-			return (FAIL);
+			event->status = FAILED;
+			return;
 		}
 	}
 
 	/* ok, finally last start this */
-	return (TRUE);
 }
 
 int module_init(int api_version)

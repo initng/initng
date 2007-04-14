@@ -35,7 +35,7 @@ typedef struct ngcs_svr_conn_s ngcs_svr_conn;
 /* int module_init(const char *version);
    void module_unload(void); */
 
-int service_status(s_event * event);
+void service_status(s_event * event);
 void is_system_halt(h_sys_state state);
 
 /*! \brief Close the specified channel

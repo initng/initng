@@ -70,22 +70,22 @@ void event_acceptor(f_module_h * from, e_fdw what);
 static void close_all_listeners(void);
 static void close_initiator_socket(void);
 static int open_initiator_socket(void);
-static int check_socket(s_event * event);
+static void check_socket(s_event * event);
 void send_to_all(const void *buf, size_t len);
 
 
-static int astatus_change(s_event * event);
-static int system_state_change(s_event * event);
-static int system_pipe_watchers(s_event * event);
-static int print_error(s_event * event);
-static int fd_event_acceptor_handler(s_event * event);
+static void astatus_change(s_event * event);
+static void system_state_change(s_event * event);
+static void system_pipe_watchers(s_event * event);
+static void print_error(s_event * event);
+static void fd_event_acceptor_handler(s_event * event);
 
 /* todo, when last listener closed, del hooks to save cpu cykles */
 
 f_module_h fd_event_acceptor = { &event_acceptor, FDW_READ, -1 };
 
 
-static int fd_event_acceptor_handler(s_event * event)
+static void fd_event_acceptor_handler(s_event * event)
 {
 	s_event_fd_watcher_data * data;
 
@@ -134,8 +134,6 @@ static int fd_event_acceptor_handler(s_event * event)
 					fd_event_acceptor.fds, __FILE__);
 			break;
 	}
-
-	return (TRUE);
 }
 
 static void close_all_listeners(void)
@@ -154,7 +152,7 @@ static void close_all_listeners(void)
 	}
 }
 
-static int handle_killed(s_event * event)
+static void handle_killed(s_event * event)
 {
 	s_event_handle_killed_data * data;
 	char *buffert = NULL;
@@ -166,23 +164,20 @@ static int handle_killed(s_event * event)
 	data = event->data;
 
 	buffert = i_calloc(180 + strlen(data->service->name) +
-					   strlen(data->service->current_state->state_name) +
-					   strlen(data->process->pt->name), sizeof(char));
+			   strlen(data->service->current_state->state_name) +
+			   strlen(data->process->pt->name), sizeof(char));
 
 	len = sprintf(buffert,
-				  "<event type=\"process_killed\" service=\"%s\" is=\"%i\" state=\"%s\" process=\"%s\" exit_status=\"%i\" term_sig=\"%i\"/>\n",
-				  data->service->name, data->service->current_state->is,
-				  data->service->current_state->state_name,
-				  data->process->pt->name, WEXITSTATUS(data->process->r_code),
-				  WTERMSIG(data->process->r_code));
+			  "<event type=\"process_killed\" service=\"%s\" is=\"%i\" state=\"%s\" process=\"%s\" exit_status=\"%i\" term_sig=\"%i\"/>\n",
+			  data->service->name, data->service->current_state->is,
+			  data->service->current_state->state_name,
+			  data->process->pt->name, WEXITSTATUS(data->process->r_code),
+			  WTERMSIG(data->process->r_code));
 
 	if (len > 1)
 		send_to_all(buffert, sizeof(char) * len);
 
 	free(buffert);
-
-	/* AlwaYs, AlwaYs, return FALSE to mark this killed process as NOT handled */
-	return (FALSE);
 }
 
 static void close_initiator_socket(void)
@@ -475,17 +470,17 @@ static int open_initiator_socket(void)
 }
 
 /* this will check socket, and reopen on failure */
-static int check_socket(s_event * event)
+static void check_socket(s_event * event)
 {
-	long signal;
+	int *signal;
 	struct stat st;
 
 	assert(event->event_type == &EVENT_SIGNAL);
 
-	signal = (long) event->data;
+	signal = event->data;
 
-	if (signal != SIGHUP)
-		return (TRUE);
+	if (*signal != SIGHUP)
+		return;
 
 #define PING "<event type=\"ping\"/>\n"
 	send_to_all(PING, sizeof(char) * strlen(PING));
@@ -496,7 +491,7 @@ static int check_socket(s_event * event)
 	{
 		D_("fd_event_acceptor.fds not set, opening new socket.\n");
 		open_initiator_socket();
-		return (TRUE);
+		return;
 	}
 
 	/* stat the socket, reopen on failure */
@@ -505,7 +500,7 @@ static int check_socket(s_event * event)
 	{
 		W_("Stat failed! Opening new socket.\n");
 		open_initiator_socket();
-		return (TRUE);
+		return;
 	}
 
 	/* compare socket file, with the one that we know, reopen on failure */
@@ -514,14 +509,14 @@ static int check_socket(s_event * event)
 	{
 		F_("Invalid socket found, reopening\n");
 		open_initiator_socket();
-		return (TRUE);
+		return;
 	}
 
 	D_("Socket ok.\n");
-	return (TRUE);
+	return;
 }
 
-static int astatus_change(s_event * event)
+static void astatus_change(s_event * event)
 {
 	active_db_h * service;
 	char *buffert = NULL;
@@ -533,29 +528,29 @@ static int astatus_change(s_event * event)
 	service = event->data;
 
 	buffert = i_calloc(180 + strlen(service->name) +
-					   strlen(service->current_state->state_name) +
-					   strlen(service->type->name), sizeof(char));
+			   strlen(service->current_state->state_name) +
+			   strlen(service->type->name), sizeof(char));
 
 	if (g.sys_state == STATE_STARTING)
 		len = sprintf(buffert,
-					  "<event type=\"service_state_change\" service=\"%s\" is=\"%i\" state=\"%s\" percent_started=\"%i\" percent_stopped=\"0\" service_type=\"%s\" hidden=\"%i\"/>\n",
-					  service->name, service->current_state->is,
-					  service->current_state->state_name,
-					  initng_active_db_percent_started(),
-					  service->type->name, service->type->hidden);
+				  "<event type=\"service_state_change\" service=\"%s\" is=\"%i\" state=\"%s\" percent_started=\"%i\" percent_stopped=\"0\" service_type=\"%s\" hidden=\"%i\"/>\n",
+				  service->name, service->current_state->is,
+				  service->current_state->state_name,
+				  initng_active_db_percent_started(),
+				  service->type->name, service->type->hidden);
 	else if (g.sys_state == STATE_STOPPING)
 		len = sprintf(buffert,
-					  "<event type=\"service_state_change\" service=\"%s\" is=\"%i\" state=\"%s\" percent_started=\"0\" percent_stopped=\"%i\" service_type=\"%s\" hidden=\"%i\"/>\n",
-					  service->name, service->current_state->is,
-					  service->current_state->state_name,
-					  initng_active_db_percent_stopped(),
-					  service->type->name, service->type->hidden);
+				  "<event type=\"service_state_change\" service=\"%s\" is=\"%i\" state=\"%s\" percent_started=\"0\" percent_stopped=\"%i\" service_type=\"%s\" hidden=\"%i\"/>\n",
+				  service->name, service->current_state->is,
+				  service->current_state->state_name,
+				  initng_active_db_percent_stopped(),
+				  service->type->name, service->type->hidden);
 	else
 		len = sprintf(buffert,
-					  "<event type=\"service_state_change\" service=\"%s\" is=\"%i\" state=\"%s\" percent_started=\"0\" percent_stopped=\"0\" service_type=\"%s\" hidden=\"%i\"/>\n",
-					  service->name, service->current_state->is,
-					  service->current_state->state_name,
-					  service->type->name, service->type->hidden);
+				  "<event type=\"service_state_change\" service=\"%s\" is=\"%i\" state=\"%s\" percent_started=\"0\" percent_stopped=\"0\" service_type=\"%s\" hidden=\"%i\"/>\n",
+				  service->name, service->current_state->is,
+				  service->current_state->state_name,
+				  service->type->name, service->type->hidden);
 
 	/*printf("astatus_change: %s %i %s\n",
 	   service->name, service->current_state->is,
@@ -565,10 +560,9 @@ static int astatus_change(s_event * event)
 		send_to_all(buffert, sizeof(char) * len);
 
 	free(buffert);
-	return (TRUE);
 }
 
-static int system_state_change(s_event * event)
+static void system_state_change(s_event * event)
 {
 	e_is * state;
 	char *buffert = i_calloc(90 + strlen(g.runlevel), sizeof(char));
@@ -580,17 +574,15 @@ static int system_state_change(s_event * event)
 	state = event->data;
 
 	len = sprintf(buffert,
-				  "<event type=\"system_state_change\" system_state=\"%i\" runlevel=\"%s\" />\n",
-				  *state, g.runlevel);
+			  "<event type=\"system_state_change\" system_state=\"%i\" runlevel=\"%s\" />\n",
+			  *state, g.runlevel);
 	if (len > 1)
 		send_to_all(buffert, sizeof(char) * len);
 
 	free(buffert);
-
-	return (TRUE);
 }
 
-static int system_pipe_watchers(s_event * event)
+static void system_pipe_watchers(s_event * event)
 {
 	s_event_buffer_watcher_data * data;
 	char *buffert = NULL;
@@ -602,24 +594,21 @@ static int system_pipe_watchers(s_event * event)
 	data = event->data;
 
 	buffert = i_calloc(100 + strlen(data->service->name) +
-					   strlen(data->process->pt->name) + strlen(data->buffer_pos),
-					   sizeof(char));
+			   strlen(data->process->pt->name) + strlen(data->buffer_pos),
+			   sizeof(char));
 
 	len = sprintf(buffert,
-				  "<event type=\"service_output\" service=\"%s\" process=\"%s\">%s</event>\n",
-				  data->service->name, data->process->pt->name, data->buffer_pos);
+			  "<event type=\"service_output\" service=\"%s\" process=\"%s\">%s</event>\n",
+			  data->service->name, data->process->pt->name, data->buffer_pos);
 
 	if (len > 0)
 		send_to_all(buffert, sizeof(char) * len);
 
 	/* free buffert */
 	free(buffert);
-
-	/* return, output not handled */
-	return (FALSE);
 }
 
-static int print_error(s_event * event)
+static void print_error(s_event * event)
 {
 	s_event_error_message_data * data;
 	char *buffert = NULL;
@@ -648,15 +637,13 @@ static int print_error(s_event * event)
 	buffert = i_calloc(100 + len + strlen(data->file) + strlen(data->func), sizeof(char));
 
 	len = sprintf(buffert,
-				  "<event type=\"err_msg\" mt=\"%i\" file=\"%s\" func=\"%s\" line=\"%i\">%s</event>\n",
-				  data->mt, data->file, data->func, data->line, msg);
+			  "<event type=\"err_msg\" mt=\"%i\" file=\"%s\" func=\"%s\" line=\"%i\">%s</event>\n",
+			  data->mt, data->file, data->func, data->line, msg);
 
 	send_to_all(buffert, sizeof(char) * len);
 
 	free(msg);
 	free(buffert);
-
-	return (FALSE);
 }
 
 

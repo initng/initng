@@ -178,7 +178,7 @@ static void remove_virtual_service(const char *name)
 /*
  * This hook is for monitor service changes.
  */
-static int service_state(s_event * event)
+static void service_state(s_event * event)
 {
 	active_db_h * service;
 	const char *tmp = NULL;
@@ -196,28 +196,28 @@ static int service_state(s_event * event)
 	{
 		/* never when system is stopping */
 		if (g.sys_state == STATE_STOPPING)
-			return (TRUE);
+			return;
 
 		/* get the provide strings */
 		while ((tmp = get_next_string(&PROVIDE, service, &itt)))
 		{
 			/* add that provide */
 			if (!add_virtual_service(tmp))
-				return (FALSE);
+				return;
 		}
 	}
 	else if (IS_UP(service))
 	{
 		/* never when system is stopping */
 		if (g.sys_state == STATE_STOPPING)
-			return (TRUE);
+			return;
 
 		/* get the provide strings */
 		while ((tmp = get_next_string(&PROVIDE, service, &itt)))
 		{
 			/* add that provide */
 			if (!virtual_service_set_up(tmp))
-				return (FALSE);
+				return;
 		}
 	}
 	/* else - its down */
@@ -230,16 +230,13 @@ static int service_state(s_event * event)
 			remove_virtual_service(tmp);
 		}
 	}
-
-	/* always return happily */
-	return (TRUE);
 }
 
 
 #ifdef EXTRA_SURE
-static int system_stopping(s_event * event)
+static void system_stopping(s_event * event)
 {
-	h_sys_state state;
+	h_sys_state *state;
 	active_db_h *current = NULL;
 
 	assert(event->event_type == &EVENT_SYSTEM_CHANGE);
@@ -248,8 +245,8 @@ static int system_stopping(s_event * event)
 	state = event->data;
 
 	/* only do this if system is stopping */
-	if (state != STATE_STOPPING)
-		return (TRUE);
+	if (*state != STATE_STOPPING)
+		return;
 
 	/* find all netdev types and stop them */
 	while_active_db(current)
@@ -260,8 +257,6 @@ static int system_stopping(s_event * event)
 			initng_common_mark_service(current, &PROVIDE_DOWN);
 		}
 	}
-
-	return (TRUE);
 }
 #endif
 

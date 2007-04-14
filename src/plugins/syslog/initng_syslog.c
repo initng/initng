@@ -36,11 +36,12 @@
 #include <initng_static_states.h>
 #include <initng_event_hook.h>
 #include <initng_static_event_types.h>
+#include <initng_system_states.h>
 
 INITNG_PLUGIN_MACRO;
 
-static int syslog_print_system_state(s_event * event);
-static int syslog_print_status_change(s_event * event);
+static void syslog_print_system_state(s_event * event);
+static void syslog_print_status_change(s_event * event);
 static void check_syslog(void);
 static void initng_log(int prio, const char *owner, const char *format, ...);
 static void free_buffert(void);
@@ -151,7 +152,7 @@ static void initng_log(int prio, const char *owner, const char *format, ...)
 }
 
 /* add values to syslog database */
-static int syslog_print_status_change(s_event * event)
+static void syslog_print_status_change(s_event * event)
 {
 	active_db_h * service;
 
@@ -165,41 +166,42 @@ static int syslog_print_status_change(s_event * event)
 	if (IS_UP(service))
 	{
 		check_syslog();
-		initng_log(LOG_NOTICE, NULL, "Service %s is up.\n", service->name);
-		return (TRUE);
+		initng_log(LOG_NOTICE, NULL, "Service %s is up.\n",
+		           service->name);
+		return;
 	}
 
 	if (IS_DOWN(service))
 	{
 		initng_log(LOG_NOTICE, NULL, "Service %s has been stopped.\n",
-				   service->name);
-		return (TRUE);
+			   service->name);
+		return;
 	}
+
 	if (IS_FAILED(service))
 	{
-		initng_log(LOG_NOTICE, NULL, "Service %s FAILED.\n", service->name);
-		return (TRUE);
+		initng_log(LOG_NOTICE, NULL, "Service %s FAILED.\n",
+		           service->name);
+		return;
 	}
 
 	if (IS_STOPPING(service))
 	{
 		initng_log(LOG_NOTICE, NULL, "Service %s is stopping.\n",
-				   service->name);
-		return (TRUE);
+			   service->name);
+		return;
 	}
 
 	if (IS_STARTING(service))
 	{
 		initng_log(LOG_NOTICE, NULL, "Service %s is starting.\n",
-				   service->name);
-		return (TRUE);
+			   service->name);
+		return;
 	}
-
-	/* leave */
-	return (TRUE);
 }
 
-static int syslog_print_system_state(s_event * event)
+
+static void syslog_print_system_state(s_event * event)
 {
 	h_sys_state * state;
 
@@ -217,38 +219,44 @@ static int syslog_print_system_state(s_event * event)
 			 * to spend memory for the buffert anyway.
 			 */
 			free_buffert();
-			return (TRUE);
+			break;
+
 		case STATE_STARTING:
 			initng_log(LOG_NOTICE, NULL, "System is starting up.\n");
-			return (TRUE);
+			break;
+
 		case STATE_STOPPING:
 			initng_log(LOG_NOTICE, NULL, "System is going down.\n");
-			return (TRUE);
+			break;
+
 		case STATE_ASE:
 			initng_log(LOG_NOTICE, NULL, "Last service exited.\n");
-			return (TRUE);
+			break;
+
 		case STATE_EXIT:
 			initng_log(LOG_NOTICE, NULL, "Initng is exiting.\n");
-			return (TRUE);
+			break;
+
 		case STATE_RESTART:
 			initng_log(LOG_NOTICE, NULL, "Initng is restarting.\n");
-			return (TRUE);
+			break;
+
 		case STATE_HALT:
 			initng_log(LOG_NOTICE, NULL, "System is halting.\n");
-			return (TRUE);
+			break;
+
 		case STATE_POWEROFF:
 			initng_log(LOG_NOTICE, NULL, "System is power-off.\n");
-			return (TRUE);
+			break;
+
 		case STATE_REBOOT:
 			initng_log(LOG_NOTICE, NULL, "System is rebooting.\n");
-			return (TRUE);
 		default:
-			return (TRUE);
+			break;
 	}
-	return (TRUE);
 }
 
-static int syslog_fetch_output(s_event * event)
+static void syslog_fetch_output(s_event * event)
 {
 	s_event_buffer_watcher_data * data;
 	char log[201];
@@ -286,11 +294,10 @@ static int syslog_fetch_output(s_event * event)
 			pos++;
 
 	}
-	return (TRUE);
 }
 
 
-static int syslog_print_error(s_event * event)
+static void syslog_print_error(s_event * event)
 {
 	s_event_error_message_data * data;
 
@@ -315,7 +322,7 @@ static int syslog_print_error(s_event * event)
 #else
 			syslog(LOG_EMERG, "FAIL: %s", tempspace);
 #endif
-			return (TRUE);
+			break;
 		case MSG_WARN:
 #ifdef DEBUG
 			syslog(LOG_WARNING, "\"%s\", %s() #%i WARN: %s", data->file, data->func, data->line,
@@ -323,14 +330,11 @@ static int syslog_print_error(s_event * event)
 #else
 			syslog(LOG_EMERG, "WARN: %s", tempspace);
 #endif
-			return (TRUE);
+			break;
 		default:
 			syslog(LOG_NOTICE, "%s", tempspace);
-			return (TRUE);
+			break;
 	}
-
-	/* newer get here */
-	return (FALSE);
 }
 
 
