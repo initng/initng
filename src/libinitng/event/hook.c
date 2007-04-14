@@ -30,7 +30,7 @@
 #include "initng_event_hook.h"
 
 int initng_event_hook_register_real(const char *from_file, s_event_type *t,
-					int (*hook) (s_event * event))
+					void (*hook) (s_event * event))
 {
 	s_call *new_call = NULL;
 
@@ -55,7 +55,7 @@ int initng_event_hook_register_real(const char *from_file, s_event_type *t,
 void initng_event_hook_unregister_real(const char *from_file,
 					const char *func, int line,
 					s_event_type *t,
-					int (*hook) (s_event * event))
+					void (*hook) (s_event * event))
 {
 	s_call *current, *safe = NULL;
 

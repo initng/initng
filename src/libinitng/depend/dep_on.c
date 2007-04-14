@@ -35,10 +35,10 @@
 
 #include "initng_depend.h"
 
-static int dep_on(active_db_h * service, active_db_h * check);
+#include "local.h"
 
 /* standard dep check , does service depends on check? */
-static int dep_on(active_db_h * service, active_db_h * check)
+int dep_on(active_db_h * service, active_db_h * check)
 {
 	s_data *current = NULL;
 

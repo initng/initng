@@ -38,6 +38,7 @@
 
 #include "initng_fd.h"
 
+#include "local.h"
 
 /*
  * This function delivers what read to plugin,
@@ -45,9 +46,8 @@
  * If no hook is found, or no return TRUE, it will
  * be printed to screen anyway.
  */
-static void initng_fd_plugin_readpipe(active_db_h * service,
-									  process_h * process, pipe_h * pi,
-									  char *buffer_pos)
+void initng_fd_plugin_readpipe(active_db_h * service, process_h * process,
+                               pipe_h * pi, char *buffer_pos)
 {
 	s_event event;
 	s_event_buffer_watcher_data data;
@@ -61,7 +61,8 @@ static void initng_fd_plugin_readpipe(active_db_h * service,
 	data.pipe = pi;
 	data.buffer_pos = buffer_pos;
 
-	if (initng_event_send(&event) != TRUE)
+	initng_event_send(&event);
+	if (event.status != OK)
 	{
 		/* make sure someone handled this */
 		fprintf(stdout, "%s", buffer_pos);
@@ -69,8 +70,7 @@ static void initng_fd_plugin_readpipe(active_db_h * service,
 }
 
 /* if there is data incoming in a pipe, tell the plugins */
-static int initng_fd_pipe(active_db_h * service, process_h * process,
-						  pipe_h * pi)
+int initng_fd_pipe(active_db_h * service, process_h * process, pipe_h * pi)
 {
 	s_event event;
 	s_event_pipe_watcher_data data;
@@ -82,8 +82,6 @@ static int initng_fd_pipe(active_db_h * service, process_h * process,
 	event.event_type = &EVENT_PIPE_WATCHER;
 	event.data = &data;
 
-	if (initng_event_send(&event) == HANDLED)
-		return (TRUE);
-
-	return (FALSE);
+	initng_event_send(&event);
+	return (event.status == HANDLED);
 }

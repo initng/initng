@@ -51,6 +51,4 @@ void initng_fd_close_all(void)
 	data.action = FDW_ACTION_CLOSE;
 
 	initng_event_send(&event);
-
-	/* TODO: Should we clear the event hooks list here? */
 }

@@ -38,6 +38,7 @@
 
 #include "initng_fd.h"
 
+#include "local.h"
 
 /*
  * FILEDESCRIPTORPOLLNG

@@ -91,18 +91,19 @@ int initng_execute_launch(active_db_h * service, ptype_h * type,
 		data.process = process;
 		data.exec_name = exec_name;
 
-		ret = initng_event_send(&event);
+		initng_event_send(&event);
+		ret = event.status;
 	}
 
 	/* if we found a launcher */
 	if (ret == HANDLED)
 		return (TRUE);
 
-	if (ret == FAIL)
+	if (ret == FAILED)
 		F_("initng_execute(%s): FAILED LAUNCHING, returned FAIL\n",
 		   service->name);
 	else
-		D_("initng_execute(%s): FAILED LAUNCHING, noting font to launch.\n",
+		D_("initng_execute(%s): FAILED LAUNCHING, noting found to launch.\n",
 		   service->name);
 
 	/* on failure remove the process from list, and free it */

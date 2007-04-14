@@ -26,6 +26,7 @@
 #include <string.h>
 #include <fcntl.h>							/* fcntl() */
 #include <time.h>
+
 #include "initng.h"
 #include "initng_global.h"
 #include "initng_load_module.h"
@@ -33,24 +34,20 @@
 #include "initng_signal.h"
 #include "initng_static_event_types.h"
 #include "initng_common.h"
-
 #include "initng_plugin_callers.h"
 #include "initng_plugin.h"
-
+#include "initng_event.h"
 
 active_db_h *initng_plugin_create_new_active(const char *name)
 {
 	s_event event;
-	s_event_new_active_data data;
 
 	event.event_type = &EVENT_NEW_ACTIVE;
-	event.data = &data;
+	event.data = (void *) name;
 
-	data.name = name;
-
-	if (initng_event_send(&event) == HANDLED) {
-		return data.ret;
-	}
+	initng_event_send(&event);
+	if (event.status == HANDLED)
+		return event.ret;
 
 	return (NULL);
 }
@@ -61,7 +58,7 @@ void initng_plugin_callers_signal(int signal)
 	s_event event;
 
 	event.event_type = &EVENT_SIGNAL;
-	event.data = (void *) (long)signal;
+	event.data = &signal;
 
 	initng_event_send(&event);
 }
@@ -76,7 +73,8 @@ int initng_plugin_callers_handle_killed(active_db_h * s, process_h * p)
 	data.service = s;
 	data.process = p;
 
-	if (initng_event_send(&event) == HANDLED)
+	initng_event_send(&event);
+	if (event.status == HANDLED)
 		return (TRUE);
 
 	return (FALSE);
@@ -113,7 +111,8 @@ int initng_plugin_callers_dump_active_db(void)
 
 	event.event_type = &EVENT_DUMP_ACTIVE_DB;
 
-	return initng_event_send(&event);
+	initng_event_send(&event);
+	return (event.status == OK);
 }
 
 /* called to reload dump of active_db */
@@ -123,5 +122,6 @@ int initng_plugin_callers_reload_active_db(void)
 
 	event.event_type = &EVENT_RELOAD_ACTIVE_DB;
 
-	return initng_event_send(&event);
+	initng_event_send(&event);
+	return (event.status == OK);
 }

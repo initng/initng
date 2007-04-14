@@ -19,57 +19,40 @@
 
 #include "initng.h"
 
-#include <stdio.h>
+#include <time.h>							/* time() */
+#include <fcntl.h>							/* fcntl() */
+#include <sys/un.h>							/* memmove() strcmp() */
+#include <sys/wait.h>						/* waitpid() sa */
+#include <linux/kd.h>						/* KDSIGACCEPT */
+#include <sys/ioctl.h>						/* ioctl() */
+#include <stdio.h>							/* printf() */
 #include <stdlib.h>							/* free() exit() */
-#include <string.h>
+#include <sys/reboot.h>						/* reboot() RB_DISABLE_CAD */
 #include <assert.h>
+#include <errno.h>
 
-#include "initng_handler.h"
 #include "initng_global.h"
-#include "initng_common.h"
+
+#include "initng_static_service_types.h"
+
+#include "initng_active_db.h"
 #include "initng_toolbox.h"
+#include "initng_main.h"
+#include "initng_execute.h"
+#include "initng_common.h"
+#include "initng_depend.h"
+#include "initng_load_module.h"
+#include "initng_handler.h"
+#include "initng_kill_handler.h"
 #include "initng_static_data_id.h"
 #include "initng_static_states.h"
-#include "initng_env_variable.h"
-#include "initng_static_event_types.h"
 
-#include "initng_depend.h"
 
-#include "local.h"
+stype_h TYPE_CONTAINER = { "container", "This is an empty set that can be used as a container, and you can relate other services data to this one.",
+	TRUE, NULL, NULL, NULL
+};
 
-/*
- * initng_depend:
- *  Will check with all plug-ins and return TRUE
- *  if service depends on check.
- */
-int initng_depend(active_db_h * service, active_db_h * check)
+void initng_service_register_static_stypes(void)
 {
-	assert(service);
-	assert(check);
-
-	/* it can never depend on itself */
-	if (service == check)
-		return (FALSE);
-
-	/* run the local static dep check */
-	if (dep_on(service, check) == TRUE)
-		return (TRUE);
-
-	/* run the global plugin dep check */
-	{
-		s_event event;
-		s_event_dep_on_data data;
-
-		event.event_type = &EVENT_DEP_ON;
-		event.data = &data;
-		data.service = service;
-		data.check = check;
-
-		initng_event_send(&event);
-		if (event.status == OK)
-			return (TRUE);
-	}
-
-	/* No, "service" was not depending on "check" */
-	return (FALSE);
+	initng_service_type_register(&TYPE_CONTAINER);
 }

@@ -113,7 +113,8 @@ int initng_depend_stop_dep_met(active_db_h * service, int verbose)
 		event.event_type = &EVENT_STOP_DEP_MET;
 		event.data = service;
 
-		if (initng_event_send(&event) == FAIL)
+		initng_event_send(&event);
+		if (event.status == FAILED)
 		{
 			if (verbose)
 			{
