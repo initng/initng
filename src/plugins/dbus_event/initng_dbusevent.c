@@ -78,7 +78,7 @@ static void fdw_callback(f_module_h * from, e_fdw what);
 
 static void free_dbus_watch_data(void *data);
 
-static int w_handler(s_event * event);
+static void w_handler(s_event * event);
 
 DBusConnection *conn;
 
@@ -92,7 +92,7 @@ typedef struct
 initng_dbus_watch dbus_watches;
 
 
-static int w_handler(s_event * event)
+static void w_handler(s_event * event)
 {
 	s_event_fd_watcher_data * data;
 	initng_dbus_watch *current = NULL;
@@ -145,8 +145,6 @@ static int w_handler(s_event * event)
 				break;
 		}
 	}
-
-	return (TRUE);
 }
 
 /* ------  DBus Watch Handling --------
@@ -234,7 +232,7 @@ static void fdw_callback(f_module_h * from, e_fdw what)
 
 /* --- End DBus watch handling ---- */
 
-static int astatus_change(s_event * event)
+static void astatus_change(s_event * event)
 {
 	active_db_h * service;
 
@@ -252,19 +250,19 @@ static int astatus_change(s_event * event)
 	const char *state_name = service->current_state->state_name;
 
 	if (conn == NULL)
-		return (TRUE);
+		return;
 
 	D_("Sending signal with value \"%.10s\" %i \"%.10s\"\n", service_name, is,
 	   state_name);
 
 	/* create a signal & check for errors */
 	msg = dbus_message_new_signal(OBJECT,	/* object name of the signal */
-								  INTERFACE,	/* interface name of the signal */
-								  "astatus_change");	/* name of the signal */
+					  INTERFACE,	/* interface name of the signal */
+					  "astatus_change");	/* name of the signal */
 	if (NULL == msg)
 	{
 		F_("Unable to create ne dbus signal\n");
-		return (TRUE);
+		return;
 	}
 
 
@@ -274,7 +272,7 @@ static int astatus_change(s_event * event)
 		 DBUS_TYPE_STRING, &state_name, DBUS_TYPE_INVALID))
 	{
 		F_("Unable to append args to dbus signal!\n");
-		return (TRUE);
+		return;
 	}
 
 
@@ -282,7 +280,7 @@ static int astatus_change(s_event * event)
 	if (!dbus_connection_send(conn, msg, &serial))
 	{
 		F_("Unable to send dbus signal!\n");
-		return (TRUE);
+		return;
 	}
 	// dbus_connection_flush(conn);
 
@@ -290,11 +288,9 @@ static int astatus_change(s_event * event)
 
 	/* free the message */
 	dbus_message_unref(msg);
-
-	return (TRUE);
 }
 
-static int system_state_change(s_event * event)
+static void system_state_change(s_event * event)
 {
 	e_is state;
 	DBusMessage *msg;
@@ -306,7 +302,7 @@ static int system_state_change(s_event * event)
 	state = (e_is)event->data;
 
 	if (conn == NULL)
-		return (TRUE);
+		return;
 
 	/* create a signal & check for errors */
 	msg = dbus_message_new_signal(OBJECT,	/* object name of the signal */
@@ -315,7 +311,7 @@ static int system_state_change(s_event * event)
 	if (NULL == msg)
 	{
 		F_("Unable to create new dbus signal\n");
-		return (FALSE);
+		return;
 	}
 
 
@@ -324,7 +320,7 @@ static int system_state_change(s_event * event)
 		(msg, DBUS_TYPE_INT32, &state, DBUS_TYPE_INVALID))
 	{
 		F_("Unable to append args to dbus signal!\n");
-		return (FALSE);
+		return;
 	}
 
 
@@ -332,7 +328,7 @@ static int system_state_change(s_event * event)
 	if (!dbus_connection_send(conn, msg, &serial))
 	{
 		F_("Unable to send dbus signal!\n");
-		return (FALSE);
+		return;
 	}
 	//dbus_connection_flush(conn);
 
@@ -340,10 +336,10 @@ static int system_state_change(s_event * event)
 	dbus_message_unref(msg);
 
 	D_("Dbus Signal Sent\n");
-	return (TRUE);
+	return;
 }
 
-static int system_pipe_watchers(s_event * event)
+static void system_pipe_watchers(s_event * event)
 {
 	DBusMessage *msg;
 	dbus_uint32_t serial = 0;
@@ -356,17 +352,20 @@ static int system_pipe_watchers(s_event * event)
 
 	char output[100]; //used for ? needs fix
 
-	if (conn == NULL)
-		return (HANDLED);
+	if (conn == NULL) {
+		event.status = HANDLED;
+		return;
+	}
 
 	/* create a signal & check for errors */
 	msg = dbus_message_new_signal(OBJECT,	/* object name of the signal */
-								  INTERFACE,	/* interface name of the signal */
-								  "system_output");	/* name of the signal */
+					  INTERFACE,	/* interface name of the signal */
+					  "system_output");	/* name of the signal */
 	if (NULL == msg)
 	{
 		F_("Unable to create new dbus signal\n");
-		return (HANDLED);
+		event.status = HANDLED;
+		return;
 	}
 
 
@@ -376,7 +375,8 @@ static int system_pipe_watchers(s_event * event)
 		 &process_name, DBUS_TYPE_STRING, &output, DBUS_TYPE_INVALID))
 	{
 		F_("Unable to append args to dbus signal!\n");
-		return (HANDLED);
+		event.status = HANDLED;
+		return;
 	}
 
 
@@ -384,7 +384,8 @@ static int system_pipe_watchers(s_event * event)
 	if (!dbus_connection_send(conn, msg, &serial))
 	{
 		F_("Unable to send dbus signal!\n");
-		return (HANDLED);
+		event.status = HANDLED;
+		return;
 	}
 	//dbus_connection_flush(conn);
 
@@ -392,10 +393,10 @@ static int system_pipe_watchers(s_event * event)
 	dbus_message_unref(msg);
 
 	D_("Dbus Signal Sent\n");
-	return (HANDLED);
+	event.status = HANDLED;
 }
 
-static int print_error(s_event * event)
+static void print_error(s_event * event)
 {
 	s_event_error_message_data * data;
 	DBusMessage *msg;
@@ -407,16 +408,16 @@ static int print_error(s_event * event)
 	data = event->data;
 
 	if (conn == NULL)
-		return (TRUE);
+		return;
 
 	/* create a signal & check for errors */
 	msg = dbus_message_new_signal(OBJECT,	/* object name of the signal */
-								  INTERFACE,	/* interface name of the signal */
-								  "print_error");	/* name of the signal */
+					  INTERFACE,	/* interface name of the signal */
+					  "print_error");	/* name of the signal */
 	if (NULL == msg)
 	{
 		F_("Unable to create new dbus signal\n");
-		return (TRUE);
+		return;
 	}
 
 	/* compose the message */
@@ -431,7 +432,7 @@ static int print_error(s_event * event)
 		 DBUS_TYPE_INVALID))
 	{
 		F_("Unable to append args to dbus signal!\n");
-		return (TRUE);
+		return;
 	}
 
 
@@ -439,7 +440,7 @@ static int print_error(s_event * event)
 	if (!dbus_connection_send(conn, msg, &serial))
 	{
 		F_("Unable to send dbus signal!\n");
-		return (TRUE);
+		return;
 	}
 	//dbus_connection_flush(conn);
 
@@ -448,24 +449,23 @@ static int print_error(s_event * event)
 	free(message);
 
 	D_("Dbus Signal Sent\n");
-	return (TRUE);
 }
 
 
 /*
  * On a SIGHUP, close and reopen the socket.
  */
-static int check_socket(s_event * event)
+static void check_socket(s_event * event)
 {
-	long signal;
+	int *signal;
 
 	assert(event->event_type == &EVENT_SIGNAL);
 
-	signal = (long)event->data;
+	signal = event->data;
 
 	/* only react on a SIGHUP signal */
-	if (signal != SIGHUP)
-		return (TRUE);
+	if (*signal != SIGHUP)
+		return;
 
 	/* close if open */
 	if (conn)
@@ -476,7 +476,6 @@ static int check_socket(s_event * event)
 
 	/* and open again */
 	connect_to_dbus();
-	return (TRUE);
 }
 
 

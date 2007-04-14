@@ -25,7 +25,6 @@
 #include <initng_active_state.h>
 #include <initng_active_db.h>
 #include <initng_process_db.h>
-#include <initng_service_cache.h>
 #include <initng_handler.h>
 #include <initng_active_db.h>
 #include <initng_toolbox.h>
@@ -53,7 +52,7 @@ s_entry SELINUX_CONTEXT = { "selinux_context", STRING, NULL,
 	"The selinux context to start in."
 };
 
-static int set_selinux_context(s_event * event)
+static void set_selinux_context(s_event * event)
 {
 	s_event_after_fork_data * data;
 
@@ -67,13 +66,12 @@ static int set_selinux_context(s_event * event)
 	if (have_selinux == -1) {
 		int rc = is_selinux_enabled();
 		if (rc < 0)
-			return (TRUE);
-		else
-			have_selinux = rc;
+			return;
+		have_selinux = rc;
 	}
 
 	if (!have_selinux)
-		return (TRUE);
+		return;
 
 	const char *selinux_context = get_string(&SELINUX_CONTEXT, data->service);
 	char *sestr = NULL;
@@ -81,15 +79,11 @@ static int set_selinux_context(s_event * event)
 	int rc = 0;
 	char *sedomain;
 	int enforce = -1;
-	/*static s_entry * SCRIPT = NULL;
-	SCRIPT = initng_service_data_type_find("script");
-	if(!is_var(SCRIPT, p->pt->name, s)) {
-		return (TRUE);
-	} */
+
 	if (selinux_context)
 	{
-		sedomain = (char *) malloc((sizeof(char) * strlen(selinux_context) +
-									1));
+		sedomain = (char *) malloc((sizeof(char) *
+	                                   strlen(selinux_context) + 1));
 		strcpy(sedomain, selinux_context);
 	}
 	else
@@ -112,18 +106,14 @@ static int set_selinux_context(s_event * event)
 	rc = setexeccon(sestr);
 	if (rc < 0)
 		goto fail;
-	return (TRUE);
+	return;
 
   fail:
 	selinux_getenforcemode(&enforce);
 	if (enforce)
 	{
 		F_("bash_this(): could not change selinux context!\n ERROR!\n");
-		return (FAIL);
-	}
-	else
-	{
-		return (TRUE);
+		event->status = FAILED;
 	}
 }
 
