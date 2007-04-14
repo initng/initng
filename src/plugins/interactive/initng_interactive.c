@@ -19,7 +19,6 @@
 
 #include <initng.h>
 
-
 #include <stdio.h>
 #include <string.h>							/* strstr() */
 #include <stdlib.h>							/* free() exit() */
@@ -37,12 +36,13 @@
 INITNG_PLUGIN_MACRO;
 
 static int active;
-static int interactive_STARTING(s_event * service);
-static int interactive_STOP_MARKED(s_event * service);
+
+static void interactive_STARTING(s_event * event);
+static void interactive_STOP_MARKED(s_event * event);
 
 a_state_h INT_DISABLED = { "INTERACTIVELY_DISABLED", "The user choose to not start this service.", IS_FAILED, NULL, NULL, NULL };
 
-static int interactive_STARTING(s_event * event)
+static void interactive_STARTING(s_event * event)
 {
 	active_db_h * service;
 	char asw[10];
@@ -61,23 +61,24 @@ static int interactive_STARTING(s_event * event)
 
 	/* if it is true, then its ok to launch service */
 	if (asw[0] == 'y' || asw[0] == 'Y')
-		return (TRUE);
+		return;
 
 	if (asw[0] == 'a' || asw[0] == 'A')
 	{
 		initng_event_hook_unregister(&EVENT_START_DEP_MET,
-									  &interactive_STARTING);
+						  &interactive_STARTING);
 		initng_event_hook_unregister(&EVENT_STOP_DEP_MET,
-									  &interactive_STOP_MARKED);
+						  &interactive_STOP_MARKED);
 		active = FALSE;
-		return (TRUE);
+		return;
 	}
 
 	initng_common_mark_service(service, &INT_DISABLED);
-	return (FAIL);
+
+	event->status = FAILED;
 }
 
-static int interactive_STOP_MARKED(s_event * event)
+static void interactive_STOP_MARKED(s_event * event)
 {
 	active_db_h * service;
 	char asw[10];
@@ -95,20 +96,21 @@ static int interactive_STOP_MARKED(s_event * event)
 		asw[0] = 'n';
 
 	if (asw[0] == 'y' || asw[0] == 'Y')
-		return (TRUE);
+		return;
 
 	if (asw[0] == 'a' || asw[0] == 'A')
 	{
 		initng_event_hook_unregister(&EVENT_START_DEP_MET,
-									  &interactive_STARTING);
+						  &interactive_STARTING);
 		initng_event_hook_unregister(&EVENT_STOP_DEP_MET,
-									  &interactive_STOP_MARKED);
+						  &interactive_STOP_MARKED);
 		active = FALSE;
-		return (TRUE);
+		return;
 	}
 
 	initng_common_mark_service(service, &INT_DISABLED);
-	return (FAIL);
+	
+	event->status = FAILED;
 }
 
 int module_init(int api_version)

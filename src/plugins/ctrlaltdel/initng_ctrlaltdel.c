@@ -40,16 +40,16 @@
 
 INITNG_PLUGIN_MACRO;
 
-static int ctrlaltdel(s_event * event)
+static void ctrlaltdel(s_event * event)
 {
-	long signal;
+	int *signal;
 
 	assert(event->event_type == &EVENT_SIGNAL);
 
-	signal = (long) event->data;
+	signal = event->data;
 
-	if (signal != SIGINT)
-		return (TRUE);
+	if (*signal != SIGINT)
+		return;
 
 	/* what to do when there is no services left */
 	if (g.i_am == I_AM_INIT)
@@ -59,8 +59,6 @@ static int ctrlaltdel(s_event * event)
 
 	/* stop all services */
 	initng_handler_stop_all();
-
-	return (TRUE);
 }
 
 int module_init(int api_version)

@@ -64,8 +64,6 @@ INITNG_PLUGIN_MACRO;
 static void initng_reload(void);
 static void filemon_event(f_module_h * from, e_fdw what);
 
-static int fdh_handler(s_event * event);
-
 /* this plugin file descriptor we add to monitor */
 f_module_h fdh = { &filemon_event, FDW_READ, -1 };
 
@@ -75,7 +73,7 @@ int initng_watch = -1;
 int i_watch = -1;
 
 
-static int fdh_handler(s_event * event)
+static void fdh_handler(s_event * event)
 {
 	s_event_fd_watcher_data * data;
 
@@ -124,8 +122,6 @@ static int fdh_handler(s_event * event)
 					fdh.fds, __FILE__);
 			break;
 	}
-
-	return (TRUE);
 }
 
 /* This function trys to reload initng if reload plugin is loaded */

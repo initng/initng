@@ -43,9 +43,9 @@ s_entry ALSO_STOP = { "also_stop", STRINGS, NULL,
 	"When this service is stopping, also stop this."
 };
 
-static int service_state(s_event * event)
+static void service_state(s_event * event)
 {
-	active_db_h * service;
+	active_db_h *service;
 	const char *tmp = NULL;
 	active_db_h *current = NULL;
 
@@ -80,10 +80,10 @@ static int service_state(s_event * event)
 				F_("%s also_start %s could not start!\n", service->name,
 				   tmp);
 				initng_handler_stop_service(service);
-				return (FALSE);
+				return;
 			}
 		}
-		return (TRUE);
+		return;
 	}
 
 	/* if this service is stopping, stop all in ALSO_STOP */
@@ -107,10 +107,7 @@ static int service_state(s_event * event)
 				}
 			}
 		}
-		return (TRUE);
 	}
-
-	return (TRUE);
 }
 
 

@@ -58,11 +58,10 @@ a_state_h REQUIRE_FILE_FAILED = { "REQUIRE_FILE_FAILED", "A file that is require
 a_state_h REQUIRE_FILE_AFTER_FAILED = { "REQUIRE_FILE_AFTER_FAILED", "A file that is required to exist after this service is started was not found.", IS_FAILED, NULL, NULL, NULL };
 
 
-
 /*
  * Do this check before START_DEP_MET can be set.
  */
-static int check_files_to_exist(s_event * event)
+static void check_files_to_exist(s_event * event)
 {
 	active_db_h * service;
 	const char *file = NULL;
@@ -85,7 +84,8 @@ static int check_files_to_exist(s_event * event)
 			initng_global_set_sleep(1);
 
 			/* don't change status of service to START_DEP_MET */
-			return (FAIL);
+			event->status = FAILED;
+			return;
 		}
 	}
 
@@ -96,17 +96,16 @@ static int check_files_to_exist(s_event * event)
 		if (stat(file, &file_stat) != 0)
 		{
 			initng_common_mark_service(service, &REQUIRE_FILE_FAILED);
-			return (FAIL);
+			event->status = FAILED;
+			return;
 		}
 	}
-
-	return (TRUE);
 }
 
 /*
  * Do this test before status RUNNING can be set.
  */
-static int check_files_to_exist_after(s_event * event)
+static void check_files_to_exist_after(s_event * event)
 {
 	active_db_h * service;
 	const char *file = NULL;
@@ -131,7 +130,8 @@ static int check_files_to_exist_after(s_event * event)
 			initng_global_set_sleep(1);
 
 			/* don't change status of service to START_READY */
-			return (FAIL);
+			event->status = FAILED;
+			return;
 		}
 	}
 
@@ -141,11 +141,10 @@ static int check_files_to_exist_after(s_event * event)
 		if (stat(file, &file_stat) != 0)
 		{
 			initng_common_mark_service(service, &REQUIRE_FILE_AFTER_FAILED);
-			return (FAIL);
+			event->status = FAILED;
+			return;
 		}
 	}
-
-	return (TRUE);
 }
 
 int module_init(int api_version)

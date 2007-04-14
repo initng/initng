@@ -37,7 +37,7 @@ s_entry CHDIR = { "chdir", STRING, NULL,
 	"Change to this directory before launching."
 };
 
-static int do_chdir(s_event * event)
+static void do_chdir(s_event * event)
 {
 	s_event_after_fork_data * data;
 
@@ -57,7 +57,7 @@ static int do_chdir(s_event * event)
 	if (!(tmp = get_string(&CHDIR, data->service)))
 	{
 		D_("CHDIR not set!\n");
-		return (TRUE);
+		return;
 	}
 
 	D_("CHDIR TO %s\n", tmp);
@@ -65,9 +65,8 @@ static int do_chdir(s_event * event)
 	if (chdir(tmp) == -1)
 	{
 		F_("Chdir failed with %s\n", strerror(errno));
-		return (FAIL);
+		event->status = FAILED;
 	}
-	return (TRUE);
 }
 
 

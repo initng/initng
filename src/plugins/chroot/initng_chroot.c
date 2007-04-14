@@ -38,7 +38,7 @@ s_entry CHROOT = { "chroot", STRING, NULL,
 	"Chroot this path, before launching the service."
 };
 
-static int do_chroot(s_event * event)
+static void do_chroot(s_event * event)
 {
 	s_event_after_fork_data * data;
 
@@ -57,20 +57,21 @@ static int do_chroot(s_event * event)
 	if (!(tmp = get_string(&CHROOT, data->service)))
 	{
 		D_("SUID not set!\n");
-		return (TRUE);
+		return;
 	}
 
 	if (chdir(tmp) == -1)
 	{
 		F_("Chdir %s failed with %s\n", tmp, strerror(errno));
-		return (FAIL);
+		event->status = FAILED;
+		return;
 	}
 	if (chroot(tmp) == -1)
 	{
 		F_("Chroot %s failed with %s\n", tmp, strerror(errno));
-		return (FAIL);
+		event->status = FAILED;
+		return;
 	}
-	return (TRUE);
 }
 
 int module_init(int api_version)

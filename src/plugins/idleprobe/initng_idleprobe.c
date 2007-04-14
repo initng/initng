@@ -52,11 +52,9 @@
 INITNG_PLUGIN_MACRO;
 
 typedef unsigned long long ull_t;
-typedef unsigned long long ll_t;
-
+typedef long long ll_t;
 
 static FILE *fp_proc = NULL;
-
 
 static int is_cpu_idle(int wait);
 
@@ -190,7 +188,7 @@ static int is_cpu_idle(int wait)
 	return (FALSE);
 }
 
-static int check_cpu_idle(s_event * event)
+static void check_cpu_idle(s_event * event)
 {
 	S_;
 	active_db_h * service;
@@ -204,14 +202,20 @@ static int check_cpu_idle(s_event * event)
 	if ((value = get_int(&WAIT_FOR_CPU_COUNT, service)) > 0)
 	{
 		if (is_cpu_idle(value) < TRUE)
-			return FAIL;
+		{
+			event->status = FAILED;
+			return;
+		}
 	}
 
 	if (is(&WAIT_FOR_CPU_IDLE, service))
+	{
 		if (is_cpu_idle(DEFAULT_IDLE) < TRUE)
-			return FAIL;
-
-	return (TRUE);
+		{
+			event->status = FAILED;
+			return;
+		}
+	}
 }
 
 int module_init(int api_version)

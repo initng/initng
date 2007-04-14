@@ -46,9 +46,7 @@ const char *module_needs[] = {
 
 ptype_h T_DAEMON_CLEAN = { "daemon_clean", NULL };
 
-static int on_kill(s_event * event);
-
-static int on_kill(s_event * event)
+static void on_kill(s_event * event)
 {
 	s_event_handle_killed_data * data;
 
@@ -58,7 +56,7 @@ static int on_kill(s_event * event)
 	data = event->data;
 
 	if (strcmp(data->process->pt->name, "daemon") != 0)
-		return (FALSE);
+		return;
 
 	/* start the T_DAEMON_CLEAN */
 	W_("%s %s has been killed!, executing DAEMON_CLEAN!\n", data->process->pt->name,
@@ -69,7 +67,7 @@ static int on_kill(s_event * event)
 	 * if we return TRUE, other kill handlers wont get this signal,
 	 * it means that this signal have been handled.
 	 */
-	return (FALSE);
+	return;
 }
 
 int module_init(int api_version)

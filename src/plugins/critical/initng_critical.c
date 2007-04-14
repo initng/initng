@@ -43,7 +43,7 @@ s_entry CRITICAL = { "critical", SET, NULL,
 };
 
 /* returns TRUE if all use deps are started */
-static int check_critical(s_event * event)
+static void check_critical(s_event * event)
 {
 	active_db_h * service;
 
@@ -55,10 +55,10 @@ static int check_critical(s_event * event)
 	assert(service->name);
 
 	if (!IS_FAILED(service))
-		return (TRUE);
+		return;
 
 	if (!is(&CRITICAL, service))
-		return (TRUE);
+		return;
 
 	F_("Service %s failed, this is critical, going su_login!!\n",
 	   service->name);
@@ -82,7 +82,7 @@ static int check_critical(s_event * event)
 		if (!initng_handler_start_new_service_named(g.runlevel))
 			F_("runlevel \"%s\" could not be executed!\n", g.runlevel);
 
-	return (FALSE);
+	return;
 }
 
 int module_init(int api_version)

@@ -39,9 +39,11 @@ s_entry CONFLICT = { "conflict", STRINGS, NULL,
 	"If service put here is starting or running, bail out."
 };
 
-a_state_h CONFLICTING = { "FAILED_BY_CONFLICT", "There is a running service that is conflicting with this service, initng cannot launch this service.", IS_FAILED, NULL, NULL, NULL };
+a_state_h CONFLICTING = { "FAILED_BY_CONFLICT", 
+	"There is a running service that is conflicting with this service, "
+	"initng cannot launch this service.", IS_FAILED, NULL, NULL, NULL };
 
-static int check_conflict(s_event * event)
+static void check_conflict(s_event * event)
 {
 	active_db_h * service;
 	const char *conflict_entry = NULL;
@@ -56,7 +58,7 @@ static int check_conflict(s_event * event)
 
 	/* Do this check when this service is put in a STARTING state */
 	if (!IS_STARTING(service))
-		return (TRUE);
+		return;
 
 	/* make sure the conflict entry is set */
 	while ((conflict_entry = get_next_string(&CONFLICT, service, &itt)))
@@ -69,20 +71,16 @@ static int check_conflict(s_event * event)
 
 		/* this is actually good */
 		if (!s)
-		{
-			/*D_("Conflict not found!\n"); */
 			continue;
-		}
 
 		if (IS_UP(s) || IS_STARTING(s))
 		{
 			initng_common_mark_service(service, &CONFLICTING);
 			F_("Service \"%s\" is conflicting with service \"%s\"!\n",
 			   service->name, s->name);
-			return (FALSE);
+			return;
 		}
 	}
-	return (TRUE);
 }
 
 int module_init(int api_version)

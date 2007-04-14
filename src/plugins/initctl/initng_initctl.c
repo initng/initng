@@ -64,15 +64,13 @@ static int initctl_control_open(void);
 static void makeutmp(int runlevel);
 static void initng_reload(void);
 
-static int pipe_fd_handler(s_event * event);
-
 f_module_h pipe_fd = { &parse_control_input, FDW_READ, -1 };	/* /dev/initctl */
 
 struct stat st, st2;
 
 #define PIPE_FD    10						/* Fileno of initfifo. */
 
-static int pipe_fd_handler(s_event * event)
+static void pipe_fd_handler(s_event * event)
 {
 	s_event_fd_watcher_data * data;
 
@@ -121,8 +119,6 @@ static int pipe_fd_handler(s_event * event)
 					pipe_fd.fds, __FILE__);
 			break;
 	}
-
-	return (TRUE);
 }
 
 static void initctl_control_close(void)
@@ -339,27 +335,25 @@ static void initng_reload(void)
 
 
 /* try open FIFO, every started service */
-static int hup_request(s_event * event)
+static void hup_request(s_event * event)
 {
-	long signal;
+	int *signal;
 
 	assert(event->event_type == &EVENT_SIGNAL);
 
-	signal = (long) event->data;
+	signal = event->data;
 
 	/* Look for the right signal */
-	if (signal != SIGHUP)
-		return (TRUE);
-
-	if (!initctl_control_open())
+	if (*signal == SIGHUP)
 	{
-		F_("Warning, failed to open /dev/initctl\n");
+		if (!initctl_control_open())
+		{
+			F_("Warning, failed to open /dev/initctl\n");
+		}
 	}
-
-	return (TRUE);
 }
 
-static int is_system_up(s_event * event)
+static void is_system_up(s_event * event)
 {
 	h_sys_state * state;
 
@@ -372,8 +366,6 @@ static int is_system_up(s_event * event)
 	{
 		makeutmp(3);
 	}
-
-	return (TRUE);
 }
 
 

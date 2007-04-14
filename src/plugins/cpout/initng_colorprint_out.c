@@ -180,7 +180,7 @@ static void opt_service_stop_p(active_db_h * s, const char *is)
 }
 
 
-static int print_output(s_event * event)
+static void print_output(s_event * event)
 {
 	active_db_h * service;
 
@@ -193,16 +193,16 @@ static int print_output(s_event * event)
 
 	/* dont print hidden services */
 	if (service->type && service->type->hidden == TRUE)
-		return (TRUE);
+		return;
 
 	/* if quiet_when_up and system up, dont print anything */
 	if (quiet_when_up && g.sys_state == STATE_UP)
-		return (TRUE);
+		return;
 
 	if (IS_DOWN(service))
 	{
 		opt_service_stop_p(service, "stopped");
-		return (TRUE);
+		return;
 	}
 
 	if (IS_STARTING(service))
@@ -216,7 +216,7 @@ static int print_output(s_event * event)
 		else
 			cprintf(P "\t[starting]\n", service->name);
 		fflush(output);
-		return (TRUE);
+		return;
 	}
 
 	if (IS_UP(service))
@@ -227,7 +227,7 @@ static int print_output(s_event * event)
 		if (!process)
 		{
 			out_service_done(service);
-			return (TRUE);
+			return;
 		}
 		clear_lastserv();
 		t = initng_active_db_percent_started();
@@ -251,7 +251,7 @@ static int print_output(s_event * event)
 						service->name, process->pid);
 		}
 		fflush(output);
-		return (TRUE);
+		return;
 	}
 
 	if (IS_STOPPING(service))
@@ -261,7 +261,7 @@ static int print_output(s_event * event)
 		 * do think that the user is aware about this.
 		 */
 		if (g.sys_state == STATE_STOPPING)
-			return (TRUE);
+			return;
 
 		clear_lastserv();
 		if (color)
@@ -269,7 +269,7 @@ static int print_output(s_event * event)
 		else
 			cprintf(P "\t[stopping]\n", service->name);
 		fflush(output);
-		return (TRUE);
+		return;
 	}
 
 	/* Print all states, that is a failure state */
@@ -285,10 +285,9 @@ static int print_output(s_event * event)
 	}
 
 	fflush(output);
-	return (TRUE);
 }
 
-static int print_system_state(s_event * event)
+static void print_system_state(s_event * event)
 {
 	h_sys_state * state;
 
@@ -337,7 +336,7 @@ static int print_system_state(s_event * event)
 
 				/* Dont print this */
 				if (quiet_when_up)
-					return (TRUE);
+					return;
 
 				/* get runlevel */
 				active_db_h *runl = initng_active_db_find_by_name(g.runlevel);
@@ -346,7 +345,7 @@ static int print_system_state(s_event * event)
 				if (!runl)
 				{
 					D_("Runlevel %s not found.\n", g.runlevel);
-					return (FALSE);
+					return;
 				}
 
 				gettimeofday(&now, NULL);
@@ -387,19 +386,21 @@ static int print_system_state(s_event * event)
 
 	fflush(output);
 	D_("print_system_state(): new system state: %i\n", state);
-
-	return (TRUE);
 }
 
-static int print_program_output(s_event * event)
+static void print_program_output(s_event * event)
 {
 	/*
 	   TODO here:
-	   we should have an internal list of services and "our" current position in them.
+	   we should have an internal list of services and "our" current
+	   position in them.
 
-	   That way when this function is called we can print every full line from plugin_pos.
-	   This way fsck will look nice, along with an "internal" database of write positions we can cache data so we print every 5 seconds or on int forceflush.
-	 */
+	   That way when this function is called we can print every full line
+	   from plugin_pos.
+	   This way fsck will look nice, along with an "internal" database of
+	   write positions we can cache data so we print every 5 seconds or
+	   on int forceflush.
+	*/
 	s_event_buffer_watcher_data * data;
 	int i = 0;
 
@@ -415,7 +416,7 @@ static int print_program_output(s_event * event)
 
 	/* if quiet_when_up and system up, dont print anything */
 	if (quiet_when_up && g.sys_state == STATE_UP)
-		return (TRUE);
+		return;
 
 	D_(" from service \"%s\"\n", data->service->name);
 	/*
@@ -450,7 +451,7 @@ static int print_program_output(s_event * event)
 	if (strlen(&data->buffer_pos[i]) < 2)
 	{
 		/* its okay anyway */
-		return (TRUE);
+		return;
 	}
 
 	if (lastservice != data->service && last_ptype != data->process->pt)
@@ -506,11 +507,10 @@ static int print_program_output(s_event * event)
 
 	/* flush any buffered output to the screen */
 	fflush(stdout);
-	return (TRUE);
 }
 
 
-static int cp_print_error(s_event * event)
+static void cp_print_error(s_event * event)
 {
 	s_event_error_message_data * data;
 	struct tm *ts;
@@ -528,11 +528,11 @@ static int cp_print_error(s_event * event)
 			t = time(0);
 			ts = localtime(&t);
 #ifdef DEBUG
-			fprintf(output, "\n\n ** \"%s\", %s()  line:%i:\n", data->file, data->func,
-					data->line);
+			fprintf(output, "\n\n ** \"%s\", %s()  line:%i:\n",
+				data->file, data->func, data->line);
 #endif
 			fprintf(output, " %.2i:%.2i:%.2i -- %s:\t", ts->tm_hour,
-					ts->tm_min, ts->tm_sec, data->mt == MSG_FAIL ? "FAIL" : "WARN");
+				ts->tm_min, ts->tm_sec, data->mt == MSG_FAIL ? "FAIL" : "WARN");
 			vfprintf(output, data->format, data->arg);
 			break;
 		default:
@@ -542,7 +542,6 @@ static int cp_print_error(s_event * event)
 
 	/* make sure it reach screen */
 	fflush(output);
-	return (TRUE);
 }
 
 int module_init(int api_version)
