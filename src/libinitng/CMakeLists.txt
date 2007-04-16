@@ -73,15 +73,37 @@ SET(initng_lib_srcs
 	interrupt/run_handlers.c
 	interrupt/dep_failed.c
 	interrupt/interrupt.c
-
-	initng_kill_handler.c
-	initng_open_read_close.c
-	initng_plugin_callers.c
-	initng_struct_data.c
-	initng_static_service_types.c
-	initng_static_states.c
-	initng_static_data_id.c
-	initng_main.c
+	kill/handler.c
+	static/data_id.c
+	static/service_types.c
+	static/states.c
+	plugin_callers/active_db.c
+	plugin_callers/new_active.c
+	plugin_callers/compensate_time.c
+	plugin_callers/signal.c
+	plugin_callers/handle_killed.c
+	plugin_callers/system_changed.c
+	io/open_read_close.c
+	main/exit.c
+	main/restart.c
+	main/start_extra_services.c
+	main/hard.c
+	main/segfault.c
+	main/su_login.c
+	main/new_init.c
+	main/set_runlevel.c
+	main/when_out.c
+	main/ready_to_quit.c
+	main/set_sys_state.c
+	data/copy_all.c
+	data/remove_all.c
+	data/set_string_var.c
+	data/count_type.c
+	data/remove_var.c
+	data/set_var.c
+	data/set_another_string_var.c
+	data/get_next_var.c
+	data/set_int_var.c
 )
 
 ADD_LIBRARY(initng SHARED ${initng_lib_srcs})

@@ -38,30 +38,6 @@
 #include "initng_plugin.h"
 #include "initng_event.h"
 
-active_db_h *initng_plugin_create_new_active(const char *name)
-{
-	s_event event;
-
-	event.event_type = &EVENT_NEW_ACTIVE;
-	event.data = (void *) name;
-
-	initng_event_send(&event);
-	if (event.status == HANDLED)
-		return event.ret;
-
-	return (NULL);
-}
-
-
-void initng_plugin_callers_signal(int signal)
-{
-	s_event event;
-
-	event.event_type = &EVENT_SIGNAL;
-	event.data = &signal;
-
-	initng_event_send(&event);
-}
 
 int initng_plugin_callers_handle_killed(active_db_h * s, process_h * p)
 {
@@ -78,50 +54,4 @@ int initng_plugin_callers_handle_killed(active_db_h * s, process_h * p)
 		return (TRUE);
 
 	return (FALSE);
-}
-
-
-void initng_plugin_callers_compensate_time(int t)
-{
-	s_event event;
-
-	event.event_type = &EVENT_COMPENSATE_TIME;
-	event.data = (void *) (long)t;
-
-	initng_event_send(&event);
-}
-
-/* called when system state has changed. */
-void initng_plugin_callers_load_module_system_changed(h_sys_state state)
-{
-	s_event event;
-
-	event.event_type = &EVENT_SYSTEM_CHANGE;
-	event.data = &state;
-
-	initng_event_send(&event);
-
-	return;
-}
-
-/* called to dump active_db */
-int initng_plugin_callers_dump_active_db(void)
-{
-	s_event event;
-
-	event.event_type = &EVENT_DUMP_ACTIVE_DB;
-
-	initng_event_send(&event);
-	return (event.status == OK);
-}
-
-/* called to reload dump of active_db */
-int initng_plugin_callers_reload_active_db(void)
-{
-	s_event event;
-
-	event.event_type = &EVENT_RELOAD_ACTIVE_DB;
-
-	initng_event_send(&event);
-	return (event.status == OK);
 }

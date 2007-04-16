@@ -11,8 +11,11 @@ typedef struct {
 } opts_t;
 
 
+#ifdef DEBUG
 static void opt_verbose(char *val);
 static void opt_verbose_add(char *val);
+#endif
+
 static void opt_no_circular(char *val);
 static void opt_hot_reload(char *val);
 static void opt_fake(char *val);
