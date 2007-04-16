@@ -1,6 +1,6 @@
 #include <string.h>
 
-#include "initng_parse_args.h"
+#include "parse_args.h"
 #include "initng_toolbox.h"
 #include "initng_global.h"
 

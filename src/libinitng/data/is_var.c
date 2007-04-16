@@ -31,21 +31,13 @@
 #include "local.h"
 
 
-void d_remove_all(data_head * d)
+/*
+ * d_is can be used to check any type, if its in the db,
+ * or just to check unset and set types.
+ */
+inline int d_is_var(s_entry * type, const char *vn, data_head * d)
 {
-	s_data *current = NULL;
-	s_data *s = NULL;
+	s_data *current = d_get_next_var(type, vn, d, NULL);
 
-	assert(d);
-
-	/* walk through all entries on address */
-	list_for_each_entry_safe(current, s, &d->head.list, list)
-	{
-		/* walk, and remove all */
-		d_dfree(current);
-		current = NULL;
-	}
-
-	/* make sure its cleared */
-	DATA_HEAD_INIT(d);
+	return (current ? TRUE : FALSE);
 }

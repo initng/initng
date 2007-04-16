@@ -96,14 +96,17 @@ SET(initng_lib_srcs
 	main/ready_to_quit.c
 	main/set_sys_state.c
 	data/copy_all.c
-	data/remove_all.c
 	data/set_string_var.c
 	data/count_type.c
-	data/remove_var.c
+	data/remove.c
 	data/set_var.c
 	data/set_another_string_var.c
 	data/get_next_var.c
 	data/set_int_var.c
+	data/get_int_var.c
+	data/get_next_string_var.c
+	data/get_string_var.c
+	data/is_var.c
 )
 
 ADD_LIBRARY(initng SHARED ${initng_lib_srcs})

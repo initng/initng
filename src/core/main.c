@@ -59,7 +59,7 @@
 #include "initng_process_db.h"
 #include "initng_global.h"
 #include "initng_static_event_types.h"
-#include "initng_parse_args.h"
+#include "parse_args.h"
 
 #ifdef SELINUX
 #include <stdlib.h>

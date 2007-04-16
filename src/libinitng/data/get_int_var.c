@@ -16,20 +16,25 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
- 
-#ifndef __LOCAL_H
-#define __LOCAL_H
 
-#undef D_
-#define D_(fmt, ...)
+#include "initng.h"
+#include "initng_global.h"
 
-/* if this is an alias variable type, walk to find the correct one */
-#define ALIAS_WALK \
-    /* this might be an alias */ \
-    while (type && type->opt_type == ALIAS && type->alias) \
-        type = type->alias;
+#include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "initng_struct_data.h"
+#include "initng_static_data_id.h"
+#include "initng_toolbox.h"
+
+#include "local.h"
 
 
-#define IT(x) (type->opt_type == x || type->opt_type == (x + 50))
+/* returns an int */
+int d_get_int_var(s_entry * type, const char *vn, data_head * d)
+{
+	s_data *current = d_get_next_var(type, vn, d, NULL);
 
-#endif
+	return (current ? current->t.i : 0);
+}

@@ -31,22 +31,21 @@
 #include "local.h"
 
 
-void d_remove_var(s_entry * type, const char *vn, data_head * d)
+const char *d_get_next_string_var(s_entry * type, const char *vn,
+										 data_head * d, s_data ** cur)
 {
-	s_data *current;
+	/* Temporary store string pointer here */
+	const char *to_ret;
 
-	assert(d);
-	assert(type);
+	/* find next var */
+	s_data *current = d_get_next_var(type, vn, d, *cur);
 
-	if (!type)
-	{
-		F_("Type can't be zero!\n");
-		return;
-	}
+	/* Get the string path out of it */
+	to_ret = current ? current->t.s : NULL;
 
-	/* for every matching, free it */
-	while ((current = d_get_next_var(type, vn, d, NULL)))
-	{
-		d_dfree(current);
-	}
+	/* update to next */
+	*cur = current;
+
+	/* return string */
+	return (to_ret);
 }

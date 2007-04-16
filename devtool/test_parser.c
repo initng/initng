@@ -51,8 +51,8 @@
 #include <initng-paths.h>
 
 /* include some soruce files directly, remember this is only a test */
-#include <src/core/initng_static_event_types.c>
-#include <src/core/initng_global.c>
+#include <src/core/static_event_types.c>
+#include <src/core/global.c>
 #include "../plugins/debug_commands/print_service.c"
 
 /*
