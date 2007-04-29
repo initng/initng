@@ -17,9 +17,14 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef INITNG_PARSE_ARGS_H
-#define INITNG_PARSE_ARGS_H
+#ifndef __SELINUX_H
+#include <stdlib.h>
+#include <string.h>
+#include <selinux/selinux.h>
+#include <selinux/context.h>
+#include <sepol/sepol.h>
 
-void initng_parse_args(char **argv);
-
+#ifdef OLDSELINUX
+int load_policy(int *enforce);
+#endif
 #endif
