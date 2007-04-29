@@ -1,14 +1,12 @@
-- Organize files under src/
+- Provide replacements for telinit, shutdown and the like, so we can remove
+  the initctl plugin. Is better to do this stuff outside of initng.
 
 - Make reload plugin, save sys_state, and current runlevel and more static
   global stuff. Maby we can call ngc -c, when system is stopping or starting
   without problems.
 
 - Add need deps like need = (daemon/sysvlog || daemon/syslogd), needs core
-  rewrite too.
-
-- The i parser shud not only know '=' but '+=' and '=+' or maby '=-' to reset
-  a multistring variable, needs core rewrite.
+  rewrite.
 
 - A service that stops because the dependency stoped, will atomaticly be
   started again when the dep is up again. Need to rewrite pars of core to

@@ -259,7 +259,7 @@ int main(int argc, char *argv[], char *env[])
 		/* when last service stopped, offer a sulogin */
 		g.when_out = THEN_SULOGIN;
 		if (!g.runlevel)
-			initng_main_set_runlevel(RUNLEVEL_PREFIX "default");
+			initng_main_set_runlevel(RUNLEVEL_DEFAULT);
 
 		if (!g.hot_reload)
 		{
@@ -273,7 +273,7 @@ int main(int argc, char *argv[], char *env[])
 		/* when last service stopped, quit initng */
 		W_("Starting initng in fake mode becouse pid is not 1 (now %i) or --fake is issued, running fake-default runlevel as default, issue no-fake at boot-prompt is this is real init.", getpid());
 		g.when_out = THEN_QUIT;
-		initng_main_set_runlevel(RUNLEVEL_PREFIX "fake-default");
+		initng_main_set_runlevel(RUNLEVEL_FAKE);
 	}
 
 	D_("MAIN_LOAD_MODULES\n");
