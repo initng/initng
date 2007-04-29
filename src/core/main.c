@@ -199,12 +199,8 @@ int main(int argc, char *argv[], char *env[])
 	/* initialize global variables */
 	initng_global_new(argc, argv, env);
 	
-	// run initng in fake mode if not pid 1 and --no-fake is not issued
-	g.i_am = (getpid() == 1) ? I_AM_INIT : I_AM_FAKE_INIT;
-	
-	// Parse options given on argv.
+	/* Parse options given on argv. */
 	initng_parse_args(argv);
-	
 
 	if (getuid() != 0)
 	{

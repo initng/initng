@@ -50,7 +50,10 @@ void initng_global_new(int argc, char *argv[], char *env[])
 	memset(&g, 0, sizeof(s_global));
 
 	/* Set the i_am */
-	g.i_am = I_AM_INIT;
+	if (getpid() == 1)
+		g.i_am = I_AM_INIT;
+	else
+		g.i_am = I_AM_FAKE_INIT;
 
 	/* we want to keep a copy of the arguments passed to us, this will be overwritten by set_title() */
 	g.Argc = argc;
