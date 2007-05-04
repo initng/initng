@@ -19,8 +19,32 @@
 
 /* NOTE: Older code, no longer needed on FC5 and later */
 
+#include <unistd.h>
+#include <time.h>				/* time() */
+#include <fcntl.h>				/* fcntl() */
+#include <linux/kd.h>				/* KDSIGACCEPT */
+#include <stdlib.h>				/* free() exit() */
+#include <termios.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <dirent.h>
+#include <fnmatch.h>
+#include <errno.h>
+#include <ctype.h>
+
+#include <sys/stat.h>
+#include <sys/klog.h>
+#include <sys/reboot.h>				/* reboot() RB_DISABLE_CAD */
+#include <sys/ioctl.h>				/* ioctl() */
+#include <sys/time.h>
+#include <sys/resource.h>
+#include <sys/mman.h>
+#include <sys/types.h>
+#include <sys/un.h>				/* memmove() strcmp() */
+#include <sys/wait.h>				/* waitpid() sa */
+#include <sys/mount.h>
+
+#include "selinux.h"
 
 /* Mount point for selinuxfs. */
 #define SELINUXMNT "/selinux/"

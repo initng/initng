@@ -18,8 +18,7 @@ static void opt_verbose_add(char *val);
 
 static void opt_no_circular(char *val);
 static void opt_hot_reload(char *val);
-static void opt_fake(char *val);
-static void opt_no_fake(char *val);
+static void opt_i_am_init(char *val);
 static void opt_runlevel(char *val);
 static void opt_console(char *val);
 static void list_options(char *val);
