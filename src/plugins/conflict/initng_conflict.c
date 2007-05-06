@@ -24,14 +24,6 @@
 #include <stdlib.h>							/* free() exit() */
 #include <assert.h>
 
-#include <initng_handler.h>
-#include <initng_global.h>
-#include <initng_common.h>
-#include <initng_toolbox.h>
-#include <initng_static_states.h>
-#include <initng_env_variable.h>
-#include <initng_static_event_types.h>
-#include <initng_event_hook.h>
 
 INITNG_PLUGIN_MACRO;
 

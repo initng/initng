@@ -34,20 +34,6 @@
 #include <ctype.h>
 #include <assert.h>
 
-#include <initng_global.h>
-#include <initng_process_db.h>
-#include <initng_handler.h>
-#include <initng_main.h>
-#include <initng_active_db.h>
-#include <initng_toolbox.h>
-#include <initng_plugin.h>
-#include <initng_load_module.h>
-#include <initng_static_states.h>
-#include <initng_event_hook.h>
-#include <initng_static_event_types.h>
-#include <initng_string_tools.h>
-#include <initng_fd.h>
-
 #include <initng-paths.h>
 
 #include <utmp.h>

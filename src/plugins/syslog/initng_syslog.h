@@ -20,7 +20,7 @@
 #ifndef INITNG_SYSLOG_H
 #define INITNG_SYSLOG_H
 #include <sys/types.h>
-#include <initng_active_db.h>
+#include <initng.h>
 
 typedef struct
 {

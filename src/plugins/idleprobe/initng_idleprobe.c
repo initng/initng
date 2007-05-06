@@ -20,34 +20,19 @@
 
 #include <initng.h>
 
-
 #include <stdio.h>
-#include <stdlib.h>							/* free() exit() */
+#include <stdlib.h>				/* free() exit() */
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <assert.h>
-
-#include <initng_handler.h>
-#include <initng_global.h>
-#include <initng_common.h>
-#include <initng_toolbox.h>
-#include <initng_static_data_id.h>
-#include <initng_static_states.h>
-#include <initng_static_event_types.h>
-#include <initng_event_hook.h>
-#include <initng_fd.h>
-
-#include <stdio.h>
-#include <stdlib.h>
 #include <unistd.h>
-#include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>
-#include <string.h>
 #include <errno.h>
 #include <time.h>
+
 
 INITNG_PLUGIN_MACRO;
 

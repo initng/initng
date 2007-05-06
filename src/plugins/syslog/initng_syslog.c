@@ -31,12 +31,6 @@
 #include <syslog.h>
 
 #include "initng_syslog.h"
-#include <initng_global.h>
-#include <initng_toolbox.h>
-#include <initng_static_states.h>
-#include <initng_event_hook.h>
-#include <initng_static_event_types.h>
-#include <initng_system_states.h>
 
 INITNG_PLUGIN_MACRO;
 

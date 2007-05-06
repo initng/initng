@@ -20,23 +20,13 @@
 #include <initng.h>
 
 #include <stdio.h>
-#include <stdlib.h>							/* free() exit() */
+#include <stdlib.h>					/* free() exit() */
 #include <string.h>
 #include <assert.h>
 #include <sys/types.h>
 #include <signal.h>
 #include <errno.h>
-/*#include <time.h> */
 
-#include <initng_handler.h>
-#include <initng_global.h>
-#include <initng_common.h>
-#include <initng_toolbox.h>
-#include <initng_static_data_id.h>
-#include <initng_static_states.h>
-#include <initng_static_service_types.h>
-#include <initng_depend.h>
-#include <initng_execute.h>
 
 INITNG_PLUGIN_MACRO;
 

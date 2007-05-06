@@ -18,9 +18,7 @@
  */
 
 #include "initng_nge.h"
-#include <initng_is.h>
-#include <initng_system_states.h>
-#include <initng_msg.h>
+#include <initng.h>
 
 
 typedef enum

@@ -19,7 +19,6 @@
 
 #include <initng.h>
 
-
 #include <stdio.h>
 #include <stdlib.h>							/* free() exit() */
 #include <string.h>
@@ -27,18 +26,6 @@
 #include <assert.h>
 #include <errno.h>
 #include <sys/stat.h>
-
-#include <initng_handler.h>
-#include <initng_global.h>
-#include <initng_common.h>
-#include <initng_toolbox.h>
-#include <initng_static_data_id.h>
-#include <initng_active_state.h>
-#include <initng_process_db.h>
-#include <initng_service_types.h>
-#include <initng_plugin_callers.h>
-#include <initng_event_hook.h>
-#include <initng_static_event_types.h>
 
 #include <initng-paths.h>
 

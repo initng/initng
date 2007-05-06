@@ -17,7 +17,7 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <initng_control_command.h>
+#include <initng.h>
 
 /* Warning.
  * Changing these variables, will make reload incompatible,

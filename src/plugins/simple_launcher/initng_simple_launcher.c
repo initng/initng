@@ -33,18 +33,6 @@
 #include <assert.h>
 #include <errno.h>
 
-#include <initng_active_db.h>
-#include <initng_global.h>
-#include <initng_plugin_callers.h>
-#include <initng_execute.h>
-#include <initng_string_tools.h>
-#include <initng_toolbox.h>
-#include <initng_common.h>
-#include <initng_signal.h>
-#include <initng_fork.h>
-#include <initng_env_variable.h>
-#include <initng_static_event_types.h>
-#include <initng_event_hook.h>
 
 INITNG_PLUGIN_MACRO;
 

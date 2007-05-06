@@ -19,15 +19,15 @@
 
 #include <initng.h>
 
-#include <time.h>							/* time() */
-#include <fcntl.h>							/* fcntl() */
-#include <sys/un.h>							/* memmove() strcmp() */
-#include <sys/wait.h>						/* waitpid() sa */
-#include <linux/kd.h>						/* KDSIGACCEPT */
-#include <sys/ioctl.h>						/* ioctl() */
-#include <stdio.h>							/* printf() */
-#include <stdlib.h>							/* free() exit() */
-#include <sys/reboot.h>						/* reboot() RB_DISABLE_CAD */
+#include <time.h>				/* time() */
+#include <fcntl.h>				/* fcntl() */
+#include <sys/un.h>				/* memmove() strcmp() */
+#include <sys/wait.h>				/* waitpid() sa */
+#include <linux/kd.h>				/* KDSIGACCEPT */
+#include <sys/ioctl.h>				/* ioctl() */
+#include <stdio.h>				/* printf() */
+#include <stdlib.h>				/* free() exit() */
+#include <sys/reboot.h>				/* reboot() RB_DISABLE_CAD */
 #include <assert.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -36,21 +36,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <dirent.h>
-#include <ctype.h>							/* isdigit */
-
-
-#include <initng_handler.h>
-#include <initng_global.h>
-#include <initng_common.h>
-#include <initng_toolbox.h>
-#include <initng_static_data_id.h>
-#include <initng_static_states.h>
-#include <initng_static_service_types.h>
-#include <initng_depend.h>
-#include <initng_env_variable.h>
-#include <initng_execute.h>
-#include <initng_static_event_types.h>
-#include <initng_event_hook.h>
+#include <ctype.h>				/* isdigit */
 
 
 INITNG_PLUGIN_MACRO;

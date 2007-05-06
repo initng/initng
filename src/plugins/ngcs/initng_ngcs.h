@@ -20,9 +20,7 @@
 #ifndef INITNG_NGCS_H
 #define INITNG_NGCS_H
 
-#include <initng_active_db.h>
-#include <initng_system_states.h>
-#include <initng_list.h>
+#include <initng.h>
 #include "ngcs_common.h"
 #include "ngcs_paths.h"
 

@@ -40,12 +40,7 @@
 #include <ctype.h>
 
 
-/* #include "ngc.h" */
 #include <initng.h>
-#include <initng_global.h>
-#include <initng_control_command.h>
-#include <initng_active_state.h>
-#include <initng_toolbox.h>
 #include <initng-paths.h>
 
 #include "initng_ngc4.h"

@@ -22,10 +22,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
-#include <initng_handler.h>
-#include <initng_global.h>
-#include <initng_static_event_types.h>
-#include <initng_event_hook.h>
 
 #include <assert.h>
 

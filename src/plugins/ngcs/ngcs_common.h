@@ -20,7 +20,7 @@
 
 #ifndef NGCS_COMMON_H
 #define NGCS_COMMON_H
-#include <initng_list.h>
+#include <initng.h>
 
 /*! \brief Null type
  *

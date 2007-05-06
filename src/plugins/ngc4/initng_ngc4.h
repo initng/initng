@@ -20,9 +20,7 @@
 #ifndef NGC4_H
 #define NGC4_H
 
-#include <initng_active_db.h>
-#include <initng_system_states.h>
-#include <initng_control_command.h>
+#include <initng.h>
 
 #define SOCKET_4_ROOTPATH      DEVDIR "/initng/"
 #define SOCKET_4_FILENAME_REAL SOCKET_4_ROOTPATH "initng-4"

@@ -18,7 +18,6 @@
  */
 
 #include <initng.h>
-#include <initng_handler.h>
 
 #include <stdio.h>
 #include <unistd.h>
@@ -30,14 +29,6 @@
 
 #include "initng_colorprint_out.h"
 
-#include <initng_global.h>
-#include <initng_string_tools.h>
-#include <initng_active_db.h>
-#include <initng_static_states.h>
-#include <initng_toolbox.h>
-#include <initng_static_event_types.h>
-#include <initng_event_hook.h>
-#include <initng_fd.h>
 
 INITNG_PLUGIN_MACRO;
 

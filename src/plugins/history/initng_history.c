@@ -28,15 +28,9 @@
 #include <errno.h>
 
 
-#include <initng_global.h>
 #include "../ngc4/initng_ngc4.h"
-#include <initng_toolbox.h>
-#include <initng_static_states.h>
-#include <initng_string_tools.h>
-#include <initng_static_event_types.h>
-#include <initng_event_hook.h>
-
 #include "initng_history.h"
+
 
 INITNG_PLUGIN_MACRO;
 

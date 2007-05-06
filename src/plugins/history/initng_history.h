@@ -22,9 +22,7 @@
 #include <sys/types.h>
 #include <sys/time.h>
 #include <time.h>
-#include <initng_active_db.h>
-#include <initng_list.h>
-#include <initng_active_state.h>
+#include <initng.h>
 
 #define HISTORY 800
 

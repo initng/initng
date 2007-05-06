@@ -27,13 +27,8 @@
 #include <sys/time.h>
 #include <time.h>
 
-#include <initng_toolbox.h>
-#include <initng_global.h>
-#include <initng_active_db.h>
-#include <initng_active_state.h>
-#include <initng_string_tools.h>
-
 #include "print_service.h"
+
 
 INITNG_PLUGIN_MACRO;
 
