@@ -17,8 +17,8 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef INITNG_H
-#define INITNG_H
+#ifndef INITNG_MISC_H
+#define INITNG_MISC_H
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -114,4 +114,4 @@
 int module_init(int api_version);
 void module_unload(void);
 
-#endif /* INITNG_H */
+#endif /* INITNG_MISC_H */
