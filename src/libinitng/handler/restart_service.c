@@ -17,7 +17,7 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "initng.h"
+#include <initng.h>
 
 #include <sys/time.h>
 #include <time.h>							/* time() */
@@ -31,22 +31,6 @@
 #include <sys/reboot.h>						/* reboot() RB_DISABLE_CAD */
 #include <assert.h>
 #include <errno.h>
-
-#include "initng_global.h"
-
-#include "initng_active_db.h"
-#include "initng_toolbox.h"
-#include "initng_main.h"
-#include "initng_execute.h"
-#include "initng_common.h"
-#include "initng_load_module.h"
-#include "initng_depend.h"
-
-#include "initng_handler.h"
-#include "initng_kill_handler.h"
-#include "initng_plugin_callers.h"
-#include "initng_static_data_id.h"
-#include "initng_static_states.h"
 
 
 int initng_handler_restart_service(active_db_h * service_to_restart)

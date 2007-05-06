@@ -26,17 +26,7 @@
 #include <string.h>
 #include <fcntl.h>							/* fcntl() */
 
-#include "initng.h"
-#include "initng_global.h"
-#include "initng_load_module.h"
-#include "initng_toolbox.h"
-#include "initng_signal.h"
-
-#include "initng_plugin_callers.h"
-#include "initng_plugin.h"
-#include "initng_static_event_types.h"
-
-#include "initng_fd.h"
+#include <initng.h>
 
 
 void initng_fd_close_all(void)

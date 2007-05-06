@@ -17,16 +17,13 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "initng.h"
 #define _GNU_SOURCE
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "initng_control_command.h"
+#include <initng.h>
 
-#include "initng_global.h"
-#include "initng_toolbox.h"
 
 /* this adds a command to the global command struct */
 int initng_command_register(s_command * cmd)

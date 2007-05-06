@@ -17,25 +17,15 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "initng.h"
+#include <initng.h>
 
 #include <stdio.h>
 #include <stdlib.h>							/* free() exit() */
 #include <string.h>
 #include <assert.h>
 
-#include "initng_handler.h"
-#include "initng_global.h"
-#include "initng_common.h"
-#include "initng_toolbox.h"
-#include "initng_static_data_id.h"
-#include "initng_static_states.h"
-#include "initng_env_variable.h"
-#include "initng_static_event_types.h"
-
-#include "initng_depend.h"
-
 #include "local.h"
+
 
 /*
  * initng_depend:

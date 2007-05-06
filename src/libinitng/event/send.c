@@ -19,11 +19,8 @@
  */
 
 #include <assert.h>
+#include <initng.h>
 
-#include "initng.h"
-#include "initng_plugin.h"
-#include "initng_event_types.h"
-#include "initng_event.h"
 
 void initng_event_send(s_event *event)
 {

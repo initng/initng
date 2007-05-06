@@ -17,24 +17,19 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "initng.h"
+#include <initng.h>
 
-#include <sys/wait.h>						/* waitpid() sa */
-#include <stdlib.h>							/* free() exit() */
-#include <stdio.h>							/* printf() */
+#include <sys/wait.h>				/* waitpid() sa */
+#include <stdlib.h>				/* free() exit() */
+#include <stdio.h>				/* printf() */
 #include <errno.h>
 #include <string.h>
 #include <assert.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 
-#include "initng_signal.h"
-#include "initng_handler.h"
-#include "initng_kill_handler.h"
-#include "initng_global.h"
-#include "initng_main.h"
-
 #include "local.h"
+
 
 volatile int signals_got[SIGNAL_STACK];
 

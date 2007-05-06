@@ -17,7 +17,7 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "initng.h"
+#include <initng.h>
 
 #include <sys/types.h>
 #include <string.h>
@@ -27,12 +27,6 @@
 #include <string.h>
 #include <alloca.h>
 #include <assert.h>
-
-#include "initng_active_db.h"
-#include "initng_process_db.h"
-#include "initng_global.h"
-
-#include "initng_toolbox.h"
 
 
 /* creates a process_h struct with defaults */

@@ -19,9 +19,8 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include "initng_active_db.h"
-#include "initng_static_data_id.h"
-#include "initng_service_data_types.h"
+#include <initng.h>
+
 
 /*
  * Here is where we define, the default options, and

@@ -20,11 +20,7 @@
 
 #include <string.h>
 #include <assert.h>
-
-#include "initng.h"
-#include "initng_list.h"
-#include "initng_global.h"
-#include "initng_event_types.h"
+#include <initng.h>
 
 
 /*

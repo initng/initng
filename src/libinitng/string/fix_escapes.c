@@ -17,7 +17,7 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "initng.h"
+#include <initng.h>
 
 #define _GNU_SOURCE
 #include <fnmatch.h>
@@ -28,8 +28,6 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#include "initng_string_tools.h"
-#include "initng_toolbox.h"
 
 
 void fix_escapes(char * str)

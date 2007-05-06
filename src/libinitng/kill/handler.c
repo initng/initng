@@ -17,36 +17,19 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "initng.h"
+#include <initng.h>
 
-#include <time.h>							/* time() */
-#include <fcntl.h>							/* fcntl() */
-#include <sys/un.h>							/* memmove() strcmp() */
-#include <sys/wait.h>						/* waitpid() sa */
-#include <linux/kd.h>						/* KDSIGACCEPT */
-#include <sys/ioctl.h>						/* ioctl() */
-#include <stdio.h>							/* printf() */
-#include <stdlib.h>							/* free() exit() */
-#include <sys/reboot.h>						/* reboot() RB_DISABLE_CAD */
+#include <time.h>				/* time() */
+#include <fcntl.h>				/* fcntl() */
+#include <sys/un.h>				/* memmove() strcmp() */
+#include <sys/wait.h>				/* waitpid() sa */
+#include <linux/kd.h>				/* KDSIGACCEPT */
+#include <sys/ioctl.h>				/* ioctl() */
+#include <stdio.h>				/* printf() */
+#include <stdlib.h>				/* free() exit() */
+#include <sys/reboot.h>				/* reboot() RB_DISABLE_CAD */
 #include <assert.h>
 
-#include "initng_global.h"
-#include "initng_handler.h"
-#include "initng_process_db.h"
-#include "initng_execute.h"
-#include "initng_toolbox.h"
-#include "initng_main.h"
-#include "initng_common.h"
-
-#include "initng_active_db.h"
-#include "initng_load_module.h"
-#include "initng_plugin_callers.h"
-#include "initng_process_db.h"
-#include "initng_fd.h"
-
-#include "initng_kill_handler.h"
-#include "initng_static_data_id.h"
-#include "initng_static_states.h"
 
 /* called when a process got killed, identify it, and make a call with a pointer to the process */
 void initng_kill_handler_killed_by_pid(pid_t kpid, int r_code)

@@ -23,11 +23,8 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <time.h>
-#include "initng.h"
-#include "initng_list.h"
-#include "initng_toolbox.h"
-#include "initng_event_types.h"
-#include "initng_event_hook.h"
+
+#include <initng.h>
 
 int initng_event_hook_register_real(const char *from_file, s_event_type *t,
 					void (*hook) (s_event * event))

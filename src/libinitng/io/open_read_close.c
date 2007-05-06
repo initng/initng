@@ -17,7 +17,7 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "initng.h"
+#include <initng.h>
 
 #define _GNU_SOURCE
 #include <stdio.h>
@@ -29,9 +29,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include "initng_global.h"
-#include "initng_toolbox.h"
-#include "initng_open_read_close.h"
 
 static void bailout(int *, char **buffer);
 

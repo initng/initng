@@ -17,17 +17,12 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "initng.h"
-#include "initng_global.h"
-
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "initng_struct_data.h"
-#include "initng_static_data_id.h"
-#include "initng_toolbox.h"
 
+#include <initng.h>
 #include "local.h"
 
 

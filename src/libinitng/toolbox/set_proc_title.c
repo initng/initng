@@ -17,17 +17,14 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "initng.h"
+#include <initng.h>
 
 #define _GNU_SOURCE
-#include <stdlib.h>							/* free() exit() */
+#include <stdlib.h>				/* free() exit() */
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
-#include <stdarg.h>							/* vastart() vaend() */
-
-#include "initng_toolbox.h"
-#include "initng_global.h"
+#include <stdarg.h>				/* vastart() vaend() */
 
 
 /* stolen from sysvinit */

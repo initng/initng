@@ -17,7 +17,7 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "initng_env_variable.h"
+#include <initng.h>
 
 int is_same_env_var(char *var1, char *var2)
 {

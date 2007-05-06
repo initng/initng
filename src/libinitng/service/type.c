@@ -19,8 +19,8 @@
 
 #include <string.h>
 
-#include "initng_global.h"
-#include "initng_service_types.h"
+#include <initng.h>
+
 
 stype_h *initng_service_type_get_by_name(const char *name)
 {

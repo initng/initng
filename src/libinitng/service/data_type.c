@@ -17,17 +17,12 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "initng.h"
+#include <initng.h>
 
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
 
-#include "initng_global.h"
-#include "initng_service_data_types.h"
-#include "initng_toolbox.h"
-#include "initng_static_data_id.h"
-#include "initng_list.h"
 
 /*
  * Simple function to add the option, to the official list

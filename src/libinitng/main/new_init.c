@@ -17,16 +17,16 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "initng.h"
+#include <initng.h>
 
-#include <time.h>							/* time() */
-#include <fcntl.h>							/* fcntl() */
-#include <sys/un.h>							/* memmove() strcmp() */
-#include <sys/wait.h>						/* waitpid() sa */
-#include <linux/kd.h>						/* KDSIGACCEPT */
-#include <sys/ioctl.h>						/* ioctl() */
-#include <stdlib.h>							/* free() exit() */
-#include <sys/reboot.h>						/* reboot() RB_DISABLE_CAD */
+#include <time.h>				/* time() */
+#include <fcntl.h>				/* fcntl() */
+#include <sys/un.h>				/* memmove() strcmp() */
+#include <sys/wait.h>				/* waitpid() sa */
+#include <linux/kd.h>				/* KDSIGACCEPT */
+#include <sys/ioctl.h>				/* ioctl() */
+#include <stdlib.h>				/* free() exit() */
+#include <sys/reboot.h>				/* reboot() RB_DISABLE_CAD */
 #include <sys/mount.h>
 #include <termios.h>
 #include <stdio.h>
@@ -36,19 +36,9 @@
 #include <selinux/selinux.h>
 #include <selinux/get_context_list.h>
 #endif
-#include "initng_global.h"
-#include "initng_signal.h"
-#include "initng_handler.h"
-#include "initng_execute.h"
-#include "initng_active_db.h"
-#include "initng_load_module.h"
-#include "initng_plugin_callers.h"
-#include "initng_toolbox.h"
 #ifdef HAVE_COREDUMPER
 #include <google/coredumper.h>
 #endif
-
-#include "initng_main.h"
 
 
 /* This is same as execve() */

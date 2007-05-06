@@ -17,7 +17,7 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "initng.h"
+#include <initng.h>
 
 #define _GNU_SOURCE
 #include <stdlib.h>							/* free() exit() */
@@ -26,8 +26,6 @@
 #include <string.h>
 #include <stdarg.h>							/* vastart() vaend() */
 
-#include "initng_toolbox.h"
-#include "initng_global.h"
 
 /* in init, a calloc must never fail! */
 /*void *initng_calloc2(size_t nmemb, size_t size, const char *func, int line) */

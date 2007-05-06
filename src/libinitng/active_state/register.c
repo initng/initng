@@ -21,10 +21,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "initng.h"
-#include "initng_global.h"
-#include "initng_active_state.h"
-#include "initng_toolbox.h"
+#include <initng.h>
 
 
 int initng_active_state_register(a_state_h * state)

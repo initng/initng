@@ -17,7 +17,7 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "initng.h"
+#include <initng.h>
 
 #include <sys/types.h>
 #include <string.h>
@@ -28,17 +28,6 @@
 #include <fnmatch.h>
 #include <sys/time.h>
 #include <time.h>
-
-#include "initng_global.h"
-#include "initng_active_db.h"
-#include "initng_process_db.h"
-#include "initng_toolbox.h"
-#include "initng_common.h"
-#include "initng_static_data_id.h"
-#include "initng_plugin_callers.h"
-#include "initng_string_tools.h"
-#include "initng_static_states.h"
-#include "initng_depend.h"
 
 
 /* free some values in this one */

@@ -17,16 +17,17 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "initng.h"
+#include <initng.h>
 
-#include <time.h>							/* time() */
-#include <fcntl.h>							/* fcntl() */
-#include <unistd.h>							/* execv() pipe() usleep() pause() chown() pid_t */
+#include <time.h>				/* time() */
+#include <fcntl.h>				/* fcntl() */
+#include <unistd.h>				/* execv() pipe() usleep() */
+						/* pause() chown() pid_t   */
 #include <sys/types.h>
-#include <sys/wait.h>						/* waitpid() sa */
-#include <sys/ioctl.h>						/* ioctl() */
-#include <sys/socket.h>						/* socketpair() */
-#include <stdlib.h>							/* free() exit() */
+#include <sys/wait.h>				/* waitpid() sa */
+#include <sys/ioctl.h>				/* ioctl() */
+#include <sys/socket.h>				/* socketpair() */
+#include <stdlib.h>				/* free() exit() */
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
@@ -34,17 +35,6 @@
 #include <sys/stat.h>
 #include <errno.h>
 
-#include "initng_common.h"
-#include "initng_active_db.h"
-#include "initng_process_db.h"
-#include "initng_signal.h"
-#include "initng_plugin_callers.h"
-#include "initng_execute.h"
-#include "initng_toolbox.h"
-#include "initng_static_event_types.h"
-#include "initng_event.h"
-
-#include "initng_fork.h"
 
 void initng_fork_aforkhooks(active_db_h * service, process_h * process)
 {

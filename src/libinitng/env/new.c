@@ -17,10 +17,8 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-/* common standard first define */
-#include "initng.h"
+#include <initng.h>
 
-/* system headers */
 #include <time.h>							/* time() */
 #include <fcntl.h>							/* fcntl() */
 #include <sys/un.h>							/* memmove() strcmp() */
@@ -32,19 +30,6 @@
 #include <sys/reboot.h>						/* reboot() RB_DISABLE_CAD */
 #include <assert.h>
 #include <ctype.h>							/* isgraph */
-
-/* own header */
-#include "initng_env_variable.h"
-
-/* local headers include */
-#include "initng_main.h"
-#include "initng_active_db.h"
-#include "initng_load_module.h"
-#include "initng_plugin_callers.h"
-#include "initng_common.h"
-#include "initng_toolbox.h"
-#include "initng_string_tools.h"
-#include "initng_global.h"
 
 #include <initng-paths.h>
 

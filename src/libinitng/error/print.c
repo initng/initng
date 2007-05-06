@@ -17,7 +17,7 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "initng.h"
+#include <initng.h>
 
 #define _GNU_SOURCE
 #include <stdlib.h>							/* free() exit() */
@@ -28,15 +28,8 @@
 #include <time.h>
 #include <assert.h>
 
-#include "initng_error.h"
-
-#include "initng_global.h"
-#include "initng_toolbox.h"
-
-#include "initng_static_event_types.h"
 
 int lock_error_printing = 0;
-
 
 static void initng_failsafe_print_error(e_mt mt, const char *file, const char *func,
                                  int line, const char *format, va_list arg)
