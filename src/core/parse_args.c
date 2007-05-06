@@ -1,8 +1,8 @@
 #include <string.h>
 
 #include "parse_args.h"
-#include "initng_toolbox.h"
-#include "initng_global.h"
+
+#include <initng.h>
 
 typedef struct {
 	const char *name;

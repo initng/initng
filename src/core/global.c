@@ -22,14 +22,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include "initng.h"
-#include "initng_global.h"
-#include "initng_load_module.h"
-#include "initng_toolbox.h"
-#include "initng_static_states.h"
-#include "initng_handler.h"
-#include "initng_static_service_types.h"
-#include "initng_static_event_types.h"
+
+#include <initng.h>
 
 /* HERE IS THE GLOBAL DEFINED STRUCT, WE OFTEN RELATE TO */
 s_global g;

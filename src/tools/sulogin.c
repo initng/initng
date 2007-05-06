@@ -25,9 +25,7 @@
 #include <shadow.h>
 #include <termios.h>
 #include <sys/ioctl.h>
-//#if defined(__GLIBC__)
-#  include <crypt.h>
-//#endif
+#include <crypt.h>
 
 #define CHECK_DES	1
 #define CHECK_MD5	1

@@ -17,9 +17,9 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef INITNG_PARSE_ARGS_H
-#define INITNG_PARSE_ARGS_H
+#ifndef __PARSE_ARGS_H
+#define __PARSE_ARGS_H
 
 void initng_parse_args(char **argv);
 
-#endif
+#endif /* __PARSE_ARGS_H */

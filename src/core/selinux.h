@@ -18,6 +18,8 @@
  */
 
 #ifndef __SELINUX_H
+#define __SELINUX_H
+
 #include <stdlib.h>
 #include <string.h>
 #include <selinux/selinux.h>
@@ -27,4 +29,5 @@
 #ifdef OLDSELINUX
 int load_policy(int *enforce);
 #endif
-#endif
+
+#endif /* __SELINUX_H */

@@ -41,25 +41,10 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include <initng_global.h>
-#include <initng_signal.h>
-#include <initng_handler.h>
-#include <initng_execute.h>					/* new_environ() */
-#include <initng_service_cache.h>
-#include <initng_active_db.h>
-#include <initng_load_module.h>
-#include <initng_plugin_callers.h>
-#include <initng_toolbox.h>
-#include <initng_main.h>
-#include <initng_service_data_types.h>
-#include <initng_fd.h>
-#include <initng_common.h>
 #include <initng-paths.h>
 
 
 /* include some soruce files directly, remember this is only a test */
-#include <initng_global.c>
-
 #include "../plugins/debug_commands/print_service.c"
 
 

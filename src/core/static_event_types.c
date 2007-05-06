@@ -21,11 +21,7 @@
 #include <string.h>
 #include <assert.h>
 
-#include "initng.h"
-#include "initng_list.h"
-#include "initng_global.h"
-#include "initng_event_types.h"
-#include "initng_static_event_types.h"
+#include <initng.h>
 
 s_event_type EVENT_STATE_CHANGE = { "state_change", "When an active change its status, this event will apere" };
 s_event_type EVENT_SYSTEM_CHANGE = { "system_change", "Triggered when system state changes" };

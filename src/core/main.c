@@ -17,7 +17,6 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "initng.h"
 
 #include <unistd.h>
 #include <time.h>				/* time() */
@@ -44,21 +43,7 @@
 #include <sys/mount.h>
 #include <initng-paths.h>
 
-#include "initng_global.h"
-#include "initng_signal.h"
-#include "initng_handler.h"
-#include "initng_execute.h"			/* new_environ() */
-#include "initng_active_db.h"
-#include "initng_load_module.h"
-#include "initng_plugin_callers.h"
-#include "initng_toolbox.h"
-#include "initng_interrupt.h"
-#include "initng_main.h"
-#include "initng_service_data_types.h"
-#include "initng_fd.h"
-#include "initng_process_db.h"
-#include "initng_global.h"
-#include "initng_static_event_types.h"
+#include <initng.h>
 
 #include "parse_args.h"
 
