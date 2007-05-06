@@ -17,9 +17,6 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <initng.h>
-
-#include <sys/wait.h>				/* waitpid() sa */
 #include <stdlib.h>				/* free() exit() */
 #include <stdio.h>				/* printf() */
 #include <errno.h>
@@ -27,6 +24,9 @@
 #include <assert.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <signal.h>
+
+#include <initng.h>
 
 #include "local.h"
 
@@ -42,7 +42,8 @@ static void set_signal(int sig)
 	/*printf("signal: %i\n", sig); */
 	for (i = 0; i < SIGNAL_STACK; i++)
 	{
-		/* check if this signaltype is already on the list of signals */
+		/* check if this signaltype is already
+		 * on the list of signals */
 		if (signals_got[i] == sig)
 			return;
 
@@ -58,7 +59,8 @@ static void set_signal(int sig)
 }
 
 /*
- * This is called in main() initialization, and will enable signals when it happens.
+ * This is called in main() initialization, and will enable signals when it
+ * happens.
  */
 void initng_signal_enable(void)
 {
@@ -103,12 +105,13 @@ void initng_signal_enable(void)
 	}
 
 	sa.sa_handler = set_signal;
-	sigaction(SIGCHLD, &sa, 0);				/* Dead children */
-	sigaction(SIGINT, &sa, 0);				/* ctrl-alt-del */
-	sigaction(SIGWINCH, &sa, 0);			/* keyboard request */
-	sigaction(SIGALRM, &sa, 0);				/* alarm, something has to be checked */
-	sigaction(SIGHUP, &sa, 0);				/* sighup, plugin actions */
-	sigaction(SIGPIPE, &sa, 0);				/* sigpipe, plugin actions */
+	sigaction(SIGCHLD, &sa, 0);		/* Dead children */
+	sigaction(SIGINT, &sa, 0);		/* ctrl-alt-del */
+	sigaction(SIGWINCH, &sa, 0);		/* keyboard request */
+	sigaction(SIGALRM, &sa, 0);		/* alarm, something has to */
+						/* be checked */
+	sigaction(SIGHUP, &sa, 0);		/* sighup, plugin actions */
+	sigaction(SIGPIPE, &sa, 0);		/* sigpipe, plugin actions */
 }
 
 /* 
@@ -129,10 +132,10 @@ void initng_signal_disable(void)
 	sa.sa_handler = SIG_DFL;
 	sigaction(SIGSEGV, &sa, 0);
 	sigaction(SIGABRT, &sa, 0);
-	sigaction(SIGCHLD, &sa, 0);				/* Dead children */
-	sigaction(SIGINT, &sa, 0);				/* ctrl-alt-del */
-	sigaction(SIGWINCH, &sa, 0);			/* keyboard request */
-	sigaction(SIGALRM, &sa, 0);				/* alarm, something has to be checked */
-	sigaction(SIGHUP, &sa, 0);				/* sighup, plugin actions */
-
+	sigaction(SIGCHLD, &sa, 0);		/* Dead children */
+	sigaction(SIGINT, &sa, 0);		/* ctrl-alt-del */
+	sigaction(SIGWINCH, &sa, 0);		/* keyboard request */
+	sigaction(SIGALRM, &sa, 0);		/* alarm, something has to */
+						/* be checked */
+	sigaction(SIGHUP, &sa, 0);		/* sighup, plugin actions */
 }

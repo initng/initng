@@ -17,7 +17,6 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <initng.h>
 
 #include <sys/types.h>
 #include <string.h>
@@ -28,6 +27,8 @@
 #include <fnmatch.h>
 #include <sys/time.h>
 #include <time.h>
+
+#include <initng.h>
 
 
 /*

@@ -62,13 +62,6 @@
 /* define this macro in start of every plugin to check api version */
 #define INITNG_PLUGIN_MACRO int plugin_api_version = API_VERSION;
 
-/* unset this in an production environment */
-/* this is set in config.h */
-/*#define DEBUG */
-
-/* specify paths */
-#define INITNG_EXT      ".i"
-
 /* standard console */
 #define INITNG_CONSOLE	"/dev/console"
 

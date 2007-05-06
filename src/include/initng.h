@@ -20,6 +20,7 @@
 #ifndef INITNG_H
 #define INITNG_H
 
+#include <misc.h>
 #include <active_db.h>
 #include <active_state.h>
 #include <common.h>
@@ -39,7 +40,6 @@
 #include <list.h>
 #include <load_module.h>
 #include <main.h>
-#include <misc.h>
 #include <module.h>
 #include <msg.h>
 #include <open_read_close.h>

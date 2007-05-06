@@ -21,7 +21,6 @@
 #ifndef INITNG_EVENT_HOOK_H
 #define INITNG_EVENT_HOOK_H
 
-#include <plugin.h>
 #include <event/types.h>
 
 void initng_event_hook_unregister_real(const char *from_file,

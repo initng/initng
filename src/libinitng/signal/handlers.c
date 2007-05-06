@@ -50,15 +50,11 @@ void initng_signal_handle_sigchild(void)
 
 		/* Nothing killed */
 		if (killed == 0)
-		{
 			return;
-		}
 
 		/* unknown child */
 		if ((killed < 0) && (errno == ECHILD))
-		{
 			return;
-		}
 
 		/* Error */
 		if (killed < 0)

@@ -17,8 +17,6 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <initng.h>
-
 #include <sys/types.h>
 #include <string.h>
 #include <stdio.h>
@@ -28,6 +26,9 @@
 #include <fnmatch.h>
 #include <sys/time.h>
 #include <time.h>
+
+#include <initng.h>
+
 
 /* active_db_count counts a type, if null, count all */
 int initng_active_db_count(a_state_h * current_state_to_count)

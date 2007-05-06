@@ -21,8 +21,6 @@
 #ifndef INITNG_EVENT_EVENT_H
 #define INITNG_EVENT_EVENT_H
 
-#include <event/types.h>
-
 typedef enum {
 	WAITING = 0, /* reserved for future use */
 	OK,
@@ -31,7 +29,7 @@ typedef enum {
 } event_status_t;
 
 typedef struct {
-	s_event_type *event_type;
+	struct s_event_type_s *event_type;
 	void *data;
 	void *ret;
 	event_status_t status;

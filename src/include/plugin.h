@@ -25,7 +25,7 @@
 #include <list.h>
 #include <active_db.h>
 #include <msg.h>
-#include <event.h>
+#include <event/event.h>
 
 /* flags for f_module_h.what - correspond to the arguments of select() */
 typedef enum
@@ -49,7 +49,7 @@ typedef union
 	void *pointer;
 
 	/* put all hook functions here */
-	int (*event) (s_event * event);
+	int (*event)(s_event * event);
 } uc __attribute__ ((__transparent_union__));
 
 
