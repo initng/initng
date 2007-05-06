@@ -27,7 +27,7 @@
 #define _GNU_SOURCE
 #include <stdio.h>							/* printf */
 
-#include <initng/error.h>
+#include <error.h>
 
 /* Undef TRUE FALSE FAIL, so not compiled complains about redefining */
 #ifdef TRUE
