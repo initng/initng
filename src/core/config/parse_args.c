@@ -24,32 +24,30 @@ static void opt_console(char *val);
 static void list_options(char *val);
 
 
-
 opts_t opts[] = {
 	{ "console",		&opt_console,
-		"Specify what dev to use as console"	},
+		"Specify what dev to use as console."		},
 	{ "help",		&list_options,
-		"Show this help list"			},
+		"Show this help list."				},
 	{ "runlevel",		&opt_runlevel,
-		"Specify default runlevel"		},
+		"Specify default runlevel."			},
 	{ "i_am_init",		&opt_i_am_init,
 		"Start initng in real init mode, "
-		"instead of fake mode"			},
-	{ "hot_reload",		&opt_hot_reload, NULL	},
+		"instead of fake mode."				},
+	{ "hot_reload",		&opt_hot_reload, NULL		},
 	{ "no_circular",	&opt_no_circular,
-		"Make extra checkings for cirular "
-		"depencenis in service, takes some "
-		"extra cpu but might work when initng "
-		"wont."					},
+		"Make extra checkings for cirular depencenis "
+		"in service, takes some extra cpu but might "
+		"work when initng won't."			},
 #ifdef DEBUG
 	{ "verbose_add",	&opt_verbose_add,
 		"Add one function to the list of "
-		"debug-arguments that will be printed"	},
+		"debug-arguments that will be printed."		},
 	{ "verbose",		&opt_verbose,
-		"Make initng be verry verbose about "
-		"whats happening."			},
+		"Make initng be very verbose about "
+		"what's happening."				},
 #endif
-	{ NULL,			NULL, NULL		}
+	{ NULL,			NULL,		NULL		}
 };
 
 
@@ -97,17 +95,13 @@ static void opt_console(char *val)
 static void list_options(char *val)
 {
 	int i, j;
-	printf("options are given to initng by linux bootloader, you can use option=value, or option:value to set an option.\n\n");
+	printf("Options are given to initng by linux bootloader, you can use "
+	       "option=value, or option:value to set an option.\n\n");
 	printf("Possible options: \n");
 	for(i = 0; opts[i].name; i++)
 	{
 		if(opts[i].desc)
-		{
-			printf(" %s:", opts[i].name);
-			for(j = strlen(opts[i].name); j < 16; j++)
-				printf(" ");
-			printf("%s\n", opts[i].desc);
-		}
+			printf(" %16s: %s\n", opts[i].name, opts[i].desc);
 	}
 	printf("\n\n");
 	_exit(0);
