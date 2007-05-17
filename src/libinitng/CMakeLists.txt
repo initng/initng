@@ -14,6 +14,7 @@ SET(initng_lib_srcs
 	event/hook.c
 	event/send.c
 	event/type.c
+	event/static_types.c
 	process_db/new.c
 	process_db/free.c
 	process_db/find.c
@@ -107,6 +108,7 @@ SET(initng_lib_srcs
 	data/get_next_string_var.c
 	data/get_string_var.c
 	data/is_var.c
+	global.c
 )
 
 ADD_LIBRARY(initng SHARED ${initng_lib_srcs})

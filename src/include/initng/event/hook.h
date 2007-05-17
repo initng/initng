@@ -1,6 +1,7 @@
 /*
  * Initng, a next generation sysvinit replacement.
  * Copyright (C) 2006 Jimmy Wennlund <jimmy.wennlund@gmail.com>
+ * Copyright (C) 2006 Ismael Luceno <ismael.luceno@gmail.com>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,14 +18,22 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef INITNG_FORK_H
-#define INITNG_FORK_H
-#include <unistd.h>					/* pid_t */
+#ifndef INITNG_EVENT_HOOK_H
+#define INITNG_EVENT_HOOK_H
 
-#include <active_db.h>					/* active_h */
-#include <process_db.h>					/* process_h */
+#include <initng/event/types.h>
 
-pid_t initng_fork(active_db_h * service, process_h * process);
-void initng_fork_aforkhooks(active_db_h * service, process_h * process);
+void initng_event_hook_unregister_real(const char *from_file,
+					const char *func, int line,
+					s_event_type * t,
+					void (*hook) (s_event * event));
+int initng_event_hook_register_real(const char *from_file, s_event_type * t,
+					void (*hook) (s_event * event));
 
-#endif /* INITNG_FORK_H */
+#define initng_event_hook_register(t,h) \
+	initng_event_hook_register_real(__FILE__, t, h)
+#define initng_event_hook_unregister(t,h) \
+	initng_event_hook_unregister_real(__FILE__, \
+	(const char*)__PRETTY_FUNCTION__, __LINE__, t, h)
+
+#endif /* INITNG_EVENT_HOOK_H */

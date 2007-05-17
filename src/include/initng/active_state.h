@@ -22,9 +22,9 @@
 
 typedef struct a_state_t a_state_h;
 
-#include <list.h>
-#include <active_db.h>
-#include <is_state.h>
+#include <initng/list.h>
+#include <initng/active_db.h>
+#include <initng/is_state.h>
 
 struct a_state_t
 {

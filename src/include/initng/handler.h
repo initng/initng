@@ -17,16 +17,23 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef INITNG_STATIC_SERVICE_TYPES_H
-#define INITNG_STATIC_SERVICE_TYPES_H
+#ifndef INITNG_HANDLER_H
+#define INITNG_HANDLER_H
 #include <sys/types.h>
 #include <unistd.h>
 #include <time.h>
 
-#include <active_db.h>
+#include <initng/active_db.h>
 
-extern stype_h TYPE_CONTAINER;
+void initng_handler_restart_restarting(void);
+int initng_handler_start_service(active_db_h * service);
+int initng_handler_stop_service(active_db_h * service);
+int initng_handler_restart_service(active_db_h * service);
+active_db_h *initng_handler_start_new_service_named(const char *service);
+void initng_handler_run_alarm(void);
+int initng_handler_stop_all(void);
 
-void initng_service_register_static_stypes(void);
+/* when set an alarm, we update service->alarm, and set g.next_alarm if this is the closest one */
+#define initng_handler_set_alarm(service, seconds) { service->alarm = g.now.tv_sec + seconds; if(g.next_alarm==0 || service->alarm < g.next_alarm) g.next_alarm = service->alarm; }
 
-#endif /* INITNG_STATIC_SERVICE_TYPES_H */
+#endif /* INITNG_HANDLER_H */

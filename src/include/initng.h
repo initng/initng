@@ -1,6 +1,6 @@
 /*
  * Initng, a next generation sysvinit replacement.
- * Copyright (C) 2006 Jimmy Wennlund <jimmy.wennlund@gmail.com>
+ * Copyright (C) 2006 Jimmy Wennlund <initng/jimmy.wennlund@gmail.com>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,42 +20,42 @@
 #ifndef INITNG_H
 #define INITNG_H
 
-#include <misc.h>
-#include <active_db.h>
-#include <active_state.h>
-#include <common.h>
-#include <control_command.h>
-#include <depend.h>
-#include <env_variable.h>
-#include <error.h>
-#include <event.h>
-#include <execute.h>
-#include <fd.h>
-#include <fork.h>
-#include <global.h>
-#include <handler.h>
-#include <interrupt.h>
-#include <is_state.h>
-#include <kill_handler.h>
-#include <list.h>
-#include <load_module.h>
-#include <main.h>
-#include <module.h>
-#include <msg.h>
-#include <open_read_close.h>
-#include <plugin_callers.h>
-#include <plugin.h>
-#include <process_db.h>
-#include <service_data_types.h>
-#include <service_types.h>
-#include <signal.h>
-#include <static_data_id.h>
-#include <static_event_types.h>
-#include <static_service_types.h>
-#include <static_states.h>
-#include <string_tools.h>
-#include <struct_data.h>
-#include <system_states.h>
-#include <toolbox.h>
+#include <initng/misc.h>
+#include <initng/active_db.h>
+#include <initng/active_state.h>
+#include <initng/common.h>
+#include <initng/control_command.h>
+#include <initng/depend.h>
+#include <initng/env_variable.h>
+#include <initng/error.h>
+#include <initng/event.h>
+#include <initng/execute.h>
+#include <initng/fd.h>
+#include <initng/fork.h>
+#include <initng/global.h>
+#include <initng/handler.h>
+#include <initng/interrupt.h>
+#include <initng/is_state.h>
+#include <initng/kill_handler.h>
+#include <initng/list.h>
+#include <initng/load_module.h>
+#include <initng/main.h>
+#include <initng/module.h>
+#include <initng/msg.h>
+#include <initng/open_read_close.h>
+#include <initng/plugin_callers.h>
+#include <initng/plugin.h>
+#include <initng/process_db.h>
+#include <initng/service_data_types.h>
+#include <initng/service_types.h>
+#include <initng/signal.h>
+#include <initng/static_data_id.h>
+#include <initng/static_event_types.h>
+#include <initng/static_service_types.h>
+#include <initng/static_states.h>
+#include <initng/string_tools.h>
+#include <initng/struct_data.h>
+#include <initng/system_states.h>
+#include <initng/toolbox.h>
 
 #endif /* INITNG_H */

@@ -1,6 +1,7 @@
 /*
  * Initng, a next generation sysvinit replacement.
  * Copyright (C) 2006 Jimmy Wennlund <jimmy.wennlund@gmail.com>
+ * Copyright (C) 2006 Ismael Luceno <ismael.luceno@gmail.com>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,22 +18,28 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef INITNG_PLUGIN_CALLERS_H
-#define INITNG_PLUGIN_CALLERS_H
+#ifndef INITNG_EVENT_TYPES_H
+#define INITNG_EVENT_TYPES_H
 
-#include <active_db.h>
-#include <global.h>
-#include <system_states.h>
+#include <initng/list.h>
+#include <initng/plugin.h>
 
-#include <stdarg.h>
+typedef struct s_event_type_s {
+	const char *name;
+	const char *description;
 
-active_db_h *initng_plugin_create_new_active(const char *name);
-int initng_plugin_callers_handle_killed(active_db_h * s, process_h * p);
-void initng_plugin_callers_compensate_time(int t);
-void initng_plugin_callers_signal(int signal);
+	s_call hooks;
 
-void initng_plugin_callers_load_module_system_changed(h_sys_state state);
-int initng_plugin_callers_dump_active_db(void);
-int initng_plugin_callers_reload_active_db(void);
+	int name_len;
+	struct list_head list;
+} s_event_type;
 
-#endif /* INITNG_PLUGIN_CALLERS_H */
+void initng_event_type_register(s_event_type *ent);
+void initng_event_type_unregister(s_event_type *ent);
+void initng_event_type_unregister_all(void);
+s_event_type *initng_event_type_find(const char *string);
+
+#define while_event_types(current) list_for_each_entry_prev(current, &g.event_db.list, list)
+#define while_event_types_safe(current, safe) list_for_each_entry_prev_safe(current, safe, &g.event_db.list, list)
+
+#endif /* INITNG_EVENT_TYPES_H */

@@ -1,7 +1,6 @@
 /*
  * Initng, a next generation sysvinit replacement.
  * Copyright (C) 2006 Jimmy Wennlund <jimmy.wennlund@gmail.com>
- * Copyright (C) 2006 Ismael Luceno <ismael.luceno@gmail.com>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,11 +17,14 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef INITNG_EVENT_H
-#define INITNG_EVENT_H
+#ifndef INITNG_FORK_H
+#define INITNG_FORK_H
+#include <unistd.h>					/* pid_t */
 
-#include <event/types.h>
-#include <event/event.h>
-#include <event/hook.h>
+#include <initng/active_db.h>					/* active_h */
+#include <initng/process_db.h>					/* process_h */
 
-#endif /* INITNG_EVENT_H */
+pid_t initng_fork(active_db_h * service, process_h * process);
+void initng_fork_aforkhooks(active_db_h * service, process_h * process);
+
+#endif /* INITNG_FORK_H */

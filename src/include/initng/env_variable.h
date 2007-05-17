@@ -17,24 +17,16 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef INITNG_LOAD_MODULE_H
-#define INITNG_LOAD_MODULE_H
+#ifndef INITNG_ENV_VARIABLE_H
+#define INITNG_ENV_VARIABLE_H
 
-#include <active_db.h>
-#include <global.h>
-#include <system_states.h>
-#include <module.h>
+#include <initng/misc.h>
+#include <initng/active_db.h>
 
-/* public interface */
-m_h *initng_load_module(const char *module_path);
-int initng_unload_module_named(const char *name);
-int initng_load_module_load_all(const char *plugin_path);
-void initng_unload_module_unload_all(void);
-void initng_unload_module_unload_marked(void);
+char *fix_redefined_variable(const char *name, const char *oldval,
+			     const char *newdef);
+char **new_environ(active_db_h * s);
+void free_environ(char **tf);
+int is_same_env_var(char *var1, char *var2);
 
-/* functions for internal use only (exposed for testing) */
-m_h *initng_load_module_open(const char *module_path,
-							 const char *module_name);
-void initng_load_module_close_and_free(m_h * m);
-
-#endif /* INITNG_LOAD_MODULE_H */
+#endif /* INITNG_ENV_VARIABLE_H */

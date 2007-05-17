@@ -20,8 +20,8 @@
 #ifndef INITNG_SERVICE_TYPES_H
 #define INITNG_SERVICE_TYPES_H
 
-#include <list.h>
-#include <active_db.h>
+#include <initng/list.h>
+#include <initng/active_db.h>
 
 /* service types struct */
 typedef struct

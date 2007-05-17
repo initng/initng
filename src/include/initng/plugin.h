@@ -21,11 +21,11 @@
 #define INITNG_PLUGIN_H
 #include <stdarg.h>
 
-#include <system_states.h>
-#include <list.h>
-#include <active_db.h>
-#include <msg.h>
-#include <event/event.h>
+#include <initng/system_states.h>
+#include <initng/list.h>
+#include <initng/active_db.h>
+#include <initng/msg.h>
+#include <initng/event/event.h>
 
 /* flags for f_module_h.what - correspond to the arguments of select() */
 typedef enum

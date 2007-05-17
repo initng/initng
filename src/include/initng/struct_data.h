@@ -20,8 +20,8 @@
 #ifndef INITNG_STRUCT_DATA_H
 #define INITNG_STRUCT_DATA_H
 
-#include <service_data_types.h>
-#include <list.h>
+#include <initng/service_data_types.h>
+#include <initng/list.h>
 
 typedef struct ss_data s_data;
 

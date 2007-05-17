@@ -20,8 +20,8 @@
 #ifndef INITNG_COMMON_H
 #define INITNG_COMMON_H
 
-#include <misc.h>
-#include <active_db.h>
+#include <initng/misc.h>
+#include <initng/active_db.h>
 
 int initng_common_get_service(active_db_h * service);
 int initng_common_mark_service(active_db_h * service, a_state_h * state);

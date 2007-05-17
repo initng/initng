@@ -17,19 +17,26 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef INITNG_STATIC_DATA_ID_H
-#define INITNG_STATIC_DATA_ID_H
+#ifndef INITNG_MODULE_H
+#define INITNG_MODULE_H
 
-#include <service_data_types.h>
+#include <initng/list.h>
 
-/*extern s_entry NAME; */
-extern s_entry USE;
-extern s_entry NEED;
-extern s_entry REQUIRE;
-extern s_entry FROM_FILE;
-extern s_entry ENV;
-extern s_entry RESTARTING;
+typedef struct module_struct
+{
+	char *module_name;
+	char *module_filename;
+	void *module_dlhandle;
+	int initziated;
+	int marked_for_removal;
+	int (*module_init) (int api_version);
+	void (*module_unload) (void);
+	char **module_needs;
 
-void initng_static_data_id_register_defaults(void);
+	struct list_head list;
+} m_h;
 
-#endif /* INITNG_STATIC_DATA_ID_H */
+#define while_module_db(current) list_for_each_entry_prev(current, &g.module_db.list, list)
+#define while_module_db_safe(current, safe) list_for_each_entry_prev_safe(current, safe, &g.module_db.list, list)
+
+#endif /* INITNG_MODULE_H */

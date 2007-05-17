@@ -19,15 +19,15 @@
 
 #ifndef INITNG_GLOBAL_H
 #define INITNG_GLOBAL_H
-#include <misc.h>
-#include <active_db.h>
-#include <module.h>
-#include <plugin.h>
-#include <struct_data.h>
-#include <control_command.h>
-#include <static_data_id.h>
-#include <active_state.h>
-#include <event.h>
+#include <initng/misc.h>
+#include <initng/active_db.h>
+#include <initng/module.h>
+#include <initng/plugin.h>
+#include <initng/struct_data.h>
+#include <initng/control_command.h>
+#include <initng/static_data_id.h>
+#include <initng/active_state.h>
+#include <initng/event.h>
 
 /* what to do when last process stops */
 typedef enum

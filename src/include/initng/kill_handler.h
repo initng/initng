@@ -17,21 +17,11 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef INITNG_ERROR_H
-#define INITNG_ERROR_H
+#ifndef INITNG_KILL_HANDLER_H
+#define INITNG_KILL_HANDLER_H
 
-#include <msg.h>
+#include <initng/misc.h>
 
-#ifdef DEBUG
-int initng_error_verbose_add(const char *string);
-int initng_error_verbose_del(const char *string);
-int initng_error_print_debug(const char *file, const char *func, int line,
-			     const char *format, ...);
-#endif
+void initng_kill_handler_killed_by_pid(pid_t kpid, int r_code);
 
-int initng_error_print(e_mt mt, const char *file, const char *func, int line,
-		       const char *format, ...);
-
-void initng_error_print_func(const char *file, const char *func);
-
-#endif /* INITNG_ERROR_H */
+#endif /* INITNG_KILL_HANDLER_H */

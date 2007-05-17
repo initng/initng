@@ -20,8 +20,8 @@
 #ifndef INITNG_EXECUTE_H
 #define INITNG_EXECUTE_H
 
-#include <active_db.h>
-#include <process_db.h>
+#include <initng/active_db.h>
+#include <initng/process_db.h>
 
 int initng_execute_launch(active_db_h * service, ptype_h * type,
 			  const char *exec_name);

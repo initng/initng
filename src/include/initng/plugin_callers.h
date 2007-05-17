@@ -1,7 +1,6 @@
 /*
  * Initng, a next generation sysvinit replacement.
  * Copyright (C) 2006 Jimmy Wennlund <jimmy.wennlund@gmail.com>
- * Copyright (C) 2006 Ismael Luceno <ismael.luceno@gmail.com>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,22 +17,22 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef INITNG_EVENT_HOOK_H
-#define INITNG_EVENT_HOOK_H
+#ifndef INITNG_PLUGIN_CALLERS_H
+#define INITNG_PLUGIN_CALLERS_H
 
-#include <event/types.h>
+#include <initng/active_db.h>
+#include <initng/global.h>
+#include <initng/system_states.h>
 
-void initng_event_hook_unregister_real(const char *from_file,
-					const char *func, int line,
-					s_event_type * t,
-					void (*hook) (s_event * event));
-int initng_event_hook_register_real(const char *from_file, s_event_type * t,
-					void (*hook) (s_event * event));
+#include <stdarg.h>
 
-#define initng_event_hook_register(t,h) \
-	initng_event_hook_register_real(__FILE__, t, h)
-#define initng_event_hook_unregister(t,h) \
-	initng_event_hook_unregister_real(__FILE__, \
-	(const char*)__PRETTY_FUNCTION__, __LINE__, t, h)
+active_db_h *initng_plugin_create_new_active(const char *name);
+int initng_plugin_callers_handle_killed(active_db_h * s, process_h * p);
+void initng_plugin_callers_compensate_time(int t);
+void initng_plugin_callers_signal(int signal);
 
-#endif /* INITNG_EVENT_HOOK_H */
+void initng_plugin_callers_load_module_system_changed(h_sys_state state);
+int initng_plugin_callers_dump_active_db(void);
+int initng_plugin_callers_reload_active_db(void);
+
+#endif /* INITNG_PLUGIN_CALLERS_H */

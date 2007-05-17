@@ -1,5 +1,0 @@
-INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/src/include ${CMAKE_BINARY_DIR} )
-
-
-ADD_EXECUTABLE(test_parser test_parser.c)
-TARGET_LINK_LIBRARIES(test_parser initng)

@@ -17,16 +17,16 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef INITNG_ENV_VARIABLE_H
-#define INITNG_ENV_VARIABLE_H
+#ifndef INITNG_STATIC_SERVICE_TYPES_H
+#define INITNG_STATIC_SERVICE_TYPES_H
+#include <sys/types.h>
+#include <unistd.h>
+#include <time.h>
 
-#include <misc.h>
-#include <active_db.h>
+#include <initng/active_db.h>
 
-char *fix_redefined_variable(const char *name, const char *oldval,
-			     const char *newdef);
-char **new_environ(active_db_h * s);
-void free_environ(char **tf);
-int is_same_env_var(char *var1, char *var2);
+extern stype_h TYPE_CONTAINER;
 
-#endif /* INITNG_ENV_VARIABLE_H */
+void initng_service_register_static_stypes(void);
+
+#endif /* INITNG_STATIC_SERVICE_TYPES_H */

@@ -17,23 +17,19 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef INITNG_HANDLER_H
-#define INITNG_HANDLER_H
-#include <sys/types.h>
-#include <unistd.h>
-#include <time.h>
+#ifndef INITNG_STATIC_DATA_ID_H
+#define INITNG_STATIC_DATA_ID_H
 
-#include <active_db.h>
+#include <initng/service_data_types.h>
 
-void initng_handler_restart_restarting(void);
-int initng_handler_start_service(active_db_h * service);
-int initng_handler_stop_service(active_db_h * service);
-int initng_handler_restart_service(active_db_h * service);
-active_db_h *initng_handler_start_new_service_named(const char *service);
-void initng_handler_run_alarm(void);
-int initng_handler_stop_all(void);
+/*extern s_entry NAME; */
+extern s_entry USE;
+extern s_entry NEED;
+extern s_entry REQUIRE;
+extern s_entry FROM_FILE;
+extern s_entry ENV;
+extern s_entry RESTARTING;
 
-/* when set an alarm, we update service->alarm, and set g.next_alarm if this is the closest one */
-#define initng_handler_set_alarm(service, seconds) { service->alarm = g.now.tv_sec + seconds; if(g.next_alarm==0 || service->alarm < g.next_alarm) g.next_alarm = service->alarm; }
+void initng_static_data_id_register_defaults(void);
 
-#endif /* INITNG_HANDLER_H */
+#endif /* INITNG_STATIC_DATA_ID_H */

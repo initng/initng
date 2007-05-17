@@ -20,7 +20,7 @@
 #ifndef INITNG_TOOLBOX_H
 #define INITNG_TOOLBOX_H
 
-#include <misc.h>
+#include <initng/misc.h>
 
 /*
    #undef initng_calloc

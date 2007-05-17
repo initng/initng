@@ -22,8 +22,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include <process_db.h>
-#include <global.h>
+#include <initng/process_db.h>
+#include <initng/global.h>
 
 void initng_main_exit(int i);
 void initng_main_restart(void);

@@ -26,12 +26,12 @@ typedef struct active_type active_db_h;
 #include <sys/types.h>
 #include <unistd.h>
 
-#include <struct_data.h>
-#include <list.h>
+#include <initng/struct_data.h>
+#include <initng/list.h>
 
-#include <service_types.h>
-#include <active_state.h>
-#include <process_db.h>
+#include <initng/service_types.h>
+#include <initng/active_state.h>
+#include <initng/process_db.h>
 
 #define MAX_SUCCEEDED 30
 

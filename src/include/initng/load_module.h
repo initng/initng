@@ -17,26 +17,24 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef INITNG_MODULE_H
-#define INITNG_MODULE_H
+#ifndef INITNG_LOAD_MODULE_H
+#define INITNG_LOAD_MODULE_H
 
-#include <list.h>
+#include <initng/active_db.h>
+#include <initng/global.h>
+#include <initng/system_states.h>
+#include <initng/module.h>
 
-typedef struct module_struct
-{
-	char *module_name;
-	char *module_filename;
-	void *module_dlhandle;
-	int initziated;
-	int marked_for_removal;
-	int (*module_init) (int api_version);
-	void (*module_unload) (void);
-	char **module_needs;
+/* public interface */
+m_h *initng_load_module(const char *module_path);
+int initng_unload_module_named(const char *name);
+int initng_load_module_load_all(const char *plugin_path);
+void initng_unload_module_unload_all(void);
+void initng_unload_module_unload_marked(void);
 
-	struct list_head list;
-} m_h;
+/* functions for internal use only (exposed for testing) */
+m_h *initng_load_module_open(const char *module_path,
+							 const char *module_name);
+void initng_load_module_close_and_free(m_h * m);
 
-#define while_module_db(current) list_for_each_entry_prev(current, &g.module_db.list, list)
-#define while_module_db_safe(current, safe) list_for_each_entry_prev_safe(current, safe, &g.module_db.list, list)
-
-#endif /* INITNG_MODULE_H */
+#endif /* INITNG_LOAD_MODULE_H */

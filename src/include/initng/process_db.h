@@ -23,8 +23,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include <active_db.h>
-#include <list.h>
+#include <initng/active_db.h>
+#include <initng/list.h>
 
 /* this doesn't work!, it will create a circular dependency */
 /* so we use a struct prototype !! */

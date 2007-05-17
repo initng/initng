@@ -20,8 +20,8 @@
 #ifndef INITNG_SERVICE_DATA_TYPES_H
 #define INITNG_SERVICE_DATA_TYPES_H
 
-#include <service_types.h>
-#include <list.h>
+#include <initng/service_types.h>
+#include <initng/list.h>
 
 typedef enum
 {
