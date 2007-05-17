@@ -184,8 +184,11 @@ int main(int argc, char *argv[], char *env[])
 	/* initialize global variables */
 	initng_global_new(argc, argv, env);
 	
+	/* Parse options given by /etc/initng.conf */
+	config_parse_file(ETCDIR "/initng.conf");
+
 	/* Parse options given on argv. */
-	initng_parse_args(argv);
+	config_parse_args(argv);
 
 	if (getuid() != 0)
 	{

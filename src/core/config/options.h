@@ -1,7 +1,6 @@
 /*
  * Initng, a next generation sysvinit replacement.
  * Copyright (C) 2006 Jimmy Wennlund <jimmy.wennlund@gmail.com>
- * Copyright (C) 2006 Ismael Luceno <ismael.luceno@gmail.com>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,10 +17,16 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef __CONFIG_PARSE_ARGS_H
-#define __CONFIG_PARSE_ARGS_H
 
-void config_parse_args(char **argv);
-int config_parse_file(const char *file);
+#ifndef __OPTIONS_H
+#define __OPTIONS_H
 
-#endif /* __CONFIG_PARSE_ARGS_H */
+typedef struct {
+	const char *name;
+	void (*handle)(char *val);
+	const char *desc;
+} opts_t;
+
+extern opts_t opts[];
+
+#endif /* __OPTIONS_H */

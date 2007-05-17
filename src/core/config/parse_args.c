@@ -1,119 +1,64 @@
+/*
+ * Initng, a next generation sysvinit replacement.
+ * Copyright (C) 2006 Jimmy Wennlund <jimmy.wennlund@gmail.com>
+ * Copyright (C) 2006 Ismael Luceno <ismael.luceno@gmail.com>
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+
+
 #include <string.h>
-
-#include "parse_args.h"
-
 #include <initng.h>
 
-typedef struct {
-	const char *name;
-	void (*handle)(char *val);
-	const char *desc;
-} opts_t;
+#include "options.h"
+#include "parse_args.h"
 
 
-#ifdef DEBUG
-static void opt_verbose(char *val);
-static void opt_verbose_add(char *val);
-#endif
-
-static void opt_no_circular(char *val);
-static void opt_hot_reload(char *val);
-static void opt_i_am_init(char *val);
-static void opt_runlevel(char *val);
-static void opt_console(char *val);
-static void list_options(char *val);
-
-
-opts_t opts[] = {
-	{ "console",		&opt_console,
-		"Specify what dev to use as console."		},
-	{ "help",		&list_options,
-		"Show this help list."				},
-	{ "runlevel",		&opt_runlevel,
-		"Specify default runlevel."			},
-	{ "i_am_init",		&opt_i_am_init,
-		"Start initng in real init mode, "
-		"instead of fake mode."				},
-	{ "hot_reload",		&opt_hot_reload, NULL		},
-	{ "no_circular",	&opt_no_circular,
-		"Make extra checkings for cirular depencenis "
-		"in service, takes some extra cpu but might "
-		"work when initng won't."			},
-#ifdef DEBUG
-	{ "verbose_add",	&opt_verbose_add,
-		"Add one function to the list of "
-		"debug-arguments that will be printed."		},
-	{ "verbose",		&opt_verbose,
-		"Make initng be very verbose about "
-		"what's happening."				},
-#endif
-	{ NULL,			NULL,		NULL		}
-};
-
-
-#ifdef DEBUG
-static void opt_verbose(char *val)
+static void handle_it(char *str)
 {
-	g.verbose = TRUE;
-}
-
-static void opt_verbose_add(char *val)
-{
-	if (val)
-		initng_error_verbose_add(val);
-}
-#endif
-
-static void opt_no_circular(char *val)
-{
-	g.no_circular = TRUE;
-}
-
-static void opt_hot_reload(char *val)
-{
-	D_(" Will start after a hot reload ...\n");
-	g.hot_reload = TRUE;
-}
-
-static void opt_i_am_init(char *val)
-{
-	g.i_am = I_AM_INIT;
-}
-
-static void opt_runlevel(char *val)
-{
-	if (val)
-		g.runlevel = i_strdup(val);
-}
-
-static void opt_console(char *val)
-{
-	if (val)
-		g.dev_console = i_strdup(val);
-}
-
-static void list_options(char *val)
-{
-	int i, j;
-	printf("Options are given to initng by linux bootloader, you can use "
-	       "option=value, or option:value to set an option.\n\n");
-	printf("Possible options: \n");
-	for(i = 0; opts[i].name; i++)
-	{
-		if(opts[i].desc)
-			printf(" %16s: %s\n", opts[i].name, opts[i].desc);
-	}
-	printf("\n\n");
-	_exit(0);
-}
-
-
-
-void initng_parse_args(char **argv)
-{
-	int i, j;
+	int j;
 	char *opt;
 	char *val;
+
+	val = strchr(opt, '=');
+
+	if (!val)
+		val = strchr(opt, ':');
+
+	if (val)
+	{
+		val[0] = '\0';
+		val++;
+	}
+
+	for (j = 0; opts[j].name != NULL; j++)
+	{
+		if (strcmp(opts[j].name, opt) == 0)
+		{
+			(opts[j].handle)(val);
+			return;
+		}
+	}
+
+	W_("Unknown option %s", opt);
+}
+
+void config_parse_args(char **argv)
+{
+	int i;
+	char *opt;
 
 	for (i = 0; argv[i] != NULL; i++)
 	{
@@ -131,30 +76,35 @@ void initng_parse_args(char **argv)
 
 		if (opt[0] == '-')
 		{
-			if (opt[1] == '-')
-				opt += 2;
-			else /* but a single is not ! */
+			if (opt[1] != '-')
 				continue;
+
+			opt += 2;
 		}
 
-		val = strchr(opt, '=');
-
-		if (!val)
-			val = strchr(opt, ':');
-
-		if (val)
-		{
-			val[0] = '\0';
-			val++;
-		}
-
-		for (j = 0; opts[j].name != NULL; j++)
-		{
-			if (strcmp(opts[j].name, opt) == 0)
-			{
-				(opts[j].handle)(val);
-				break;
-			}
-		}
+		handle_it(opt);
 	}
+}
+
+#define BUF_LEN 256
+
+int config_parse_file(const char *file)
+{
+	FILE *f;
+	char tmp[BUF_LEN + 1];
+
+	if ((f = fopen(file, "r")) == NULL)
+	{
+		F_("Failed opening configuration file '%s'", file);
+		return (-1);
+	}
+	
+	while (fgets(tmp, BUF_LEN, f))
+	{
+		tmp[BUF_LEN] = '\0';
+		handle_it(tmp);
+	}
+
+	fclose(f);
+	return (0);
 }
