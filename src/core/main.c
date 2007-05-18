@@ -45,7 +45,7 @@
 
 #include <initng.h>
 
-#include "config/parse_args.h"
+#include "options.h"
 
 #ifdef SELINUX
 #include "selinux.h"

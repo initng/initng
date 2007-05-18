@@ -27,7 +27,7 @@
 #include <initng/control_command.h>
 #include <initng/static_data_id.h>
 #include <initng/active_state.h>
-#include <initng/event.h>
+#include <initng/event/all.h>
 
 /* what to do when last process stops */
 typedef enum

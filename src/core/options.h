@@ -1,7 +1,6 @@
 /*
  * Initng, a next generation sysvinit replacement.
  * Copyright (C) 2006 Jimmy Wennlund <jimmy.wennlund@gmail.com>
- * Copyright (C) 2006 Ismael Luceno <ismael.luceno@gmail.com>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,11 +17,11 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef INITNG_EVENT_H
-#define INITNG_EVENT_H
 
-#include <initng/event/types.h>
-#include <initng/event/event.h>
-#include <initng/event/hook.h>
+#ifndef __OPTIONS_H
+#define __OPTIONS_H
 
-#endif /* INITNG_EVENT_H */
+void config_parse_args(char **argv);
+int config_parse_file(const char *file);
+
+#endif /* __OPTIONS_H */

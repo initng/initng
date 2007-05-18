@@ -18,10 +18,4 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef __CONFIG_PARSE_ARGS_H
-#define __CONFIG_PARSE_ARGS_H
-
-void config_parse_args(char **argv);
-int config_parse_file(const char *file);
-
-#endif /* __CONFIG_PARSE_ARGS_H */
+#include <initng/config/opt.h>

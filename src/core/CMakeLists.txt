@@ -2,8 +2,7 @@ INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/src/include ${CMAKE_BINARY_DIR} )
 
 SET(initng_bin_srcs
 	main.c
-	config/parse_args.c
-	config/options.c
+	options.c
 )
 
 IF(HAVE_SELINUX AND NOT HAVE_SELINUX_NEW)

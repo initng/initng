@@ -1,6 +1,7 @@
 /*
  * Initng, a next generation sysvinit replacement.
  * Copyright (C) 2006 Jimmy Wennlund <jimmy.wennlund@gmail.com>
+ * Copyright (C) 2006 Ismael Luceno <ismael.luceno@gmail.com>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,16 +18,15 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-
-#ifndef __OPTIONS_H
-#define __OPTIONS_H
+#ifndef INITNG_CONFIG_OPT_H
+#define INITNG_CONFIG_OPT_H
 
 typedef struct {
+	int id;
 	const char *name;
-	void (*handle)(char *val);
 	const char *desc;
-} opts_t;
+} opt_t;
 
-extern opts_t opts[];
+int initng_config_opt_get(opt_t *opts,  char **rval, char *str);
 
-#endif /* __OPTIONS_H */
+#endif /* INITNG_CONFIG_OPT_H */

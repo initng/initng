@@ -108,7 +108,8 @@ SET(initng_lib_srcs
 	data/get_next_string_var.c
 	data/get_string_var.c
 	data/is_var.c
-	global.c
+	config/opt.c
+	config/global.c
 )
 
 ADD_LIBRARY(initng SHARED ${initng_lib_srcs})

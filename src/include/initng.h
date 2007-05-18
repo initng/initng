@@ -28,7 +28,6 @@
 #include <initng/depend.h>
 #include <initng/env_variable.h>
 #include <initng/error.h>
-#include <initng/event.h>
 #include <initng/execute.h>
 #include <initng/fd.h>
 #include <initng/fork.h>
@@ -57,5 +56,7 @@
 #include <initng/struct_data.h>
 #include <initng/system_states.h>
 #include <initng/toolbox.h>
+#include <initng/event/all.h>
+#include <initng/config/all.h>
 
 #endif /* INITNG_H */
