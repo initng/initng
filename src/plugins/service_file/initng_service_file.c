@@ -1,4 +1,3 @@
-
 /*
  * Initng, a next generation sysvinit replacement.
  * Copyright (C) 2006 Jimmy Wennlund <jimmy.wennlund@gmail.com>
@@ -756,8 +755,9 @@ static void bp_closesock(void)
 
 static void handle_killed(active_db_h * service, process_h * process)
 {
-	/* if process returned exit 1 or abow, set fail */
-	if (WEXITSTATUS(process->r_code) > 0)
+	/* if process return code != 0, or the service was not
+	 * registered, set fail */
+	if (WEXITSTATUS(process->r_code) != 0 || service->type == &unset)
 	{
 		initng_common_mark_service(service, &PARSE_FAIL);
 		initng_process_db_free(process);
@@ -827,7 +827,6 @@ static void create_new_active(s_event * event)
 
 static int parse_new_service_file(s_event * event, char *file)
 {
-
 	char * name;
 	active_db_h *new_active;
 	process_h *process;
@@ -835,9 +834,6 @@ static int parse_new_service_file(s_event * event, char *file)
 	struct stat fstat;
 
 	name = event->data;
-
-	/* printf(" parsing file \"%s\"\n", file); */
-
 
 	/* Take stat on file */
 	if (stat(file, &fstat) != 0)
@@ -942,64 +938,6 @@ static void get_pipe(s_event * event)
 	event->status = HANDLED;
 }
 
-#ifdef USE_LOCALEXEC
-static int initng_bash_run(s_event * event)
-{
-	s_event_launch_data * data;
-	pid_t pid_fork;				/* pid got from fork() */
-
-	assert(event->event_type == &EVENT_LAUNCH);
-	assert(event->data);
-
-	data = event->data;
-
-	assert(data->service);
-	assert(data->service->name);
-	assert(data->process);
-	assert(data->exec_name);
-
-	if ((pid_fork = initng_fork(data->service, data->process)) == 0)
-	{
-		struct stat fstat;		/* file stat storage */
-		char *new_argv[3];		/* use only 3 args */
-		char *new_env[] = { NULL };			/* use an empty environment */
-		char *file;				/* the file to execute from */
-
-		/* get the file path */
-		file = get_string(&FROM_FILE, data->service);
-
-		/* check that it exists */
-		if (!file || stat(file, &fstat) != 0)
-		{
-			F_("Service file not found.\n");
-			_exit(1);
-		}
-
-		/* execute this */
-		new_argv[0] = file;
-		new_argv[1] = i_calloc(10 + strlen(data->exec_name), sizeof(char));
-		strcpy(new_argv[1], "internal_");
-		strcat(new_argv[1], data->exec_name);
-		new_argv[2] = NULL;
-
-		execve(new_argv[0], new_argv, new_env);
-
-		printf("Error executing!\n");
-		_exit(2);
-	}
-
-	if (pid_fork > 0)
-	{
-		data->process->pid = pid_fork;
-		event->status = HANDLED;
-		return;
-	}
-
-	data->process->pid = 0;
-}
-#endif
-
-
 int module_init(int api_version)
 {
 	D_("module_init(ngc2);\n");
@@ -1027,9 +965,6 @@ int module_init(int api_version)
 	initng_active_state_register(&NOT_RUNNING);
 	initng_active_state_register(&PARSING);
 	initng_active_state_register(&PARSE_FAIL);
-#ifdef USE_LOCALEXEC
-	initng_event_hook_register(&EVENT_LAUNCH, &initng_bash_run);
-#endif
 
 #ifdef GLOBAL_SOCKET
 	/* do the first socket directly */
@@ -1060,7 +995,4 @@ void module_unload(void)
 	initng_active_state_unregister(&NOT_RUNNING);
 	initng_active_state_unregister(&PARSING);
 	initng_active_state_unregister(&PARSE_FAIL);
-#ifdef USE_LOCALEXEC
-	initng_event_hook_unregister(&EVENT_LAUNCH, &initng_bash_run);
-#endif
 }
