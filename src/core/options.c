@@ -31,12 +31,11 @@
 #define OPT_NO_CIRCULAR	5
 #define OPT_VERBOSE_ADD	6
 #define OPT_VERBOSE	7
+#define OPT_VERSION	8
 
 opt_t opts[] = {
 	{ OPT_CONSOLE,		"console",
 		"Specify what dev to use as console."		},
-	{ OPT_HELP,		"help",
-		"Show this help list."				},
 	{ OPT_RUNLEVEL,		"runlevel",
 		"Specify default runlevel."			},
 	{ OPT_I_AM_INIT,	"i_am_init",
@@ -56,6 +55,10 @@ opt_t opts[] = {
 		"Make initng be very verbose about "
 		"what's happening."				},
 #endif
+	{ OPT_HELP,		"help",
+		"Show this help list."				},
+	{ OPT_VERSION,		"version",
+		"Show the version information."			},
 	{ 0,			NULL,		NULL		}
 };
 
@@ -116,12 +119,17 @@ static void handle_it(char *str)
 			printf("\n\n");
 			_exit(0);
 
+		case OPT_VERSION:
+			printf(INITNG_VERSION " (API %i)\n"
+			       INITNG_COPYRIGHT, API_VERSION);
+			_exit(0);
+
 		default:
 			break;
 	}
 }
 
-void config_parse_args(char **argv)
+void options_parse_args(char **argv)
 {
 	int i;
 	char *opt;
@@ -154,7 +162,7 @@ void config_parse_args(char **argv)
 
 #define BUF_LEN 256
 
-int config_parse_file(const char *file)
+int options_parse_file(const char *file)
 {
 	FILE *f;
 	char tmp[BUF_LEN + 1];

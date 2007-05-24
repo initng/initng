@@ -44,6 +44,5 @@ int initng_config_opt_get(opt_t *opts, char **rval, char *str)
 			return opts[i].id;
 	}
 
-	W_("Unknown option %s", str);
 	return -1;
 }

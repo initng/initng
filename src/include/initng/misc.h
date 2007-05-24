@@ -29,7 +29,7 @@
 
 #include <error.h>
 
-/* Undef TRUE FALSE FAIL, so not compiled complains about redefining */
+/* Undef TRUE FALSE FAIL, so not compiler complains about redefining */
 #ifdef TRUE
 #undef TRUE
 #endif
@@ -54,7 +54,12 @@
 #define INITNG_VERSION VERSION " " VERSION_NAME
 #endif
 
-#define INITNG_CREATOR "Jimmy Wennlund <jimmy.wennlund@gmail.com>"
+#define INITNG_COPYRIGHT \
+"Copyright (C) 2007 Jimmy Wennlund.\n" \
+"This is free software. You may redistribute copies of it under the terms of\n" \
+"the GNU General Public License <http://www.gnu.org/licenses/gpl.html>.\n" \
+"There is NO WARRANTY, to the extent permitted by law.\n\n" \
+"Written by Jimmy Wennlund and Ismael Luceno.\n"
 
 /* Add to this counter everytime the api changes, and plugins need to recompile */
 #define API_VERSION 19

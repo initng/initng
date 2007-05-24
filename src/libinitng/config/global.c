@@ -43,13 +43,14 @@ void initng_global_new(int argc, char *argv[], char *env[])
 	/* zero the complete s_global */
 	memset(&g, 0, sizeof(s_global));
 
-	/* Set the i_am */
-	if (getpid() == 1)
-		g.i_am = I_AM_INIT;
-	else
-		g.i_am = I_AM_FAKE_INIT;
+	/* Set the i_am, default to fake-init, preinit will take care of
+	 * passing "i_am_init" to initng.
+	 */
+	g.i_am = I_AM_FAKE_INIT;
 
-	/* we want to keep a copy of the arguments passed to us, this will be overwritten by set_title() */
+	/* we want to keep a copy of the arguments passed to us, this will be
+	 * overwritten by set_title()
+	 */
 	g.Argc = argc;
 	g.Argv0 = argv[0];
 	g.Argv = (char **) i_calloc(argc + 1, sizeof(char *));

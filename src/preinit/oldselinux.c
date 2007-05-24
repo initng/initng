@@ -50,7 +50,7 @@
 #define SELINUXMNT "/selinux/"
 int enforcing = -1;
 
-static int load_policy(int *enforce)
+int load_policy(int *enforce)
 {
 	int fd = -1, ret = -1;
 	size_t data_size;

@@ -21,7 +21,7 @@
 #ifndef __OPTIONS_H
 #define __OPTIONS_H
 
-void config_parse_args(char **argv);
-int config_parse_file(const char *file);
+void options_parse_args(char **argv);
+int options_parse_file(const char *file);
 
 #endif /* __OPTIONS_H */

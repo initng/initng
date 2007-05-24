@@ -44,122 +44,16 @@
 #include <initng-paths.h>
 
 #include <initng.h>
-
 #include "options.h"
-
-#ifdef SELINUX
-#include "selinux.h"
-#endif
-
 #define TIMEOUT 60000
 
 
-static void setup_console(void)
-{
-	int fd;					/* /dev/console */
-	struct termios tty;
-
-	D_("MAIN_SET_I_AM_INIT_STUFF\n");
-
-	/* change dir to / */
-	while (chdir("/") < 0)
-	{
-		F_("Cant chdir to \"/\"\n");
-		initng_main_su_login();
-	}
-
-	/* set console loglevel */
-	klogctl(8, NULL, 1);
-
-
-	/* enable generation of core files */
-	{
-		struct rlimit c = { 1000000, 1000000 };
-		setrlimit(RLIMIT_CORE, &c);
-	}
-
-	reboot(RB_DISABLE_CAD);					/* Disable Ctrl + Alt + Delete */
-
-	/* open the console */
-	if (g.dev_console)
-	{
-		fd = open(g.dev_console, O_RDWR | O_NOCTTY);
-	}
-	else
-	{
-		fd = open(INITNG_CONSOLE, O_RDWR | O_NOCTTY);
-	}
-
-	/* Try to open the console, but don't control it */
-	if (fd > 0)
-	{
-		D_("Opened " INITNG_CONSOLE ". Setting terminal options.\n");
-		ioctl(fd, KDSIGACCEPT, SIGWINCH);	/* Accept signals from 'kbd' */
-		close(fd);							/* Like Ctrl + Alt + Delete signal? */
-	}
-	else
-	{
-		D_("Failed to open " INITNG_CONSOLE ". Setting options anyway.\n");
-		ioctl(0, KDSIGACCEPT, SIGWINCH);	/* Accept signals from 'kbd' */
-	}
-
-	/* TODO: this block may be incorrect or incomplete */
-	/* Q: What does this block really do? */
-
-	/*
-	 * TODO: /dev/console may still be open from before. Also, if it
-	 * fails to open, why try to finish the block?
-	 */
-	if ((fd = open("/dev/console", O_RDWR | O_NOCTTY)) < 0)
-	{
-		F_("main(): can't open /dev/console.\n");
-	}
-
-	(void) tcgetattr(fd, &tty);
-
-	tty.c_cflag &= CBAUD | CBAUDEX | CSIZE | CSTOPB | PARENB | PARODD;
-	tty.c_cflag |= HUPCL | CLOCAL | CREAD;
-
-	tty.c_cc[VINTR] = 3;					/* ctrl('c') */
-	tty.c_cc[VQUIT] = 28;					/* ctrl('\\') */
-	tty.c_cc[VERASE] = 127;
-	tty.c_cc[VKILL] = 24;					/* ctrl('x') */
-	tty.c_cc[VEOF] = 4;						/* ctrl('d') */
-	tty.c_cc[VTIME] = 0;
-	tty.c_cc[VMIN] = 1;
-	tty.c_cc[VSTART] = 17;					/* ctrl('q') */
-	tty.c_cc[VSTOP] = 19;					/* ctrl('s') */
-	tty.c_cc[VSUSP] = 26;					/* ctrl('z') */
-
-	/*
-	 *      Set pre and post processing
-	 */
-	tty.c_iflag = IGNPAR | ICRNL | IXON | IXANY;
-	tty.c_oflag = OPOST | ONLCR;
-	tty.c_lflag = ISIG | ICANON | ECHO | ECHOCTL | ECHOPRT | ECHOKE;
-
-	/*
-	 *      Now set the terminal line.
-	 *      We don't care about non-transmitted output data
-	 *      and non-read input data.
-	 */
-	(void) tcsetattr(fd, TCSANOW, &tty);
-	(void) tcflush(fd, TCIOFLUSH);
-	(void) close(fd);
-
-}
-
-
-/*
- * %%%%%%%%%%%%%%%%%%%%   main ()   %%%%%%%%%%%%%%%%%%%%
- */
 #ifdef BUSYBOX
 int init_main(int argc, char *argv[], char *env[])
-{
 #else
 int main(int argc, char *argv[], char *env[])
-{
 #endif
+{
 	struct timeval last;		/* save the time here */
 	int retval;
 
@@ -168,27 +62,17 @@ int main(int argc, char *argv[], char *env[])
 #endif
 	S_;
 
-	/* maby initng is launched only for getting the version */
-	if (argv[1] && strcmp(argv[1], "--version") == 0)
-	{
-		fprintf(stderr, INITNG_VERSION "\n");
-		usleep(100);
-		fprintf(stdout, "api_ver=%i.\n", API_VERSION);
-		fprintf(stdout, "created by " INITNG_CREATOR "\n\n");
-		exit(0);
-	}
-
 	/* get the time */
 	gettimeofday(&last, NULL);
 
-	/* initialize global variables */
+	/* Initialize global variables */
 	initng_global_new(argc, argv, env);
 	
 	/* Parse options given by /etc/initng.conf */
-	config_parse_file(ETCDIR "/initng.conf");
+	options_parse_file(ETCDIR "/initng.conf");
 
 	/* Parse options given on argv. */
-	config_parse_args(argv);
+	options_parse_args(argv);
 
 	if (getuid() != 0)
 	{
@@ -198,59 +82,10 @@ int main(int argc, char *argv[], char *env[])
 	/* if this is real init */
 	if (g.i_am == I_AM_INIT)
 	{
-		/*load selinux policy and rexec*/
-#ifdef SELINUX
-		FILE *tmp_f;
-		if ((tmp_f = fopen("/selinux/enforce", "r")) != NULL)
-		{
-			fclose(tmp_f);
-			goto BOOT;
-		}
-
-		int enforce = -1;
-		char *nonconst;
-
-		if (getenv("SELINUX_INIT") == NULL)
-		{
-			nonconst = malloc(sizeof("SELINUX_INIT=YES"));
-			strcpy(nonconst, "SELINUX_INIT=YES");
-			putenv(nonconst);
-			free(nonconst);
-#ifdef OLDSELINX
-			if (load_policy(&enforce) == 0)
-#else
-			if (selinux_init_load_policy(&enforce) == 0)
-#endif
-			{
-				execv(g.Argv[0], g.Argv);
-			}
-			else
-			{
-				if (enforce > 0)
-				{
-					/* SELinux in enforcing mode but load_policy failed */
-					/* At this point, we probably can't open /dev/console, so log() won't work */
-					fprintf(stderr,
-						"Enforcing mode requested but no policy loaded. Halting now.\n");
-					exit(1);
-				}
-			}
-		}
-
-		BOOT:
-#endif
-
 		/* when last service stopped, offer a sulogin */
 		g.when_out = THEN_SULOGIN;
 		if (!g.runlevel)
 			initng_main_set_runlevel(RUNLEVEL_DEFAULT);
-
-		if (!g.hot_reload)
-		{
-			/* static function above, initialize the system */
-			setup_console();
-		}
-
 	}
 	else if (g.i_am == I_AM_FAKE_INIT)
 	{
@@ -294,7 +129,7 @@ int main(int argc, char *argv[], char *env[])
 	initng_toolbox_set_proc_title("initng [%s]", g.runlevel);
 
 	/* Configure signal handlers */
-	(void) initng_signal_enable();
+	initng_signal_enable();
 
 
 	/* make sure this is not a hot reload */

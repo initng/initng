@@ -35,8 +35,6 @@
 
 const char *initng_environ[] = {
 	"INITNG=" INITNG_VERSION,
-	"INITNG_CREATOR=" INITNG_CREATOR,
-	"INIT_VERSION=" INITNG_VERSION,
 	"INITNG_PLUGIN_DIR=" INITNG_PLUGIN_DIR,
 	"INITNG_ROOT=" INITNG_ROOT,
 	"PATH=/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin:/opt/bin",
@@ -89,6 +87,11 @@ char **new_environ(active_db_h * s)
 		env[nr] = i_strdup(initng_environ[nr]);
 	}
 
+	/* Set INITNG_PID, so we can send signals to initng */
+	env[nr] = malloc(32);
+	snprintf(env[nr], 32, "INITNG_PID=%d", getpid());
+	env[nr][31] = '\0';
+	nr++;
 
 	if (s && (nr + 4) < allocate)
 	{
@@ -114,7 +117,6 @@ char **new_environ(active_db_h * s)
 			                   (9 + strlen(g.dev_console)));
 			strcpy(env[nr], "CONSOLE=");
 			strcat(env[nr], g.dev_console);
-			nr++;
 		}
 		else
 		{
@@ -122,8 +124,8 @@ char **new_environ(active_db_h * s)
 			                   (9 + strlen(INITNG_CONSOLE)));
 			strcpy(env[nr], "CONSOLE=");
 			strcat(env[nr], INITNG_CONSOLE);
-			nr++;
 		}
+		nr++;
 
 		if (g.runlevel && (nr + 1) < allocate)
 		{
