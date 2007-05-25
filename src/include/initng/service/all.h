@@ -18,7 +18,5 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <initng/event/types.h>
-#include <initng/event/event.h>
-#include <initng/event/hook.h>
-#include <initng/event/static_types.h>
+#include <initng/service/type.h>
+#include <initng/service/data_type.h>

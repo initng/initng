@@ -9,9 +9,9 @@ die()
 
 ask()
 {
-	echo -n "${*} [yes|no]? "
+	echo -n "${*} [n]? "
 	read _answer
-	[ "${_answer}" = "yes" ]
+	[ "${_answer}" = "y" ]
 }
 
 echo "**** Creating the build directory ***"

@@ -207,8 +207,8 @@ static void bp_handle_client(int fd)
 			break;
 		case GET_VARIABLE:
 			bp_get_variable(&rep, req.u.get_variable.service,
-							req.u.get_variable.vartype,
-							req.u.get_variable.varname);
+					req.u.get_variable.vartype,
+					req.u.get_variable.varname);
 			break;
 		case DONE:
 			bp_done(&rep, req.u.done.service);

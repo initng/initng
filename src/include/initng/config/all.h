@@ -19,3 +19,4 @@
  */
 
 #include <initng/config/opt.h>
+#include <initng/config/global.h>

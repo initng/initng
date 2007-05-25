@@ -21,8 +21,8 @@
 #define INITNG_PLUGIN_CALLERS_H
 
 #include <initng/active_db.h>
-#include <initng/global.h>
 #include <initng/system_states.h>
+#include <initng/config/all.h>
 
 #include <stdarg.h>
 

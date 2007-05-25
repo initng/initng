@@ -30,7 +30,7 @@ The InitNG Release Method
 
 2. Branching
 
-    This is the first step, as you shouln't modify any file in trunk until
+    This is the first step, as you shouldn't modify any file in trunk until
     you tag the release.
 
     Before starting, lets define the naming conventions for (pre-)releases

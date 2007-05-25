@@ -20,8 +20,8 @@
 #ifndef INITNG_LOAD_MODULE_H
 #define INITNG_LOAD_MODULE_H
 
+#include <initng/config/all.h>
 #include <initng/active_db.h>
-#include <initng/global.h>
 #include <initng/system_states.h>
 #include <initng/module.h>
 

@@ -26,10 +26,10 @@ typedef struct active_type active_db_h;
 #include <sys/types.h>
 #include <unistd.h>
 
-#include <initng/struct_data.h>
+#include <initng/data.h>
 #include <initng/list.h>
 
-#include <initng/service_types.h>
+#include <initng/service/type.h>
 #include <initng/active_state.h>
 #include <initng/process_db.h>
 

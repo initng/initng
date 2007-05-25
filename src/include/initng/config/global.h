@@ -23,10 +23,10 @@
 #include <initng/active_db.h>
 #include <initng/module.h>
 #include <initng/plugin.h>
-#include <initng/struct_data.h>
+#include <initng/data.h>
 #include <initng/control_command.h>
-#include <initng/static_data_id.h>
 #include <initng/active_state.h>
+#include <initng/static/all.h>
 #include <initng/event/all.h>
 
 /* what to do when last process stops */

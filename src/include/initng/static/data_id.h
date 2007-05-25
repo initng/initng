@@ -1,7 +1,6 @@
 /*
  * Initng, a next generation sysvinit replacement.
  * Copyright (C) 2006 Jimmy Wennlund <jimmy.wennlund@gmail.com>
- * Copyright (C) 2006 Ismael Luceno <ismael.luceno@gmail.com>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,7 +17,19 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <initng/event/types.h>
-#include <initng/event/event.h>
-#include <initng/event/hook.h>
-#include <initng/event/static_types.h>
+#ifndef INITNG_STATIC_DATA_ID_H
+#define INITNG_STATIC_DATA_ID_H
+
+#include <initng/service/all.h>
+
+/*extern s_entry NAME; */
+extern s_entry USE;
+extern s_entry NEED;
+extern s_entry REQUIRE;
+extern s_entry FROM_FILE;
+extern s_entry ENV;
+extern s_entry RESTARTING;
+
+void initng_static_data_id_register_defaults(void);
+
+#endif /* INITNG_STATIC_DATA_ID_H */

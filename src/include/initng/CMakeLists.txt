@@ -1,7 +1,6 @@
-SUBDIRS(event)
+SUBDIRS(event config service)
 
 SET(headers
-	global.h
 	misc.h
 	module.h
 	plugin.h
@@ -14,27 +13,21 @@ SET(headers
 	depend.h
 	error.h
 	execute.h
-	env_variable.h
+	env.h
 	fd.h
 	fork.h
 	handler.h
 	interrupt.h
 	is_state.h
-	kill_handler.h
+	kill.h
 	load_module.h
 	main.h
-	open_read_close.h
+	io.h
 	plugin_callers.h
 	process_db.h
-	service_data_types.h
-	static_event_types.h
-	service_types.h
 	signal.h
-	static_data_id.h
-	static_states.h
-	static_service_types.h
-	string_tools.h
-	struct_data.h
+	string.h
+	data.h
 	toolbox.h
 	msg.h
 	event.h

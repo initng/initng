@@ -23,7 +23,7 @@
 #include <unistd.h>
 
 #include <initng/process_db.h>
-#include <initng/global.h>
+#include <initng/config/all.h>
 
 void initng_main_exit(int i);
 void initng_main_restart(void);
