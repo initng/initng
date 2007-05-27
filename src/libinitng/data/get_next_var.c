@@ -30,8 +30,8 @@
  * This function will return a s_data pointer, matching type, vn
  * by the adress struct list.
  */
-s_data *d_get_next_var(s_entry * type, const char *vn, data_head * head,
-					   s_data * last)
+s_data *initng_data_get_next_var(s_entry * type, const char *vn,
+                                 data_head * head, s_data * last)
 {
 	assert(head);
 	struct list_head *place = NULL;
@@ -112,7 +112,7 @@ s_data *d_get_next_var(s_entry * type, const char *vn, data_head * head,
 	if (head->res)
 	{
 		/* ok return with that */
-		return (d_get_next_var(type, vn, head->res, last));
+		return (initng_data_get_next_var(type, vn, head->res, last));
 	}
 
 	/* no luck */

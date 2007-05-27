@@ -49,7 +49,7 @@ void initng_main_exit(int i)
 	initng_main_set_sys_state(STATE_EXIT);
 
 	/* Free all global variables */
-	initng_global_free();
+	initng_config_global_free();
 
 	/* Then, unload all modules */
 	initng_unload_module_unload_all();

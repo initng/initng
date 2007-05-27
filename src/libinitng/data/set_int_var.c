@@ -28,7 +28,7 @@
 
 
 /* this has to be only one of */
-void d_set_int_var(s_entry * type, char *vn, data_head * d, int value)
+void initng_data_set_int_var(s_entry * type, char *vn, data_head * d, int value)
 {
 	s_data *current = NULL;
 
@@ -57,7 +57,7 @@ void d_set_int_var(s_entry * type, char *vn, data_head * d, int value)
 	}
 
 	/* check the db, for an current entry to overwrite */
-	if ((current = d_get_next_var(type, vn, d, NULL)))
+	if ((current = initng_data_get_next_var(type, vn, d, NULL)))
 	{
 		current->t.i = value;
 		return;

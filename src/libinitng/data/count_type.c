@@ -27,7 +27,7 @@
 
 
 /* Walk through and count */
-int d_count_type(s_entry * type, data_head * d)
+int initng_data_count_type(s_entry * type, data_head * d)
 {
 	s_data *current = NULL;
 	int count = 0;

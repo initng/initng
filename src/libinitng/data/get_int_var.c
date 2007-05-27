@@ -28,9 +28,9 @@
 
 
 /* returns an int */
-int d_get_int_var(s_entry * type, const char *vn, data_head * d)
+int initng_data_get_int_var(s_entry * type, const char *vn, data_head * d)
 {
-	s_data *current = d_get_next_var(type, vn, d, NULL);
+	s_data *current = initng_data_get_next_var(type, vn, d, NULL);
 
 	return (current ? current->t.i : 0);
 }

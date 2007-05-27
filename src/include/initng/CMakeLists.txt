@@ -9,7 +9,7 @@ SET(headers
 	active_db.h
 	active_state.h
 	common.h
-	control_command.h
+	command.h
 	depend.h
 	error.h
 	execute.h
@@ -30,7 +30,6 @@ SET(headers
 	data.h
 	toolbox.h
 	msg.h
-	event.h
 )
 
 INSTALL_FILES(${INCLUDE_INSTALL_DIR}/initng FILES ${headers})

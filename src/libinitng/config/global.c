@@ -29,11 +29,11 @@
 s_global g;
 
 /*
- * initng_global_new.
+ * initng_config_global_new.
  * This function initziates the global data struct, with some standard values.
  * This must be set before libinitng can be used in any way
  */
-void initng_global_new(int argc, char *argv[], char *env[])
+void initng_config_global_new(int argc, char *argv[], char *env[])
 {
 	int i;
 
@@ -132,7 +132,7 @@ void initng_global_new(int argc, char *argv[], char *env[])
 	/* parse all options, set in argv */
 }
 
-void initng_global_free(void)
+void initng_config_global_free(void)
 {
 	int i;
 

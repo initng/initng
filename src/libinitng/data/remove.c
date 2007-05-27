@@ -30,7 +30,7 @@
 /*
  * A function to nicely free the s_data content.
  */
-static void d_dfree(s_data * current)
+static void dfree(s_data * current)
 {
 	assert(current);
 	assert(current->type);
@@ -63,7 +63,7 @@ static void d_dfree(s_data * current)
 	free(current);
 }
 
-void d_remove_all(data_head * d)
+void initng_data_remove_all(data_head * d)
 {
 	s_data *current = NULL;
 	s_data *s = NULL;
@@ -74,7 +74,7 @@ void d_remove_all(data_head * d)
 	list_for_each_entry_safe(current, s, &d->head.list, list)
 	{
 		/* walk, and remove all */
-		d_dfree(current);
+		dfree(current);
 		current = NULL;
 	}
 
@@ -82,7 +82,7 @@ void d_remove_all(data_head * d)
 	DATA_HEAD_INIT(d);
 }
 
-void d_remove_var(s_entry * type, const char *vn, data_head * d)
+void initng_data_remove_var(s_entry * type, const char *vn, data_head * d)
 {
 	s_data *current;
 
@@ -96,8 +96,8 @@ void d_remove_var(s_entry * type, const char *vn, data_head * d)
 	}
 
 	/* for every matching, free it */
-	while ((current = d_get_next_var(type, vn, d, NULL)))
+	while ((current = initng_data_get_next_var(type, vn, d, NULL)))
 	{
-		d_dfree(current);
+		dfree(current);
 	}
 }

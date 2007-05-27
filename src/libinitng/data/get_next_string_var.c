@@ -27,14 +27,14 @@
 #include "local.h"
 
 
-const char *d_get_next_string_var(s_entry * type, const char *vn,
-										 data_head * d, s_data ** cur)
+const char *initng_data_get_next_string_var(s_entry * type, const char *vn,
+                                            data_head * d, s_data ** cur)
 {
 	/* Temporary store string pointer here */
 	const char *to_ret;
 
 	/* find next var */
-	s_data *current = d_get_next_var(type, vn, d, *cur);
+	s_data *current = initng_data_get_next_var(type, vn, d, *cur);
 
 	/* Get the string path out of it */
 	to_ret = current ? current->t.s : NULL;

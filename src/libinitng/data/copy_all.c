@@ -29,7 +29,7 @@
 /*
  * Walk the db, copy all strings in list from to to.
  */
-void d_copy_all(data_head * from, data_head * to)
+void initng_data_copy_all(data_head * from, data_head * to)
 {
 	s_data *tmp = NULL;
 	s_data *current = NULL;

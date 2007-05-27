@@ -27,7 +27,7 @@
 #include "local.h"
 
 
-void d_set_var(s_entry * type, char *vn, data_head * d)
+void initng_data_set_var(s_entry * type, char *vn, data_head * d)
 {
 	s_data *current = NULL;
 
@@ -55,7 +55,7 @@ void d_set_var(s_entry * type, char *vn, data_head * d)
 	}
 
 	/* check if its set already */
-	if (d_is_var(type, vn, d))
+	if (initng_data_is_var(type, vn, d))
 		return;
 
 	/* allocate the entry */

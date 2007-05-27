@@ -28,8 +28,8 @@
 
 
 /* this is a function to add a string, that it can exist many of */
-void d_set_another_string_var(s_entry * type, char *vn, data_head * d,
-							  char *string)
+void initng_data_set_another_string_var(s_entry * type, char *vn,
+                                        data_head * d, char *string)
 {
 	s_data *current = NULL;
 

@@ -48,9 +48,9 @@ SET(initng_lib_srcs
 	common/blacklist.c
 	common/state.c
 	error/print.c
-	control_command/register.c
-	control_command/find.c
-	control_command/execute.c
+	command/register.c
+	command/find.c
+	command/execute.c
 	execute/launch.c
 	handler/restart_restarting.c
 	handler/start_service.c

@@ -38,8 +38,7 @@ int initng_config_opt_get(opt_t *opts, char **rval, char *str)
 
 	*rval = val;
 
-	for (i = 0; opts[i].name != NULL; i++)
-	{
+	for (i = 0; opts[i].name != NULL; i++) {
 		if (strcmp(opts[i].name, str) == 0)
 			return opts[i].id;
 	}

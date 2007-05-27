@@ -66,7 +66,7 @@ int main(int argc, char *argv[], char *env[])
 	gettimeofday(&last, NULL);
 
 	/* Initialize global variables */
-	initng_global_new(argc, argv, env);
+	initng_config_global_new(argc, argv, env);
 	
 	/* Parse options given by /etc/initng.conf */
 	options_parse_file(ETCDIR "/initng.conf");

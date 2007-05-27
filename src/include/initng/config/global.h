@@ -24,7 +24,7 @@
 #include <initng/module.h>
 #include <initng/plugin.h>
 #include <initng/data.h>
-#include <initng/control_command.h>
+#include <initng/command.h>
 #include <initng/active_state.h>
 #include <initng/static/all.h>
 #include <initng/event/all.h>
@@ -113,8 +113,8 @@ typedef struct
 extern s_global g;
 
 /* functions for initialize and free s_global g */
-void initng_global_new(int argc, char *argv[], char *env[]);
-void initng_global_free(void);
+void initng_config_global_new(int argc, char *argv[], char *env[]);
+void initng_config_global_free(void);
 
 /* fast macros to set entrys in g */
 #define initng_global_set_sleep(sec) { D_("Sleep set: %i seconds.\n", sec); if(g.sleep_seconds==0||sec<g.sleep_seconds) g.sleep_seconds=sec; }

@@ -24,7 +24,7 @@
 #include <initng/active_db.h>
 #include <initng/active_state.h>
 #include <initng/common.h>
-#include <initng/control_command.h>
+#include <initng/command.h>
 #include <initng/depend.h>
 #include <initng/env.h>
 #include <initng/error.h>

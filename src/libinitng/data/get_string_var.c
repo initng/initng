@@ -28,10 +28,10 @@
 
 
 /* returns a string pointer */
-const char *d_get_string_var(s_entry * type, const char *vn,
+const char *initng_data_get_string_var(s_entry * type, const char *vn,
 									data_head * head)
 {
-	s_data *current = d_get_next_var(type, vn, head, NULL);
+	s_data *current = initng_data_get_next_var(type, vn, head, NULL);
 
 	return (current ? current->t.s : NULL);
 }
