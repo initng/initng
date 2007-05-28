@@ -143,6 +143,7 @@ int main(int argc, char *argv[], char *env[])
 
 #ifdef SELINUX
 	setup_selinux();
+	/* reexec initng to get into the correct selinux domain*/
 	if(getenv("SELINUX_INIT") == NULL) {
 		putenv("SELINUX_INIT=YES");
 		execv(argv[0], argv);
