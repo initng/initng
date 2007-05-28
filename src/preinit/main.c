@@ -109,6 +109,7 @@ static void setup_selinux(void)
 	if ((tmp_f = fopen("/selinux/enforce", "r")) == NULL &&
 	    getenv("SELINUX_INIT") == NULL) {
 		int enforce = -1;
+		putenv("SELINUX_INIT=YES");
 #ifdef OLDSELINX
 		if (load_policy(&enforce) == 0) {
 #else
@@ -143,11 +144,6 @@ int main(int argc, char *argv[], char *env[])
 
 #ifdef SELINUX
 	setup_selinux();
-	/* reexec initng to get into the correct selinux domain*/
-	if(getenv("SELINUX_INIT") == NULL) {
-		putenv("SELINUX_INIT=YES");
-		execv(argv[0], argv);
-	}
 #endif
 
 	/* change dir to / */
