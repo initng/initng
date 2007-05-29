@@ -785,7 +785,7 @@ static void create_new_active(s_event * event)
 	/* printf("service \"%s\" ", name); */
 
 	file = malloc(sizeof(INITNG_ROOT) + sizeof("/default") +
-	              sizeof(char) * (strlen(name) + 2));
+	              sizeof(char) * (strlen(name) + 11));
 
 	/*
 	 * scheme: "daemon/samba/smbd"
@@ -793,32 +793,26 @@ static void create_new_active(s_event * event)
 	 * try 2 "daemon/samba/smbd/default"
 	 * try 3 "daemon/samba"
 	 * try 4 "daemon/samba/default"
-	 * try 5 "daemon"
-	 * try 6 "daemon/default"
 	 */
 
 	strcpy(file, INITNG_ROOT "/");
 	strcat(file, name);
 
-	do
-	{
-		/* Cut the string at r, if set */
-		if (r)
-			r[0] = '\0';
-
-		/* Try find with that */
-		if ((found = parse_new_service_file(event, file)))
-			break;
-
-		/* Save the last slash before trying anything else, */
-		/* that way we can cut at it later */
+	if (!(found = parse_new_service_file(event, file))) {
 		r = strrchr(file, '/');
 
 		/* Add this and see if there is better luck */
 		strcat(file, "/default");
+		if (!(found = parse_new_service_file(event, file)) && r) {
+			r[0] = '\0';
 
-		found = parse_new_service_file(event, file);
-	} while (!found && r);
+			if (!(found = parse_new_service_file(event, file))) {
+				/* Add this and see if there is better luck */
+				strcat(file, "/default");
+				found = parse_new_service_file(event, file);
+			}
+		}
+	}
 
 	if (found)
 		event->status = HANDLED;
@@ -837,13 +831,22 @@ static int parse_new_service_file(s_event * event, char *file)
 	name = event->data;
 
 	/* Take stat on file */
-	if (stat(file, &fstat) != 0)
-		return(FALSE);
+	if (stat(file, &fstat) != 0) {
+		/* NOTE: The following code is a hack, there are better
+		 *       ways to do this... */
+		char *ext = file + strlen(file);
+
+		strcpy(ext, ".runlevel");
+		if (stat(file, &fstat) != 0) {
+			strcpy(ext, ".virtual");
+			if (stat(file, &fstat) != 0)
+				return(FALSE);
+		}
+	}
 
 	/* Is a regular file */
 	if(!S_ISREG(fstat.st_mode))
 		return(FALSE);
-
 
 	if (!(fstat.st_mode & S_IXUSR))
 	{
