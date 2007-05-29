@@ -1,25 +1,14 @@
 #!/bin/sh
 
 eval "
-$CMD()
-{
+$CMD() {
 	echo \"$SERVICE: command $CMD not found.\"
 	return 1
 }
+setup_$NAME() { false; }
 "
 
-ireg()
-{
-	local s=any
-	[ -n "$2" ] && {
-		[ "$2" != "$SERVICE" ] && return 0
-		s="$NAME"
-	}
-
-	iregister $1 &&
-	setup_$s &&
-	idone
-}
+setup() { setup_$NAME; }
 
 export PATH="@LIB_INSTALL_DIR@/ibin:$PATH"
 

@@ -3,22 +3,11 @@
 setup_example()
 {
 	# SERVICE: example
-	iset need = system/bootmisc
-	iexec start = strange_name_for_start
-	iexec stop
-}
-
-setup_any()
-{
-	# SERVICE: example/*
-	iset need = system/bootmisc
-	iset exec start = "/bin/echo $SERVICE started!"
-}
-
-setup()
-{
-	ireg service example
-	ireg service ''
+	iregister service
+		iset need = system/bootmisc
+		iexec start = strange_name_for_start
+		iexec stop
+	idone
 }
 
 strange_name_for_start()
