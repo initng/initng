@@ -1,24 +1,24 @@
 #!/bin/sh
-export PATH="@LIB_INSTALL_DIR@/ibin:${PATH}"
+export PATH="@LIB_INSTALL_DIR@/ibin:$PATH"
 
 . /sbin/functions.sh
-[ -f "/etc/conf.d/${NAME}" ] && . "/etc/conf.d/${NAME}"
-. "${SFILE}"
+[ -f "/etc/conf.d/$NAME" ] && . "/etc/conf.d/$NAME"
+. "$SFILE"
 
 setup() {
-	iregister service || exit ${?}
+	iregister service || exit
 	iexec start
-	for i in stop ${opts}; do
-		if typeset -F \"${i}\" &>/dev/null; then
-			iexec ${i}
-			echo ${i}
+	for i in stop $opts; do
+		if typeset -F \"$i\" &>/dev/null; then
+			iexec $i
+			echo $i
 		fi
 	done
 
-	need() { iset need = "${@}"; }
-	use() { iset use = "${@}"; }
+	need() { iset need = "$@"; }
+	use() { iset use = "$@"; }
 	depend
 	idone
 }
 
-${CMD}
+$CMD

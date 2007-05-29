@@ -1,21 +1,15 @@
 #!/bin/sh
 
 eval "
-${CMD}()
+$CMD()
 {
-	echo \"${SERVICE}: command ${CMD} not found.\"
+	echo \"$SERVICE: command $CMD not found.\"
 	return 1
 }
 "
 
-ireg()
-{
-	[ -n "${2}" -a "${SERVICE}" != "${2}" ] && return 1
-	iregister "${1}" || exit ${?}
-	_atexit="idone"
-}
+export PATH="@LIB_INSTALL_DIR@/ibin:$PATH"
 
-export PATH="@LIB_INSTALL_DIR@/ibin:${PATH}"
-. "${SFILE}"
-${CMD}
-${_atexit}
+. "$SFILE"
+
+$CMD

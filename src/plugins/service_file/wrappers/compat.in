@@ -1,8 +1,8 @@
 #!/bin/sh
-export PATH="@LIB_INSTALL_DIR@/ibin:${PATH}"
+export PATH="@LIB_INSTALL_DIR@/ibin:$PATH"
 
-if [ "${CMD}" = "setup" ]; then
-	iregister service || exit ${?}
+if [ "$CMD" = "setup" ]; then
+	iregister service || exit
 	iset need = system/bootmisc
 	iset syncron = compat
 	iexec start
@@ -11,5 +11,5 @@ if [ "${CMD}" = "setup" ]; then
 	exit 0
 fi
 
-set -- "${CMD}"
-. "${SFILE}"
+set -- "$CMD"
+. "$SFILE"
