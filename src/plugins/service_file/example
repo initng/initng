@@ -1,18 +1,24 @@
 #!/sbin/runiscript
 
+setup_example()
+{
+	# SERVICE: example
+	iset need = system/bootmisc
+	iexec start = strange_name_for_start
+	iexec stop
+}
+
+setup_any()
+{
+	# SERVICE: example/*
+	iset need = system/bootmisc
+	iset exec start = "/bin/echo $SERVICE started!"
+}
+
 setup()
 {
-	# Register new service type, the $SERVICE will be "example" here.
-	case "$SERVICE" in
-		example)	
-			iregister service
-			iset need = "system/bootmisc"
-			iexec start = strange_name_for_start
-			iexec stop
-			# Tell initng this service is done parsing.
-			idone
-		;;
-	esac
+	ireg service example
+	ireg service ''
 }
 
 strange_name_for_start()

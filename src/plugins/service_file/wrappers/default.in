@@ -8,6 +8,19 @@ $CMD()
 }
 "
 
+ireg()
+{
+	local s=any
+	[ -n "$2" ] && {
+		[ "$2" != "$SERVICE" ] && return 0
+		s="$NAME"
+	}
+
+	iregister $1 &&
+	setup_$s &&
+	idone
+}
+
 export PATH="@LIB_INSTALL_DIR@/ibin:$PATH"
 
 . "$SFILE"
