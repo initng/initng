@@ -20,8 +20,8 @@
 #ifndef __LOCAL_H
 #define __LOCAL_H
 
-int initng_load_module_needs_are_loaded(const m_h * m);
-int initng_load_module_is_needed(const char *module_name);
-int initng_load_module_is_loaded(const char *module_name);
+int module_needs_are_loaded(const m_h * m);
+int module_is_needed(const char *module_name);
+int module_is_loaded(const char *module_name);
 
 #endif

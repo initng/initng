@@ -24,14 +24,14 @@
 #include <assert.h>
 #include <errno.h>
 #include <string.h>
-#include <fcntl.h>							/* fcntl() */
+#include <fcntl.h>						/* fcntl() */
 #include <time.h>
 
 #include <initng.h>
 
 
 /* called to dump active_db */
-int initng_plugin_callers_dump_active_db(void)
+int initng_plugin_callers_active_db_dump(void)
 {
 	s_event event;
 
@@ -42,7 +42,7 @@ int initng_plugin_callers_dump_active_db(void)
 }
 
 /* called to reload dump of active_db */
-int initng_plugin_callers_reload_active_db(void)
+int initng_plugin_callers_active_db_reload(void)
 {
 	s_event event;
 

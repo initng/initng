@@ -32,13 +32,6 @@
 #include <stdio.h>
 #include <sys/klog.h>
 #include <errno.h>
-#ifdef SELINUX
-#include <selinux/selinux.h>
-#include <selinux/get_context_list.h>
-#endif
-#ifdef HAVE_COREDUMPER
-#include <google/coredumper.h>
-#endif
 
 
 void initng_main_restart(void)
@@ -51,9 +44,9 @@ void initng_main_restart(void)
 	{
 		close(i);
 	}
-	argv = (char **) i_calloc(3, sizeof(char *));
+	argv = (char **) initng_toolbox_calloc(3, sizeof(char *));
 
-	argv[0] = (char *) i_calloc(strlen(g.runlevel) + 12, sizeof(char));
+	argv[0] = (char *) initng_toolbox_calloc(strlen(g.runlevel) + 12, sizeof(char));
 	strcpy(argv[0], "runlevel=");
 	strcat(argv[0], g.runlevel);
 	argv[1] = NULL;

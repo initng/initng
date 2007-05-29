@@ -275,7 +275,7 @@ static void bp_new_active(bp_rep * rep, const char *type, const char *service,
 	}
 
 	/* save orgin */
-	set_string(&FROM_FILE, new_active, i_strdup(from_file));
+	set_string(&FROM_FILE, new_active, initng_toolbox_strdup(from_file));
 
 	/* set service type */
 	new_active->type = stype;
@@ -354,8 +354,9 @@ static void bp_set_variable(bp_rep * rep, const char *service,
 	{
 		case STRING:
 		case VARIABLE_STRING:
-			set_string_var(type, varname ? i_strdup(varname) : NULL, active,
-						   i_strdup(value));
+			set_string_var(type,
+				varname ? initng_toolbox_strdup(varname) : NULL,
+				active, initng_toolbox_strdup(value));
 			D_("string type - %s %s\n", type->opt_name, value);
 			break;
 		case STRINGS:
@@ -363,11 +364,11 @@ static void bp_set_variable(bp_rep * rep, const char *service,
 			{
 				char *new_st = NULL;
 
-				while ((new_st = st_dup_next_word(&value)))
+				while ((new_st = initng_string_dup_next_word(&value)))
 				{
 					set_another_string_var(type,
-										   varname ? i_strdup(varname) : NULL,
-										   active, new_st);
+						varname ? initng_toolbox_strdup(varname) : NULL,
+						active, new_st);
 				}
 			}
 			D_("strings type\n");
@@ -375,11 +376,11 @@ static void bp_set_variable(bp_rep * rep, const char *service,
 		case SET:
 		case VARIABLE_SET:
 			D_("set type\n");
-			set_var(type, varname ? i_strdup(varname) : NULL, active);
+			set_var(type, varname ? initng_toolbox_strdup(varname) : NULL, active);
 			break;
 		case INT:
 		case VARIABLE_INT:
-			set_int_var(type, varname ? i_strdup(varname) : NULL, active,
+			set_int_var(type, varname ? initng_toolbox_strdup(varname) : NULL, active,
 						atoi(value));
 			D_("int type\n");
 			break;
@@ -878,7 +879,7 @@ static int parse_new_service_file(s_event * event, char *file)
 	add_process(process, new_active);
 
 	/* create and unidirectional pipe */
-	current_pipe = pipe_new(IN_AND_OUT_PIPE);
+	current_pipe = initng_process_db_pipe_new(IN_AND_OUT_PIPE);
 	if (current_pipe)
 	{
 		/* we want this pipe to get fd 3, in the fork */
@@ -897,7 +898,7 @@ static int parse_new_service_file(s_event * event, char *file)
 		new_argv[2] = NULL;
 
 		/* SERVICE=getty/tty1 */
-		new_env[0] = i_calloc(strlen(name) + 20, sizeof(char));
+		new_env[0] = initng_toolbox_calloc(strlen(name) + 20, sizeof(char));
 		strcpy(new_env[0], "SERVICE=");
 		strcat(new_env[0], name);
 

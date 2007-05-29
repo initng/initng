@@ -23,7 +23,7 @@
 void check_sys_state_up(void);
 void dep_failed_to_start(active_db_h * service);
 void dep_failed_to_stop(active_db_h * service);
-void initng_handler_run_interrupt_handlers(void);
+void run_interrupt_handlers(void);
 
 void handle(active_db_h * service);
 

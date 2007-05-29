@@ -56,7 +56,7 @@ void initng_data_set_another_string_var(s_entry * type, char *vn,
 		return;
 	}
 
-	current = (s_data *) i_calloc(1, sizeof(s_data));
+	current = (s_data *) initng_toolbox_calloc(1, sizeof(s_data));
 	current->type = type;
 	current->t.s = string;
 	current->vn = vn;

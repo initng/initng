@@ -32,13 +32,6 @@
 #include <stdio.h>
 #include <sys/klog.h>
 #include <errno.h>
-#ifdef SELINUX
-#include <selinux/selinux.h>
-#include <selinux/get_context_list.h>
-#endif
-#ifdef HAVE_COREDUMPER
-#include <google/coredumper.h>
-#endif
 
 
 void initng_main_exit(int i)
@@ -52,7 +45,7 @@ void initng_main_exit(int i)
 	initng_config_global_free();
 
 	/* Then, unload all modules */
-	initng_unload_module_unload_all();
+	initng_module_unload_all();
 
 	/* And exit with return code */
 	exit(i);

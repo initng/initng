@@ -54,5 +54,4 @@ void initng_static_data_id_register_defaults(void)
 	initng_service_data_type_register(&ENV);
 
 	initng_service_data_type_register(&RESTARTING);
-
 }

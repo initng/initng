@@ -32,13 +32,6 @@
 #include <stdio.h>
 #include <sys/klog.h>
 #include <errno.h>
-#ifdef SELINUX
-#include <selinux/selinux.h>
-#include <selinux/get_context_list.h>
-#endif
-#ifdef HAVE_COREDUMPER
-#include <google/coredumper.h>
-#endif
 
 
 /*

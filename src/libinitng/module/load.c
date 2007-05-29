@@ -36,7 +36,7 @@
  * Read the module information from the file. Does not actually call
  * module_init() for the module, so it is not "loaded" at this point.
  */
-m_h *initng_load_module_open(const char *module_path, const char *module_name)
+m_h *initng_module_open(const char *module_path, const char *module_name)
 {
 	struct stat st;
 	char *errmsg;
@@ -46,7 +46,7 @@ m_h *initng_load_module_open(const char *module_path, const char *module_name)
 	assert(module_name != NULL);
 
 	/* allocate, the new module info struct */
-	if (!(m = (m_h *) i_calloc(1, sizeof(m_h))))
+	if (!(m = (m_h *) initng_toolbox_calloc(1, sizeof(m_h))))
 	{
 		F_("Unable to allocate memory, for new module description.\n");
 		return (NULL);
@@ -87,7 +87,7 @@ m_h *initng_load_module_open(const char *module_path, const char *module_name)
 		if (!plugin_api)
 		{
 			F_("Symbol \"plugin_api_version\" not found, the macro INITNG_PLUGIN_MACRO is not added to plugin %s :: %s\n", module_path, dlerror());
-			initng_load_module_close_and_free(m);
+			initng_module_close_and_free(m);
 			return (NULL);
 		}
 
@@ -95,7 +95,7 @@ m_h *initng_load_module_open(const char *module_path, const char *module_name)
 		if (*plugin_api != API_VERSION)
 		{
 			F_("Plugin %s has wrong api version, this meens that its compiled with another version of initng core.\n", module_path);
-			initng_load_module_close_and_free(m);
+			initng_module_close_and_free(m);
 			return (NULL);
 		}
 		D_("Plugin %s ver match: %i\n", module_path, *plugin_api);
@@ -108,7 +108,7 @@ m_h *initng_load_module_open(const char *module_path, const char *module_name)
 	{
 		errmsg = dlerror();
 		F_("Error reading module_init(); %s\n", errmsg);
-		initng_load_module_close_and_free(m);
+		initng_module_close_and_free(m);
 		return (NULL);
 	}
 
@@ -119,7 +119,7 @@ m_h *initng_load_module_open(const char *module_path, const char *module_name)
 	{
 		errmsg = dlerror();
 		F_("Error reading module_unload(); %s\n", errmsg);
-		initng_load_module_close_and_free(m);
+		initng_module_close_and_free(m);
 		return (NULL);
 	}
 
@@ -130,8 +130,8 @@ m_h *initng_load_module_open(const char *module_path, const char *module_name)
 	 * consider that an error? */
 
 	/* set module name in database */
-	m->module_name = i_strdup(module_name);
-	m->module_filename = i_strdup(module_path);
+	m->module_name = initng_toolbox_strdup(module_name);
+	m->module_filename = initng_toolbox_strdup(module_path);
 
 	return (m);
 }
@@ -139,7 +139,7 @@ m_h *initng_load_module_open(const char *module_path, const char *module_name)
 /*
  * Close the module.
  */
-void initng_load_module_close_and_free(m_h * m)
+void initng_module_close_and_free(m_h * m)
 {
 	assert(m != NULL);
 
@@ -171,7 +171,7 @@ void initng_load_module_close_and_free(m_h * m)
 
 /* load a dynamic module */
 /* XXX: more information! */
-m_h *initng_load_module(const char *module)
+m_h *initng_module_load(const char *module)
 {
 	char *module_path = NULL;
 	char *module_name = NULL;
@@ -183,7 +183,7 @@ m_h *initng_load_module(const char *module)
 	if (module[0] == '/' && strstr(module, ".so"))
 	{
 		/* then copy module name, to module_path */
-		module_path = i_strdup(module);
+		module_path = initng_toolbox_strdup(module);
 
 		int len = strlen(module);
 		int i = len;
@@ -200,7 +200,7 @@ m_h *initng_load_module(const char *module)
 			i += 3;
 
 		/* now set module_name */
-		module_name = i_strndup(&module[i], len - i - 3);
+		module_name = initng_toolbox_strndup(&module[i], len - i - 3);
 	}
 	else
 	{
@@ -209,7 +209,7 @@ m_h *initng_load_module(const char *module)
 	}
 
 	/* look for duplicates */
-	if (initng_load_module_is_loaded(module_name))
+	if (module_is_loaded(module_name))
 	{
 		F_("Module \"%s\" already loaded, won't load it twice\n",
 		   module_name);
@@ -225,16 +225,16 @@ m_h *initng_load_module(const char *module)
 	if (!module_path)
 	{
 		/* build a path */
-		module_path = (char *) i_calloc(1,
-										strlen(INITNG_PLUGIN_DIR) +
-										strlen(module_name) + 30);
+		module_path = (char *) initng_toolbox_calloc(1,
+						strlen(INITNG_PLUGIN_DIR) +
+						strlen(module_name) + 30);
 		strcpy(module_path, INITNG_PLUGIN_DIR "/lib");
 		strcat(module_path, module_name);
 		strcat(module_path, ".so");
 	}
 
 	/* load information from library */
-	new_m = initng_load_module_open(module_path, module_name);
+	new_m = initng_module_open(module_path, module_name);
 
 	/* try again with a static path */
 	if (!new_m)
@@ -242,7 +242,7 @@ m_h *initng_load_module(const char *module)
 		strcpy(module_path, "/lib/initng/");
 		strcat(module_path, module_name);
 		strcat(module_path, ".so");
-		new_m = initng_load_module_open(module_path, module_name);
+		new_m = initng_module_open(module_path, module_name);
 
 		/* try 3d time with a new static path */
 		if (!new_m)
@@ -251,7 +251,7 @@ m_h *initng_load_module(const char *module)
 			strcpy(module_path, "/lib32/initng/");
 			strcat(module_path, module_name);
 			strcat(module_path, ".so");
-			new_m = initng_load_module_open(module_path, module_name);
+			new_m = initng_module_open(module_path, module_name);
 
 			/* try 4d time with a new static path */
 			if (!new_m)
@@ -260,13 +260,13 @@ m_h *initng_load_module(const char *module)
 				strcpy(module_path, "/lib64/initng/");
 				strcat(module_path, module_name);
 				strcat(module_path, ".so");
-				new_m = initng_load_module_open(module_path, module_name);
+				new_m = initng_module_open(module_path, module_name);
 
 				/* make sure this succeded */
 				if (!new_m)
 				{
 					F_("Unable to load module \"%s\"\n", module);
-					/* free, these are duped in initng_load_module_open(a,b) */
+					/* free, these are duped in initng_module_open(a,b) */
 					if (module_name != module)
 						free(module_name);
 					free(module_path);
@@ -275,17 +275,17 @@ m_h *initng_load_module(const char *module)
 			}
 		}
 	}
-	/* free, these are duped in initng_load_module_open(a,b) */
+	/* free, these are duped in initng_module_open(a,b) */
 	if (module_name != module)
 		free(module_name);
 	free(module_path);
 
 	/* see if we have our dependencies met */
-	if (!initng_load_module_needs_are_loaded(new_m))
+	if (!module_needs_are_loaded(new_m))
 	{
 		F_("Not loading module \"%s\", missing needed module(s)\n",
 		   module_path);
-		initng_load_module_close_and_free(new_m);
+		initng_module_close_and_free(new_m);
 		return (NULL);
 	}
 
@@ -300,7 +300,7 @@ m_h *initng_load_module(const char *module)
 		   module_path, new_m->initziated);
 		/* XXX: used to be here, but why? */
 		/* sleep(1); */
-		initng_load_module_close_and_free(new_m);
+		initng_module_close_and_free(new_m);
 		return (NULL);
 	}
 
@@ -310,7 +310,7 @@ m_h *initng_load_module(const char *module)
 	return (new_m);
 }
 
-int initng_load_module_load_all(const char *plugin_path)
+int initng_module_load_all(const char *plugin_path)
 {
 	struct dirent **filelist;
 	int files;
@@ -329,7 +329,7 @@ int initng_load_module_load_all(const char *plugin_path)
 	}
 
 	/* memory for full path */
-	module_path = i_calloc(strlen(plugin_path) + NAME_MAX + 2, 1);
+	module_path = initng_toolbox_calloc(strlen(plugin_path) + NAME_MAX + 2, 1);
 
 	/* get every entry */
 	for (i = 0; i < files; i++)
@@ -337,8 +337,8 @@ int initng_load_module_load_all(const char *plugin_path)
 		/* check for files, ending with .so */
 		if (fnmatch("lib*.so", filelist[i]->d_name, 0) == 0)
 		{
-			module_name = i_strndup(filelist[i]->d_name + 3,
-									strlen(filelist[i]->d_name + 3) - 3);
+			module_name = initng_toolbox_strndup(filelist[i]->d_name + 3,
+					strlen(filelist[i]->d_name + 3) - 3);
 
 			/* search the plugin name, for blacklisted */
 			if (initng_common_service_blacklisted(module_name))
@@ -356,8 +356,8 @@ int initng_load_module_load_all(const char *plugin_path)
 			strcat(module_path, filelist[i]->d_name);
 
 			/* open the module */
-			current = initng_load_module_open(module_path, module_name);
-			free(module_name);				/* initng_load_module_open strdups this itself */
+			current = initng_module_open(module_path, module_name);
+			free(module_name);	/* initng_module_open strdups this itself */
 			module_name = NULL;
 
 			/* add this to the list of loaded modules */
@@ -396,9 +396,9 @@ int initng_load_module_load_all(const char *plugin_path)
 		if (current->initziated == TRUE)
 			continue;
 
-		if (!initng_load_module_needs_are_loaded(current))
+		if (!module_needs_are_loaded(current))
 		{
-			initng_load_module_close_and_free(current);
+			initng_module_close_and_free(current);
 			continue;
 		}
 
@@ -412,7 +412,7 @@ int initng_load_module_load_all(const char *plugin_path)
 		{
 			if (g.i_am == I_AM_INIT || g.i_am == I_AM_FAKE_INIT)
 				F_("Module %s did not load correctly (module_init() returned %i)\n", current->module_name, current->initziated);
-			initng_load_module_close_and_free(current);
+			initng_module_close_and_free(current);
 		}
 
 	}

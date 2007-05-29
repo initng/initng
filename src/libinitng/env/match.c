@@ -19,7 +19,7 @@
 
 #include <initng.h>
 
-int is_same_env_var(char *var1, char *var2)
+int initng_env_is_same_env_var(char *var1, char *var2)
 {
 	int i = 0;
 

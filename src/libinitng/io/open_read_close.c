@@ -33,7 +33,7 @@
 static void bailout(int *, char **buffer);
 
 
-int open_read_close(const char *filename, char **buffer)
+int initng_io_open_read_close(const char *filename, char **buffer)
 {
 	int conf_file;				/* File descriptor for config file */
 	struct stat stat_buf;
@@ -68,7 +68,7 @@ int open_read_close(const char *filename, char **buffer)
 
 	/* Allocate a file buffer */
 
-	*buffer = (char *) i_calloc((stat_buf.st_size + 1), sizeof(char));
+	*buffer = (char *) initng_toolbox_calloc((stat_buf.st_size + 1), sizeof(char));
 
 	/* Read whole file */
 

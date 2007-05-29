@@ -36,9 +36,8 @@
 #include <initng/is_state.h>
 #include <initng/kill.h>
 #include <initng/list.h>
-#include <initng/load_module.h>
 #include <initng/main.h>
-#include <initng/module.h>
+#include <initng/module/all.h>
 #include <initng/msg.h>
 #include <initng/io.h>
 #include <initng/plugin_callers.h>

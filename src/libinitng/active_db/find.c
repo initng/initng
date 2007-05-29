@@ -81,7 +81,7 @@ active_db_h *initng_active_db_find_by_name(const char *service)
 	{
 		assert(current->name);
 		/* then try to find alike name */
-		if (service_match(current->name, service))
+		if (initng_string_match(current->name, service))
 			return (current);
 
 	}
@@ -108,7 +108,7 @@ active_db_h *initng_active_db_find_in_name(const char *service)
 	while_active_db(current)
 	{
 		assert(current->name);
-		if (match_in_service(current->name, service))
+		if (initng_string_match_in_service(current->name, service))
 			return (current);
 	}
 

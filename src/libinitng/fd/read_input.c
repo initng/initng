@@ -67,7 +67,8 @@ void initng_fd_process_read_input(active_db_h * service, process_h * p,
 	{
 		errno = 0;
 
-		/* OBSERVE, i_realloc may change the path to the data, so dont set buffer_pos to early */
+		/* OBSERVE, initng_toolbox_realloc may change the path to the
+		 * data, so dont set buffer_pos to early */
 
 		/* Make sure there is room for 100 more chars */
 		D_(" %i (needed buffersize) > %i(current buffersize)\n", pi->buffer_len + 100, pi->buffer_allocated);
@@ -76,7 +77,7 @@ void initng_fd_process_read_input(active_db_h * service, process_h * p,
 			/* do a realloc */
 			D_("Changing size of buffer %p from %i to: %i bytes.\n", pi->buffer, pi->buffer_allocated,
 			   pi->buffer_allocated + 100 + 1 );
-			tmp = i_realloc(pi->buffer,
+			tmp = initng_toolbox_realloc(pi->buffer,
 							(pi->buffer_allocated + 100 + 1) * sizeof(char));
 
 			/* make sure realloc suceeded */
@@ -87,8 +88,10 @@ void initng_fd_process_read_input(active_db_h * service, process_h * p,
 				pi->buffer_allocated += 100;
 
 				/*
-				 * make sure it nulls, specially when i_realloc is run for the verry first time
-				 * and maby there is nothing to get by read
+				 * make sure it nulls, specially when
+				 * initng_toolbox_realloc is run for the verry
+				 * first time and maby there is nothing to get
+				 * by read
 				 */
 				pi->buffer[pi->buffer_len] = '\0';
 			}
@@ -158,7 +161,7 @@ void initng_fd_process_read_input(active_db_h * service, process_h * p,
 		/* else, realloc to exact size */
 		if (pi->buffer && pi->buffer_allocated > (pi->buffer_len + 1))
 		{
-			tmp = i_realloc(pi->buffer, (pi->buffer_len + 1) * sizeof(char));
+			tmp = initng_toolbox_realloc(pi->buffer, (pi->buffer_len + 1) * sizeof(char));
 			if (tmp)
 			{
 				pi->buffer = tmp;
@@ -176,7 +179,7 @@ void initng_fd_process_read_input(active_db_h * service, process_h * p,
 		memmove(pi->buffer, &pi->buffer[pi->buffer_len - 9000],
 				9000 * sizeof(char));
 		/* rezise the buffer - leave some expansion space! */
-		tmp = i_realloc(pi->buffer, 9501 * sizeof(char));
+		tmp = initng_toolbox_realloc(pi->buffer, 9501 * sizeof(char));
 
 		/* make sure realloc suceeded */
 		if (tmp)

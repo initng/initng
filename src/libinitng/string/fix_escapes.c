@@ -30,7 +30,7 @@
 #include <stdarg.h>
 
 
-void fix_escapes(char * str)
+void initng_string_fix_escapes(char * str)
 {
 	int s, d;
 

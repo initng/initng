@@ -71,12 +71,12 @@ static void handle_it(char *str)
 	switch(initng_config_opt_get(opts, &val, str)) {
 		case OPT_CONSOLE:
 			if (val)
-				g.dev_console = i_strdup(val);
+				g.dev_console = initng_toolbox_strdup(val);
 			break;
 
 		case OPT_RUNLEVEL:
 			if (val)
-				g.runlevel = i_strdup(val);
+				g.runlevel = initng_toolbox_strdup(val);
 			break;
 
 		case OPT_NO_CIRCULAR:

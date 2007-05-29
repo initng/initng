@@ -252,7 +252,7 @@ char *active_db_print_all(char *matching)
 
 	while_active_db(apt)
 	{
-		if (!matching || service_match(apt->name, matching))
+		if (!matching || initng_string_match(apt->name, matching))
 			active_db_print_u(apt, &string);
 	}
 

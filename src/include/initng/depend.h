@@ -24,7 +24,7 @@
 /* dependecy checkings */
 int initng_depend(active_db_h * service, active_db_h * check);
 int initng_depend_deep(active_db_h * service, active_db_h * check);
-int initng_any_depends_on(active_db_h * service);
+int initng_depend_any_depends_on(active_db_h * service);
 
 /* To stop deps, and check that its okay for stopping a service */
 int initng_depend_stop_deps(active_db_h * service);

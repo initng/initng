@@ -17,26 +17,24 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <initng.h>
+#ifndef INITNG_LOAD_MODULE_H
+#define INITNG_LOAD_MODULE_H
 
-#include <time.h>				/* time() */
-#include <fcntl.h>				/* fcntl() */
-#include <sys/un.h>				/* memmove() strcmp() */
-#include <sys/wait.h>				/* waitpid() sa */
-#include <linux/kd.h>				/* KDSIGACCEPT */
-#include <sys/ioctl.h>				/* ioctl() */
-#include <stdio.h>				/* printf() */
-#include <stdlib.h>				/* free() exit() */
-#include <sys/reboot.h>				/* reboot() RB_DISABLE_CAD */
-#include <assert.h>
-#include <errno.h>
+#include <initng/config/all.h>
+#include <initng/active_db.h>
+#include <initng/system_states.h>
+#include <initng/module/module.h>
 
+/* public interface */
+m_h *initng_module_load(const char *module_path);
+int initng_module_unload_named(const char *name);
+int initng_module_load_all(const char *plugin_path);
+void initng_module_unload_all(void);
+void initng_module_unload_marked(void);
 
-stype_h TYPE_CONTAINER = { "container", "This is an empty set that can be used as a container, and you can relate other services data to this one.",
-	TRUE, NULL, NULL, NULL
-};
+/* functions for internal use only (exposed for testing) */
+m_h *initng_module_open(const char *module_path,
+			const char *module_name);
+void initng_module_close_and_free(m_h * m);
 
-void initng_static_stypes_register_defaults(void)
-{
-	initng_service_type_register(&TYPE_CONTAINER);
-}
+#endif /* INITNG_LOAD_MODULE_H */

@@ -20,6 +20,6 @@
 #ifndef INITNG_OPEN_READ_CLOSE_H
 #define INITNG_OPEN_READ_CLOSE_H
 
-int open_read_close(const char *filename, char **buffer);
+int initng_io_open_read_close(const char *filename, char **buffer);
 
 #endif /* INITNG_OPEN_READ_CLOSE_H */

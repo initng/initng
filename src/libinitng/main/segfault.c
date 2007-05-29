@@ -32,10 +32,6 @@
 #include <stdio.h>
 #include <sys/klog.h>
 #include <errno.h>
-#ifdef SELINUX
-#include <selinux/selinux.h>
-#include <selinux/get_context_list.h>
-#endif
 #ifdef HAVE_COREDUMPER
 #include <google/coredumper.h>
 #endif
@@ -82,7 +78,7 @@ void initng_main_segfault(void)
 		}
 	}
 #else
-#if 0										/* deadlocks sometimes due to libc locks; need to use direct syscalls */
+#if 0	/* deadlocks sometimes due to libc locks; need to use direct syscalls */
 	/* Fork a new process and dump core. Works reasonably well as we're not
 	   using threads for anything. If we were, we'd need Google Coredumper */
 	{
@@ -169,9 +165,8 @@ void initng_main_segfault(void)
 	emergency_output = open("/dev/console", O_WRONLY);
 	if (emergency_output > 0)
 	{
-		if (write(emergency_output, LMESSAGE,
-				  sizeof(char) * strlen(LMESSAGE)))
-			;
+		write(emergency_output, LMESSAGE,
+		      sizeof(char) * strlen(LMESSAGE));
 		close(emergency_output);
 	}
 

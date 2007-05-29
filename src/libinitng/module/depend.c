@@ -84,7 +84,7 @@
  *
  * Returns TRUE if already loaded, else FALSE.
  */
-int initng_load_module_is_loaded(const char *module_name)
+int module_is_loaded(const char *module_name)
 {
 	m_h *m = NULL;
 
@@ -104,7 +104,7 @@ int initng_load_module_is_loaded(const char *module_name)
 /*
  * Returns TRUE if module has its dependencies met, else FALSE.
  */
-int initng_load_module_needs_are_loaded(const m_h * m)
+int module_needs_are_loaded(const m_h * m)
 {
 	char **needs;
 	int retval;
@@ -124,7 +124,7 @@ int initng_load_module_needs_are_loaded(const m_h * m)
 	{
 		while (*needs != NULL)
 		{
-			if (!initng_load_module_is_loaded(*needs))
+			if (!module_is_loaded(*needs))
 			{
 				F_("Plugin \"%s\" (%s) requires plugin \"%s\" to work, unlodading %s.\n", m->module_name, m->module_filename, *needs, m->module_name);
 				retval = FALSE;
@@ -140,7 +140,7 @@ int initng_load_module_needs_are_loaded(const m_h * m)
  *
  * Returns TRUE if the module is needed, else FALSE.
  */
-int initng_load_module_is_needed(const char *module_name)
+int module_is_needed(const char *module_name)
 {
 	char **needs;
 	m_h *m = NULL;

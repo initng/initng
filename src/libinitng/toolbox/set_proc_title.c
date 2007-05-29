@@ -46,7 +46,7 @@ int initng_toolbox_set_proc_title(const char *fmt, ...)
 	int len;
 	char *buf;
 
-	buf = i_calloc(1, g.maxproclen + 1);
+	buf = initng_toolbox_calloc(1, g.maxproclen + 1);
 
 	va_start(ap, fmt);
 	len = vsnprintf(buf, (g.maxproclen * sizeof(char)), fmt, ap);

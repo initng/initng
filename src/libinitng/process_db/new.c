@@ -36,9 +36,8 @@ process_h *initng_process_db_new(ptype_h * type)
 	pipe_h *current_pipe;
 
 	/* allocate a new process entry */
-	new_p = (process_h *) i_calloc(1, sizeof(process_h));	/* Allocate memory for a new process */
-	if (!new_p)
-	{
+	new_p = (process_h *) initng_toolbox_calloc(1, sizeof(process_h));
+	if (!new_p) {
 		F_("Unable to allocate process!\n");
 		return (NULL);
 	}
@@ -58,7 +57,7 @@ process_h *initng_process_db_new(ptype_h * type)
 	INIT_LIST_HEAD(&new_p->pipes.list);
 
 	/* create the output pipe */
-	current_pipe = pipe_new(BUFFERED_OUT_PIPE);
+	current_pipe = initng_process_db_pipe_new(BUFFERED_OUT_PIPE);
 	if (!current_pipe)
 	{
 		free(new_p);

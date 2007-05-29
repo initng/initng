@@ -56,7 +56,7 @@ int initng_interrupt(void)
 
 	/* if there was any interupt, run interupt handler hooks */
 	if (interrupt)
-		initng_handler_run_interrupt_handlers();
+		run_interrupt_handlers();
 
 	/* return positive if any interupt was handled */
 	return (interrupt);

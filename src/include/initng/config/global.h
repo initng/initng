@@ -21,7 +21,7 @@
 #define INITNG_GLOBAL_H
 #include <initng/misc.h>
 #include <initng/active_db.h>
-#include <initng/module.h>
+#include <initng/module/module.h>
 #include <initng/plugin.h>
 #include <initng/data.h>
 #include <initng/command.h>

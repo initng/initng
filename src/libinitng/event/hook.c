@@ -38,10 +38,10 @@ int initng_event_hook_register_real(const char *from_file, s_event_type *t,
 	   from_file);
 
 	/* allocate space for new call */
-	new_call = i_calloc(1, sizeof(s_call));
+	new_call = initng_toolbox_calloc(1, sizeof(s_call));
 
 	/* add data to call struct */
-	new_call->from_file = i_strdup(from_file);
+	new_call->from_file = initng_toolbox_strdup(from_file);
 	new_call->c.pointer = hook;
 
 	list_add(&new_call->list, &t->hooks.list);

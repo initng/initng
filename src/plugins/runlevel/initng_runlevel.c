@@ -287,7 +287,7 @@ static void init_RUNLEVEL_START_MARKED(active_db_h * new_runlevel)
 		}
 		free(g.runlevel);
 		g.runlevel = NULL;
-		g.runlevel = i_strdup(new_runlevel->name);
+		g.runlevel = initng_toolbox_strdup(new_runlevel->name);
 	}
 
 	initng_common_mark_service(new_runlevel, &RUNLEVEL_WAITING_FOR_START_DEP);

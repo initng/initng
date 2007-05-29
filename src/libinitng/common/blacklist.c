@@ -53,7 +53,7 @@ int initng_common_service_blacklisted(const char *name)
 		if ((g.Argv)[i][0] == '-')
 		{
 			if (strcmp(name, (g.Argv)[i] + 1) == 0
-				|| service_match(name, (g.Argv)[i] + 1))
+				|| initng_string_match(name, (g.Argv)[i] + 1))
 				return (TRUE);
 		}
 	}

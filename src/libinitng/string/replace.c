@@ -30,7 +30,7 @@
 #include <stdarg.h>
 
 
-void st_replace(char * dest, char * src, const char * n, const char * r)
+void initng_string_replace(char * dest, char * src, const char * n, const char * r)
 {
 	char *p;
 	char *d = dest;

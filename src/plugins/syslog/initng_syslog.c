@@ -124,17 +124,17 @@ static void initng_log(int prio, const char *owner, const char *format, ...)
 	else
 	{
 		char b[201];
-		log_ent *tmp = (log_ent *) i_calloc(1, sizeof(log_ent));
+		log_ent *tmp = (log_ent *) initng_toolbox_calloc(1, sizeof(log_ent));
 
 		if (!tmp)
 			return;
 
 		tmp->prio = prio;
 		vsnprintf(b, 200, format, ap);
-		tmp->buffert = i_strdup(b);
+		tmp->buffert = initng_toolbox_strdup(b);
 
 		if (owner)
-			tmp->owner = i_strdup(owner);
+			tmp->owner = initng_toolbox_strdup(owner);
 		else
 			tmp->owner = NULL;
 
@@ -330,7 +330,6 @@ static void syslog_print_error(s_event * event)
 			break;
 	}
 }
-
 
 
 int module_init(int api_version)

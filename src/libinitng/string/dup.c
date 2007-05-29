@@ -35,7 +35,7 @@
  * line with "this is one word", it will i_strdup it, and
  * add word length on string pointer
  */
-char *st_dup_next_word(const char **string)
+char *initng_string_dup_next_word(const char **string)
 {
 	char *td = NULL;
 	int i = 0;
@@ -54,7 +54,7 @@ char *st_dup_next_word(const char **string)
 		i = strcspn(*string, "\"");
 		if (i < 1)
 			return (NULL);
-		td = i_strndup(*string, i);
+		td = initng_toolbox_strndup(*string, i);
 		(*string) += i;
 		if (*string[0] == '"')
 			(*string)++;
@@ -68,7 +68,7 @@ char *st_dup_next_word(const char **string)
 		i = strcspn(*string, "}");
 		if (i < 1)
 			return (NULL);
-		td = i_strndup(*string, i);
+		td = initng_toolbox_strndup(*string, i);
 		(*string) += i;
 		if (*string[0] == '}')
 			(*string)++;
@@ -80,7 +80,7 @@ char *st_dup_next_word(const char **string)
 	if (i < 1)
 		return (NULL);
 	/* copy string */
-	td = i_strndup(*string, i);
+	td = initng_toolbox_strndup(*string, i);
 	(*string) += i;
 	return (td);
 }
@@ -89,7 +89,7 @@ char *st_dup_next_word(const char **string)
  * This will dup, in the string, what is resolved as the line,
  * (stops with '\n', ';', '\0'), copy it and increment *string with len
  */
-char *st_dup_line(char **string)
+char *initng_string_dup_line(char **string)
 {
 	char *td = NULL;
 	int i = 0;
@@ -108,7 +108,7 @@ char *st_dup_line(char **string)
 		i = strcspn(*string, "\"");
 		if (i < 1)
 			return (NULL);
-		td = i_strndup(*string, i);
+		td = initng_toolbox_strndup(*string, i);
 		(*string) += i;
 		if (*string[0] == '"')
 			(*string)++;
@@ -122,7 +122,7 @@ char *st_dup_line(char **string)
 		i = strcspn(*string, "}");
 		if (i < 1)
 			return (NULL);
-		td = i_strndup(*string, i);
+		td = initng_toolbox_strndup(*string, i);
 		(*string) += i;
 		if (*string[0] == '}')
 			(*string)++;
@@ -134,7 +134,7 @@ char *st_dup_line(char **string)
 	if (i < 1)
 		return (NULL);
 	/* copy string */
-	td = i_strndup(*string, i);
+	td = initng_toolbox_strndup(*string, i);
 	(*string) += i;
 	return (td);
 }

@@ -32,25 +32,11 @@
 #include <stdio.h>
 #include <sys/klog.h>
 #include <errno.h>
-#ifdef SELINUX
-#include <selinux/selinux.h>
-#include <selinux/get_context_list.h>
-#endif
-#ifdef HAVE_COREDUMPER
-#include <google/coredumper.h>
-#endif
 
 
-/* This is same as execve() */
 void initng_main_new_init(void)
 {
-	int i;
-
 	initng_main_set_sys_state(STATE_EXECVE);
-	for (i = 3; i <= 1013; i++)
-	{
-		close(i);
-	}
 	if (!g.new_init || !g.new_init[0])
 	{
 		F_(" g.new_init is not set!\n");

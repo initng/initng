@@ -36,9 +36,6 @@
 #include <selinux/selinux.h>
 #include <selinux/get_context_list.h>
 #endif
-#ifdef HAVE_COREDUMPER
-#include <google/coredumper.h>
-#endif
 
 
 static int local_sulogin_count = 0;

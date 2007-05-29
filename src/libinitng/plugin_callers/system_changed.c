@@ -31,7 +31,7 @@
 
 
 /* called when system state has changed. */
-void initng_plugin_callers_load_module_system_changed(h_sys_state state)
+void initng_plugin_callers_system_changed(h_sys_state state)
 {
 	s_event event;
 

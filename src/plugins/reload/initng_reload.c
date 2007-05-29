@@ -55,6 +55,7 @@ s_command FAST_RELOAD = { 'c', "hot_reload", VOID_COMMAND, STANDARD_COMMAND, NO_
 	"Fast Reload"
 };
 
+#if 0
 static int fd_used_by_service(int fd)
 {
 	active_db_h *service = NULL;
@@ -87,15 +88,18 @@ static int fd_used_by_service(int fd)
 	}
 	return (FALSE);
 }
+#endif
 
 static void cmd_fast_reload(char *arg)
 {
 	(void) arg;
 	int retval;
-	int i;
 	char *new_argv[4];
 
-	retval = initng_plugin_callers_dump_active_db();
+	retval = initng_plugin_callers_active_db_dump();
+
+#if 0
+	int i;
 
 	/* close all fd, exept stdin, stdout, stderr, and that ones that point to our services */
 	for (i = 3; i < 1024; i++)
@@ -103,15 +107,16 @@ static void cmd_fast_reload(char *arg)
 		if (fd_used_by_service(i) == FALSE)
 			close(i);
 	}
+#endif
 
 	if (retval == TRUE)
 	{
-		D_("exec()int initng\n");
-		new_argv[0] = i_strdup("/sbin/initng");
-		new_argv[1] = i_strdup("--hot_reload");
+		D_("exec()ing initng\n");
+		new_argv[0] = (char *) "/sbin/initng";
+		new_argv[1] = (char *) "--hot_reload";
 		new_argv[2] = NULL;
 
-		execve("/sbin/initng", new_argv, environ);
+		execve(new_argv[0], new_argv, environ);
 		F_("Failed to reload initng!\n");
 	}
 	else
@@ -216,7 +221,7 @@ static int read_file(const char *filename)
 				while (entry.process[pnr].pipes[p].dir > 0 && p < MAX_PIPES)
 				{
 					int i;
-					pipe_h *op = i_calloc(1, sizeof(pipe_h));
+					pipe_h *op = initng_toolbox_calloc(1, sizeof(pipe_h));
 
 					if (!op)
 					{
@@ -253,7 +258,7 @@ static int read_file(const char *filename)
 
 			while (entry.data[i].opt_type)
 			{
-				d = (s_data *) i_calloc(1, sizeof(s_data));
+				d = (s_data *) initng_toolbox_calloc(1, sizeof(s_data));
 				d->type = initng_service_data_type_find(entry.data[i].type);
 				if (!d->type)
 				{
@@ -270,7 +275,7 @@ static int read_file(const char *filename)
 					case STRINGS:
 					case VARIABLE_STRING:
 					case VARIABLE_STRINGS:
-						d->t.s = i_strdup(entry.data[i].t.s);
+						d->t.s = initng_toolbox_strdup(entry.data[i].t.s);
 						break;
 					case INT:
 					case VARIABLE_INT:
@@ -282,7 +287,7 @@ static int read_file(const char *filename)
 
 				/* copy variable name if present */
 				if (d->type->opt_type > 50)
-					d->vn = i_strdup(entry.data[i].vn);
+					d->vn = initng_toolbox_strdup(entry.data[i].vn);
 
 				list_add(&d->list, &new_entry->data.head.list);
 				i++;
@@ -403,7 +408,7 @@ static int read_file_v13(const char *filename)
 
 				/* for every pipe */
 				{
-					pipe_h *op = i_calloc(1, sizeof(pipe_h));
+					pipe_h *op = initng_toolbox_calloc(1, sizeof(pipe_h));
 
 					if (!op)
 					{
@@ -436,7 +441,7 @@ static int read_file_v13(const char *filename)
 
 			while (entry.data[i].opt_type)
 			{
-				d = (s_data *) i_calloc(1, sizeof(s_data));
+				d = (s_data *) initng_toolbox_calloc(1, sizeof(s_data));
 				d->type = initng_service_data_type_find(entry.data[i].type);
 				if (!d->type)
 				{
@@ -453,7 +458,7 @@ static int read_file_v13(const char *filename)
 					case STRINGS:
 					case VARIABLE_STRING:
 					case VARIABLE_STRINGS:
-						d->t.s = i_strdup(entry.data[i].t.s);
+						d->t.s = initng_toolbox_strdup(entry.data[i].t.s);
 						break;
 					case INT:
 					case VARIABLE_INT:

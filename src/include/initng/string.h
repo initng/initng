@@ -17,8 +17,8 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef INITNG_STRING_TOOLS_H
-#define INITNG_STRING_TOOLS_H
+#ifndef INITNG_STRING_H
+#define INITNG_STRING_H
 
 
 /*
@@ -61,26 +61,26 @@
 	(s)++; \
     while ((s)[0] == ' ' || (s)[0] == '\t') (s)++;
 
-int st_cmp(char **string, const char *to_cmp);
-char *st_dup_next_word(const char **string);
-char *st_dup_line(char **string);
+int initng_string_cmp(char **string, const char *to_cmp);
+char *initng_string_dup_next_word(const char **string);
+char *initng_string_dup_line(char **string);
 
 
-const char *st_strip_path(const char *string);
-int st_strip_end(char **string);
-char *st_get_path(const char *string);
+const char *initng_string_basename(const char *string);
+int initng_string_strip_end(char **string);
+char *initng_string_dirname(const char *string);
 
-void st_replace(char * dest, char * str, const char * n, const char * r);
+void initng_string_replace(char * dest, char * str, const char * n, const char * r);
 
 /* to use with split_delim */
 #define WHITESPACE " \t\n\r\v"
-char **split_delim(const char *string, const char *delim, size_t * argc, int ofs);
-void split_delim_free(char **strs);
+char **initng_string_split_delim(const char *string, const char *delim, size_t * argc, int ofs);
+void initng_string_split_delim_free(char **strs);
 
 
 /* pattern searching */
-int service_match(const char *string, const char *pattern);
-int match_in_service(const char *string, const char *pattern);
+int initng_string_match(const char *string, const char *pattern);
+int initng_string_match_in_service(const char *string, const char *pattern);
 
 /*
  * mprintf, a sprintf clone that automaticly mallocs the string
@@ -88,6 +88,6 @@ int match_in_service(const char *string, const char *pattern);
  */
 int mprintf(char **p, const char *format, ...);
 
-void fix_escapes(char * str);
+void initng_string_fix_escapes(char * str);
 
-#endif /* INITNG_STRING_TOOLS_H */
+#endif /* INITNG_STRING_H */

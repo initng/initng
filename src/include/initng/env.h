@@ -23,10 +23,8 @@
 #include <initng/misc.h>
 #include <initng/active_db.h>
 
-char *fix_redefined_variable(const char *name, const char *oldval,
-			     const char *newdef);
-char **new_environ(active_db_h * s);
-void free_environ(char **tf);
-int is_same_env_var(char *var1, char *var2);
+char **initng_env_new(active_db_h * s);
+void initng_env_free(char **tf);
+int initng_env_is_same_env_var(char *var1, char *var2);
 
 #endif /* INITNG_ENV_VARIABLE_H */

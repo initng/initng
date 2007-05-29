@@ -145,7 +145,7 @@ static void handle_killed(s_event * event)
 
 	data = event->data;
 
-	buffert = i_calloc(180 + strlen(data->service->name) +
+	buffert = initng_toolbox_calloc(180 + strlen(data->service->name) +
 			   strlen(data->service->current_state->state_name) +
 			   strlen(data->process->pt->name), sizeof(char));
 
@@ -271,7 +271,7 @@ void event_acceptor(f_module_h * from, e_fdw what)
 
 	/* send protocol info */
 	{
-		string = i_calloc(70 + strlen(INITNG_VERSION), sizeof(char));
+		string = initng_toolbox_calloc(70 + strlen(INITNG_VERSION), sizeof(char));
 
 		/* Make a string ready for sending */
 		len = sprintf(string,
@@ -290,14 +290,14 @@ void event_acceptor(f_module_h * from, e_fdw what)
 	{
 		if (g.runlevel)
 		{
-			string = i_calloc(100 + strlen(g.runlevel), sizeof(char));
+			string = initng_toolbox_calloc(100 + strlen(g.runlevel), sizeof(char));
 			len = sprintf(string,
 						  "<event type=\"initial_system_state\" system_state=\"%i\" runlevel=\"%s\" />\n",
 						  g.sys_state, g.runlevel);
 		}
 		else
 		{
-			string = i_calloc(100, sizeof(char));
+			string = initng_toolbox_calloc(100, sizeof(char));
 			len = sprintf(string,
 						  "<event type=\"initial_system_state\" system_state=\"%i\" runlevel=\"\" />\n",
 						  g.sys_state);
@@ -316,7 +316,7 @@ void event_acceptor(f_module_h * from, e_fdw what)
 
 		while_active_db(service)
 		{
-			string = i_realloc(string, (160 + strlen(service->name) +
+			string = initng_toolbox_realloc(string, (160 + strlen(service->name) +
 										strlen(service->current_state->
 											   state_name) +
 										strlen(service->type->name)) *
@@ -342,7 +342,7 @@ void event_acceptor(f_module_h * from, e_fdw what)
 
 	/* tell client initialization is finished */
 	{
-		string = i_calloc(50, sizeof(char));
+		string = initng_toolbox_calloc(50, sizeof(char));
 		len = sprintf(string, "<event type=\"initial_state_finished\" />\n");
 
 		/* send the init string to this socket */
@@ -509,7 +509,7 @@ static void astatus_change(s_event * event)
 
 	service = event->data;
 
-	buffert = i_calloc(180 + strlen(service->name) +
+	buffert = initng_toolbox_calloc(180 + strlen(service->name) +
 			   strlen(service->current_state->state_name) +
 			   strlen(service->type->name), sizeof(char));
 
@@ -547,7 +547,7 @@ static void astatus_change(s_event * event)
 static void system_state_change(s_event * event)
 {
 	e_is * state;
-	char *buffert = i_calloc(90 + strlen(g.runlevel), sizeof(char));
+	char *buffert = initng_toolbox_calloc(90 + strlen(g.runlevel), sizeof(char));
 	int len;
 
 	assert(event->event_type == &EVENT_SYSTEM_CHANGE);
@@ -575,7 +575,7 @@ static void system_pipe_watchers(s_event * event)
 
 	data = event->data;
 
-	buffert = i_calloc(100 + strlen(data->service->name) +
+	buffert = initng_toolbox_calloc(100 + strlen(data->service->name) +
 			   strlen(data->process->pt->name) + strlen(data->buffer_pos),
 			   sizeof(char));
 
@@ -603,7 +603,7 @@ static void print_error(s_event * event)
 	data = event->data;
 
 	size = 256;
-	msg = i_calloc(1, size);
+	msg = initng_toolbox_calloc(1, size);
 	len = vsnprintf(msg, size, data->format, data->arg);
 	while (len < 0 || len >= size)
 	{
@@ -612,11 +612,11 @@ static void print_error(s_event * event)
 		   value doesn't, apparently. (See man page for gory details.) */
 		size = (len < 0 ? size * 2 : len + 1);
 		free(msg);
-		msg = i_calloc(1, size);
+		msg = initng_toolbox_calloc(1, size);
 		len = vsnprintf(msg, size, data->format, data->arg);
 	}
 
-	buffert = i_calloc(100 + len + strlen(data->file) + strlen(data->func), sizeof(char));
+	buffert = initng_toolbox_calloc(100 + len + strlen(data->file) + strlen(data->func), sizeof(char));
 
 	len = sprintf(buffert,
 			  "<event type=\"err_msg\" mt=\"%i\" file=\"%s\" func=\"%s\" line=\"%i\">%s</event>\n",

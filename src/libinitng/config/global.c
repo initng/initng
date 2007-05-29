@@ -53,12 +53,12 @@ void initng_config_global_new(int argc, char *argv[], char *env[])
 	 */
 	g.Argc = argc;
 	g.Argv0 = argv[0];
-	g.Argv = (char **) i_calloc(argc + 1, sizeof(char *));
+	g.Argv = (char **) initng_toolbox_calloc(argc + 1, sizeof(char *));
 	assert(g.Argv);
 
 	for (i = 0; i < argc; i++)
 	{
-		g.Argv[i] = i_strdup(argv[i]);
+		g.Argv[i] = initng_toolbox_strdup(argv[i]);
 		assert(g.Argv[i]);
 	}
 	g.Argv[argc] = NULL;
@@ -113,7 +113,7 @@ void initng_config_global_new(int argc, char *argv[], char *env[])
 	/* Add static stats to g.states */
 	initng_static_states_register_defaults();
 	/* Add static stypes */
-	initng_service_register_static_stypes();
+	initng_static_stypes_register_defaults();
 	/* Add static event types */
 	initng_register_static_event_types();
 

@@ -1,8 +1,7 @@
-SUBDIRS(event config service)
+SUBDIRS(event config service module)
 
 SET(headers
 	misc.h
-	module.h
 	plugin.h
 	system_states.h
 	list.h
@@ -20,7 +19,6 @@ SET(headers
 	interrupt.h
 	is_state.h
 	kill.h
-	load_module.h
 	main.h
 	io.h
 	plugin_callers.h

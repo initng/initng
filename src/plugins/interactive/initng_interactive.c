@@ -132,7 +132,7 @@ int module_init(int api_version)
 		}
 
 	active = FALSE;
-	initng_unload_module_named("interactive");
+	initng_module_unload_named("interactive");
 	return (TRUE);
 }
 
@@ -142,8 +142,8 @@ void module_unload(void)
 	if (active == TRUE)
 	{
 		initng_event_hook_unregister(&EVENT_START_DEP_MET,
-									  &interactive_STARTING);
+					     &interactive_STARTING);
 		initng_event_hook_unregister(&EVENT_STOP_DEP_MET,
-									  &interactive_STOP_MARKED);
+					     &interactive_STOP_MARKED);
 	}
 }

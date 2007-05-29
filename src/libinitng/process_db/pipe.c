@@ -33,9 +33,9 @@
  * This function creates a new pipe, and creates a new
  * pipe struct entry.
  */
-pipe_h *pipe_new(e_dir dir)
+pipe_h *initng_process_db_pipe_new(e_dir dir)
 {
-	pipe_h *pipe_struct = i_calloc(1, sizeof(pipe_h));
+	pipe_h *pipe_struct = initng_toolbox_calloc(1, sizeof(pipe_h));
 
 	if (!pipe_struct)
 		return (NULL);

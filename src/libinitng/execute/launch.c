@@ -33,7 +33,7 @@
 
 
 int initng_execute_launch(active_db_h * service, ptype_h * type,
-						  const char *exec_name)
+			  const char *exec_name)
 {
 	process_h *process = NULL;
 	int ret = 0;

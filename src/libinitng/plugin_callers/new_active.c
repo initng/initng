@@ -30,7 +30,7 @@
 #include <initng.h>
 
 
-active_db_h *initng_plugin_create_new_active(const char *name)
+active_db_h *initng_plugin_active_new(const char *name)
 {
 	s_event event;
 

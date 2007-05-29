@@ -32,13 +32,6 @@
 #include <stdio.h>
 #include <sys/klog.h>
 #include <errno.h>
-#ifdef SELINUX
-#include <selinux/selinux.h>
-#include <selinux/get_context_list.h>
-#endif
-#ifdef HAVE_COREDUMPER
-#include <google/coredumper.h>
-#endif
 
 #include "local.h"
 
@@ -100,7 +93,7 @@ void initng_main_when_out(void)
 		case THEN_REBOOT:
 		case THEN_HALT:
 		case THEN_POWEROFF:
-			initng_hard(g.when_out);
+			hard(g.when_out);
 			break;
 	}
 

@@ -253,20 +253,20 @@ static char *cmd_print_uptime(char *arg)
 
 	if (!arg)
 	{
-		return (i_strdup("Please tell me what service to get up-time from."));
+		return (initng_toolbox_strdup("Please tell me what service to get up-time from."));
 	}
 
 	apt = initng_active_db_find_in_name(arg);
 	if (!apt)
 	{
-		string = i_calloc(35 + strlen(arg), sizeof(char));
+		string = initng_toolbox_calloc(35 + strlen(arg), sizeof(char));
 		sprintf(string, "Service \"%s\" is not found!", arg);
 		return (string);
 	}
 
 	gettimeofday(&now, NULL);
 	{
-		string = i_calloc(50, sizeof(char));
+		string = initng_toolbox_calloc(50, sizeof(char));
 		sprintf(string, "Up-time is %ims.\n",
 				MS_DIFF(now, apt->time_current_state));
 		return (string);
@@ -301,7 +301,7 @@ static char *cmd_print_modules(char *arg)
 {
 	m_h *mod = NULL;
 	size_t string_len = 20;
-	char *string = i_calloc(string_len, sizeof(char));
+	char *string = initng_toolbox_calloc(string_len, sizeof(char));
 
 	(void) arg;
 
@@ -313,7 +313,7 @@ static char *cmd_print_modules(char *arg)
 		/* Increase buffer for adding */
 		string_len += (strlen(mod->module_name) +
 					   strlen(mod->module_filename) + 40);
-		string = i_realloc(string, string_len * sizeof(char));
+		string = initng_toolbox_realloc(string, string_len * sizeof(char));
 		strcat(string, "  * ");
 		strcat(string, mod->module_name);
 
@@ -330,7 +330,7 @@ static char *cmd_print_modules(char *arg)
 
 	/* ok, the string lengh is probably a lot bigger, resize it right */
 	string_len = strlen(string) + 1;
-	string = i_realloc(string, string_len * sizeof(char));
+	string = initng_toolbox_realloc(string, string_len * sizeof(char));
 
 	return (string);
 }
@@ -341,7 +341,7 @@ static int cmd_load_module(char *arg)
 		return (FALSE);
 
 	/* load the module */
-	if (initng_load_module(arg) == NULL)
+	if (initng_module_load(arg) == NULL)
 		return (FALSE);
 
 	return (TRUE);
@@ -372,7 +372,7 @@ static char *cmd_get_depends_on(char *arg)
 	on = initng_active_db_find_in_name(arg);
 
 	if (!on)
-		return (i_strdup("Did not find service."));
+		return (initng_toolbox_strdup("Did not find service."));
 
 	mprintf(&string, "The \"%s\" depends on:\n", on->name);
 
@@ -400,7 +400,7 @@ static char *cmd_get_depends_on_deep(char *arg)
 	on = initng_active_db_find_in_name(arg);
 
 	if (!on)
-		return (i_strdup("Did not find service."));
+		return (initng_toolbox_strdup("Did not find service."));
 
 	mprintf(&string, "The \"%s\" depends on:\n", on->name);
 
@@ -427,7 +427,7 @@ static char *cmd_get_depends_off(char *arg)
 
 	on = initng_active_db_find_in_name(arg);
 	if (!on)
-		return (i_strdup("Did not find service."));
+		return (initng_toolbox_strdup("Did not find service."));
 
 	mprintf(&string, "The services that depends on \"%s\":\n", on->name);
 
@@ -455,7 +455,7 @@ static char *cmd_get_depends_off_deep(char *arg)
 	on = initng_active_db_find_in_name(arg);
 
 	if (!on)
-		return (i_strdup("Did not find service."));
+		return (initng_toolbox_strdup("Did not find service."));
 
 	mprintf(&string, "The the services that depends on \"%s\":\n", on->name);
 
@@ -484,7 +484,7 @@ static int cmd_new_init(char *arg)
 		return (FALSE);
 
 	new_i = strdup(arg);
-	g.new_init = split_delim(new_i, WHITESPACE, &i, 0);
+	g.new_init = initng_string_split_delim(new_i, WHITESPACE, &i, 0);
 	g.when_out = THEN_NEW_INIT;
 
 	initng_handler_stop_all();
@@ -518,7 +518,7 @@ static int cmd_run(char *arg)
 	runtype++;
 
 	/* copy serv_name so we can put a '\0' to mark end */
-	serv_name = i_strndup(arg, runtype - arg - 1);
+	serv_name = initng_toolbox_strndup(arg, runtype - arg - 1);
 
 	service = initng_active_db_find_by_name(serv_name);
 	if (!service)

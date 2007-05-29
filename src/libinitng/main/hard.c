@@ -32,17 +32,10 @@
 #include <stdio.h>
 #include <sys/klog.h>
 #include <errno.h>
-#ifdef SELINUX
-#include <selinux/selinux.h>
-#include <selinux/get_context_list.h>
-#endif
-#ifdef HAVE_COREDUMPER
-#include <google/coredumper.h>
-#endif
 
 #include "local.h"
 
-void initng_hard(h_then t)
+void hard(h_then t)
 {
 #ifdef CHECK_RO
 	FILE *test;
@@ -76,7 +69,7 @@ void initng_hard(h_then t)
 		return;
 
 	/* unload all modules (plugins) found */
-	initng_unload_module_unload_all();
+	initng_module_unload_all();
 
 	/* make sure all fds but stdin, stdout, stderr is closed */
 	for (i = 3; i <= 1013; i++)
@@ -102,7 +95,7 @@ void initng_hard(h_then t)
 	{
 		fclose(test);
 		unlink("/initng_write_testfile");
-		F_("/ IS NOT REMOUNTED READ-ONLY, WONT REBOOT/HALT BECAUSE THE FILE SYSTEM CAN BREAK!\n");
+		F_("/ IS NOT REMOUNTED READ-ONLY, WON'T REBOOT/HALT BECAUSE THE FILE SYSTEM CAN BREAK!\n");
 		return;
 	}
 

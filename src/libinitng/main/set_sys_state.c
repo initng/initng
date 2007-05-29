@@ -32,13 +32,6 @@
 #include <stdio.h>
 #include <sys/klog.h>
 #include <errno.h>
-#ifdef SELINUX
-#include <selinux/selinux.h>
-#include <selinux/get_context_list.h>
-#endif
-#ifdef HAVE_COREDUMPER
-#include <google/coredumper.h>
-#endif
 
 
 /* this function sets g.sys_state, and call plug-ins that listen on its change */
@@ -56,6 +49,6 @@ void initng_main_set_sys_state(h_sys_state state)
 	 * be executed when system state change occurs.
 	 */
 
-	initng_plugin_callers_load_module_system_changed(state);
+	initng_plugin_callers_system_changed(state);
 	return;
 }

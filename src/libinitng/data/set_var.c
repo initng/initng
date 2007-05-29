@@ -59,7 +59,7 @@ void initng_data_set_var(s_entry * type, char *vn, data_head * d)
 		return;
 
 	/* allocate the entry */
-	current = (s_data *) i_calloc(1, sizeof(s_data));
+	current = (s_data *) initng_toolbox_calloc(1, sizeof(s_data));
 	current->type = type;
 	current->vn = vn;
 

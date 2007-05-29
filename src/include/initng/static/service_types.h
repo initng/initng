@@ -27,6 +27,6 @@
 
 extern stype_h TYPE_CONTAINER;
 
-void initng_service_register_static_stypes(void);
+void initng_static_stypes_register_defaults(void);
 
 #endif /* INITNG_STATIC_SERVICE_TYPES_H */

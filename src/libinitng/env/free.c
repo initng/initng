@@ -37,7 +37,7 @@
 /* this frees an environment variable - not to be used on the output of
  * new_environ!
  */
-void free_environ(char **tf)
+void initng_env_free(char **tf)
 {
 	int i = 0;
 

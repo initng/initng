@@ -104,7 +104,7 @@ static char *cmd_print_fds(char *arg)
 		while_active_db(currentA)
 		{
 			/* if argument was set, only print matching */
-			if (!arg || service_match(currentA->name, arg))
+			if (!arg || initng_string_match(currentA->name, arg))
 			{
 				/* for every process */
 				currentP = NULL;

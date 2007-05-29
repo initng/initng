@@ -64,7 +64,7 @@ void initng_data_set_int_var(s_entry * type, char *vn, data_head * d, int value)
 	}
 
 	/* else create a new one */
-	current = (s_data *) i_calloc(1, sizeof(s_data));
+	current = (s_data *) initng_toolbox_calloc(1, sizeof(s_data));
 	current->type = type;
 	current->t.i = value;
 	current->vn = vn;

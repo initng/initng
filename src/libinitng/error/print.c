@@ -31,7 +31,7 @@
 
 int lock_error_printing = 0;
 
-static void initng_failsafe_print_error(e_mt mt, const char *file, const char *func,
+static void failsafe_print_error(e_mt mt, const char *file, const char *func,
                                  int line, const char *format, va_list arg)
 {
 	struct tm *ts;
@@ -115,9 +115,7 @@ int initng_error_print(e_mt mt, const char *file, const char *func, int line,
 		va_list pass;
 
 		va_copy(pass, arg);
-
-		initng_failsafe_print_error(mt, file, func, line, format, pass);
-
+		failsafe_print_error(mt, file, func, line, format, pass);
 		va_end(pass);
 	}
 
@@ -165,7 +163,7 @@ int initng_error_verbose_add(const char *string)
 		return (FALSE);
 	}
 
-	g.verbose_this[i] = i_strdup(string);
+	g.verbose_this[i] = initng_toolbox_strdup(string);
 
 	initng_verbose_print();
 
@@ -239,10 +237,6 @@ void initng_error_print_func(const char *file, const char *func)
 
 	lock_error_printing = 0;
 }
-
-
-
-
 
 
 int initng_error_print_debug(const char *file, const char *func, int line,

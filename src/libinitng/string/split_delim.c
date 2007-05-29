@@ -45,7 +45,7 @@
  * @got_it_working powerj
  * @improved_it ismael
  */
-char **split_delim(const char *string, const char *delim, size_t * argc, int ofs)
+char **initng_string_split_delim(const char *string, const char *delim, size_t * argc, int ofs)
 {
 	int len;
 	char **array;
@@ -54,7 +54,7 @@ char **split_delim(const char *string, const char *delim, size_t * argc, int ofs
 	if (!string)
 		return (NULL);
 
-	array = (char **) i_calloc(1, sizeof(char *));
+	array = (char **) initng_toolbox_calloc(1, sizeof(char *));
 
 	while (string[ofs] != '\0')
 	{
@@ -62,7 +62,7 @@ char **split_delim(const char *string, const char *delim, size_t * argc, int ofs
 		if (len != 0)
 		{
 			i++;
-			array = (char **) i_realloc(array, sizeof(char *) * (i + 1));
+			array = (char **) initng_toolbox_realloc(array, sizeof(char *) * (i + 1));
 			array[i - 1] = strndup(string + ofs, len);
 		}
 		else
@@ -79,7 +79,7 @@ char **split_delim(const char *string, const char *delim, size_t * argc, int ofs
 	return array;
 }
 
-void split_delim_free(char **strs)
+void initng_string_split_delim_free(char **strs)
 {
 	int i;
 

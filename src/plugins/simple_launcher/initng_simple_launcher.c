@@ -43,22 +43,10 @@ s_entry EXEC = { "exec", VARIABLE_STRING, NULL,
 s_entry EXECS = { "exec_path", VARIABLE_STRINGS, NULL,
 	"The path for one or more executables."
 };
+
 s_entry EXEC_ARGS = { "exec_args", VARIABLE_STRING, NULL,
 	"The arguments for the executable."
 };
-
-/*#ifdef DEBUG
-   static void D_argv(const char *o, char **argv)
-   {
-   int i;
-
-   if (!argv)
-   return;
-
-   for (i = 0; argv[i]; i++)
-   D_("%s[%-2i]: %s\n", o, i, argv[i]);
-   }
-   #endif */
 
 /*
  * Searches for exec in PATH.
@@ -105,18 +93,18 @@ static char *expand_exec(char *exec)
 	if (!PATH)
 	{
 		D_("No $PATH found, using default path\n");
-		PATH = i_strdup("/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin");
+		PATH = initng_toolbox_strdup("/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin");
 	}
 	else
 	{
 		/* PATH will later be changed, so we have to use a duplicate */
-		PATH = i_strdup(PATH);
+		PATH = initng_toolbox_strdup(PATH);
 	}
 
 	D_("PATH determined to be %s\n", PATH);
 
 	/* split path by ':' char */
-	path_argv = split_delim(PATH, ":", &path_c, 0);
+	path_argv = initng_string_split_delim(PATH, ":", &path_c, 0);
 
 	/* walk the list of entries */
 	for (i = 0; path_argv[i]; i++)
@@ -125,7 +113,7 @@ static char *expand_exec(char *exec)
 		len = strlen(path_argv[i]);
 
 		/* what does this do? */
-		filename = (char *) i_calloc(exec_len + len + 2, sizeof(char));
+		filename = (char *) initng_toolbox_calloc(exec_len + len + 2, sizeof(char));
 		strcpy(filename, path_argv[i]);
 		if (filename[len - 1] != '/')
 			strcat(filename, "/");
@@ -145,7 +133,7 @@ static char *expand_exec(char *exec)
 
 	/* free */
 	free(PATH);
-	split_delim_free(path_argv);
+	initng_string_split_delim_free(path_argv);
 	PATH = NULL;
 	path_argv = NULL;
 
@@ -177,7 +165,7 @@ static int simple_exec_fork(process_h * process_to_exec, active_db_h * s,
 #endif
 
 		/* FINALLY EXECUTE *//* execve replaces the running process */
-		execve(argv[0], argv, new_environ(s));
+		execve(argv[0], argv, initng_env_new(s));
 
 		/* Will never get here if execve succeeded */
 		F_("ERROR!\n");
@@ -212,25 +200,25 @@ static int simple_exec_try(const char * exec, active_db_h * service,
 	exec_args = (char *) get_string_var(&EXEC_ARGS, process->pt->name, service);
 	if (exec_args)
 	{
-		fix_escapes(exec_args);
+		initng_string_fix_escapes(exec_args);
 
 		/* split the string, with entries to an array of strings */
-		argv = split_delim(exec_args, WHITESPACE, &argc, 1);
+		argv = initng_string_split_delim(exec_args, WHITESPACE, &argc, 1);
 
 		/* make sure it succeeded */
 		if (!argv || !argv[0])
 		{
 			if (argv)
-				split_delim_free(argv);
+				initng_string_split_delim_free(argv);
 
-			F_("split_delim exec_args returns NULL.\n");
+			F_("initng_string_split_delim exec_args returns NULL.\n");
 			return (FALSE);
 		}
 	}
 	else
 	{
 		/* we need a empty argv anyway */
-		argv = (char **) i_calloc(2, sizeof(char *));
+		argv = (char **) initng_toolbox_calloc(2, sizeof(char *));
 		argv[1] = NULL;
 		argc = 0;
 	}
@@ -240,7 +228,7 @@ static int simple_exec_try(const char * exec, active_db_h * service,
 	ret = simple_exec_fork(process, service, argc, argv);
 
 	if(argv)
-		split_delim_free(argv);
+		initng_string_split_delim_free(argv);
 
 	return (ret);
 }
@@ -289,18 +277,18 @@ static int simple_run(active_db_h * service, process_h * process)
 	if (!exec)
 		return (FALSE);
 
-	fix_escapes(exec);
+	initng_string_fix_escapes(exec);
 
 	/* argv-entries are pointer to exec_t[x] */
-	argv = split_delim(exec, WHITESPACE, &argc, 0);
+	argv = initng_string_split_delim(exec, WHITESPACE, &argc, 0);
 
 	/* make sure we got something from the split */
 	if (!argv || !argv[0])
 	{
 		if (argv)
-			split_delim_free(argv);
+			initng_string_split_delim_free(argv);
 
-		D_("split_delim on exec returns NULL.\n");
+		D_("initng_string_split_delim on exec returns NULL.\n");
 		return (FALSE);
 	}
 
@@ -312,7 +300,7 @@ static int simple_run(active_db_h * service, process_h * process)
 		{
 			F_("SERVICE: %s %s -- %s was not found in search path.\n",
 			   service->name, process->pt->name, argv[0]);
-			split_delim_free(argv);
+			initng_string_split_delim_free(argv);
 			argv = NULL;
 			return (FALSE);
 		}
@@ -335,7 +323,7 @@ static int simple_run(active_db_h * service, process_h * process)
 	argv0 = NULL;
 
 	// Later free the big argv array
-	split_delim_free(argv);
+	initng_string_split_delim_free(argv);
 	argv = NULL;
 
 	/* return result */

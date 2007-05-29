@@ -29,7 +29,7 @@
  * is depending on service
  * returns TRUE if any service depends * service
  */
-int initng_any_depends_on(active_db_h * service)
+int initng_depend_any_depends_on(active_db_h * service)
 {
 	active_db_h *current = NULL;
 

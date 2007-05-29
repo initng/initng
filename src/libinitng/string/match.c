@@ -35,7 +35,7 @@
  * it will also add the pointer of string, the value, to forward the
  * pointer to next word.
  */
-int st_cmp(char **string, const char *to_cmp)
+int initng_string_cmp(char **string, const char *to_cmp)
 {
 	int chars = 0;
 
@@ -73,7 +73,7 @@ int st_cmp(char **string, const char *to_cmp)
  // test/abc/def     test/*/*           TRUE
  // daemon/test      daemon/*/*         FALSE
 
-int service_match(const char *string, const char *pattern)
+int initng_string_match(const char *string, const char *pattern)
 {
 	int stringslash = 0;
 	int patternslash = 0;
@@ -121,7 +121,7 @@ int service_match(const char *string, const char *pattern)
  * This match is simply dont that we take pattern, removes any leading
  * '*' or '?', and to a strstr on that string.
  */
-int match_in_service(const char *string, const char *pattern)
+int initng_string_match_in_service(const char *string, const char *pattern)
 {
 	char *copy;
 	char *tmp;
@@ -146,7 +146,7 @@ int match_in_service(const char *string, const char *pattern)
 		return (FALSE);
 
 	/* now copy pattern, and remove ending '*' && '?' */
-	copy = i_strdup(pattern);
+	copy = initng_toolbox_strdup(pattern);
 	assert(copy);
 
 	/* Trunk for any '*' or '?' found */

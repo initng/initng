@@ -93,7 +93,7 @@ static void set_found(const char *name)
 	{
 		if (!devs[i].dev)
 		{
-			devs[i].dev = i_strdup(name);
+			devs[i].dev = initng_toolbox_strdup(name);
 			devs[i].status = 1;
 			return;
 		}

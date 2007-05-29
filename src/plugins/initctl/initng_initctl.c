@@ -54,7 +54,7 @@ f_module_h pipe_fd = { &parse_control_input, FDW_READ, -1 };	/* /dev/initctl */
 
 struct stat st, st2;
 
-#define PIPE_FD    10						/* Fileno of initfifo. */
+#define PIPE_FD    10				/* Fileno of initfifo. */
 
 static void pipe_fd_handler(s_event * event)
 {
@@ -366,8 +366,8 @@ int module_init(int api_version)
 
 	if (g.i_am != I_AM_INIT)
 	{
-		initng_unload_module_named("initctl");
-		return (TRUE);						/* this is not a failure */
+		initng_module_unload_named("initctl");
+		return (TRUE);			/* this is not a failure */
 	}
 
 	utmp_stored = FALSE;

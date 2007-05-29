@@ -42,7 +42,7 @@ void initng_data_copy_all(data_head * from, data_head * to)
 			continue;
 
 		/* allocate the new one */
-		tmp = (s_data *) i_calloc(1, sizeof(s_data));
+		tmp = (s_data *) initng_toolbox_calloc(1, sizeof(s_data));
 
 		/* copy */
 		memcpy(tmp, current, sizeof(s_data));
@@ -55,15 +55,14 @@ void initng_data_copy_all(data_head * from, data_head * to)
 			case VARIABLE_STRING:
 			case VARIABLE_STRINGS:
 				if (current->t.s)
-					tmp->t.s = i_strdup(current->t.s);
-				break;
+					tmp->t.s = initng_toolbox_strdup(current->t.s);
 			default:
 				break;
 		}
 
 		/* copy variable name */
 		if (current->vn)
-			tmp->vn = i_strdup(current->vn);
+			tmp->vn = initng_toolbox_strdup(current->vn);
 		else
 			tmp->vn = NULL;
 

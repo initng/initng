@@ -97,10 +97,10 @@ int main(int argc, char *argv[], char *env[])
 
 	D_("MAIN_LOAD_MODULES\n");
 	/* Load modules, if fails - launch sulogin and then try again */
-	if (!initng_load_module_load_all(INITNG_PLUGIN_DIR)
-		&& !initng_load_module_load_all("/lib/initng")
-		&& !initng_load_module_load_all("/lib32/initng")
-		&& !initng_load_module_load_all("/lib64/initng"))
+	if (!initng_module_load_all(INITNG_PLUGIN_DIR)
+		&& !initng_module_load_all("/lib/initng")
+		&& !initng_module_load_all("/lib32/initng")
+		&& !initng_module_load_all("/lib64/initng"))
 	{
 		/* if we can't load modules, revert to single-user login */
 		initng_main_su_login();
@@ -109,7 +109,7 @@ int main(int argc, char *argv[], char *env[])
 	if (g.hot_reload)
 	{
 		/* Mark service as up */
-		retval = initng_plugin_callers_reload_active_db();
+		retval = initng_plugin_callers_active_db_reload();
 		if (retval != TRUE)
 		{
 			if (retval == FALSE)
@@ -222,7 +222,7 @@ int main(int argc, char *argv[], char *env[])
 		{
 			g.modules_to_unload = FALSE;
 			D_("There is modules to unload!\n");
-			initng_unload_module_unload_marked();
+			initng_module_unload_marked();
 		}
 
 

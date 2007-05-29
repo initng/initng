@@ -35,7 +35,7 @@
 /*
  * Invoke callback, clean up module.
  */
-static void initng_unload_module(m_h * module)
+static void unload(m_h * module)
 {
 	assert(module != NULL);
 
@@ -43,22 +43,19 @@ static void initng_unload_module(m_h * module)
 	(*module->module_unload) ();
 
 	/* close and free the module entry in db */
-	initng_load_module_close_and_free(module);
+	initng_module_close_and_free(module);
 }
 
 /* XXX: more information! */
-int initng_unload_module_named(const char *name)
+int initng_module_unload_named(const char *name)
 {
 	m_h *m = NULL;
 
 	assert(name != NULL);
 
-	D_("initng_load_module_named(%s);\n", name);
+	D_("initng_module_unload_named(%s);\n", name);
 
-
-
-
-	if (!initng_load_module_is_loaded(name))
+	if (!module_is_loaded(name))
 	{
 		F_("Not unloading module \"%s\", it is not loaded\n", name);
 		return FALSE;
@@ -86,25 +83,25 @@ int initng_unload_module_named(const char *name)
 /*
  * We can simply unload modules in order, because
  */
-void initng_unload_module_unload_all(void)
+void initng_module_unload_all(void)
 {
 	m_h *m, *safe = NULL;
 
 	while_module_db_safe(m, safe)
 	{
-		initng_unload_module(m);
+		unload(m);
 	}
 
 	/* reset the list, to make sure its empty */
 	INIT_LIST_HEAD(&g.module_db.list);
 
-	D_("initng_load_module_close_all()\n");
+	D_("initng_module_close_all()\n");
 }
 
 /*
  * We can simply unload marked modules in order.
  */
-void initng_unload_module_unload_marked(void)
+void initng_module_unload_marked(void)
 {
 	m_h *m, *safe = NULL;
 
@@ -116,7 +113,7 @@ void initng_unload_module_unload_marked(void)
 	{
 		if (m->marked_for_removal == TRUE)
 		{
-			if (initng_load_module_is_needed(m->module_name))
+			if (module_is_needed(m->module_name))
 			{
 				F_("Not unloading module \"%s\", it is needed\n",
 				   m->module_name);
@@ -125,7 +122,7 @@ void initng_unload_module_unload_marked(void)
 			}
 			D_("now unloading marked module %s.\n", m->module_name);
 
-			initng_unload_module(m);
+			unload(m);
 		}
 	}
 }

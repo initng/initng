@@ -29,7 +29,7 @@
 
 /* in init, a calloc must never fail! */
 /*void *initng_calloc2(size_t nmemb, size_t size, const char *func, int line) */
-void *i_calloc(size_t nmemb, size_t size)
+void *initng_toolbox_calloc(size_t nmemb, size_t size)
 {
 	void *alloced;
 
@@ -44,7 +44,7 @@ void *i_calloc(size_t nmemb, size_t size)
 }
 
 /* in init, a realloc must never fail! */
-void *i_realloc2(void *ptr, size_t size, const char *func, int line)
+void *initng_toolbox_realloc2(void *ptr, size_t size, const char *func, int line)
 {
 	void *alloced;
 
@@ -58,7 +58,7 @@ void *i_realloc2(void *ptr, size_t size, const char *func, int line)
 }
 
 /* in init, a strdup must never fail! */
-char *i_strdup2(const char *s, const char *func, int line)
+char *initng_toolbox_strdup2(const char *s, const char *func, int line)
 {
 	char *alloced;
 
@@ -72,7 +72,7 @@ char *i_strdup2(const char *s, const char *func, int line)
 }
 
 /* in init, a strndup must never fail! */
-char *i_strndup2(const char *s, size_t n, const char *func, int line)
+char *initng_toolbox_strndup2(const char *s, size_t n, const char *func, int line)
 {
 	char *alloced;
 

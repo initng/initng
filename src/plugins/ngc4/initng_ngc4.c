@@ -217,7 +217,7 @@ static void handle_client(int fd)
 	if (header.body_len > 0)
 	{
 		D_("There is a body to read!\n");
-		header_data = i_calloc(1, header.body_len + 1);
+		header_data = initng_toolbox_calloc(1, header.body_len + 1);
 		if (!header_data)
 		{
 			F_("Could not allocate memory for header_data\n");
@@ -238,7 +238,7 @@ static void handle_client(int fd)
 	}
 
 	/* allocate space for the result we will send */
-	result = i_calloc(1, sizeof(result_desc));
+	result = initng_toolbox_calloc(1, sizeof(result_desc));
 	if (!result)
 		return;
 
@@ -808,7 +808,7 @@ static void cmd_help(char *arg, s_payload * payload)
 	int i = 0;
 
 	(void) arg;
-	payload->p = (help_row *) i_calloc(101, sizeof(help_row));
+	payload->p = (help_row *) initng_toolbox_calloc(101, sizeof(help_row));
 	memset(payload->p, 0, sizeof(help_row) * 100);
 
 	list_for_each_entry_prev(current, &local_commands_db.list, list)
@@ -890,7 +890,7 @@ static void cmd_help_all(char *arg, s_payload * payload)
 
 
 	/* allocate space for payload, static malloc for now */
-	payload->p = (help_row *) i_calloc(101, sizeof(help_row));
+	payload->p = (help_row *) initng_toolbox_calloc(101, sizeof(help_row));
 	memset(payload->p, 0, sizeof(help_row) * 100);
 
 	list_for_each_entry_prev(current, &local_commands_db.list, list)
@@ -960,7 +960,7 @@ static void cmd_start(char *arg, s_payload * payload)
 {
 	active_db_h *serv = NULL;
 
-	payload->p = (active_row *) i_calloc(1, sizeof(active_row));
+	payload->p = (active_row *) initng_toolbox_calloc(1, sizeof(active_row));
 	payload->s = sizeof(active_row);
 	memset(payload->p, 0, sizeof(active_row));
 	active_row *row = payload->p;
@@ -1030,7 +1030,7 @@ static void cmd_stop(char *arg, s_payload * payload)
 {
 	active_db_h *serv = NULL;
 
-	payload->p = (active_row *) i_calloc(1, sizeof(active_row));
+	payload->p = (active_row *) initng_toolbox_calloc(1, sizeof(active_row));
 	payload->s = sizeof(active_row);
 	memset(payload->p, 0, sizeof(active_row));
 	active_row *row = payload->p;
@@ -1088,7 +1088,7 @@ static void cmd_options(char *arg, s_payload * payload)
 	if (arg && strlen(arg) > 1)
 	{
 		/* malloc some space for it */
-		payload->p = (option_row *) i_calloc(1, sizeof(option_row));
+		payload->p = (option_row *) initng_toolbox_calloc(1, sizeof(option_row));
 		memset(payload->p, 0, sizeof(option_row));
 		option_row *row = payload->p;
 
@@ -1116,7 +1116,7 @@ static void cmd_options(char *arg, s_payload * payload)
 
 
 	/* malloc some space for it (static for now) */
-	payload->p = (option_row *) i_calloc(101, sizeof(option_row));
+	payload->p = (option_row *) initng_toolbox_calloc(101, sizeof(option_row));
 
 	while_service_data_types(current)
 	{
@@ -1168,7 +1168,7 @@ static void cmd_states(char *arg, s_payload * payload)
 	}
 
 	/* allocate payload */
-	payload->p = (state_row *) i_calloc(no_states, sizeof(state_row));
+	payload->p = (state_row *) initng_toolbox_calloc(no_states, sizeof(state_row));
 	if (!payload->p)
 	{
 		F_("Unable to allocate space for payload!\n");
@@ -1228,7 +1228,7 @@ static void cmd_services(char *arg, s_payload * payload)
 	if (arg && strlen(arg) > 1)
 	{
 		/* malloc some space for it */
-		payload->p = (active_row *) i_calloc(1, sizeof(active_row));
+		payload->p = (active_row *) initng_toolbox_calloc(1, sizeof(active_row));
 		memset(payload->p, 0, sizeof(active_row));
 		active_row *row = payload->p;
 
@@ -1264,7 +1264,7 @@ static void cmd_services(char *arg, s_payload * payload)
 	/* else */
 
 	/* malloc some space for it (static for now) */
-	payload->p = (active_row *) i_calloc(101, sizeof(active_row));
+	payload->p = (active_row *) initng_toolbox_calloc(101, sizeof(active_row));
 	memset(payload->p, 0, sizeof(active_row) * 100);
 	current = NULL;
 	while_active_db(current)
@@ -1314,7 +1314,7 @@ static void cmd_all_services(char *arg, s_payload * payload)
 	active_db_h *current = NULL;
 
 	/* malloc some space for it (static for now) */
-	payload->p = (active_row *) i_calloc(101, sizeof(active_row));
+	payload->p = (active_row *) initng_toolbox_calloc(101, sizeof(active_row));
 	memset(payload->p, 0, sizeof(active_row) * 100);
 	current = NULL;
 	while_active_db(current)
