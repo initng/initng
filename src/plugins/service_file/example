@@ -3,13 +3,16 @@
 setup()
 {
 	# Register new service type, the $SERVICE will be "example" here.
-	ireg service $SERVICE
-	#	iset need = "system/bootmisc"
-
-		iexec start = strange_name_for_start
-		iexec stop
-	# Tell initng this service is done parsing.
-	idone
+	case "$SERVICE" in
+		example)	
+			iregister service
+			iset need = "system/bootmisc"
+			iexec start = strange_name_for_start
+			iexec stop
+			# Tell initng this service is done parsing.
+			idone
+		;;
+	esac
 }
 
 strange_name_for_start()
