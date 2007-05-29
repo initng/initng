@@ -904,7 +904,7 @@ static int parse_new_service_file(s_event * event, char *file)
 
 		new_env[1] = NULL;
 
-		execve(new_argv[0], new_argv, new_env);
+		execve("/sbin/runiscript", new_argv, new_env);
 		_exit(10);
 	}
 

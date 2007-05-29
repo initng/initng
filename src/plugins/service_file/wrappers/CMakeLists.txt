@@ -2,7 +2,7 @@ SET(WRAPPERS
 	default
 	runlevel
 	virtual
-	compat
+	sh
 	gentoo
 )
 
