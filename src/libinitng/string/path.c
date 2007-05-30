@@ -33,7 +33,7 @@
 /* function strips "test/go/th" to "th" */
 const char *initng_string_basename(const char *string)
 {
-	char *ret = NULL;
+	char *ret;
 
 	assert(string);
 
@@ -42,8 +42,7 @@ const char *initng_string_basename(const char *string)
 		return (string);
 
 	/* skip to char after the last '/' */
-	ret++;
-	return (ret);
+	return ++ret;
 }
 
 /* function strips "test/go/th" to "test/go" */

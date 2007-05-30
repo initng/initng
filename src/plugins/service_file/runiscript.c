@@ -120,7 +120,6 @@ int main(int argc, char *argv[])
 		exit(2);
 	}
 
-	/* cut service name from the last '/' found in service path */
 	servname = getenv("SERVICE");
 	if (!servname) {
 		if (!(servname = strrchr(path, '/'))) {
@@ -132,16 +131,37 @@ int main(int argc, char *argv[])
 		setenv("SERVICE", servname, 1);
 	}
 
-	/* NAME=tty1 */
+	/* SERVICE=system/getty/tty1 -> NAME=tty1
+	 * SERVICE=system/getty -> NAME=getty
+	 * SERVICE=system/getty/getty -> NAME=getty_getty
+	 */
 	{
-		char *tmp = strrchr(servname, '/');
+		char *name = NULL;
+		char *pname = NULL;
+		int i;
 
-		if (tmp)
-			tmp++;
-		else
-			tmp = servname;
+		for (i = strlen(servname); i >= 0; i--) {
+			if (servname[i] == '/') {
+				i++;
+				if (name) {
+					pname = &servname[i];
+					break;
+				} else {
+					name = &servname[i];
+				}
+			}
+		}
 
-		setenv("NAME", tmp, 1);
+		if (pname) {
+			i = strlen(name);
+			if (strncmp(pname, name, i) == 0) {
+				name = malloc(i * 2 + 1);
+				strcpy(name, pname);
+				name[i] = '_';
+			}
+		}
+
+		setenv("NAME", name, 1);
 	}
 
 	/* check if command shud forward to a ngc command */
