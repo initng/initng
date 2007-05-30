@@ -57,101 +57,150 @@ static char *cmd_get_depends_off(char *arg);
 static char *cmd_get_depends_off_deep(char *arg);
 static int cmd_new_init(char *arg);
 static int cmd_run(char *arg);
+static int cmd_signal(char *arg);
 
-s_command GET_PID_OF = { 'g', "get_pid_of", INT_COMMAND, ADVANCHED_COMMAND, REQUIRES_OPT,
+s_command GET_PID_OF = {
+	'g', "get_pid_of", INT_COMMAND, ADVANCHED_COMMAND, REQUIRES_OPT,
 	{(void *) &cmd_get_pid_of}, "Get pid of service"
 };
-s_command START_ON_NEW = { 'j', "restart_from", TRUE_OR_FALSE_COMMAND, ADVANCHED_COMMAND,
+
+s_command START_ON_NEW = {
+	'j', "restart_from", TRUE_OR_FALSE_COMMAND, ADVANCHED_COMMAND,
 	REQUIRES_OPT,
 	{(void *) &cmd_start_on_new},
 	"Stop all services, and start from"
 };
-s_command FREE_SERVICE = { 'z', "zap", TRUE_OR_FALSE_COMMAND, STANDARD_COMMAND, USES_OPT,
+
+s_command FREE_SERVICE = {
+	'z', "zap", TRUE_OR_FALSE_COMMAND, STANDARD_COMMAND, USES_OPT,
 	{(void *) &cmd_free_service},
 	"Resets a failed service, so it can be restarted."
 };
-s_command RESTART_SERVICE = { 'r', "restart", TRUE_OR_FALSE_COMMAND, STANDARD_COMMAND,
-	REQUIRES_OPT,
+
+s_command RESTART_SERVICE = {
+	'r', "restart", TRUE_OR_FALSE_COMMAND, STANDARD_COMMAND, REQUIRES_OPT,
 	{(void *) &cmd_restart},
 	"Restart service"
 };
 
-s_command PRINT_UPTIME = { 'T', "time", STRING_COMMAND, ADVANCHED_COMMAND, REQUIRES_OPT,
+s_command PRINT_UPTIME = {
+	'T', "time", STRING_COMMAND, ADVANCHED_COMMAND, REQUIRES_OPT,
 	{(void *) &cmd_print_uptime},
 	"Print uptime"
 };
 
-s_command POWEROFF_INITNG = { '0', "poweroff", TRUE_OR_FALSE_COMMAND, STANDARD_COMMAND, NO_OPT,
+s_command POWEROFF_INITNG = {
+	'0', "poweroff", TRUE_OR_FALSE_COMMAND, STANDARD_COMMAND, NO_OPT,
 	{(void *) &cmd_initng_poweroff},
 	"Power off the computer"
 };
-s_command HALT_INITNG = { '1', "halt", TRUE_OR_FALSE_COMMAND, STANDARD_COMMAND, NO_OPT,
+
+s_command HALT_INITNG = {
+	'1', "halt", TRUE_OR_FALSE_COMMAND, STANDARD_COMMAND, NO_OPT,
 	{(void *) &cmd_initng_halt},
 	"Halt the computer"
 };
-s_command REBOOT_INITNG = { '6', "reboot", TRUE_OR_FALSE_COMMAND, STANDARD_COMMAND, NO_OPT,
+
+s_command REBOOT_INITNG = {
+	'6', "reboot", TRUE_OR_FALSE_COMMAND, STANDARD_COMMAND, NO_OPT,
 	{(void *) &cmd_initng_reboot},
 	"Reboot the computer"
 };
 
 
-s_command PRINT_MODULES = { 'm', "print_plugins", STRING_COMMAND, ADVANCHED_COMMAND, NO_OPT,
+s_command PRINT_MODULES = {
+	'm', "print_plugins", STRING_COMMAND, ADVANCHED_COMMAND, NO_OPT,
 	{(void *) &cmd_print_modules},
 	"Print loaded plugins"
 };
 
-s_command LOAD_MODULE = { 'o', "load_module", TRUE_OR_FALSE_COMMAND, ADVANCHED_COMMAND,
+s_command LOAD_MODULE = {
+	'o', "load_module", TRUE_OR_FALSE_COMMAND, ADVANCHED_COMMAND,
 	REQUIRES_OPT,
 	{(void *) &cmd_load_module},
 	"Load Module"
 };
 
 /* NOT_SAFE_YET TODO
-   s_command UNLOAD_MODULE = { 'w', "unload_module", TRUE_OR_FALSE_COMMAND, ADVANCHED_COMMAND,
+   s_command UNLOAD_MODULE = {
+   'w', "unload_module", TRUE_OR_FALSE_COMMAND, ADVANCHED_COMMAND,
    REQUIRES_OPT,
    {(void *) &cmd_unload_module},
    "UnLoad Module"
    }; */
 
-s_command PERCENT_DONE = { 'n', "done", INT_COMMAND, ADVANCHED_COMMAND, NO_OPT,
+s_command PERCENT_DONE = {
+	'n', "done", INT_COMMAND, ADVANCHED_COMMAND, NO_OPT,
 	{(void *) &cmd_percent_done},
 	"Prints percent of system up"
 };
 
 
-s_command DEPENDS_ON = { 'a', "service_dep_on", STRING_COMMAND, ADVANCHED_COMMAND, REQUIRES_OPT,
+s_command DEPENDS_ON = {
+	'a', "service_dep_on", STRING_COMMAND, ADVANCHED_COMMAND,
+	REQUIRES_OPT,
 	{(void *) &cmd_get_depends_on},
 	"Print what services me depends on"
 };
 
-s_command DEPENDS_ON_DEEP = { 'A', "service_dep_on_deep", STRING_COMMAND, ADVANCHED_COMMAND,
+s_command DEPENDS_ON_DEEP = {
+	'A', "service_dep_on_deep", STRING_COMMAND, ADVANCHED_COMMAND,
 	REQUIRES_OPT,
 	{(void *) &cmd_get_depends_on_deep},
 	"Print what services me depends on deep"
 };
 
-s_command DEPENDS_OFF = { 'b', "service_dep_on_me", STRING_COMMAND, ADVANCHED_COMMAND,
+s_command DEPENDS_OFF = {
+	'b', "service_dep_on_me", STRING_COMMAND, ADVANCHED_COMMAND,
 	REQUIRES_OPT,
 	{(void *) &cmd_get_depends_off},
 	"Print what dependencies that are depending on me"
 };
 
-s_command DEPENDS_OFF_DEEP = { 'B', "service_dep_on_me_deep", STRING_COMMAND, ADVANCHED_COMMAND,
+s_command DEPENDS_OFF_DEEP = {
+	'B', "service_dep_on_me_deep", STRING_COMMAND, ADVANCHED_COMMAND,
 	REQUIRES_OPT,
 	{(void *) &cmd_get_depends_off_deep},
 	"Print what dependencies that are depending on me deep"
 };
 
 
-s_command NEW_INIT = { 'E', "new_init", TRUE_OR_FALSE_COMMAND, HIDDEN_COMMAND, REQUIRES_OPT,
+s_command NEW_INIT = {
+	'E', "new_init", TRUE_OR_FALSE_COMMAND, HIDDEN_COMMAND, REQUIRES_OPT,
 	{(void *) &cmd_new_init},
 	"Stops all services, and when its done, launching a new init."
 };
 
-s_command RUN = { 'U', "run", TRUE_OR_FALSE_COMMAND, ADVANCHED_COMMAND, REQUIRES_OPT,
+s_command RUN = {
+	'U', "run", TRUE_OR_FALSE_COMMAND, ADVANCHED_COMMAND, REQUIRES_OPT,
 	{(void *) &cmd_run},
-	"Simply run an exec with specified name, example ngc --run service/test:start"
+	"Simply run an exec with specified name, example "
+	"ngc --run service/test:start"
 };
+
+s_command SIGNAL = {
+	'l', "signal", TRUE_OR_FALSE_COMMAND, STANDARD_COMMAND, REQUIRES_OPT,
+	{ (void *) &cmd_signal },
+	"Send a signal to the specified service."
+};
+
+
+static int cmd_signal(char *arg)
+{
+	char *sname;
+	int sig;
+	int pid;
+
+	if (!(sname = strrchr(arg, ':')) || (pid = cmd_get_pid_of(arg)) < 2)
+		return FALSE;
+
+	sig = strtol(++sname, NULL, 0);
+
+	if (sig < 1 || kill(pid, sig))
+		return FALSE;
+
+	return TRUE;
+}
 
 static int cmd_get_pid_of(char *arg)
 {
@@ -174,7 +223,6 @@ static int cmd_get_pid_of(char *arg)
 
 	return (-3);
 }
-
 
 static int cmd_start_on_new(char *arg)
 {
