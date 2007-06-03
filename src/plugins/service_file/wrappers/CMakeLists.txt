@@ -1,7 +1,5 @@
 SET(WRAPPERS
 	default
-	runlevel
-	virtual
 	sh
 	gentoo
 )

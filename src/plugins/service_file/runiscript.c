@@ -24,6 +24,7 @@
 #include <unistd.h>
 #include <stdio.h>
 
+#include <initng.h>
 #include <initng-paths.h>
 
 #define WRAPPER_PATH INITNG_PLUGIN_DIR "/wrappers/"
@@ -55,6 +56,7 @@ static void print_usage(char *me)
 	printf("\n");
 }
 
+
 /* here is main */
 int main(int argc, char *argv[])
 {
@@ -63,37 +65,31 @@ int main(int argc, char *argv[])
 	char *servname;				/* local storage of the service name, cut from / pointing in path abow */
 	struct stat st;				/* file stat storage, used to check that files exist */
 
-	/* check to no of arguments */
 	if (argc != 3) {
 		int i;
 		printf("Bad command:");
 
-		for(i = 0; argv[i]; i++)
+		for(i = 1; i < argc; i++)
 			printf(" %s", argv[i]);
 
 		printf("\n");
-		print_usage(argv[0]);
+		print_usage(argv[1]);
 		exit(1);
 	}
 
-	/* set the wrapper */
-	{
+	{	
 		char *tmp;
-		
-		tmp = strrchr(argv[1], '/');
-		if (!tmp)
-			tmp = argv[1];
 
-		tmp = strrchr(tmp, '.');
-		if (tmp)
+		/* set the wrapper */
+		if ((tmp = strrchr(initng_string_basename(argv[1]), '.')))
 			wrapper = ++tmp;
 	}
-
+	
 	/* replace starting '.' with full path to local cwd */
 	if (argv[1][0] == '.') {
 		if (!getcwd(path, 1024)) {
 			printf("Cud not get path to pwd.\n");
-			print_usage(argv[0]);
+			print_usage(argv[1]);
 			exit(1);
 		}
 		strncat(path, &argv[1][1], 1024 - strlen(path));
@@ -116,64 +112,26 @@ int main(int argc, char *argv[])
 	/* check that path is correct */
 	if (stat(path, &st) != 0 || !S_ISREG(st.st_mode)) {
 		printf("Full path not provided, Guessed path to \"%s\" but no file existed in that place.\n", path);
-		print_usage(argv[0]);
+		print_usage(argv[1]);
 		exit(2);
 	}
 
 	servname = getenv("SERVICE");
 	if (!servname) {
-		if (!(servname = strrchr(path, '/'))) {
-			printf("SERVICE is not known!\n");
-			exit(3);
-		}
-		servname++;
-
+		servname = (char *) initng_string_basename(path);
 		setenv("SERVICE", servname, 1);
 	}
 
-	/* SERVICE=system/getty/tty1 -> NAME=tty1
-	 * SERVICE=system/getty -> NAME=getty
-	 * SERVICE=system/getty/getty -> NAME=getty_getty
-	 */
-	{
-		char *name = NULL;
-		char *pname = NULL;
-		int i;
-
-		for (i = strlen(servname); i >= 0; i--) {
-			if (servname[i] == '/') {
-				i++;
-				if (name) {
-					pname = &servname[i];
-					break;
-				} else {
-					name = &servname[i];
-				}
-			}
-		}
-
-		if (pname) {
-			i = strlen(name);
-			if (strncmp(pname, name, i) == 0) {
-				name = malloc(i * 2 + 1);
-				strcpy(name, pname);
-				name[i] = '_';
-			}
-		}
-
-		setenv("NAME", name, 1);
-	}
+	/* SERVICE=system/getty/tty1 -> NAME=tty1 */
+	setenv("NAME", initng_string_basename(servname), 1);
 
 	/* check if command shud forward to a ngc command */
 	{
 		int i;
 
-		for (i = 0; ngc_args[i]; i++)
-		{
-
+		for (i = 0; ngc_args[i]; i++) {
 			/* check if these are direct commands, then use ngc */
-			if (strcmp(argv[2], ngc_args[i]) == 0)
-			{
+			if (strcmp(argv[2], ngc_args[i]) == 0) {
 				/* set up an arg like "/sbin/ngc --start service" */
 				new_argv[0] = (char *) "/sbin/ngc";
 				/* put new_argv = "--start" */
@@ -202,7 +160,7 @@ int main(int argc, char *argv[])
 		for(i = 0; argv[i]; i++)
 			printf(" %s", argv[i]);
 		printf("\n");
-		print_usage(argv[0]);
+		print_usage(argv[1]);
 		exit(3);
 	}
 
@@ -210,16 +168,16 @@ int main(int argc, char *argv[])
 	new_argv[0] = malloc(sizeof(WRAPPER_PATH) + strlen(wrapper));
 	strcpy(new_argv[0], WRAPPER_PATH);
 	strcat(new_argv[0], wrapper);
-	new_argv[1] = NULL;
+	new_argv[1] = &argv[2][9];
+	new_argv[2] = NULL;
 
 	/* set up the environments */
 	setenv("SFILE", path, 1);
-	setenv("CMD", &argv[2][9], 1);
 
 	/* now call the wrapper */
 	execve(new_argv[0], new_argv, environ);
 
-	/* Newer get here */
+	/* Never get here */
 	printf("error executing %s.\n", new_argv[0]);
 	exit(3);
 }
