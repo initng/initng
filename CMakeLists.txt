@@ -94,7 +94,7 @@ OPTION(BUILD_UNNEEDED "Build unneeded plugin" ON)
 OPTION(BUILD_USPLASH "Build initng with usplash support" OFF)
 
 OPTION(INSTALL_AS_INIT "Install initng as complete replacement for SysVInit" OFF)
-OPTION(DEBUG "Build with developer tools, turns on additional warnings and Werror" ON)
+OPTION(DEBUG "Build with developer tools, turns on additional warnings and -Werror" OFF)
 OPTION(CHECK_RO "Test if the / is mounted read-only before reboot/halt" ON)
 OPTION(FORCE_NOCOLOR "Prevent cpout plugin from using colors" OFF)
 OPTION(FORCE_POSIX_IFILES "Force POSIX compliance on ifiles" OFF)
