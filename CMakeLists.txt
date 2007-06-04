@@ -14,7 +14,7 @@ INCLUDE(UsePkgConfig)
 
 ADD_DEFINITIONS(-DHAVE_CONFIG_H)
 # Turn on warnings
-SET(CMAKE_C_FLAGS "-Wall -Werror ${CMAKE_C_FLAGS}")
+SET(CMAKE_C_FLAGS "-Wall ${CMAKE_C_FLAGS}")
 
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 
@@ -127,7 +127,7 @@ IF(DEBUG)
 		SET(COREDUMPER_LIBS coredumper)
 	ENDIF(HAVE_COREDUMPER AND HAVE_COREDUMPER_H)
 
-	SET(CMAKE_C_FLAGS "-DDEBUG -g -Wmissing-prototypes -Wmissing-declarations -Wstrict-prototypes -Wimplicit -Wredundant-decls -Wnested-externs -Wwrite-strings -Wsign-compare -Winline -Wswitch -Wreturn-type -Wparentheses -Wmissing-braces -Wformat -Wformat-nonliteral -Wformat-security -Wsequence-point -Wundef -Wunused -Wcomment ${CMAKE_C_FLAGS}")
+	SET(CMAKE_C_FLAGS "-DDEBUG -g -Werror -Wmissing-prototypes -Wmissing-declarations -Wstrict-prototypes -Wimplicit -Wredundant-decls -Wnested-externs -Wwrite-strings -Wsign-compare -Winline -Wswitch -Wreturn-type -Wparentheses -Wmissing-braces -Wformat -Wformat-nonliteral -Wformat-security -Wsequence-point -Wundef -Wunused -Wcomment ${CMAKE_C_FLAGS}")
 ENDIF(DEBUG)
 
 IF(COUNT_ME)
