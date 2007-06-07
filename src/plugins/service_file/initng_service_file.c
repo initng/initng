@@ -863,13 +863,12 @@ static int parse_new_service_file(s_event * event, char *file)
 
 	/* start parse process */
 	if (initng_fork(new_active, process) == 0) {
-		char *new_argv[4];
+		char *new_argv[3];
 		char *new_env[4];
 
-		new_argv[0] = (char *) "/sbin/runiscript";
-		new_argv[1] = file;
-		new_argv[2] = (char *) "internal_setup";
-		new_argv[3] = NULL;
+		new_argv[0] = file;
+		new_argv[1] = (char *) "internal_setup";
+		new_argv[2] = NULL;
 
 		/* SERVICE=getty/tty1 */
 		new_env[0] =

@@ -60,10 +60,14 @@ static void print_usage(char *me)
 /* here is main */
 int main(int argc, char *argv[])
 {
-	char path[1025];			/* the argv[0] is not always the full path, so we make a full path and put in here */
-	char *new_argv[24];			/* used for execve, 24 arguments is really enoght */
-	char *servname;				/* local storage of the service name, cut from / pointing in path abow */
-	struct stat st;				/* file stat storage, used to check that files exist */
+	char path[1025];	/* the argv[0] is not always the full path,
+				 * so we make a full path and put in here */
+	char *new_argv[24];	/* used for execve, 24 arguments is really
+				 * enough */
+	char *servname;		/* local storage of the service name, cut
+				 * from / pointing in path abow */
+	struct stat st;		/* file stat storage, used to check that
+				 * files exist */
 
 	if (argc != 3) {
 		int i;
@@ -81,37 +85,31 @@ int main(int argc, char *argv[])
 		char *tmp;
 
 		/* set the wrapper */
-		if ((tmp = strrchr(initng_string_basename(argv[1]), '.')))
+		tmp = strrchr(initng_string_basename(argv[1]), '.');
+		if ((tmp && tmp != argv[1]))
 			wrapper = ++tmp;
 	}
 	
-	/* replace starting '.' with full path to local cwd */
-	if (argv[1][0] == '.') {
+	if (argv[1][0] == '/') {
+		/* a full path, this is really good */
+		strncpy(path, argv[1], 1024);
+	} else if (argv[1][0] == '.') {
+		/* replace starting '.' with full path to local cwd */
 		if (!getcwd(path, 1024)) {
 			printf("Cud not get path to pwd.\n");
 			print_usage(argv[1]);
 			exit(1);
 		}
 		strncat(path, &argv[1][1], 1024 - strlen(path));
-	}
-	/* replace starting '~' with path to HOME */
-	else if (argv[1][0] == '~') {
-		strncpy(path, getenv("HOME"), 1024);
-		strncpy(path, &argv[1][1], 1024 - strlen(path));
-	}
-	/* if it is a full path, this is really good */
-	else if (argv[1][0] == '/') {
-		strncpy(path, argv[1], 1024);
-	}
-	/* else, guess the full path */
-	else {
+	} else {
+		/* guess the full path */
 		strcpy(path, INITNG_ROOT);
 		strncat(path, argv[1], 1024 - strlen(path));
 	}
 
 	/* check that path is correct */
 	if (stat(path, &st) != 0 || !S_ISREG(st.st_mode)) {
-		printf("Full path not provided, Guessed path to \"%s\" but no file existed in that place.\n", path);
+		printf("File \"%s\" doesn't exist.\n", path);
 		print_usage(argv[1]);
 		exit(2);
 	}

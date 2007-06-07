@@ -1,8 +1,8 @@
 #!/bin/sh
 
 eval "
-$CMD() {
-	echo \"$SERVICE: command $CMD not found.\"
+$1() {
+	echo \"$SERVICE: command $1 not found.\"
 	return 1
 }
 "
@@ -11,4 +11,4 @@ export PATH="@LIB_INSTALL_DIR@/ibin:$PATH"
 
 . "$SFILE"
 
-$CMD
+$1

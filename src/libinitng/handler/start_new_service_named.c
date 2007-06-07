@@ -61,12 +61,9 @@ active_db_h *initng_handler_start_new_service_named(const char *service)
 
 	/* get from hook */
 	if ((to_load = initng_plugin_active_new(service)))
-	{
 		return (to_load);
-	}
 
 	/* the function calling this function will print out an error */
 	D_("Unable to load active for service %s\n", service);
 	return (NULL);
-
 }

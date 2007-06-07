@@ -56,8 +56,7 @@ void initng_config_global_new(int argc, char *argv[], char *env[])
 	g.Argv = (char **) initng_toolbox_calloc(argc + 1, sizeof(char *));
 	assert(g.Argv);
 
-	for (i = 0; i < argc; i++)
-	{
+	for (i = 0; i < argc; i++) {
 		g.Argv[i] = initng_toolbox_strdup(argv[i]);
 		assert(g.Argv[i]);
 	}
@@ -70,14 +69,15 @@ void initng_config_global_new(int argc, char *argv[], char *env[])
 	 * together.
 	 */
 	g.maxproclen = 0;
-	for (i = 0; i < argc; i++)
-	{
+
+	for (i = 0; i < argc; i++) {
 		g.maxproclen += strlen(argv[i]) + 1;
 	}
-	for (i = 0; env[i] != NULL; i++)
-	{
+
+	for (i = 0; env[i] != NULL; i++) {
 		g.maxproclen += strlen(env[i]) + 1;
 	}
+
 	D_("Maximum length for our process name is %d\n", g.maxproclen);
 
 	/*
@@ -154,8 +154,7 @@ void initng_config_global_free(void)
 		free(g.dev_console);
 
 	/* free our copy of argv, and argc */
-	for (i = 0; i < g.Argc; i++)
-	{
+	for (i = 0; i < g.Argc; i++) {
 		free(g.Argv[i]);
 	}
 	free(g.Argv);

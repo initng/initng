@@ -1,4 +1,0 @@
-INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/src/include ${CMAKE_BINARY_DIR} )
-
-ADD_LIBRARY(rlparser MODULE initng_rlparser.c)
-INSTALL_TARGETS(${LIB_INSTALL_DIR}/initng rlparser)

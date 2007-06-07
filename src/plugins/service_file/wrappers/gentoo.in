@@ -21,4 +21,4 @@ setup() {
 	idone
 }
 
-$CMD
+$1

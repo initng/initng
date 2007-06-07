@@ -165,9 +165,10 @@ int main(int argc, char *argv[], char *env[])
 	reboot(RB_DISABLE_CAD);
 
 	/* Alloc. new_argv */
-	new_argv = malloc((argc + 1) * sizeof(char *));
+	new_argv = malloc((argc + 2) * sizeof(char *));
 	new_argv[0] = INITNG_BIN;
 	new_argv[argc] = "i_am_init";
+	new_argv[argc + 1] = NULL;
 
 	/* Copy argv into new_argv */
 	for (i = 1; i < argc; i++) {
@@ -182,6 +183,6 @@ int main(int argc, char *argv[], char *env[])
 
 	setup_console(console);
 
-	execv(argv[0], argv);
+	execv(new_argv[0], (char * const *)new_argv);
 	return 1;
 }

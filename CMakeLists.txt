@@ -38,8 +38,8 @@ MARK_AS_ADVANCED(DATA_INSTALL_DIR)
 MARK_AS_ADVANCED(MAN_INSTALL_DIR)
 
 
-SET(RUNLEVEL_DEFAULT runlevel/default CACHE STRING "Default runlevel.")
-SET(RUNLEVEL_FAKE runlevel/fake-default CACHE STRING "Fake-mode runlevel.")
+SET(RUNLEVEL_DEFAULT default.runlevel CACHE STRING "Default runlevel.")
+SET(RUNLEVEL_FAKE fake-default.runlevel CACHE STRING "Fake-mode runlevel.")
 MARK_AS_ADVANCED(RUNLEVEL_DEFAULT)
 MARK_AS_ADVANCED(RUNLEVEL_FAKE)
 
@@ -82,7 +82,6 @@ OPTION(BUILD_PROVIDE "Build provide plugin" ON)
 OPTION(BUILD_RELOAD "Build reload plugin" ON)
 OPTION(BUILD_RENICE "Build renice plugin" ON)
 OPTION(BUILD_SELINUX "Build selinux plugin" OFF)
-OPTION(BUILD_RLPARSER "Build runlevel parser plugin" ON)
 OPTION(BUILD_SIMPLE_LAUNCHER "Build simple_launcher plugin" ON)
 OPTION(BUILD_STCMD "Build stcmd plugin" ON)
 OPTION(BUILD_STDOUT "Build stdout plugin" ON)
