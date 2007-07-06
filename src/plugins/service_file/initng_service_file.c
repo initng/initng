@@ -825,14 +825,12 @@ static int parse_new_service_file(s_event * event, char *file)
 
 	if (!(fstat.st_mode & S_IXUSR)) {
 		F_("File \"%s\" can not be executed!\n", file);
-		free(file);
 		return FALSE;
 	}
 
 	/* create new service */
 	new_active = initng_active_db_new(name);
 	if (!new_active) {
-		free(file);
 		return FALSE;
 	}
 
@@ -843,7 +841,6 @@ static int parse_new_service_file(s_event * event, char *file)
 	/* register it */
 	if (!initng_active_db_register(new_active)) {
 		initng_active_db_free(new_active);
-		free(file);
 		return FALSE;
 	}
 
