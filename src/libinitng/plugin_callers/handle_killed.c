@@ -24,7 +24,6 @@
 #include <assert.h>
 #include <errno.h>
 #include <string.h>
-#include <fcntl.h>					/* fcntl() */
 #include <time.h>
 
 #include <initng.h>
@@ -42,7 +41,7 @@ int initng_plugin_callers_handle_killed(active_db_h * s, process_h * p)
 
 	initng_event_send(&event);
 	if (event.status == HANDLED)
-		return (TRUE);
+		return TRUE;
 
-	return (FALSE);
+	return FALSE;
 }

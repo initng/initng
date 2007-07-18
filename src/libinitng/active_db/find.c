@@ -42,8 +42,7 @@ active_db_h *initng_active_db_find_by_exact_name(const char *service)
 	assert(service);
 
 	/* first, search for an exact match */
-	while_active_db(current)
-	{
+	while_active_db(current) {
 		assert(current->name);
 		/* check if this service name is like service */
 		if (strcmp(current->name, service) == 0)
@@ -77,8 +76,7 @@ active_db_h *initng_active_db_find_by_name(const char *service)
 
 	/* walk the active db and compere */
 	current = NULL;
-	while_active_db(current)
-	{
+	while_active_db(current) {
 		assert(current->name);
 		/* then try to find alike name */
 		if (initng_string_match(current->name, service))
@@ -105,8 +103,7 @@ active_db_h *initng_active_db_find_in_name(const char *service)
 
 	/* then search for a word match */
 	current = NULL;
-	while_active_db(current)
-	{
+	while_active_db(current) {
 		assert(current->name);
 		if (initng_string_match_in_service(current->name, service))
 			return (current);
@@ -123,12 +120,10 @@ active_db_h *initng_active_db_find_by_pid(pid_t pid)
 	process_h *currentP = NULL;
 
 	/* walk the active_db */
-	while_active_db(currentA)
-	{
+	while_active_db(currentA) {
 		assert(currentA->name);
 		currentP = NULL;
-		while_processes(currentP, currentA)
-		{
+		while_processes(currentP, currentA) {
 			if (currentP->pid == pid)
 				return (currentA);
 		}

@@ -144,7 +144,7 @@ static void connected(int pver, char *initng_version)
 
 static void disconnected(void)
 {
-	usplash("TEXT Dissonnected from initng.");
+	usplash("TEXT Disconnected from initng.");
 	usplash("QUIT");
 	exit(0);
 }
@@ -259,7 +259,7 @@ static void handle_event(nge_event * e)
 			connected(e->payload.connect.pver,
 					  e->payload.connect.initng_version);
 			return;
-		case DISSCONNECT:
+		case DISCONNECT:
 			disconnected();
 			return;
 		case SERVICE_OUTPUT:

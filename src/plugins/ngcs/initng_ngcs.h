@@ -33,7 +33,7 @@ typedef struct ngcs_svr_conn_s ngcs_svr_conn;
 /* int module_init(const char *version);
    void module_unload(void); */
 
-void service_status(s_event * event);
+void service_status(s_event *event);
 void is_system_halt(h_sys_state state);
 
 /*! \brief Close the specified channel
@@ -43,7 +43,7 @@ void is_system_halt(h_sys_state state);
  *
  *  \param chan the channel to be closed
  */
-void ngcs_close_channel(ngcs_chan * chan);
+void ngcs_close_channel(ngcs_chan *chan);
 
 /* \brief Register an ngcs command
  * Registers an ngcs command. ngcs clients can then call it by sending a
@@ -55,7 +55,7 @@ void ngcs_close_channel(ngcs_chan * chan);
  *        or passed to ngcs_reg_cmd again until ngcs_unreg_cmd(cmd) has been called
  * \sa ngcs_unreg_cmd() ngcs_cmd
  */
-void ngcs_reg_cmd(ngcs_cmd * cmd);
+void ngcs_reg_cmd(ngcs_cmd *cmd);
 
 /* \brief Unregister an ngcs command
  * Unregisters a command preivously registered with ngcs_reg_cmd.
@@ -63,7 +63,7 @@ void ngcs_reg_cmd(ngcs_cmd * cmd);
  * \param cmd the ngcs_cmd structure passed to ngcs_reg_cmd
  * \sa ngcs_reg_cmd()
  */
-void ngcs_unreg_cmd(ngcs_cmd * cmd);
+void ngcs_unreg_cmd(ngcs_cmd *cmd);
 
 /* \brief Open a new channel on the specified connection
  *
@@ -78,10 +78,9 @@ void ngcs_unreg_cmd(ngcs_cmd * cmd);
  *         ngcs_chan_reg, or null on failure.
  * \sa ngcs_chan_reg
  */
-ngcs_chan *ngcs_open_channel(ngcs_conn * conn,
-							 void (*gotdata) (ngcs_chan *, int, int,
-											  char *),
-							 void (*chanfree) (ngcs_chan *));
+ngcs_chan *ngcs_open_channel(ngcs_conn *conn,
+                             void (*gotdata)(ngcs_chan *, int, int, char *),
+                             void (*chanfree) (ngcs_chan *));
 
 /* \brief Send a response to a request
  *
@@ -96,8 +95,8 @@ ngcs_chan *ngcs_open_channel(ngcs_conn * conn,
  * \return Zero on success, non-zero on failure
  * \sa ngcs_sendmsg() ngcs_cmd
  */
-int ngcs_send_response(ngcs_request * req, int type, int len,
-					   const char *data);
+int ngcs_send_response(ngcs_request *req, int type, int len,
+                       const char *data);
 
 /*! \brief Ngcs command handler
  *
@@ -106,8 +105,7 @@ int ngcs_send_response(ngcs_request * req, int type, int len,
  *
  *  \sa ngcs_reg_cmd() ngcs_unreg_cmd()
  */
-struct ngcs_cmd_s
-{
+struct ngcs_cmd_s {
 	/*! \brief Name of the command */
 	const char *name;
 
@@ -117,14 +115,13 @@ struct ngcs_cmd_s
 	 *  exactly once to send a response to the request.
 	 *  \sa ngcs_send_response()
 	 */
-	void (*func) (ngcs_request * req);
+	void (*func)(ngcs_request *req);
 
 	/* \brief List head - internal use */
 	struct list_head list;
 };
 
-struct ngcs_request_s
-{
+struct ngcs_request_s {
 	int argc;
 	ngcs_data *argv;
 	ngcs_chan *chan;
@@ -132,8 +129,7 @@ struct ngcs_request_s
 	int sent_resp_flag;
 };
 
-struct ngcs_svr_conn_s
-{
+struct ngcs_svr_conn_s {
 	f_module_h fdw;
 	int nextid;
 	ngcs_conn *conn;
@@ -144,13 +140,20 @@ extern ngcs_svr_conn ngcs_conns;
 extern ngcs_svr_conn ngcs_dead_conns;
 extern ngcs_cmd ngcs_cmds;
 
-#define while_ngcs_conns(current) list_for_each_entry_prev(current, &ngcs_conns.list, list)
-#define while_ngcs_conns_safe(current, safe) list_for_each_entry_prev_safe(current, safe, &ngcs_conns.list, list)
+#define while_ngcs_conns(current) \
+	list_for_each_entry_prev(current, &ngcs_conns.list, list)
+#define while_ngcs_conns_safe(current, safe) \
+	list_for_each_entry_prev_safe(current, safe, &ngcs_conns.list, list)
 
-#define while_ngcs_dead_conns(current) list_for_each_entry_prev(current, &ngcs_dead_conns.list, list)
-#define while_ngcs_dead_conns_safe(current, safe) list_for_each_entry_prev_safe(current, safe, &ngcs_dead_conns.list, list)
+#define while_ngcs_dead_conns(current) \
+	list_for_each_entry_prev(current, &ngcs_dead_conns.list, list)
+#define while_ngcs_dead_conns_safe(current, safe) \
+	list_for_each_entry_prev_safe(current, safe, &ngcs_dead_conns.list, \
+	                              list)
 
-#define while_ngcs_cmds(current) list_for_each_entry_prev(current, &ngcs_cmds.list, list)
-#define while_ngcs_cmds_safe(current, safe) list_for_each_entry_prev_safe(current, safe, &ngcs_cmds.list, list)
+#define while_ngcs_cmds(current) \
+	list_for_each_entry_prev(current, &ngcs_cmds.list, list)
+#define while_ngcs_cmds_safe(current, safe) \
+	list_for_each_entry_prev_safe(current, safe, &ngcs_cmds.list, list)
 
 #endif /* !INITNG_NGCS_H */

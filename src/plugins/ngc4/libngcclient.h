@@ -22,8 +22,7 @@
 
 #include "initng_ngc4.h"
 
-typedef struct
-{
+typedef struct {
 	result_desc result;
 	void *payload;
 } reply;
@@ -32,17 +31,16 @@ typedef struct
 #define ngcclient_send_short_command(c, o) ngcclient_send_command(c, NULL, o)
 #define ngcclient_send_long_command(l, o)  ngcclient_send_command('\0', l, o)
 reply *ngcclient_send_command(const char *path, const char c, const char *l,
-							  const char *o);
+                              const char *o);
 
 extern const char *ngcclient_error;
 
 char *ngcclient_reply_to_string(reply * rep, int ansi);
 
-
-char *ngc_hlp(reply * rep, int ansi);
-char *ngc_active_db(reply * rep, int ansi);
-char *ngc_option_db(reply * rep, int ansi);
-char *ngc_state_entry(reply * rep, int ansi);
+char *ngc_hlp(reply *rep, int ansi);
+char *ngc_active_db(reply *rep, int ansi);
+char *ngc_option_db(reply *rep, int ansi);
+char *ngc_state_entry(reply *rep, int ansi);
 
 /* fetch an ansi color on a is type */
 const char *is_to_ansi(e_is is);

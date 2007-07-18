@@ -31,8 +31,11 @@
 
 INITNG_PLUGIN_MACRO;
 
-s_entry SELINUX_CONTEXT = { "selinux_context", STRING, NULL,
-	"The selinux context to start in."
+s_entry SELINUX_CONTEXT = {
+	.name = "selinux_context",
+	.description = "The selinux context to start in.",
+	.type = STRING,
+	.ot = NULL,
 };
 
 static void set_selinux_context(s_event * event)
@@ -56,46 +59,46 @@ static void set_selinux_context(s_event * event)
 	if (!have_selinux)
 		return;
 
-	const char *selinux_context = get_string(&SELINUX_CONTEXT, data->service);
+	const char *selinux_context = get_string(&SELINUX_CONTEXT,
+	                                         data->service);
 	char *sestr = NULL;
 	context_t seref = NULL;
 	int rc = 0;
 	char *sedomain;
 	int enforce = -1;
 
-	if (selinux_context)
-	{
-		sedomain = (char *) malloc((sizeof(char) *
-	                                   strlen(selinux_context) + 1));
+	if (selinux_context) {
+		sedomain = (char *) malloc((strlen(selinux_context) + 1));
 		strcpy(sedomain, selinux_context);
-	}
-	else
-	{
-		sedomain = (char *) malloc((sizeof(char) * 9));
+	} else {
+		sedomain = (char *) malloc(9);
 		strcpy(sedomain, "initrc_t");
 	}
-	rc = getcon(&sestr);
-	if (rc < 0)
+
+	if ((rc = getcon(&sestr)) < 0)
 		goto fail;
-	seref = context_new(sestr);
-	if (!seref)
+
+	if (!(seref = context_new(sestr)))
 		goto fail;
+
 	if (context_type_set(seref, sedomain))
 		goto fail;
+
 	freecon(sestr);
-	sestr = context_str(seref);
-	if (!sestr)
+
+	if (!(sestr = context_str(seref)))
 		goto fail;
-	rc = setexeccon(sestr);
-	if (rc < 0)
+
+	if ((rc = setexeccon(sestr)) < 0)
 		goto fail;
+
 	return;
 
   fail:
 	selinux_getenforcemode(&enforce);
-	if (enforce)
-	{
-		F_("bash_this(): could not change selinux context!\n ERROR!\n");
+	if (enforce) {
+		F_("bash_this(): could not change selinux context!\n"
+		   " ERROR!\n");
 		event->status = FAILED;
 	}
 }
@@ -104,15 +107,16 @@ static void set_selinux_context(s_event * event)
 int module_init(int api_version)
 {
 	D_("module_init();\n");
-	if (api_version != API_VERSION)
-	{
-		F_("This module is compiled for api_version %i version and initng is compiled on %i version, won't load this module!\n", API_VERSION, api_version);
-		return (FALSE);
+	if (api_version != API_VERSION) {
+		F_("This module is compiled for api_version %i version and "
+		   "initng is compiled on %i version, won't load this "
+		   "module!\n", API_VERSION, api_version);
+		return FALSE;
 	}
 	/*
 	if(g.i_am != I_AM_INIT) {
 		F_("Selinx have no effect in fake mode\n");
-		return(FALSE);
+		return FALSE;
 	}
 	*/
 	/* add hooks and malloc data here */
@@ -120,7 +124,7 @@ int module_init(int api_version)
 	initng_service_data_type_register(&SELINUX_CONTEXT);
 	initng_event_hook_register(&EVENT_AFTER_FORK, &set_selinux_context);
 
-	return (TRUE);
+	return TRUE;
 }
 
 

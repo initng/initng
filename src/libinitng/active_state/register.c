@@ -24,21 +24,21 @@
 #include <initng.h>
 
 
-int initng_active_state_register(a_state_h * state)
+int initng_active_state_register(a_state_h *state)
 {
 	assert(state);
 
 	/* look for duplicates */
-	if (initng_active_state_find(state->state_name) != NULL)
-	{
-		F_("There exists a state with this state_name (%s) already, please check this!\n", state->state_name);
-		return (FALSE);
+	if (initng_active_state_find(state->name) != NULL) {
+		F_("There exists a state with this state_name (%s) already, "
+		   "please check this!\n", state->name);
+		return FALSE;
 	}
 
-	D_("adding %s.\n", state->state_name);
+	D_("adding %s.\n", state->name);
 	/* add this state, to the big list of states */
 	list_add(&(state->list), &(g.states.list));
 
 	/* return happily */
-	return (TRUE);
+	return TRUE;
 }

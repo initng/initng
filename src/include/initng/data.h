@@ -29,11 +29,9 @@ typedef struct ss_data s_data;
 /*
  * This is the data struct == an initng variable, set to an service.
  */
-struct ss_data
-{
+struct ss_data {
 	/* and the data that it contains */
-	union
-	{
+	union {
 		/* by a char string */
 		char *s;
 		char *ss;
@@ -57,8 +55,7 @@ struct ss_data
 
 typedef struct s_data_head data_head;
 
-struct s_data_head
-{
+struct s_data_head {
 	s_data head;				/* This is the header */
 	data_head *res;				/* When no data is found, go look in this s_data */
 
@@ -76,7 +73,7 @@ struct s_data_head
 
 /* data walkers */
 s_data *initng_data_get_next_var(s_entry * type, const char *vn, data_head * head,
-					   s_data * last);
+				 s_data * last);
 #define initng_data_get_next(type, head, last) initng_data_get_next_var(type, NULL, head, last)
 #define get_next_var(type, vn, head, last) initng_data_get_next_var(type, vn, &(head)->data, last)
 #define get_next(type, head, last) get_next_var(type, NULL, head, last)

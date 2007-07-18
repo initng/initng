@@ -33,27 +33,24 @@ int initng_command_register(s_command * cmd)
 	assert(cmd);
 
 	/* look for duplicates */
-	while_command_db(current)
-	{
-		if (current == cmd || current->command_id == cmd->command_id)
-		{
+	while_command_db(current) {
+		if (current == cmd || current->id == cmd->id) {
 			F_("Can't add command: %c, %s, it exists already!\n",
-			   current->command_id, current->description);
-			return (FALSE);
+			   current->id, current->description);
+			return FALSE;
 		}
 	}
 
 	/* add this command to list */
 	list_add(&cmd->list, &g.command_db.list);
-	return (TRUE);
+	return TRUE;
 }
 
 void initng_command_unregister_all(void)
 {
 	s_command *current, *safe = NULL;
 
-	while_command_db_safe(current, safe)
-	{
+	while_command_db_safe(current, safe) {
 		initng_command_unregister(current);
 	}
 }

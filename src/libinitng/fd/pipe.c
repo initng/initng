@@ -24,7 +24,6 @@
 #include <assert.h>
 #include <errno.h>
 #include <string.h>
-#include <fcntl.h>							/* fcntl() */
 
 #include <initng.h>
 #include "local.h"
@@ -51,8 +50,7 @@ void initng_fd_plugin_readpipe(active_db_h * service, process_h * process,
 	data.buffer_pos = buffer_pos;
 
 	initng_event_send(&event);
-	if (event.status != OK)
-	{
+	if (event.status != OK) {
 		/* make sure someone handled this */
 		fprintf(stdout, "%s", buffer_pos);
 	}

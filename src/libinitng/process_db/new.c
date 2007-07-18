@@ -39,7 +39,7 @@ process_h *initng_process_db_new(ptype_h * type)
 	new_p = (process_h *) initng_toolbox_calloc(1, sizeof(process_h));
 	if (!new_p) {
 		F_("Unable to allocate process!\n");
-		return (NULL);
+		return NULL;
 	}
 
 	new_p->pt = type;
@@ -58,10 +58,9 @@ process_h *initng_process_db_new(ptype_h * type)
 
 	/* create the output pipe */
 	current_pipe = initng_process_db_pipe_new(BUFFERED_OUT_PIPE);
-	if (!current_pipe)
-	{
+	if (!current_pipe) {
 		free(new_p);
-		return (NULL);
+		return NULL;
 	}
 
 	/* we want this pipe to get fd 1 and 2 in the fork */
@@ -70,5 +69,5 @@ process_h *initng_process_db_new(ptype_h * type)
 	add_pipe(current_pipe, new_p);
 
 	/* return new process_h pointer */
-	return (new_p);
+	return new_p;
 }

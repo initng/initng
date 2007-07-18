@@ -27,11 +27,11 @@
 #define HISTORY 800
 
 typedef struct history_s history_h;
-struct history_s
-{
+struct history_s {
 	active_db_h *service;
 	char *name;
-	double duration;			/* The time in seconds the service stayed in this state */
+	double duration;		/* The time in seconds the service
+					 * stayed in this state */
 	struct timeval time;
 	char *data;
 	a_state_h *action;
@@ -42,10 +42,13 @@ struct history_s
 
 extern history_h history_db;
 
-#define while_history_db(current) list_for_each_entry(current, &history_db.list, list)
-#define while_history_db_prev(current) list_for_each_entry_prev(current, &history_db.list, list)
-#define while_history_db_safe(current, safe) list_for_each_entry_safe(current, safe, &history_db.list, list)
-#define while_history_db_safe_prev(current, safe) list_for_each_entry_prev_safe(current, safe, &history_db.list, list)
-
+#define while_history_db(current) \
+	list_for_each_entry(current, &history_db.list, list)
+#define while_history_db_prev(current) \
+	list_for_each_entry_prev(current, &history_db.list, list)
+#define while_history_db_safe(current, safe) \
+	list_for_each_entry_safe(current, safe, &history_db.list, list)
+#define while_history_db_safe_prev(current, safe) \
+	list_for_each_entry_prev_safe(current, safe, &history_db.list, list)
 
 #endif

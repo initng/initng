@@ -25,11 +25,11 @@
 
 /* if this is an alias variable type, walk to find the correct one */
 #define ALIAS_WALK \
-    /* this might be an alias */ \
-    while (type && type->opt_type == ALIAS && type->alias) \
-        type = type->alias;
+	/* this might be an alias */ \
+	while (type && type->type == ALIAS && type->alias) \
+		type = type->alias;
 
 
-#define IT(x) (type->opt_type == x || type->opt_type == (x + 50))
+#define IT(x) (type->type == x || type->type == (x + 50))
 
 #endif

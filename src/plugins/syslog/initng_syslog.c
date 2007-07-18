@@ -19,13 +19,13 @@
 
 #include <initng.h>
 
-#include <sys/types.h>						/* time_t */
+#include <sys/types.h>					/* time_t */
 #include <sys/stat.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <stdio.h>							/* printf() */
+#include <stdio.h>					/* printf() */
 #include <assert.h>
 #include <stdarg.h>
 #include <syslog.h>
@@ -48,19 +48,16 @@ static void check_syslog(void)
 {
 	struct stat st;
 
-	if (stat("/dev/log", &st) == 0 && S_ISSOCK(st.st_mode))
-	{
+	if (stat("/dev/log", &st) == 0 && S_ISSOCK(st.st_mode)) {
 		syslog_running = 1;
 
 		/* print out the buffers if any now */
-		if (!list_empty(&log_list.list))
-		{
+		if (!list_empty(&log_list.list)) {
 			log_ent *current, *safe = NULL;
 
-			while_log_list_safe(current, safe)
-			{
-				initng_log(current->prio, current->owner, "%s",
-						   current->buffert);
+			while_log_list_safe(current, safe) {
+				initng_log(current->prio, current->owner,
+				           "%s", current->buffert);
 				free(current->buffert);
 				if (current->owner)
 					free(current->owner);
@@ -69,9 +66,7 @@ static void check_syslog(void)
 			}
 			INIT_LIST_HEAD(&log_list.list);
 		}
-	}
-	else
-	{
+	} else {
 		syslog_running = 0;
 	}
 }
@@ -82,11 +77,12 @@ static void free_buffert(void)
 
 	/* give syslog a last chance to come alive */
 	check_syslog();
-	while_log_list_safe(current, safe)
-	{
+	while_log_list_safe(current, safe) {
 		free(current->buffert);
+
 		if (current->owner)
 			free(current->owner);
+
 		list_del(&current->list);
 		free(current);
 	}
@@ -102,13 +98,10 @@ static void initng_log(int prio, const char *owner, const char *format, ...)
 
 	va_start(ap, format);
 
-
 	/* if syslog is running, send it directly */
-	if (syslog_running == 1)
-	{
+	if (syslog_running == 1) {
 		/* if owner is set, we have openlog with right owner */
-		if (owner)
-		{
+		if (owner) {
 			closelog();
 			openlog(owner, 0, LOG_LOCAL1);
 
@@ -116,15 +109,13 @@ static void initng_log(int prio, const char *owner, const char *format, ...)
 
 			closelog();
 			openlog("InitNG", 0, LOG_LOCAL1);
-		}
-		else
+		} else {
 			vsyslog(prio, format, ap);
-
-	}
-	else
-	{
+		}
+	} else {
 		char b[201];
-		log_ent *tmp = (log_ent *) initng_toolbox_calloc(1, sizeof(log_ent));
+		log_ent *tmp = (log_ent *) initng_toolbox_calloc(1,
+						sizeof(log_ent));
 
 		if (!tmp)
 			return;
@@ -139,7 +130,6 @@ static void initng_log(int prio, const char *owner, const char *format, ...)
 			tmp->owner = NULL;
 
 		list_add(&tmp->list, &log_list.list);
-
 	}
 
 	va_end(ap);
@@ -157,37 +147,32 @@ static void syslog_print_status_change(s_event * event)
 
 	assert(service->name);
 
-	if (IS_UP(service))
-	{
+	if (IS_UP(service)) {
 		check_syslog();
 		initng_log(LOG_NOTICE, NULL, "Service %s is up.\n",
-		           service->name);
+			   service->name);
 		return;
 	}
 
-	if (IS_DOWN(service))
-	{
+	if (IS_DOWN(service)) {
 		initng_log(LOG_NOTICE, NULL, "Service %s has been stopped.\n",
 			   service->name);
 		return;
 	}
 
-	if (IS_FAILED(service))
-	{
+	if (IS_FAILED(service)) {
 		initng_log(LOG_NOTICE, NULL, "Service %s FAILED.\n",
 		           service->name);
 		return;
 	}
 
-	if (IS_STOPPING(service))
-	{
+	if (IS_STOPPING(service)) {
 		initng_log(LOG_NOTICE, NULL, "Service %s is stopping.\n",
 			   service->name);
 		return;
 	}
 
-	if (IS_STARTING(service))
-	{
+	if (IS_STARTING(service)) {
 		initng_log(LOG_NOTICE, NULL, "Service %s is starting.\n",
 			   service->name);
 		return;
@@ -197,17 +182,17 @@ static void syslog_print_status_change(s_event * event)
 
 static void syslog_print_system_state(s_event * event)
 {
-	h_sys_state * state;
+	h_sys_state *state;
 
 	assert(event->event_type == &EVENT_SYSTEM_CHANGE);
 	assert(event->data);
 
 	state = event->data;
 
-	switch (*state)
-	{
+	switch (*state) {
 		case STATE_UP:
-			initng_log(LOG_NOTICE, NULL, "System is up and running!\n");
+			initng_log(LOG_NOTICE, NULL,
+				   "System is up and running!\n");
 			/*
 			 * if syslogd have not been started yet, its no ida,
 			 * to spend memory for the buffert anyway.
@@ -216,15 +201,18 @@ static void syslog_print_system_state(s_event * event)
 			break;
 
 		case STATE_STARTING:
-			initng_log(LOG_NOTICE, NULL, "System is starting up.\n");
+			initng_log(LOG_NOTICE, NULL,
+				   "System is starting up.\n");
 			break;
 
 		case STATE_STOPPING:
-			initng_log(LOG_NOTICE, NULL, "System is going down.\n");
+			initng_log(LOG_NOTICE, NULL,
+				   "System is going down.\n");
 			break;
 
 		case STATE_ASE:
-			initng_log(LOG_NOTICE, NULL, "Last service exited.\n");
+			initng_log(LOG_NOTICE, NULL,
+				   "Last service exited.\n");
 			break;
 
 		case STATE_EXIT:
@@ -232,7 +220,8 @@ static void syslog_print_system_state(s_event * event)
 			break;
 
 		case STATE_RESTART:
-			initng_log(LOG_NOTICE, NULL, "Initng is restarting.\n");
+			initng_log(LOG_NOTICE, NULL,
+				   "Initng is restarting.\n");
 			break;
 
 		case STATE_HALT:
@@ -240,11 +229,14 @@ static void syslog_print_system_state(s_event * event)
 			break;
 
 		case STATE_POWEROFF:
-			initng_log(LOG_NOTICE, NULL, "System is power-off.\n");
+			initng_log(LOG_NOTICE, NULL,
+				   "System is power-off.\n");
 			break;
 
 		case STATE_REBOOT:
-			initng_log(LOG_NOTICE, NULL, "System is rebooting.\n");
+			initng_log(LOG_NOTICE, NULL,
+				   "System is rebooting.\n");
+
 		default:
 			break;
 	}
@@ -266,11 +258,11 @@ static void syslog_fetch_output(s_event * event)
 	assert(data->service->name);
 
 	/* print every line, ending with a '\n' as an own syslog */
-	while (data->buffer_pos[pos])
-	{
+	while (data->buffer_pos[pos]) {
 		i = 0;
 		/* count the number of char before '\n' */
-		while (data->buffer_pos[pos + i] && data->buffer_pos[pos + i] != '\n' && i < 200)
+		while (data->buffer_pos[pos + i] &&
+		       data->buffer_pos[pos + i] != '\n' && i < 200)
 			i++;
 
 		/* copy that many chars to our temporary log array */
@@ -307,24 +299,25 @@ static void syslog_print_error(s_event * event)
 
 	vsnprintf(tempspace, 200, data->format, data->arg);
 
-	switch (data->mt)
-	{
+	switch (data->mt) {
 		case MSG_FAIL:
 #ifdef DEBUG
-			syslog(LOG_EMERG, "\"%s\", %s() #%i FAIL: %s", data->file, data->func, data->line,
-				   tempspace);
+			syslog(LOG_EMERG, "\"%s\", %s() #%i FAIL: %s",
+			       data->file, data->func, data->line, tempspace);
 #else
 			syslog(LOG_EMERG, "FAIL: %s", tempspace);
 #endif
 			break;
+
 		case MSG_WARN:
 #ifdef DEBUG
-			syslog(LOG_WARNING, "\"%s\", %s() #%i WARN: %s", data->file, data->func, data->line,
-				   tempspace);
+			syslog(LOG_WARNING, "\"%s\", %s() #%i WARN: %s",
+			       data->file, data->func, data->line, tempspace);
 #else
 			syslog(LOG_EMERG, "WARN: %s", tempspace);
 #endif
 			break;
+
 		default:
 			syslog(LOG_NOTICE, "%s", tempspace);
 			break;
@@ -334,17 +327,18 @@ static void syslog_print_error(s_event * event)
 
 int module_init(int api_version)
 {
-	if (api_version != API_VERSION)
-	{
-		F_("This module is compiled for api_version %i version and initng is compiled on %i version, won't load this module!\n", API_VERSION, api_version);
-		return (FALSE);
+	if (api_version != API_VERSION) {
+		F_("This module is compiled for api_version %i version and "
+		   "initng is compiled on %i version, won't load this "
+		   "module!\n", API_VERSION, api_version);
+		return FALSE;
 	}
 
 	/* Don't clutter syslog in fake mode */
-	if (getpid() != 1 || g.i_am != I_AM_INIT)
-	{
-		D_("Pid is not 1, (%i), or g.i_am_init not set and the syslog plugin won't load when running in fake mode, to prevent cluttering up the log-files.\n", getpid());
-		return (TRUE);
+	if (g.i_am != I_AM_INIT) {
+		D_("The syslog plugin won't load when running in fake mode, "
+		   "to prevent cluttering up the log-files.\n");
+		return TRUE;
 	}
 	D_("Initializing syslog plugin\n");
 
@@ -354,28 +348,36 @@ int module_init(int api_version)
 	setlogmask(LOG_UPTO(LOG_NOTICE));
 	openlog("InitNG", 0, LOG_LOCAL1);
 
-	initng_event_hook_register(&EVENT_IS_CHANGE, &syslog_print_status_change);
-	initng_event_hook_register(&EVENT_SYSTEM_CHANGE, &syslog_print_system_state);
-	initng_event_hook_register(&EVENT_BUFFER_WATCHER, &syslog_fetch_output);
-	initng_event_hook_register(&EVENT_ERROR_MESSAGE, &syslog_print_error);
+	initng_event_hook_register(&EVENT_IS_CHANGE,
+	                           &syslog_print_status_change);
+	initng_event_hook_register(&EVENT_SYSTEM_CHANGE,
+	                           &syslog_print_system_state);
+	initng_event_hook_register(&EVENT_BUFFER_WATCHER,
+	                           &syslog_fetch_output);
+	initng_event_hook_register(&EVENT_ERROR_MESSAGE,
+	                           &syslog_print_error);
 
-	return (TRUE);
+	return TRUE;
 }
 
 
 void module_unload(void)
 {
 	/* Don't clutter syslog in fake mode */
-	if (g.i_am != I_AM_INIT)
-	{
-		D_("The syslog plugin won't load when running in fake mode, to prevent cluttering up the log-files.\n");
+	if (g.i_am != I_AM_INIT) {
+		D_("The syslog plugin won't load when running in fake mode, "
+		   "to prevent cluttering up the log-files.\n");
 		return;
 	}
 
-	initng_event_hook_unregister(&EVENT_IS_CHANGE, &syslog_print_status_change);
-	initng_event_hook_unregister(&EVENT_SYSTEM_CHANGE, &syslog_print_system_state);
-	initng_event_hook_unregister(&EVENT_BUFFER_WATCHER, &syslog_fetch_output);
-	initng_event_hook_unregister(&EVENT_ERROR_MESSAGE, &syslog_print_error);
+	initng_event_hook_unregister(&EVENT_IS_CHANGE,
+	                             &syslog_print_status_change);
+	initng_event_hook_unregister(&EVENT_SYSTEM_CHANGE,
+	                             &syslog_print_system_state);
+	initng_event_hook_unregister(&EVENT_BUFFER_WATCHER,
+	                             &syslog_fetch_output);
+	initng_event_hook_unregister(&EVENT_ERROR_MESSAGE,
+	                             &syslog_print_error);
 	free_buffert();
 	closelog();
 }

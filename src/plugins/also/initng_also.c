@@ -27,11 +27,17 @@
 
 INITNG_PLUGIN_MACRO;
 
-s_entry ALSO_START = { "also_start", STRINGS, NULL,
-	"When this service is starting, also start this."
+s_entry ALSO_START = { 
+	.name = "also_start",
+	.description = "When this service is starting, also start this.",
+	.type = STRINGS,
+	.ot = NULL,
 };
-s_entry ALSO_STOP = { "also_stop", STRINGS, NULL,
-	"When this service is stopping, also stop this."
+s_entry ALSO_STOP = {
+	.name = "also_stop",
+	.description = "When this service is stopping, also stop this.",
+	.type = STRINGS,
+	.ot = NULL,
 };
 
 static void service_state(s_event * event)
@@ -48,17 +54,13 @@ static void service_state(s_event * event)
 	assert(service->name);
 
 	/* if service is loading, start all in ALSO_START */
-	if (IS_STARTING(service))
-	{
+	if (IS_STARTING(service)) {
 		tmp = NULL;
 		s_data *itt = NULL;
 
-		while ((tmp = get_next_string(&ALSO_START, service, &itt)))
-		{
-			if ((current = initng_active_db_find_by_name(tmp)))
-			{
-				if (!initng_handler_start_service(current))
-				{
+		while ((tmp = get_next_string(&ALSO_START, service, &itt))) {
+			if ((current = initng_active_db_find_by_name(tmp))) {
+				if (!initng_handler_start_service(current)) {
 					F_("Failed to also_start %s.\n", tmp);
 					continue;
 				}
@@ -66,35 +68,32 @@ static void service_state(s_event * event)
 				continue;
 			}
 
-			if (!initng_handler_start_new_service_named(tmp))
-			{
-				F_("%s also_start %s could not start!\n", service->name,
-				   tmp);
+			if (!initng_handler_start_new_service_named(tmp)) {
+				F_("%s also_start %s could not start!\n",
+				   service->name, tmp);
 				initng_handler_stop_service(service);
 				return;
 			}
 		}
+
 		return;
 	}
 
 	/* if this service is stopping, stop all in ALSO_STOP */
-	if (IS_STOPPING(service))
-	{
+	if (IS_STOPPING(service)) {
 		/* Handle ALSO_STOP */
 		tmp = NULL;
 		s_data *itt = NULL;
 
-		while ((tmp = get_next_string(&ALSO_STOP, service, &itt)))
-		{
-			if ((current = initng_active_db_find_by_name(tmp)))
-			{
+		while ((tmp = get_next_string(&ALSO_STOP, service, &itt))) {
+			if ((current = initng_active_db_find_by_name(tmp))) {
 				/* Tell this verbose */
-				D_("service %s also stops %s\n", service->name, tmp);
+				D_("service %s also stops %s\n",
+				   service->name, tmp);
 
-				if (!initng_handler_stop_service(current))
-				{
-					F_("Could not stop also_stop service %s\n",
-					   current->name);
+				if (!initng_handler_stop_service(current)) {
+					F_("Could not stop also_stop "
+					   "service %s\n", current->name);
 				}
 			}
 		}
@@ -105,16 +104,17 @@ static void service_state(s_event * event)
 int module_init(int api_version)
 {
 	D_("module_init();\n");
-	if (api_version != API_VERSION)
-	{
-		F_("This module is compiled for api_version %i version and initng is compiled on %i version, won't load this module!\n", API_VERSION, api_version);
-		return (FALSE);
+	if (api_version != API_VERSION) {
+		F_("This module is compiled for api_version %i version and "
+		   "initng is compiled on %i version, won't load this "
+		   "module!\n", API_VERSION, api_version);
+		return FALSE;
 	}
 
 	initng_service_data_type_register(&ALSO_START);
 	initng_service_data_type_register(&ALSO_STOP);
 	initng_event_hook_register(&EVENT_IS_CHANGE, &service_state);
-	return (TRUE);
+	return TRUE;
 }
 
 void module_unload(void)

@@ -35,42 +35,83 @@ static int dont_try_to_stop_start(active_db_h * service);
 
 
 s_entry PROVIDE = {
-	"provide", STRINGS, NULL,
-	"Used by service providers, automagically creates virtual services.",
-	NULL
+	.name = "provide",
+	.description = "Used by service providers, automagically creates "
+	               "virtual services.",
+	.type = STRINGS,
+	.ot = NULL,
+	.alias = NULL
 };
 
 /* this service type will a virtual provided get */
-stype_h PROVIDED = { "provided", "If a service sets provide, this virtual service is created with that name.", TRUE, &dont_try_to_stop_start, &dont_try_to_stop_start, &dont_try_to_stop_start };
+stype_h PROVIDED = {
+	.name = "provided",
+	.description = "If a service sets provide, this virtual service is "
+	               "created with that name.",
+	.hidden = TRUE,
+	.start = &dont_try_to_stop_start,
+	.stop = &dont_try_to_stop_start,
+	.restart = &dont_try_to_stop_start
+};
 
-/* num. of providers */
-s_entry PCOUNT = { "p_count", INT, &PROVIDED, "Internal variable only", NULL };	/* used to keep track of */
+/* used to keep track of
+ * num. of providers
+ */
+s_entry PCOUNT = {
+	.name = "p_count",
+	.type = INT,
+	.ot = &PROVIDED,
+	.description = NULL,
+	.alias = NULL
+};	
 
 /* THE UP STATE GOT */
-a_state_h SOON_PROVIDED = { "SOON_PROVIDED", "The service providing this is starting.", IS_STARTING, NULL, NULL, NULL };
-a_state_h PROVIDE_UP = { "PROVIDED", "This service is provided by a parent service.", IS_UP, NULL, NULL, NULL };
-a_state_h PROVIDE_DOWN = { "NOT_PROVIDED", "This service is no longer provided by a parent service.", IS_DOWN, NULL, NULL, NULL };
+a_state_h SOON_PROVIDED = {
+	.name = "SOON_PROVIDED",
+	.description = "The service providing this is starting.",
+	.is = IS_STARTING,
+	.interrupt = NULL,
+	.init = NULL,
+	.alarm = NULL
+};
+
+a_state_h PROVIDE_UP = {
+	.name = "PROVIDED",
+	.description = "This service is provided by a parent service.",
+	.is = IS_UP,
+	.interrupt = NULL,
+	.init = NULL,
+	.alarm = NULL
+};
+
+a_state_h PROVIDE_DOWN = {
+	.name = "NOT_PROVIDED",
+	.description = "This service is no longer provided by a parent "
+	               "service.",
+	.is = IS_DOWN,
+	.interrupt = NULL,
+	.init = NULL,
+	.alarm = NULL
+};
 
 
-static int dont_try_to_stop_start(active_db_h * service)
+static int dont_try_to_stop_start(active_db_h *service)
 {
 	D_("You have to stop/start/restart the service providing this!\n");
-	return (FALSE);
+	return FALSE;
 }
 
 static int virtual_service_set_up(const char *name)
 {
 	active_db_h *vserv;
 
-	if ((vserv = initng_active_db_find_by_exact_name(name)))
-	{
-		if (IS_STARTING(vserv))
-		{
+	if ((vserv = initng_active_db_find_by_exact_name(name))) {
+		if (IS_STARTING(vserv)) {
 			initng_common_mark_service(vserv, &PROVIDE_UP);
-			return (TRUE);
+			return TRUE;
 		}
 	}
-	return (FALSE);
+	return FALSE;
 }
 
 static int add_virtual_service(const char *name)
@@ -79,13 +120,12 @@ static int add_virtual_service(const char *name)
 
 
 	/* if found */
-	if ((vserv = initng_active_db_find_by_exact_name(name)))
-	{
+	if ((vserv = initng_active_db_find_by_exact_name(name))) {
 		/* make sure its a PROVIDED TYPE, else continue */
-		if (vserv->type != &PROVIDED)
-		{
-			F_("Service name providing is used by another service type\n");
-			return (FALSE);
+		if (vserv->type != &PROVIDED) {
+			F_("Service name providing is used by another "
+			   "service type\n");
+			return FALSE;
 		}
 
 		/* put the service as UP */
@@ -96,27 +136,22 @@ static int add_virtual_service(const char *name)
 		set_int(&PCOUNT, vserv, get_int(&PCOUNT, vserv) + 1);
 
 		/* return happily */
-		return (TRUE);
-	}
-	else
-	{
-		/* if not found */
-		/* create a new */
-		if (!(vserv = initng_active_db_new(name)))
-		{
+		return TRUE;
+	} else {
+		/* if not found, create a new */
+		if (!(vserv = initng_active_db_new(name))) {
 			F_("Failed to create %s\n", name);
-			return (FALSE);
+			return FALSE;
 		}
 
 		/* set type */
 		vserv->type = &PROVIDED;
 
 		/* register it */
-		if (!initng_active_db_register(vserv))
-		{
+		if (!initng_active_db_register(vserv)) {
 			F_("Failed to register %s\n", vserv->name);
 			initng_active_db_free(vserv);
-			return (FALSE);
+			return FALSE;
 		}
 
 		/* put as up */
@@ -126,7 +161,7 @@ static int add_virtual_service(const char *name)
 		set_int(&PCOUNT, vserv, 1);
 
 		/* exit happily */
-		return (TRUE);
+		return TRUE;
 	}
 }
 
@@ -136,30 +171,27 @@ static void remove_virtual_service(const char *name)
 	int i = 0;
 
 	/* find that exact service */
-	if (!(vserv = initng_active_db_find_by_exact_name(name)))
-	{
+	if (!(vserv = initng_active_db_find_by_exact_name(name))) {
 		W_("Virtual service %s doesn't exist!\n", name);
 		return;
 	}
 
 	/* make sure this found is a provided type */
-	if (vserv->type != &PROVIDED)
-	{
+	if (vserv->type != &PROVIDED) {
 		F_("Provided is not an provided type\n");
 		return;
 	}
 
 	/* Look for PCOUNTS */
-	if (IS_UP(vserv))
-	{
+	if (IS_UP(vserv)) {
 		i = get_int(&PCOUNT, vserv) - 1;
 		set_int(&PCOUNT, vserv, i);
 	}
 
 	/* if no one is used it OR system is stopping */
-	if (!i || g.sys_state == STATE_STOPPING)
-	{
-		/* NOTE: all service marked DOWN will dissapere from active list within a minute or so */
+	if (!i || g.sys_state == STATE_STOPPING) {
+		/* NOTE: all service marked DOWN will dissapere from active
+		 * list within a minute or so */
 		initng_common_mark_service(vserv, &PROVIDE_DOWN);
 	}
 }
@@ -181,40 +213,31 @@ static void service_state(s_event * event)
 	assert(service->name);
 
 	/* if service is starting */
-	if (IS_STARTING(service))
-	{
+	if (IS_STARTING(service)) {
 		/* never when system is stopping */
 		if (g.sys_state == STATE_STOPPING)
 			return;
 
 		/* get the provide strings */
-		while ((tmp = get_next_string(&PROVIDE, service, &itt)))
-		{
+		while ((tmp = get_next_string(&PROVIDE, service, &itt))) {
 			/* add that provide */
 			if (!add_virtual_service(tmp))
 				return;
 		}
-	}
-	else if (IS_UP(service))
-	{
+	} else if (IS_UP(service)) {
 		/* never when system is stopping */
 		if (g.sys_state == STATE_STOPPING)
 			return;
 
 		/* get the provide strings */
-		while ((tmp = get_next_string(&PROVIDE, service, &itt)))
-		{
+		while ((tmp = get_next_string(&PROVIDE, service, &itt))) {
 			/* add that provide */
 			if (!virtual_service_set_up(tmp))
 				return;
 		}
-	}
-	/* else - its down */
-	else
-	{
+	} else {
 		/* get the provide strings */
-		while ((tmp = get_next_string(&PROVIDE, service, &itt)))
-		{
+		while ((tmp = get_next_string(&PROVIDE, service, &itt))) {
 			/* remove that provide */
 			remove_virtual_service(tmp);
 		}
@@ -238,10 +261,8 @@ static void system_stopping(s_event * event)
 		return;
 
 	/* find all netdev types and stop them */
-	while_active_db(current)
-	{
-		if (current->type == &PROVIDED)
-		{
+	while_active_db(current) {
+		if (current->type == &PROVIDED) {
 			/* mark service down */
 			initng_common_mark_service(current, &PROVIDE_DOWN);
 		}
@@ -254,10 +275,11 @@ int module_init(int api_version)
 {
 	D_("module_init();\n");
 
-	if (api_version != API_VERSION)
-	{
-		F_("This module is compiled for api_version %i version and initng is compiled on %i version, won't load this module!\n", API_VERSION, api_version);
-		return (FALSE);
+	if (api_version != API_VERSION) {
+		F_("This module is compiled for api_version %i version and "
+		   "initng is compiled on %i version, won't load this "
+		   "module!\n", API_VERSION, api_version);
+		return FALSE;
 	}
 
 	initng_service_type_register(&PROVIDED);
@@ -271,7 +293,7 @@ int module_init(int api_version)
 #endif
 	initng_event_hook_register(&EVENT_IS_CHANGE, &service_state);
 
-	return (TRUE);
+	return TRUE;
 }
 
 void module_unload(void)

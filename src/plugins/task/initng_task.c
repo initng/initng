@@ -20,7 +20,7 @@
 #include <initng.h>
 
 #include <stdio.h>
-#include <stdlib.h>							/* free() exit() */
+#include <stdlib.h>				/* free() exit() */
 #include <string.h>
 #include <sys/types.h>
 #include <signal.h>
@@ -46,7 +46,7 @@ static int start_task(active_db_h *task);
  * #                        PROCESS TYPE FUNCTION DEFINES                     #
  * ############################################################################
  */
-static void handle_task_leave(active_db_h * killed_task, process_h * process);
+static void handle_task_leave(active_db_h *killed_task, process_h *process);
 
 
 /*
@@ -55,9 +55,13 @@ static void handle_task_leave(active_db_h * killed_task, process_h * process);
  * ############################################################################
  */
 stype_h TYPE_TASK = {
-	"task", "This is a task, when active it will lissen on trigger "
-	        "requirement.",
-	FALSE, &start_task, NULL, NULL
+	.name =  "task",
+	.description = "This is a task, when active it will lissen on "
+	               "trigger requirement.",
+	.hidden = FALSE,
+	.start = &start_task,
+	.stop = NULL,
+	.restart = NULL
 };
 
 /*
@@ -65,7 +69,10 @@ stype_h TYPE_TASK = {
  * #                       PROCESS TYPES STRUCTS                              #
  * ############################################################################
  */
-ptype_h RUN_TASK = { "task", &handle_task_leave };
+ptype_h RUN_TASK = {
+	.name = "task",
+	.kill_handler = &handle_task_leave
+};
 
 /*
  * ############################################################################
@@ -73,7 +80,12 @@ ptype_h RUN_TASK = { "task", &handle_task_leave };
  * ############################################################################
  */
 
-s_entry ONCE = { "once", SET, &TYPE_TASK, "Task should run only once" };
+s_entry ONCE = {
+	.name = "once",
+	.description = "Task should run only once",
+	.type = SET,
+	.ot = &TYPE_TASK
+};
 
 /*
  * ############################################################################
@@ -85,54 +97,86 @@ s_entry ONCE = { "once", SET, &TYPE_TASK, "Task should run only once" };
  * When we have a active task waiting for its requirements.
  */
 a_state_h TASK_WAITING = {
-	"TASK_WAITING", "This task is waiting for a trigger.",
-	IS_DOWN, NULL, NULL, NULL
+	.name = "TASK_WAITING",
+	.description = "This task is waiting for a trigger.",
+	.is = IS_DOWN,
+	.interrupt = NULL,
+	.init = NULL,
+	.alarm = NULL
 };
 
 /*
  * When a task called, it will get this state.
  */
 a_state_h TASK_RUNNING = {
-	"TASK_RUNNING", "This task is running.",
-	IS_STARTING, NULL, NULL, NULL
+	.name = "TASK_RUNNING",
+	.description = "This task is running.",
+	.is = IS_STARTING,
+	.interrupt = NULL,
+	.init = NULL,
+	.alarm = NULL
 };
 
 /*
  * When a task has run.
  */
 a_state_h TASK_DONE = {
-	"TASK_DONE", "Task completed.",
-	IS_UP, NULL, NULL, NULL
+	.name = "TASK_DONE",
+	.description = "Task completed.",
+	.is = IS_UP,
+	.interrupt = NULL,
+	.init = NULL,
+	.alarm = NULL
 };
 
 /*
  * When a task has failed.
  */
 a_state_h TASK_FAILED = {
-	"TASK_FAILED", "When task has failed.",
-	IS_FAILED, NULL, NULL, NULL
+	.name = "TASK_FAILED",
+	.description = "When task has failed.",
+	.is = IS_FAILED,
+	.interrupt = NULL,
+	.init = NULL,
+	.alarm = NULL
 };
 
 a_state_h TASK_RUN_MARKED = {
-	"TASK_RUN_MARKED", "When task is marked for running.",
-	IS_STARTING, NULL, &task_run_marked, NULL
+	.name = "TASK_RUN_MARKED",
+	.description = "When task is marked for running.",
+	.is = IS_STARTING,
+	.interrupt = NULL,
+	.init = &task_run_marked,
+	.alarm = NULL
 };
 
 a_state_h TASK_DEPS_FAILED = {
-	"TASK_DEPS_FAILED", "One of the depdencencies this task requires "
-	                    "has failed, this task can't start.",
-	IS_FAILED, NULL, NULL, NULL
+	.name = "TASK_DEPS_FAILED",
+	.description = "One of the depdencencies this task requires has "
+	               "failed, this task can't start.",
+	.is = IS_FAILED,
+	.interrupt = NULL,
+	.init = NULL,
+	.alarm = NULL
 };
 
 a_state_h TASK_WAITING_FOR_DEPS = {
-	"TASK_WAITING_FOR_DEPS", "This service is waiting for all its "
-	                         "depdencencies to be met.",
-	IS_STARTING, &handle_deps, NULL, NULL
+	.name = "TASK_WAITING_FOR_DEPS",
+	.description = "This service is waiting for all its depdencencies to "
+	               "be met.",
+	.is = IS_STARTING,
+	.interrupt = &handle_deps,
+	.init = NULL,
+	.alarm = NULL
 };
 
 a_state_h TASK_DEPS_MET = {
-	"TASK_DEPS_MET", "The dependencies for starting this service are met.",
-	IS_STARTING, NULL, &task_deps_met, NULL
+	.name = "TASK_DEPS_MET",
+	.description = "The dependencies for starting this service are met.",
+	.is = IS_STARTING,
+	.interrupt = NULL,
+	.init = &task_deps_met,
+	.alarm = NULL
 };
 
 /*
@@ -160,7 +204,9 @@ int module_init(int api_version)
 {
 	D_("module_init();\n");
 	if (api_version != API_VERSION) {
-		F_("This module is compiled for api_version %i version and initng is compiled on %i version, won't load this module!\n", API_VERSION, api_version);
+		F_("This module is compiled for api_version %i version and "
+		   "initng is compiled on %i version, won't load this "
+		   "module!\n", API_VERSION, api_version);
 		return FALSE;
 	}
 
@@ -243,12 +289,13 @@ static void task_run_marked(active_db_h *task)
 
 static void handle_deps(active_db_h *task)
 {
-	switch (initng_depend_start_dep_met(task, FALSE))
-	{
+	switch (initng_depend_start_dep_met(task, FALSE)) {
 		case TRUE:
 			break;
+
 		case FAIL:
 			initng_common_mark_service(task, &TASK_DEPS_FAILED);
+
 		default:
 			return;
 	}
@@ -265,6 +312,7 @@ static void task_deps_met(active_db_h *task)
 			F_("Did not find a task entry to run\n");
 			initng_common_mark_service(task, &TASK_FAILED);
 			break;
+
 		case FAIL:
 			F_("Could not launch task\n");
 			initng_common_mark_service(task, &TASK_FAILED);

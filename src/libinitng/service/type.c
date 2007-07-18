@@ -26,10 +26,9 @@ stype_h *initng_service_type_get_by_name(const char *name)
 {
 	stype_h *current = NULL;
 
-	while_service_types(current)
-	{
+	while_service_types(current) {
 		if (strncmp(current->name, name, current->name_len) == 0)
-			return (current);
+			return current;
 	}
-	return (NULL);
+	return NULL;
 }

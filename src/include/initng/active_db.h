@@ -36,8 +36,7 @@ typedef struct active_type active_db_h;
 #define MAX_SUCCEEDED 30
 
 /* the active service struct */
-struct active_type
-{
+struct active_type {
 
 	/***** IDENTIFICATION ***********/
 	char *name;					/* the name of this service */

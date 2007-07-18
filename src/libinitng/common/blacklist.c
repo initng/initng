@@ -19,15 +19,15 @@
 
 
 #include <sys/time.h>
-#include <time.h>							/* time() */
-#include <fcntl.h>							/* fcntl() */
-#include <sys/un.h>							/* memmove() strcmp() */
-#include <sys/wait.h>						/* waitpid() sa */
-#include <linux/kd.h>						/* KDSIGACCEPT */
-#include <sys/ioctl.h>						/* ioctl() */
-#include <stdio.h>							/* printf() */
-#include <stdlib.h>							/* free() exit() */
-#include <sys/reboot.h>						/* reboot() RB_DISABLE_CAD */
+#include <time.h>				/* time() */
+#include <fcntl.h>				/* fcntl() */
+#include <sys/un.h>				/* memmove() strcmp() */
+#include <sys/wait.h>				/* waitpid() sa */
+#include <linux/kd.h>				/* KDSIGACCEPT */
+#include <sys/ioctl.h>				/* ioctl() */
+#include <stdio.h>				/* printf() */
+#include <stdlib.h>				/* free() exit() */
+#include <sys/reboot.h>				/* reboot() RB_DISABLE_CAD */
 #include <assert.h>
 
 #include <initng.h>
@@ -47,15 +47,13 @@ int initng_common_service_blacklisted(const char *name)
 	assert(g.Argv);
 
 	/* walk through arguments looking for this dep to be blacklisted */
-	for (i = 1; (g.Argv)[i]; i++)
-	{
+	for (i = 1; (g.Argv)[i]; i++) {
 		/* if we got a match */
-		if ((g.Argv)[i][0] == '-')
-		{
-			if (strcmp(name, (g.Argv)[i] + 1) == 0
-				|| initng_string_match(name, (g.Argv)[i] + 1))
-				return (TRUE);
+		if ((g.Argv)[i][0] == '-') {
+			if (strcmp(name, (g.Argv)[i] + 1) == 0 ||
+			    initng_string_match(name, (g.Argv)[i] + 1))
+				return TRUE;
 		}
 	}
-	return (FALSE);
+	return FALSE;
 }

@@ -31,57 +31,52 @@ int initng_command_execute_arg(char cid, char *arg)
 	s_command *cmd = initng_command_find_by_command_id(cid);
 
 	/* make sure it found it. */
-	if (!cmd)
-	{
+	if (!cmd) {
 		D_("Did not find command %c.\n", cid);
-		return (FALSE);
+		return FALSE;
 	}
 
 	/* check so its a INT_COMMAND */
-	if (cmd->com_type != INT_COMMAND && cmd->com_type != VOID_COMMAND
-		&& cmd->com_type != TRUE_OR_FALSE_COMMAND)
-	{
-		W_("Command %c is not an INT_COMMAND, VOID_COMMAND or TRUE_OR_FALSE_COMMAND.\n", cid);
-		return (FALSE);
+	if (cmd->com_type != INT_COMMAND && cmd->com_type != VOID_COMMAND &&
+	    cmd->com_type != TRUE_OR_FALSE_COMMAND) {
+		W_("Command %c is not an INT_COMMAND, VOID_COMMAND or "
+		   "TRUE_OR_FALSE_COMMAND.\n", cid);
+		return FALSE;
 	}
 
 	/* Check so the call is actually there */
 
-	if (!cmd->u.int_command_void_call)
-	{
-		W_("Command %c missing u.int_command_call or u.int_command_void_call.\n", cid);
-		return (FALSE);
+	if (!cmd->u.int_command_void_call) {
+		W_("Command %c missing u.int_command_call or "
+		   "u.int_command_void_call.\n", cid);
+		return FALSE;
 	}
 
 
 	/* check with arguments */
-	if (!arg && cmd->opt_type == REQUIRES_OPT)
-	{
+	if (!arg && cmd->opt_type == REQUIRES_OPT) {
 		F_("Command %c needs an opt!\n", cid);
-		return (FALSE);
-	}
-	if (arg && cmd->opt_type == NO_OPT)
-	{
+		return FALSE;
+	} else if (arg && cmd->opt_type == NO_OPT) {
 		F_("Command %c don't uses any options!\n", cid);
-		return (FALSE);
+		return FALSE;
 	}
 
 	/* now start executing */
-	if (cmd->com_type == INT_COMMAND
-		|| cmd->com_type == TRUE_OR_FALSE_COMMAND)
-	{
+	if (cmd->com_type == INT_COMMAND ||
+	    cmd->com_type == TRUE_OR_FALSE_COMMAND) {
 		/* execute the command */
 		if (arg)
-			return ((*cmd->u.int_command_call) (arg));
+			return ((*cmd->u.int_command_call)(arg));
 		/* else */
-		return ((*cmd->u.int_command_void_call) ());
+		return ((*cmd->u.int_command_void_call)());
 	}
 
 	/* else its a VOID command, that wont give us any to return. */
 	/* execute the command */
 	if (arg)
-		(*cmd->u.void_command_call) (arg);
+		(*cmd->u.void_command_call)(arg);
 	else
-		(*cmd->u.void_command_void_call) ();
-	return (TRUE);
+		(*cmd->u.void_command_void_call)();
+	return TRUE;
 }

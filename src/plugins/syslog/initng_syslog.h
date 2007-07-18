@@ -22,14 +22,14 @@
 #include <sys/types.h>
 #include <initng.h>
 
-typedef struct
-{
+typedef struct {
 	int prio;
 	char *owner;
 	char *buffert;
 	struct list_head list;
 } log_ent;
 
-#define while_log_list_safe(current, safe) list_for_each_entry_prev_safe(current, safe, &log_list.list, list)
+#define while_log_list_safe(current, safe) \
+	list_for_each_entry_prev_safe(current, safe, &log_list.list, list)
 
 #endif

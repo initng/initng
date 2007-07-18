@@ -36,29 +36,25 @@
  */
 void initng_signal_handle_sigchild(void)
 {
-	int status;					/* data got from waitpid, never used */
-	pid_t killed;				/* pid of killed app */
+	int status;			/* data got from waitpid, never used */
+	pid_t killed;			/* pid of killed app */
 
-	for (;;)
-	{
+	while (1) {
 		/* slaying zombies */
-		do
-		{
+		do {
 			killed = waitpid(-1, &status, WNOHANG);
-		}
-		while ((killed < 0) && (errno == EINTR));
+		} while (killed < 0 && errno == EINTR);
 
 		/* Nothing killed */
 		if (killed == 0)
 			return;
 
 		/* unknown child */
-		if ((killed < 0) && (errno == ECHILD))
+		if (killed < 0 && errno == ECHILD)
 			return;
 
 		/* Error */
-		if (killed < 0)
-		{
+		if (killed < 0) {
 			W_("Error, waitpid returned pid %d (%s)\n", killed,
 			   strerror(errno));
 			return;

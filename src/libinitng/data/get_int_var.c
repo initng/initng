@@ -32,5 +32,8 @@ int initng_data_get_int_var(s_entry * type, const char *vn, data_head * d)
 {
 	s_data *current = initng_data_get_next_var(type, vn, d, NULL);
 
-	return (current ? current->t.i : 0);
+	if (current)
+		return current->t.i;
+
+	return 0;
 }

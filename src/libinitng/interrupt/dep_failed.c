@@ -20,15 +20,15 @@
 #include <initng.h>
 
 #include <sys/time.h>
-#include <time.h>							/* time() */
-#include <fcntl.h>							/* fcntl() */
-#include <sys/un.h>							/* memmove() strcmp() */
-#include <sys/wait.h>						/* waitpid() sa */
-#include <linux/kd.h>						/* KDSIGACCEPT */
-#include <sys/ioctl.h>						/* ioctl() */
-#include <stdio.h>							/* printf() */
-#include <stdlib.h>							/* free() exit() */
-#include <sys/reboot.h>						/* reboot() RB_DISABLE_CAD */
+#include <time.h>				/* time() */
+#include <fcntl.h>				/* fcntl() */
+#include <sys/un.h>				/* memmove() strcmp() */
+#include <sys/wait.h>				/* waitpid() sa */
+#include <linux/kd.h>				/* KDSIGACCEPT */
+#include <sys/ioctl.h>				/* ioctl() */
+#include <stdio.h>				/* printf() */
+#include <stdlib.h>				/* free() exit() */
+#include <sys/reboot.h>				/* reboot() RB_DISABLE_CAD */
 #include <assert.h>
 
 #include "local.h"
@@ -36,7 +36,8 @@
 
 /*
  * when a service fails to start, this function
- * walks through all its dependencies, and mark it "dependency failed to start"
+ * walks through all its dependencies, and mark it
+ * "dependency failed to start"
  */
 void dep_failed_to_start(active_db_h * service)
 {
@@ -45,8 +46,7 @@ void dep_failed_to_start(active_db_h * service)
 	active_db_h *current = NULL;
 
 	/* walk over all services */
-	while_active_db(current)
-	{
+	while_active_db(current) {
 		if (current == service)
 			continue;
 
@@ -67,8 +67,7 @@ void dep_failed_to_stop(active_db_h * service)
 	active_db_h *current = NULL;
 
 	/* walk over all services */
-	while_active_db(current)
-	{
+	while_active_db(current) {
 		if (current == service)
 			continue;
 

@@ -41,8 +41,7 @@ int initng_handler_stop_all(void)
 	S_;
 	initng_main_set_sys_state(STATE_STOPPING);
 
-	while_active_db_safe(ser, q)
-	{
+	while_active_db_safe(ser, q) {
 		/* don't stop a stopping service */
 		if (IS_STOPPING(ser))
 			continue;
@@ -54,5 +53,5 @@ int initng_handler_stop_all(void)
 		/* stop services */
 		initng_handler_stop_service(ser);
 	}
-	return (TRUE);
+	return TRUE;
 }

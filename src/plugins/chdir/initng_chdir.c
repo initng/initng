@@ -28,8 +28,11 @@
 
 INITNG_PLUGIN_MACRO;
 
-s_entry CHDIR = { "chdir", STRING, NULL,
-	"Change to this directory before launching."
+s_entry CHDIR = {
+	.name = "chdir",
+	.description = "Change to this directory before launching.",
+	.type = STRING,
+	.ot = NULL,
 };
 
 static void do_chdir(s_event * event)
@@ -49,16 +52,14 @@ static void do_chdir(s_event * event)
 
 	D_("do_chdir!\n");
 
-	if (!(tmp = get_string(&CHDIR, data->service)))
-	{
+	if (!(tmp = get_string(&CHDIR, data->service))) {
 		D_("CHDIR not set!\n");
 		return;
 	}
 
 	D_("CHDIR TO %s\n", tmp);
 
-	if (chdir(tmp) == -1)
-	{
+	if (chdir(tmp) == -1) {
 		F_("Chdir failed with %s\n", strerror(errno));
 		event->status = FAILED;
 	}
@@ -68,10 +69,11 @@ static void do_chdir(s_event * event)
 int module_init(int api_version)
 {
 	D_("module_init(CHDIR);\n");
-	if (api_version != API_VERSION)
-	{
-		F_("This module is compiled for api_version %i version and initng is compiled on %i version, won't load this module!\n", API_VERSION, api_version);
-		return (FALSE);
+	if (api_version != API_VERSION) {
+		F_("This module is compiled for api_version %i version and "
+		   "initng is compiled on %i version, won't load this "
+		   "module!\n", API_VERSION, api_version);
+		return FALSE;
 	}
 
 	initng_service_data_type_register(&CHDIR);

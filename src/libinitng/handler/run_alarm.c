@@ -47,8 +47,7 @@ void initng_handler_run_alarm(void)
 	g.next_alarm = 0;
 
 	/* walk through all active services */
-	while_active_db_safe(current, q)
-	{
+	while_active_db_safe(current, q) {
 		assert(current->name);
 		assert(current->current_state);
 
@@ -57,29 +56,25 @@ void initng_handler_run_alarm(void)
 			continue;
 
 		/* if alarm has gone */
-		if (g.now.tv_sec >= current->alarm)
-		{
+		if (g.now.tv_sec >= current->alarm) {
 			/* reset alarm */
 			current->alarm = 0;
 
-
 			/* call alarm handler, now when we got an g.interrupt */
-			if (current->current_state->state_alarm)
-				(*current->current_state->state_alarm) (current);
+			if (current->current_state->alarm)
+				(*current->current_state->alarm)(current);
+
 			continue;
 		}
 
 		/* if no next_to_get is set */
-		if (!g.next_alarm)
-		{
+		if (!g.next_alarm) {
 			g.next_alarm = current->alarm;
 			continue;
 		}
 
 		/* if this alarm is more early then next_to_get set it. */
 		if (current->alarm < g.next_alarm)
-		{
 			g.next_alarm = current->alarm;
-		}
 	}
 }

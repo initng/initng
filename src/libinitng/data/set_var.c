@@ -33,23 +33,20 @@ void initng_data_set_var(s_entry * type, char *vn, data_head * d)
 
 	assert(d);
 
-	if (!type)
-	{
+	if (!type) {
 		F_("Type can't be zero!\n");
 		return;
 	}
 
 	ALIAS_WALK;
 
-	if (!vn && type->opt_type >= 50)
-	{
-		F_("The vn variable is missing for a type %i %s!\n", type->opt_type,
-		   type->opt_name);
+	if (!vn && type->type >= 50) {
+		F_("The vn variable is missing for a type %i %s!\n",
+		   type->type, type->name);
 		return;
 	}
 
-	if (!IT(SET))
-	{
+	if (!IT(SET)) {
 		F_("It has to be an SET type to d_set!\n");
 		return;
 	}

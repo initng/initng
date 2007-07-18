@@ -33,11 +33,10 @@ int initng_data_count_type(s_entry * type, data_head * d)
 	int count = 0;
 
 	/* walk through all entries on address */
-	list_for_each_entry(current, &d->head.list, list)
-	{
+	list_for_each_entry(current, &d->head.list, list) {
 		if (!type || current->type == type)
 			count++;
 	}
 
-	return (count);
+	return count;
 }

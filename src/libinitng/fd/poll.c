@@ -93,60 +93,53 @@ void initng_fd_plugin_poll(int timeout)
 
 	/* Then add all file descriptors from process read pipes */
 	currentA = NULL;
-	while_active_db(currentA)
-	{
+	while_active_db(currentA) {
 		currentP = NULL;
-		while_processes(currentP, currentA)
-		{
+		while_processes(currentP, currentA) {
 			current_pipe = NULL;
-			while_pipes(current_pipe, currentP)
-			{
+			while_pipes(current_pipe, currentP) {
 				if ((current_pipe->dir == OUT_PIPE ||
-					 current_pipe->dir == BUFFERED_OUT_PIPE) &&
-					current_pipe->pipe[0] > 2)
-				{
-					/* expensive test to make sure the pipe is open, before adding */
-					if (!STILL_OPEN(current_pipe->pipe[0]))
-					{
+				     current_pipe->dir == BUFFERED_OUT_PIPE) &&
+				    current_pipe->pipe[0] > 2) {
+					/* expensive test to make sure the
+					 * pipe is open, before adding */
+					if (!STILL_OPEN(current_pipe->pipe[0])) {
 						D_("%i is not open anymore.\n",
 						   current_pipe->pipe[0]);
 						current_pipe->pipe[0] = -1;
 						continue;
 					}
 
-
-					FD_SET(current_pipe->pipe[0], &readset);
+					FD_SET(current_pipe->pipe[0],
+					       &readset);
 					added++;
 				}
 
 				if (current_pipe->dir == IN_AND_OUT_PIPE &&
-					current_pipe->pipe[1] > 2)
-				{
-					/* expensive test to make sure the pipe is open, before adding */
-					if (!STILL_OPEN(current_pipe->pipe[1]))
-					{
+				    current_pipe->pipe[1] > 2) {
+					/* expensive test to make sure the
+					 * pipe is open, before adding */
+					if (!STILL_OPEN(current_pipe->pipe[1])) {
 						D_("%i is not open anymore.\n",
 						   current_pipe->pipe[1]);
 						current_pipe->pipe[1] = -1;
 						continue;
 					}
-
 
 					FD_SET(current_pipe->pipe[1], &readset);
 					added++;
 				}
 
-				if (current_pipe->dir == IN_PIPE && current_pipe->pipe[1] > 2)
-				{
-					/* expensive test to make sure the pipe is open, before adding */
-					if (!STILL_OPEN(current_pipe->pipe[1]))
-					{
+				if (current_pipe->dir == IN_PIPE &&
+				    current_pipe->pipe[1] > 2) {
+					/* expensive test to make sure the
+					 * pipe is open, before adding */
+					if (!STILL_OPEN(current_pipe->pipe[1])) {
 						D_("%i is not open anymore.\n",
 						   current_pipe->pipe[1]);
 						current_pipe->pipe[1] = -1;
 						continue;
 					}
-
 
 					FD_SET(current_pipe->pipe[1], &writeset);
 					added++;
@@ -155,35 +148,29 @@ void initng_fd_plugin_poll(int timeout)
 		}
 	}
 
-
 	/*
 	 * STEP 2: Do the select-poll, if any fds where added
 	 */
 
 	/* check if there are any set */
-	if (added <= 0)
-	{
+	if (added <= 0) {
 		D_("No file descriptors set.\n");
 		sleep(timeout);
 		return;
 	}
 	D_("%i file descriptors added.\n", added);
 
-
 	/* make the select */
 	retval = select(256, &readset, &writeset, &errset, &tv);
 
-
 	/* error - Truly a interrupt */
-	if (retval < 0)
-	{
+	if (retval < 0) {
 		D_("Select returned %i\n", retval);
 		return;
 	}
 
 	/* none was found */
-	if (retval == 0)
-	{
+	if (retval == 0) {
 		D_("There was no data found on any added fd.\n");
 		return;
 	}
@@ -221,68 +208,70 @@ void initng_fd_plugin_poll(int timeout)
 	/* scan every service */
 	currentA = NULL;
 	qA = NULL;
-	while_active_db_safe(currentA, qA)
-	{
+	while_active_db_safe(currentA, qA) {
 		currentP = NULL;
 		qP = NULL;
 		/* and all the processes */
-		while_processes_safe(currentP, qP, currentA)
-		{
+		while_processes_safe(currentP, qP, currentA) {
 			current_pipe = NULL;
 
 			/* check if this fd is a pipe bound to a process */
-			while_pipes(current_pipe, currentP)
-			{
+			while_pipes(current_pipe, currentP) {
 				/* if a bufered output pipe is found . */
-				if (current_pipe->dir == BUFFERED_OUT_PIPE
-					&& current_pipe->pipe[0] > 2
-					&& FD_ISSET(current_pipe->pipe[0], &readset))
-				{
-					D_("BUFFERED_OUT_PIPE: Will read from %s->start_process on fd #%i\n", currentA->name, current_pipe->pipe[0]);
+				if (current_pipe->dir == BUFFERED_OUT_PIPE &&
+				    current_pipe->pipe[0] > 2 &&
+				    FD_ISSET(current_pipe->pipe[0], &readset)) {
+					D_("BUFFERED_OUT_PIPE: Will read "
+					   "from %s->start_process on fd "
+					   "#%i\n", currentA->name,
+					   current_pipe->pipe[0]);
 
 					/* Do the actual read from pipe */
-					initng_fd_process_read_input(currentA, currentP,
-												 current_pipe);
+					initng_fd_process_read_input(currentA,
+						currentP, current_pipe);
 
-					/* Found match, that means we need to look for one less, if we've found all we should then return */
-					retval--;
-					if (retval == 0)
+					/* Found match, that means we need to
+					 * look for one less, if we've found
+					 * all we should then return */
+					if (--retval == 0)
 						return;
 				}
 
 				if (current_pipe->dir == OUT_PIPE &&
-					current_pipe->pipe[0] > 2 &&
-					FD_ISSET(current_pipe->pipe[0], &readset))
-				{
+				    current_pipe->pipe[0] > 2 &&
+				    FD_ISSET(current_pipe->pipe[0], &readset)) {
 					initng_fd_pipe(currentA, currentP, current_pipe);
 
-					/* Found match, that means we need to look for one less, if we've found all we should then return */
-					retval--;
-					if (retval == 0)
+					/* Found match, that means we need to
+					 * look for one less, if we've found
+					 * all we should then return */
+					if (--retval == 0)
 						return;
 				}
 
 				if (current_pipe->dir == IN_AND_OUT_PIPE &&
-					current_pipe->pipe[1] > 2 &&
-					FD_ISSET(current_pipe->pipe[1], &readset))
-				{
-					initng_fd_pipe(currentA, currentP, current_pipe);
+				    current_pipe->pipe[1] > 2 &&
+				    FD_ISSET(current_pipe->pipe[1], &readset)) {
+					initng_fd_pipe(currentA, currentP,
+					               current_pipe);
 
-					/* Found match, that means we need to look for one less, if we've found all we should then return */
-					retval--;
-					if (retval == 0)
+					/* Found match, that means we need to
+					 * look for one less, if we've found
+					 * all we should then return */
+					if (--retval == 0)
 						return;
 				}
 
 				if (current_pipe->dir == IN_PIPE &&
-					current_pipe->pipe[1] > 2 &&
-					FD_ISSET(current_pipe->pipe[1], &writeset))
-				{
-					initng_fd_pipe(currentA, currentP, current_pipe);
+				    current_pipe->pipe[1] > 2 &&
+				    FD_ISSET(current_pipe->pipe[1], &writeset)) {
+					initng_fd_pipe(currentA, currentP,
+					               current_pipe);
 
-					/* Found match, that means we need to look for one less, if we've found all we should then return */
-					retval--;
-					if (retval == 0)
+					/* Found match, that means we need to
+					 * look for one less, if we've found
+					 * all we should then return */
+					if (--retval == 0)
 						return;
 				}
 
@@ -290,8 +279,7 @@ void initng_fd_plugin_poll(int timeout)
 		}
 	}
 
-	if (retval != 0)
-	{
+	if (retval != 0) {
 		F_("There is a missed pipe or fd that we missed to poll!\n");
 	}
 

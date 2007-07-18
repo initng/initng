@@ -39,16 +39,16 @@ static void dfree(s_data * current)
 	list_del(&current->list);
 
 	/* free variable data */
-	switch (current->type->opt_type)
-	{
+	switch (current->type->type) {
 		case STRING:
 		case STRINGS:
 		case VARIABLE_STRING:
 		case VARIABLE_STRINGS:
-			if (current->t.s)
+			if (current->t.s) {
 				free(current->t.s);
-			current->t.s = NULL;
-			break;
+				current->t.s = NULL;
+			}
+
 		default:
 			break;
 	}
@@ -71,8 +71,7 @@ void initng_data_remove_all(data_head * d)
 	assert(d);
 
 	/* walk through all entries on address */
-	list_for_each_entry_safe(current, s, &d->head.list, list)
-	{
+	list_for_each_entry_safe(current, s, &d->head.list, list) {
 		/* walk, and remove all */
 		dfree(current);
 		current = NULL;
@@ -89,15 +88,13 @@ void initng_data_remove_var(s_entry * type, const char *vn, data_head * d)
 	assert(d);
 	assert(type);
 
-	if (!type)
-	{
+	if (!type) {
 		F_("Type can't be zero!\n");
 		return;
 	}
 
 	/* for every matching, free it */
-	while ((current = initng_data_get_next_var(type, vn, d, NULL)))
-	{
+	while ((current = initng_data_get_next_var(type, vn, d, NULL))) {
 		dfree(current);
 	}
 }

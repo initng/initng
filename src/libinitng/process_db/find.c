@@ -37,14 +37,14 @@ process_h *initng_process_db_get(ptype_h * type, active_db_h * service)
 {
 	process_h *current = NULL;
 
-	while_processes(current, service)
-	{
+	while_processes(current, service) {
 		if (current->pst != P_ACTIVE)
 			continue;
 		if (current->pt == type)
-			return (current);
+			return current;
 	}
-	return (NULL);
+
+	return NULL;
 }
 
 /*
@@ -56,15 +56,14 @@ process_h *initng_process_db_get_by_name(const char *name,
 {
 	process_h *current = NULL;
 
-	while_processes(current, service)
-	{
+	while_processes(current, service) {
 		if (current->pst != P_ACTIVE)
 			continue;
 		if (strcmp(current->pt->name, name) == 0)
-			return (current);
+			return current;
 	}
-	return (NULL);
 
+	return NULL;
 }
 
 /*
@@ -74,12 +73,12 @@ process_h *initng_process_db_get_by_pid(pid_t pid, active_db_h * service)
 {
 	process_h *current = NULL;
 
-	while_processes(current, service)
-	{
+	while_processes(current, service) {
 		if (current->pst != P_ACTIVE)
 			continue;
 		if (current->pid == pid)
-			return (current);
+			return current;
 	}
-	return (NULL);
+
+	return NULL;
 }

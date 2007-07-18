@@ -41,11 +41,9 @@ void hard(h_then t)
 	FILE *test;
 #endif
 	int pid;
-	int i = 0;
 
 	/* set the sys state */
-	switch (t)
-	{
+	switch (t) {
 		case THEN_REBOOT:
 			initng_main_set_sys_state(STATE_REBOOT);
 			break;
@@ -56,7 +54,8 @@ void hard(h_then t)
 			initng_main_set_sys_state(STATE_POWEROFF);
 			break;
 		default:
-			F_("initng_hard can only handle STATE_REBOOT, STATE_POWEROFF, or STATE_HALT for now.\n");
+			F_("initng_hard can only handle STATE_REBOOT, "
+			   "STATE_POWEROFF, or STATE_HALT for now.\n");
 			return;
 	}
 
@@ -71,28 +70,21 @@ void hard(h_then t)
 	/* unload all modules (plugins) found */
 	initng_module_unload_all();
 
-	/* make sure all fds but stdin, stdout, stderr is closed */
-	for (i = 3; i <= 1013; i++)
-	{
-		close(i);
-	}
+	/* TODO: should we make sure all fds are closed at this point? */
 
 	/* last sync data to disk */
 	sync();
 
 #ifdef CHECK_RO
-
 	/* Mount readonly, youst to be extra sure this is done */
 	mount("/dev/root", "/", NULL, MS_RDONLY + MS_REMOUNT, NULL);
 
-	if (errno == EBUSY)
-	{
+	if (errno == EBUSY) {
 		F_("Failed to remount / ro, EBUSY\n");
 	}
 
 	/* check so that / is mounted read only, by trying to open a file */
-	if ((test = fopen("/initng_write_testfile", "w")) != NULL)
-	{
+	if ((test = fopen("/initng_write_testfile", "w")) != NULL) {
 		fclose(test);
 		unlink("/initng_write_testfile");
 		F_("/ IS NOT REMOUNTED READ-ONLY, WON'T REBOOT/HALT BECAUSE THE FILE SYSTEM CAN BREAK!\n");
@@ -101,26 +93,28 @@ void hard(h_then t)
 
 #endif
 
-	/* Under certain unknown circumstances, calling reboot(RB_POWER_OFF) from
-	   pid 1 leads to a "Kernel panic - not syncing: Attempted to kill init!".
-	   Workaround is to fork a child to do it. See bug #488 for details */
+	/* Under certain unknown circumstances, calling reboot(RB_POWER_OFF)
+	 * from pid 1 leads to a "Kernel panic - not syncing: Attempted to
+	 * kill init!". A workaround is to fork a child to do it. See bug #488
+	 * for details */
 	pid = fork();
 
 	/* if succeded (pid==0) or failed (pid < 0) */
-	if (pid <= 0)
-	{
+	if (pid <= 0) {
 		/* child process - shut down the machine */
-		switch (t)
-		{
+		switch (t) {
 			case THEN_REBOOT:
 				reboot(RB_AUTOBOOT);
 				break;
+
 			case THEN_HALT:
 				reboot(RB_HALT_SYSTEM);
 				break;
+
 			case THEN_POWEROFF:
 				reboot(RB_POWER_OFF);
 				break;
+
 			default:
 				/* What to do here */
 				break;
@@ -137,5 +131,5 @@ void hard(h_then t)
 
 	/* idle forever */
 	while (1)
-		sleep(1);
+		sleep(100);
 }

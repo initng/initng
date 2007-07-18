@@ -33,8 +33,7 @@ void initng_process_db_clear_freed(active_db_h * service)
 {
 	process_h *current, *safe = NULL;
 
-	while_processes_safe(current, safe, service)
-	{
+	while_processes_safe(current, safe, service) {
 		if (current->pst != P_FREE)
 			continue;
 
@@ -53,8 +52,7 @@ void initng_process_db_real_free(process_h * free_this)
 	/* Make sure this entry are not on any list */
 	list_del(&free_this->list);
 
-	while_pipes_safe(current_pipe, free_this, current_pipe_safe)
-	{
+	while_pipes_safe(current_pipe, free_this, current_pipe_safe) {
 		/* unbound this pipe from list */
 		list_del(&current_pipe->list);
 

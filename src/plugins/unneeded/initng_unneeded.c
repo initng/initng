@@ -42,15 +42,19 @@ const char *module_needs[] = {
 };
 
 static int cmd_stop_unneeded(char *arg);
-s_command STOP_UNNEEDED = { 'y', "stop_unneeded", TRUE_OR_FALSE_COMMAND,
-	STANDARD_COMMAND, NO_OPT,
-	{(void *) &cmd_stop_unneeded},
-	"Stop all services, not in runlevel"
+
+s_command STOP_UNNEEDED = {
+	.id = 'y',
+	.long_id = "stop_unneeded",
+	.com_type = TRUE_OR_FALSE_COMMAND,
+	.opt_visible = STANDARD_COMMAND,
+	.opt_type = NO_OPT,
+	.u = { (void *) &cmd_stop_unneeded },
+	.description = "Stop all services, not in runlevel"
 };
 
 static int cmd_stop_unneeded(char *arg)
 {
-
 	int needed = FALSE;
 	active_db_h *A, *As = NULL;
 	active_db_h *B = NULL;
@@ -59,8 +63,7 @@ static int cmd_stop_unneeded(char *arg)
 	S_;
 
 	/* walk through all and check */
-	while_active_db_safe(A, As)
-	{
+	while_active_db_safe(A, As) {
 		if (A->type == TYPE_RUNLEVEL)
 			continue;
 
@@ -68,15 +71,13 @@ static int cmd_stop_unneeded(char *arg)
 		needed = FALSE;
 		B = NULL;
 
-		while_active_db(B)
-		{
+		while_active_db(B) {
 			/* don't check ourself */
 			if (A == B)
 				continue;
 
 			/* if B needs A */
-			if (initng_depend(B, A) == TRUE)
-			{
+			if (initng_depend(B, A) == TRUE) {
 				needed = TRUE;
 				break;
 			}
@@ -87,26 +88,24 @@ static int cmd_stop_unneeded(char *arg)
 			initng_handler_stop_service(A);
 	}
 
-	return (TRUE);
+	return TRUE;
 }
-
-
 
 int module_init(int api_version)
 {
 	D_("module_init(unneeded);\n");
-	if (api_version != API_VERSION)
-	{
-		F_("This module is compiled for api_version %i version and initng is compiled on %i version, won't load this module!\n", API_VERSION, api_version);
-		return (FALSE);
+	if (api_version != API_VERSION) {
+		F_("This module is compiled for api_version %i version and "
+		   "initng is compiled on %i version, won't load this "
+		   "module!\n", API_VERSION, api_version);
+		return FALSE;
 	}
 
 	initng_command_register(&STOP_UNNEEDED);
 
 	D_("libunneeded.so.0.0 loaded!\n");
-	return (TRUE);
+	return TRUE;
 }
-
 
 void module_unload(void)
 {
@@ -114,7 +113,5 @@ void module_unload(void)
 
 	initng_command_unregister(&STOP_UNNEEDED);
 
-
 	D_("libunneeded.so.0.0 unloaded!\n");
-
 }

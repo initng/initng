@@ -48,8 +48,7 @@ void initng_active_db_free(active_db_h * pf)
 	list_del(&pf->list);
 	list_del(&pf->interrupt);
 
-	while_processes_safe(current, safe, pf)
-	{
+	while_processes_safe(current, safe, pf) {
 		initng_process_db_real_free(current);
 	}
 
@@ -70,8 +69,7 @@ void initng_active_db_free_all(void)
 {
 	active_db_h *current, *safe = NULL;
 
-	while_active_db_safe(current, safe)
-	{
+	while_active_db_safe(current, safe) {
 		initng_active_db_free(current);
 	}
 }

@@ -36,10 +36,10 @@ ptype_h *initng_process_db_ptype_find(const char *name)
 {
 	ptype_h *found = NULL;
 
-	while_ptypes(found)
-	{
+	while_ptypes(found) {
 		if (strcmp(name, found->name) == 0)
-			return (found);
+			return found;
 	}
-	return (NULL);
+
+	return NULL;
 }

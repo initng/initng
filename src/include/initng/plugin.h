@@ -28,23 +28,20 @@
 #include <initng/event/event.h>
 
 /* flags for f_module_h.what - correspond to the arguments of select() */
-typedef enum
-{
+typedef enum {
 	FDW_READ = 1,	/* Want notification when data is ready to be read */
 	FDW_WRITE = 2,	/* when data can be written successfully */
 	FDW_ERROR = 4,	/* when an exceptional condition occurs */
 } e_fdw;
 
 typedef struct ft_module_h f_module_h;
-struct ft_module_h
-{
+struct ft_module_h {
 	void (*call_module) (f_module_h * module, e_fdw what);
 	e_fdw what;
 	int fds;
 };
 
-typedef union
-{
+typedef union {
 	/* a skeleton, newer use */
 	void *pointer;
 
@@ -54,8 +51,7 @@ typedef union
 
 
 typedef struct s_callers_s s_call;
-struct s_callers_s
-{
+struct s_callers_s {
 	char *from_file;
 	uc c;
 	int order;

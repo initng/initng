@@ -18,8 +18,7 @@
  */
 typedef struct list_head list_h;
 
-struct list_head
-{
+struct list_head {
 	struct list_head *next, *prev;
 };
 
@@ -28,9 +27,9 @@ struct list_head
 #define LIST_HEAD(name) \
 	struct list_head name = LIST_HEAD_INIT(name)
 
-#define INIT_LIST_HEAD(ptr) do { \
+#define INIT_LIST_HEAD(ptr) { \
 	(ptr)->next = (ptr); (ptr)->prev = (ptr); \
-} while (0)
+}
 
 /*
  * Insert a new entry between two known consecutive entries. 
@@ -101,8 +100,7 @@ static inline void __list_del(struct list_head *prev, struct list_head *next)
 static inline void list_del(struct list_head *entry)
 {
 	/* only if list is added on a struct */
-	if (entry->next || entry->prev)
-	{
+	if (entry->next || entry->prev) {
 		__list_del(entry->prev, entry->next);
 		entry->next = (struct list_head *) 0;
 		entry->prev = (struct list_head *) 0;
@@ -190,8 +188,7 @@ static inline void list_splice(struct list_head *list, struct list_head *head)
 static inline void list_splice_init(struct list_head *list,
 									struct list_head *head)
 {
-	if (!list_empty(list))
-	{
+	if (!list_empty(list)) {
 		__list_splice(list, head);
 		INIT_LIST_HEAD(list);
 	}

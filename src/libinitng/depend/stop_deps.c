@@ -20,7 +20,7 @@
 #include <initng.h>
 
 #include <stdio.h>
-#include <stdlib.h>							/* free() exit() */
+#include <stdlib.h>					/* free() exit() */
 #include <string.h>
 #include <assert.h>
 
@@ -31,8 +31,7 @@ int initng_depend_stop_deps(active_db_h * service)
 	active_db_h *safe = NULL;
 
 	/* also stop all service depending on service_to_stop */
-	while_active_db_safe(current, safe)
-	{
+	while_active_db_safe(current, safe) {
 		/* Dont mind stop itself */
 		if (current == service)
 			continue;
@@ -42,5 +41,5 @@ int initng_depend_stop_deps(active_db_h * service)
 			initng_handler_stop_service(current);
 	}
 
-	return (TRUE);
+	return TRUE;
 }

@@ -19,12 +19,12 @@
 
 #include <initng.h>
 
-#include <time.h>							/* time() */
-#include <fcntl.h>							/* fcntl() */
-#include <unistd.h>							/* execv() usleep() pause() chown() */
-#include <sys/wait.h>						/* waitpid() sa */
-#include <sys/ioctl.h>						/* ioctl() */
-#include <stdlib.h>							/* free() exit() */
+#include <time.h>			/* time() */
+#include <fcntl.h>			/* fcntl() */
+#include <unistd.h>			/* execv() usleep() pause() chown() */
+#include <sys/wait.h>			/* waitpid() sa */
+#include <sys/ioctl.h>			/* ioctl() */
+#include <stdlib.h>			/* free() exit() */
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
@@ -45,20 +45,18 @@ int initng_execute_launch(active_db_h * service, ptype_h * type,
 
 	/* Try to get the current one */
 	process = initng_process_db_get(type, service);
-	if (process != NULL)
-	{
+	if (process != NULL) {
 		F_("There exists an \"%s\" process in \"%s\" already.\n",
 		   process->pt->name, service->name);
-		/*assert(NULL); */
-		return (FALSE);
+		/* assert(NULL); */
+		return FALSE;
 	}
 
 	/* Try to create a new one */
 	process = initng_process_db_new(type);
-	if (!process)
-	{
+	if (!process) {
 		F_("(%s): unable to allocate start_process!\n", service->name);
-		return (FALSE);
+		return FALSE;
 	}
 
 	/* add the process to our service */
@@ -86,7 +84,7 @@ int initng_execute_launch(active_db_h * service, ptype_h * type,
 
 	/* if we found a launcher */
 	if (ret == HANDLED)
-		return (TRUE);
+		return TRUE;
 
 	if (ret == FAILED)
 		F_("initng_execute(%s): FAILED LAUNCHING, returned FAIL\n",
@@ -98,5 +96,5 @@ int initng_execute_launch(active_db_h * service, ptype_h * type,
 	/* on failure remove the process from list, and free it */
 	initng_process_db_free(process);
 
-	return (ret);
+	return ret;
 }

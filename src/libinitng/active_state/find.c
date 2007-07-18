@@ -31,10 +31,9 @@ a_state_h *initng_active_state_find(const char *state_name)
 	assert(state_name);
 
 	/* walk the state db */
-	while_active_states(current)
-	{
-		if (strcmp(state_name, current->state_name) == 0)
-			return (current);
+	while_active_states(current) {
+		if (strcmp(state_name, current->name) == 0)
+			return current;
 	}
-	return (NULL);
+	return NULL;
 }

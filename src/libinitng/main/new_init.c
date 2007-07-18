@@ -37,8 +37,7 @@
 void initng_main_new_init(void)
 {
 	initng_main_set_sys_state(STATE_EXECVE);
-	if (!g.new_init || !g.new_init[0])
-	{
+	if (!g.new_init || !g.new_init[0]) {
 		F_(" g.new_init is not set!\n");
 		return;
 	}

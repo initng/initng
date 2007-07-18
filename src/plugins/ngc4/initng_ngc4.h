@@ -28,18 +28,16 @@
 
 #define PROTOCOL_4_VERSION 9
 
-typedef enum
-{
-	NO_PAYLOAD = 0,
-	HELP_ROW = 1,
-	ACTIVE_ROW = 2,
-	STATE_ROW = 3,
-	OPTION_ROW = 4,
+typedef enum {
+	NO_PAYLOAD	= 0,
+	HELP_ROW	= 1,
+	ACTIVE_ROW	= 2,
+	STATE_ROW	= 3,
+	OPTION_ROW	= 4,
 } data_type;
 
 /* this is a structure for an help_row payload */
-typedef struct
-{
+typedef struct {
 	data_type dt;				/* == HELP_ROW */
 	char c;
 	char l[101];
@@ -49,19 +47,19 @@ typedef struct
 } help_row;
 
 /* this is a structure for an active_row payload */
-typedef struct
-{
+typedef struct {
 	data_type dt;				/* == ACTIVE_ROW */
-	char state[101];			/* status, a word describing the status */
+	char state[101];			/* status, a word describing
+						 * the status */
 	char name[101];				/* name of service */
-	struct timeval time_set;	/* time status set */
-	e_is is;					/* is status, status in a number */
+	struct timeval time_set;		/* time status set */
+	e_is is;				/* is status, status in a
+						 * number */
 	char type[101];				/* Type of service this is */
 } active_row;
 
 /* this is a structor for a state description payload */
-typedef struct
-{
+typedef struct {
 	data_type dt;				/* == STATE_ROW */
 	char name[101];
 	e_is is;
@@ -69,8 +67,7 @@ typedef struct
 } state_row;
 
 /* this is a structure for an option_row payload */
-typedef struct
-{
+typedef struct {
 	data_type dt;				/* == OPTION_ROW */
 	char n[101];
 	e_dt t;
@@ -79,23 +76,21 @@ typedef struct
 } option_row;
 
 /* an enum sent in the reply, signals the status of the reply */
-typedef enum
-{
-	S_FALSE = 0,
-	S_TRUE = 1,
-	S_REQUIRES_OPT = 2,
-	S_NOT_REQUIRES_OPT = 3,
-	S_INVALID_TYPE = 4,
-	S_COMMAND_NOT_FOUND = 5
+typedef enum {
+	S_FALSE			= 0,
+	S_TRUE			= 1,
+	S_REQUIRES_OPT		= 2,
+	S_NOT_REQUIRES_OPT	= 3,
+	S_INVALID_TYPE		= 4,
+	S_COMMAND_NOT_FOUND	= 5
 } e_suceed;
 
 /*
  * This binary structure is the reply initng will send
  * after a header.
  */
-typedef struct
-{
-	e_suceed s;					/* succeed, TRUE or FALSE */
+typedef struct {
+	e_suceed s;				/* succeed, TRUE or FALSE */
 	char c;
 	e_com_type t;				/* type of data got back */
 	char version[101];
@@ -107,8 +102,7 @@ typedef struct
  * This is a header structure, that initng fetches from
  * ngc4 as a request.
  */
-typedef struct
-{
+typedef struct {
 	char c;
 	char l[101];
 	int p_ver;

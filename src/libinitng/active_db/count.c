@@ -37,11 +37,9 @@ int initng_active_db_count(a_state_h * current_state_to_count)
 	active_db_h *current = NULL;
 
 	/* ok, go COUNT ALL */
-	if (!current_state_to_count)
-	{
+	if (!current_state_to_count) {
 		/* ok, go through all */
-		while_active_db(current)
-		{
+		while_active_db(current) {
 			assert(current->name);
 
 			/* count almost all */
@@ -60,8 +58,7 @@ int initng_active_db_count(a_state_h * current_state_to_count)
 	}
 
 	/* ok, go COUNT A SPECIAL */
-	while_active_db(current)
-	{
+	while_active_db(current) {
 		assert(current->name);
 		/* check if this is the status to count */
 		if (current->current_state == current_state_to_count)

@@ -20,8 +20,8 @@
 #include <initng.h>
 
 #include <stdio.h>
-#include <string.h>							/* strstr() */
-#include <stdlib.h>							/* free() exit() */
+#include <string.h>					/* strstr() */
+#include <stdlib.h>					/* free() exit() */
 #include <assert.h>
 
 
@@ -32,7 +32,14 @@ static int active;
 static void interactive_STARTING(s_event * event);
 static void interactive_STOP_MARKED(s_event * event);
 
-a_state_h INT_DISABLED = { "INTERACTIVELY_DISABLED", "The user choose to not start this service.", IS_FAILED, NULL, NULL, NULL };
+a_state_h INT_DISABLED = {
+	.name = "INTERACTIVELY_DISABLED",
+	.description = "The user choose to not start this service.",
+	.is = IS_FAILED,
+	.interrupt = NULL,
+	.init = NULL,
+	.alarm = NULL
+};
 
 static void interactive_STARTING(s_event * event)
 {
@@ -55,12 +62,11 @@ static void interactive_STARTING(s_event * event)
 	if (asw[0] == 'y' || asw[0] == 'Y')
 		return;
 
-	if (asw[0] == 'a' || asw[0] == 'A')
-	{
+	if (asw[0] == 'a' || asw[0] == 'A') {
 		initng_event_hook_unregister(&EVENT_START_DEP_MET,
-						  &interactive_STARTING);
+		                             &interactive_STARTING);
 		initng_event_hook_unregister(&EVENT_STOP_DEP_MET,
-						  &interactive_STOP_MARKED);
+		                             &interactive_STOP_MARKED);
 		active = FALSE;
 		return;
 	}
@@ -90,12 +96,11 @@ static void interactive_STOP_MARKED(s_event * event)
 	if (asw[0] == 'y' || asw[0] == 'Y')
 		return;
 
-	if (asw[0] == 'a' || asw[0] == 'A')
-	{
+	if (asw[0] == 'a' || asw[0] == 'A') {
 		initng_event_hook_unregister(&EVENT_START_DEP_MET,
-						  &interactive_STARTING);
+		                             &interactive_STARTING);
 		initng_event_hook_unregister(&EVENT_STOP_DEP_MET,
-						  &interactive_STOP_MARKED);
+		                             &interactive_STOP_MARKED);
 		active = FALSE;
 		return;
 	}
@@ -109,41 +114,40 @@ int module_init(int api_version)
 {
 	int i;
 
-	if (api_version != API_VERSION)
-	{
-		F_("This module is compiled for api_version %i version and initng is compiled on %i version, won't load this module!\n", API_VERSION, api_version);
-		return (FALSE);
+	if (api_version != API_VERSION) {
+		F_("This module is compiled for api_version %i version and "
+		   "initng is compiled on %i version, won't load this "
+		   "module!\n", API_VERSION, api_version);
+		return FALSE;
 	}
 
 	D_("module_init();\n");
 
 	/* look for the string interactive */
-	for (i = 0; g.Argv[i]; i++)
-		if (strstr(g.Argv[i], "interactive"))
-		{									/* if found */
-
+	for (i = 0; g.Argv[i]; i++) {
+		if (strstr(g.Argv[i], "interactive")) {									/* if found */
 			P_("Initng is started in interactive mode!\n");
 			initng_event_hook_register(&EVENT_START_DEP_MET,
-										&interactive_STARTING);
+			                           &interactive_STARTING);
 			initng_event_hook_register(&EVENT_STOP_DEP_MET,
-										&interactive_STOP_MARKED);
+			                           &interactive_STOP_MARKED);
 			active = TRUE;
-			return (TRUE);
+			return TRUE;
 		}
+	}
 
 	active = FALSE;
 	initng_module_unload_named("interactive");
-	return (TRUE);
+	return TRUE;
 }
 
 void module_unload(void)
 {
 	D_("module_unload();\n");
-	if (active == TRUE)
-	{
+	if (active == TRUE) {
 		initng_event_hook_unregister(&EVENT_START_DEP_MET,
-					     &interactive_STARTING);
+		                             &interactive_STARTING);
 		initng_event_hook_unregister(&EVENT_STOP_DEP_MET,
-					     &interactive_STOP_MARKED);
+		                             &interactive_STOP_MARKED);
 	}
 }

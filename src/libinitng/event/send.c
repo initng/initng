@@ -33,18 +33,17 @@ void initng_event_send(s_event *event)
 
 	event->status = WAITING;
 
-	while_list(current, &event->event_type->hooks)
-	{
+	while_list(current, &event->event_type->hooks) {
 		current->c.event(event);
-		if (event->status == HANDLED)
-		{
-			D_("%s event handled by %s\n", event->event_type->name, current->from_file);
+		if (event->status == HANDLED) {
+			D_("%s event handled by %s\n",
+			   event->event_type->name, current->from_file);
 			return;
 		}
 
-		if (event->status == FAILED)
-		{
-			D_("%s event failed on %s\n", event->event_type->name, current->from_file);
+		if (event->status == FAILED) {
+			D_("%s event failed on %s\n", event->event_type->name,
+			   current->from_file);
 			return;
 		}
 	}

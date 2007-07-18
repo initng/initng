@@ -24,13 +24,15 @@
 
 /*! \brief Null type
  *
- *  Describes a lack of data. The associated data is ignored and should be empty.
+ *  Describes a lack of data. The associated data is ignored and should be
+ *  empty.
  */
 #define NGCS_TYPE_NULL 0
 
 /*! \brief Native integer
  *
- *  This represents an int. The associated data is an int in native byte order.
+ *  This represents an int. The associated data is an int in native byte
+ *  order.
  */
 #define NGCS_TYPE_INT 1
 
@@ -77,21 +79,17 @@
 #define NGCS_TYPE_ERROR 8
 
 
-typedef enum
-{
-	NGCS_CHAN_OPEN = 0,
-
-	NGCS_CHAN_CLOSING = 1,
-
-	NGCS_CHAN_CLOSED = 2
+typedef enum {
+	NGCS_CHAN_OPEN		= 0,
+	NGCS_CHAN_CLOSING	= 1,
+	NGCS_CHAN_CLOSED	= 2
 } e_ngcs_chan_state;
 
 typedef struct ngcs_conn_s ngcs_conn;
 typedef struct ngcs_chan_s ngcs_chan;
 
 /*! \brief Data associated with a channel on a connection */
-struct ngcs_chan_s
-{
+struct ngcs_chan_s {
 	/*! \brief The channel ID (uniquely identifies this channel
 	   from the channels on this connection) */
 	int id;
@@ -104,14 +102,13 @@ struct ngcs_chan_s
 	void *userdata;
 
 	/*! \brief A function called when data is received on the channel */
-	void (*gotdata) (ngcs_chan *, int /* type */ , int /* len */ ,
-					 char * /* data */ );
+	void (*gotdata)(ngcs_chan *, int type, int len, char *data);
 
 	/*! \brief A function called when the channel is closed (possibly at 
 	   connection termination) */
-	void (*onclose) (ngcs_chan *);
+	void (*onclose)(ngcs_chan *);
 	/*! \brief A function called before the channel is freed */
-	void (*onfree) (ngcs_chan *);
+	void (*onfree)(ngcs_chan *);
 
 	e_ngcs_chan_state close_state;
 	int is_freed;
@@ -122,22 +119,21 @@ struct ngcs_chan_s
 
 
 
-typedef struct ngcs_data_s
-{
+typedef struct ngcs_data_s {
 	/*! \brief The data type of this datum (see NGCS_TYPE constants) */
 	int type;
 
 	/*! \brief The length in bytes of the data */
 	int len;
-	union
-	{
+	union {
 		/*! \brief The data as an integer, if type == NGCS_TYPE_INT */
 		int i;
 
 		/*! \brief The data as a long, if type == NGCS_TYPE_LONG */
 		long l;
 
-		/*! \brief The data as a null-terminated string, if type == NGCS_TYPE_STRING */
+		/*! \brief The data as a null-terminated string, if
+		 * type == NGCS_TYPE_STRING */
 		char *s;
 
 		/*! \brief The raw data, in cases not specifically covered */
@@ -145,21 +141,21 @@ typedef struct ngcs_data_s
 	} d;
 } ngcs_data;
 
-struct ngcs_conn_s
-{
+struct ngcs_conn_s {
 	/*! \brief The file descriptor associated with the connection */
 	int fd;
 
 	/*! \brief A list of all channels registered on this connection */
 	ngcs_chan chans;
 
-	/*! \brief Can be used by your code to store state relating to this connection */
+	/*! \brief Can be used by your code to store state relating to this
+	 * connection */
 	void *userdata;
 
 	/*! \brief A function called when the connection is closed */
-	void (*close_hook) (ngcs_conn * conn);
+	void (*close_hook)(ngcs_conn *conn);
 
-	void (*pollmode_hook) (ngcs_conn * conn, int have_pending_writes);
+	void (*pollmode_hook)(ngcs_conn *conn, int have_pending_writes);
 
 	char *wrbuf;				/* write buffer */
 	int wrbuflen;				/* write buffer length */
@@ -232,9 +228,9 @@ int ngcs_recvmsg(int sock, int *chan, int *type, int *len, char **data);
  *
  * \return the total packed length of the data, in bytes
  */
-int ngcs_pack(ngcs_data * data, int cnt, char *buf);
+int ngcs_pack(ngcs_data *data, int cnt, char *buf);
 
-int ngcs_unpack_one(int type, int len, const char *data, ngcs_data * res);
+int ngcs_unpack_one(int type, int len, const char *data, ngcs_data *res);
 
 /*! \brief Unpack a received structure
  *
@@ -253,9 +249,9 @@ int ngcs_unpack_one(int type, int len, const char *data, ngcs_data * res);
  *             representing the result of unpacking the data, is returned.
  *  \return the number of items unpacked, or -1 on error
  */
-int ngcs_unpack(const char *data, int len, ngcs_data ** res);
+int ngcs_unpack(const char *data, int len, ngcs_data **res);
 
-void ngcs_free_unpack_one(ngcs_data * res);
+void ngcs_free_unpack_one(ngcs_data *res);
 
 /*! \brief Frees the memory allocated by ngcs_unpack()
  *  
@@ -265,7 +261,7 @@ void ngcs_free_unpack_one(ngcs_data * res);
  * \param len the number of data items unpacked (that is, the return value of ngcs_unpack())
  * \param res the array of ngcs_data structures returned by ngcs_unpack in its *res parameter
  */
-void ngcs_free_unpack(int len, ngcs_data * res);
+void ngcs_free_unpack(int len, ngcs_data *res);
 
 /*! \brief Use a file descriptor as a ngcs connection
  *
@@ -281,8 +277,8 @@ void ngcs_free_unpack(int len, ngcs_data * res);
  *        careful what you put in it.
  */
 ngcs_conn *ngcs_conn_from_fd(int fd, void *userdata,
-							 void (*close_hook) (ngcs_conn * conn),
-							 void (*pollmode_hook) (ngcs_conn * conn,
+                             void (*close_hook)(ngcs_conn *conn),
+                             void (*pollmode_hook)(ngcs_conn *conn,
 													int have_pending_writes));
 
 /*! \brief Registers a channel handler on the specified connection
@@ -305,17 +301,17 @@ ngcs_conn *ngcs_conn_from_fd(int fd, void *userdata,
  *         free it), or NULL on failure
  */
 ngcs_chan *ngcs_chan_reg(ngcs_conn * conn, int chanid,
-						 void (*gotdata) (ngcs_chan *, int, int, char *),
-						 void (*chanclose) (ngcs_chan *),
-						 void (*chanfree) (ngcs_chan *));
+                         void (*gotdata)(ngcs_chan *, int, int, char *),
+                         void (*chanclose)(ngcs_chan *),
+                         void (*chanfree)(ngcs_chan *));
 
 /*! \brief Closes a channel
  *
  *  Closes the specified channel, sending a message to signal this to the other end,
  *  but does not free it. Calls the chanfree function registered for the channel */
-void ngcs_chan_close(ngcs_chan * chan);
+void ngcs_chan_close(ngcs_chan *chan);
 
-void ngcs_chan_close_now(ngcs_chan * chan);
+void ngcs_chan_close_now(ngcs_chan *chan);
 
 /*! \brief Closes a channel and frees associated data structures
  *
@@ -323,18 +319,18 @@ void ngcs_chan_close_now(ngcs_chan * chan);
  * chanfree function and frees all associated data structures (including the ngcs_chan
  * structure itself).
  */
-void ngcs_chan_del(ngcs_chan * chan);
+void ngcs_chan_del(ngcs_chan *chan);
 
 /*! \brief Handles incoming data
  *
  * Reads a message from the connection and dispatches it to the handler.
  * Should be called when select() indicates data is waiting to be read.
  */
-void ngcs_conn_data_ready(ngcs_conn * conn);
+void ngcs_conn_data_ready(ngcs_conn *conn);
 
-void ngcs_conn_write_ready(ngcs_conn * conn);
+void ngcs_conn_write_ready(ngcs_conn *conn);
 
-int ngcs_conn_has_pending_writes(ngcs_conn * conn);
+int ngcs_conn_has_pending_writes(ngcs_conn *conn);
 
 /*! \brief Closes a connection
  *
@@ -344,7 +340,7 @@ int ngcs_conn_has_pending_writes(ngcs_conn * conn);
  *
  * \sa ngcs_conn_free()
  */
-void ngcs_conn_close(ngcs_conn * conn);
+void ngcs_conn_close(ngcs_conn *conn);
 
 
 /*! \brief Closes and frees a connection
@@ -354,7 +350,7 @@ void ngcs_conn_close(ngcs_conn * conn);
  *
  * \sa ngcs_conn_close()
  */
-void ngcs_conn_free(ngcs_conn * conn);
+void ngcs_conn_free(ngcs_conn *conn);
 
 
 /*! \brief Send a message on the specified channel
@@ -369,14 +365,16 @@ void ngcs_conn_free(ngcs_conn * conn);
  * \return Zero on success, non-zero on failure
  * \sa ngcs_sendmsg()
  */
-int ngcs_chan_send(ngcs_chan * chan, int type, int len, const char *data);
+int ngcs_chan_send(ngcs_chan *chan, int type, int len, const char *data);
 
 
-int ngcs_chan_read_msg(ngcs_chan * chan, int *type, int *len, char **data);
+int ngcs_chan_read_msg(ngcs_chan *chan, int *type, int *len, char **data);
 
-void ngcs_conn_dispatch(ngcs_conn * conn);
+void ngcs_conn_dispatch(ngcs_conn *conn);
 
-#define while_ngcs_chans(current, conn) list_for_each_entry_prev(current, &(conn)->chans.list, list)
-#define while_ngcs_chans_safe(current, safe, conn) list_for_each_entry_prev_safe(current, safe, &(conn)->chans.list, list)
+#define while_ngcs_chans(current, conn) \
+	list_for_each_entry_prev(current, &(conn)->chans.list, list)
+#define while_ngcs_chans_safe(current, safe, conn) \
+	list_for_each_entry_prev_safe(current, safe, &(conn)->chans.list, list)
 
 #endif

@@ -39,13 +39,13 @@ static void print_string_value(char *string, char **to);
 
 /* P R I N T   S E R V I C E */
 
-/* there may be unprintable characters in string - should escape them when printing */
+/* there may be unprintable characters in string - should escape them when
+ * printing */
 static void print_string_value(char *string, char **to)
 {
 	int i;
 
-	for (i = 0; string[i] != 0; i++)
-	{
+	for (i = 0; string[i] != 0; i++) {
 		if (IS_PRINTABLE(string[i]))
 			mprintf(to, "%c", string[i]);
 		else
@@ -57,70 +57,78 @@ static void print_sdata(s_data * tmp, char **string)
 {
 	if (!tmp->type)
 		return;
-	switch (tmp->type->opt_type)
-	{
+
+	switch (tmp->type->type) {
 		case STRING:
 		case STRINGS:
-			if (!tmp->t.s)
-			{
+			if (!tmp->t.s) {
 				F_("empty value!\n");
 				return;
 			}
-			mprintf(string, "\t %10s            = \"", tmp->type->opt_name);
+			mprintf(string, "\t %10s            = \"",
+			        tmp->type->name);
 
 			print_string_value(tmp->t.s, string);
 			mprintf(string, "\"\n");
 			return;
+
 		case VARIABLE_STRING:
 		case VARIABLE_STRINGS:
-			if (!tmp->t.s)
-			{
+			if (!tmp->t.s) {
 				F_("empty value!\n");
 				return;
 			}
-			if (tmp->vn)
-				mprintf(string, "\t %10s %-10s = \"", tmp->type->opt_name,
-						tmp->vn);
-			else
-				mprintf(string, "\t %10s %-10s = \"", tmp->type->opt_name,
-						"ERROR");
-
+			
+			if (tmp->vn) {
+				mprintf(string, "\t %10s %-10s = \"",
+				        tmp->type->name, tmp->vn);
+			} else {
+				mprintf(string, "\t %10s %-10s = \"",
+				        tmp->type->name, "ERROR");
+			}
+			
 			print_string_value(tmp->t.s, string);
 			mprintf(string, "\"\n");
 			return;
+
 		case INT:
 			mprintf(string, "\t %10s            = \"%i\"\n",
-					tmp->type->opt_name, tmp->t.i);
+			        tmp->type->name, tmp->t.i);
 			return;
+
 		case VARIABLE_INT:
-			mprintf(string, "\t %10s %-10s = \"%i\"\n", tmp->type->opt_name,
-					tmp->vn, tmp->t.i);
+			mprintf(string, "\t %10s %-10s = \"%i\"\n",
+			        tmp->type->name, tmp->vn, tmp->t.i);
 			return;
+
 		case SET:
 			mprintf(string, "\t %10s            = TRUE\n",
-					tmp->type->opt_name);
+			        tmp->type->name);
 			return;
+
 		case VARIABLE_SET:
-			mprintf(string, "\t %10s %-10s = TRUE\n", tmp->type->opt_name,
-					tmp->vn);
+			mprintf(string, "\t %10s %-10s = TRUE\n",
+			        tmp->type->name, tmp->vn);
 			return;
+
 		case ALIAS:
-			mprintf(string, "\t ALIAS %10s\n", tmp->type->opt_name);
-			return;
+			mprintf(string, "\t ALIAS %10s\n",
+			        tmp->type->name);
+
 		default:
 			return;
 	}
 
 }
 
-static void active_db_print_process(process_h * p, char **string)
+static void active_db_print_process(process_h *p, char **string)
 {
 	pipe_h *current_pipe = NULL;
 
 	assert(p);
 	if (p->pst == P_FREE)
 		mprintf(string, "\t DEAD Process: type %s\n", p->pt->name);
-	if (p->pst == P_ACTIVE)
+	else if (p->pst == P_ACTIVE)
 		mprintf(string, "\t Process: type %s\n", p->pt->name);
 
 	if (p->pid > 0)
@@ -145,43 +153,52 @@ static void active_db_print_process(process_h * p, char **string)
 #endif
 				WIFSTOPPED(p->r_code), WSTOPSIG(p->r_code));
 
-	if (!list_empty(&p->pipes.list))
-	{
+	if (!list_empty(&p->pipes.list)) {
 		mprintf(string, "\t\tPIPES:\n");
-		while_pipes(current_pipe, p)
-		{
+		while_pipes(current_pipe, p) {
 			int i;
 
-			switch (current_pipe->dir)
-			{
+			switch (current_pipe->dir) {
 				case IN_PIPE:
-					mprintf(string,
-							"\t\t INPUT_PIPE read: %i, write: %i remote:",
-							current_pipe->pipe[0], current_pipe->pipe[1]);
+					mprintf(string, "\t\t INPUT_PIPE "
+					        "read: %i, write: %i remote:",
+					        current_pipe->pipe[0],
+					        current_pipe->pipe[1]);
 					break;
+
 				case OUT_PIPE:
-					mprintf(string,
-							"\t\t OUTPUT_PIPE read: %i, write: %i remote:",
-							current_pipe->pipe[1], current_pipe->pipe[0]);
+					mprintf(string, "\t\t OUTPUT_PIPE "
+					        "read: %i, write: %i remote:",
+						current_pipe->pipe[1],
+						current_pipe->pipe[0]);
 					break;
+
 				case BUFFERED_OUT_PIPE:
-					mprintf(string,
-							"\t\t BUFFERED_OUTPUT_PIPE read: %i, write: %i remote:",
-							current_pipe->pipe[1], current_pipe->pipe[0]);
+					mprintf(string, "\t\t "
+					        "BUFFERED_OUTPUT_PIPE read: "
+					        "%i, write: %i remote:",
+						current_pipe->pipe[1],
+						current_pipe->pipe[0]);
 					break;
+
 				default:
 					continue;
 			}
 
-			for (i = 0; current_pipe->targets[i] > 0 && i < MAX_TARGETS; i++)
-				mprintf(string, " %i", current_pipe->targets[i]);
+			for (i = 0; current_pipe->targets[i] > 0 &&
+			            i < MAX_TARGETS; i++) {
+				mprintf(string, " %i",
+				        current_pipe->targets[i]);
+			}
 
 			mprintf(string, "\n");
-			if (current_pipe->buffer && current_pipe->buffer_allocated > 0)
-			{
-				mprintf(string,
-						"\t\tBuffer (%i): \n##########  BUFFER  ##########\n%s\n##############################\n",
-						current_pipe->buffer_allocated, current_pipe->buffer);
+			if (current_pipe->buffer &&
+			    current_pipe->buffer_allocated > 0) {
+				mprintf(string, "\t\tBuffer (%i): \n"
+				        "##########  BUFFER  ##########\n%s\n"
+				        "##############################\n",
+				        current_pipe->buffer_allocated,
+				        current_pipe->buffer);
 			}
 		}
 	}
@@ -190,53 +207,45 @@ static void active_db_print_process(process_h * p, char **string)
 
 
 
-static void active_db_print_u(active_db_h * s, char **string)
+static void active_db_print_u(active_db_h *s, char **string)
 {
-	/*data path */
+	/* data path */
 	s_data *tmp = NULL;
 	process_h *process = NULL;
 
 	assert(s);
 	assert(s->name);
 
-
 	struct timeval now;
 
 	mprintf(string, "\n %s  \"%s", s->type->name, s->name);
 
-	if (s->current_state && s->current_state->state_name)
-	{
-		mprintf(string, "\"  status  \"%s\"\n", s->current_state->state_name);
-	}
-	else
-	{
+	if (s->current_state && s->current_state->name) {
+		mprintf(string, "\"  status  \"%s\"\n", s->current_state->name);
+	} else {
 		mprintf(string, "\"\n");
 	}
 
 	gettimeofday(&now, NULL);
 
-	mprintf(string,
-			"\tTIMES:\n\t last_rought: %ims\n\t last_state: %ims\n\t current_state: %ims\n",
-			MS_DIFF(now, s->last_rought_time), MS_DIFF(now,
-													   s->time_last_state),
-			MS_DIFF(now, s->time_current_state));
+	mprintf(string, "\tTIMES:\n\t last_rought: %ims\n"
+	        "\t last_state: %ims\n\t current_state: %ims\n",
+	        MS_DIFF(now, s->last_rought_time),
+	        MS_DIFF(now, s->time_last_state),
+	        MS_DIFF(now, s->time_current_state));
 
 	/* print processes if any */
 
-	if (!list_empty(&s->processes.list))
-	{
+	if (!list_empty(&s->processes.list)) {
 		mprintf(string, "\tPROCCESSES:\n");
-		while_processes(process, s)
-		{
+		while_processes(process, s) {
 			active_db_print_process(process, string);
 		}
 	}
 
-	if (!list_empty(&s->data.head.list))
-	{
+	if (!list_empty(&s->data.head.list)) {
 		mprintf(string, "\tVARIABLES:\n");
-		list_for_each_entry(tmp, &(s->data.head.list), list)
-		{
+		list_for_each_entry(tmp, &(s->data.head.list), list) {
 			print_sdata(tmp, string);
 		}
 	}
@@ -250,11 +259,10 @@ char *active_db_print_all(char *matching)
 
 	D_("active_db_print_all(%s):\n", matching);
 
-	while_active_db(apt)
-	{
+	while_active_db(apt) {
 		if (!matching || initng_string_match(apt->name, matching))
 			active_db_print_u(apt, &string);
 	}
 
-	return (string);
+	return string;
 }

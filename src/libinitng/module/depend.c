@@ -90,14 +90,12 @@ int module_is_loaded(const char *module_name)
 
 	assert(module_name != NULL);
 
-	while_module_db(m)
-	{
+	while_module_db(m) {
 		if (strcmp(m->module_name, module_name) == 0 ||
-			strcmp(m->module_filename, module_name) == 0)
-		{
+		    strcmp(m->module_filename, module_name) == 0)
 			return TRUE;
-		}
 	}
+
 	return FALSE;
 }
 
@@ -113,25 +111,21 @@ int module_needs_are_loaded(const m_h * m)
 
 	/* if there are no needs, then we have met them */
 	if (m->module_needs == NULL)
-	{
 		return TRUE;
-	}
 
 	/* otherwise check each one */
 	needs = m->module_needs;
 	retval = TRUE;
-	if (needs != NULL)
-	{
-		while (*needs != NULL)
-		{
-			if (!module_is_loaded(*needs))
-			{
-				F_("Plugin \"%s\" (%s) requires plugin \"%s\" to work, unlodading %s.\n", m->module_name, m->module_filename, *needs, m->module_name);
-				retval = FALSE;
-			}
-			needs++;
+	while (*needs != NULL) {
+		if (!module_is_loaded(*needs)) {
+			F_("Plugin \"%s\" (%s) requires plugin \"%s\" to "
+			   "work, unlodading %s.\n", m->module_name,
+			   m->module_filename, *needs, m->module_name);
+			retval = FALSE;
 		}
+		needs++;
 	}
+
 	return retval;
 }
 
@@ -148,23 +142,21 @@ int module_is_needed(const char *module_name)
 
 	assert(module_name != NULL);
 
-	while_module_db(m)
-	{
+	while_module_db(m) {
 		/* if not this module, have needs set, continue.. */
 		if (!(m->module_needs))
 			continue;
 		needs = m->module_needs;
 
-		while (*needs != NULL)
-		{
-			if (strcmp(module_name, *needs) == 0)
-			{
-				F_("Module \"%s\" needed by \"%s\"\n", module_name,
-				   m->module_name);
+		while (*needs != NULL) {
+			if (strcmp(module_name, *needs) == 0) {
+				F_("Module \"%s\" needed by \"%s\"\n",
+				   module_name, m->module_name);
 				retval = TRUE;
 			}
 			needs++;
 		}
 	}
+
 	return retval;
 }

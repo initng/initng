@@ -68,64 +68,65 @@ static void handle_it(char *str)
 	char *val;
 	int i;
 
-	switch(initng_config_opt_get(opts, &val, str)) {
-		case OPT_CONSOLE:
-			if (val)
-				g.dev_console = initng_toolbox_strdup(val);
-			break;
+	switch (initng_config_opt_get(opts, &val, str)) {
+	case OPT_CONSOLE:
+		if (val)
+			g.dev_console = initng_toolbox_strdup(val);
+		break;
 
-		case OPT_RUNLEVEL:
-			if (val)
-				g.runlevel = initng_toolbox_strdup(val);
-			break;
+	case OPT_RUNLEVEL:
+		if (val)
+			g.runlevel = initng_toolbox_strdup(val);
+		break;
 
-		case OPT_NO_CIRCULAR:
-			g.no_circular = TRUE;
-			break;
+	case OPT_NO_CIRCULAR:
+		g.no_circular = TRUE;
+		break;
 
-		case OPT_I_AM_INIT:
-			g.i_am = I_AM_INIT;
-			break;
+	case OPT_I_AM_INIT:
+		g.i_am = I_AM_INIT;
+		break;
 
-		case OPT_HOT_RELOAD:
-			D_(" Will start after a hot reload ...\n");
-			g.hot_reload = TRUE;
-			break;
+	case OPT_HOT_RELOAD:
+		D_(" Will start after a hot reload ...\n");
+		g.hot_reload = TRUE;
+		break;
 
 #ifdef DEBUG
-		case OPT_VERBOSE:
-			g.verbose = TRUE;
-			break;
+	case OPT_VERBOSE:
+		g.verbose = TRUE;
+		break;
 
-		case OPT_VERBOSE_ADD:
-			if (val)
-				initng_error_verbose_add(val);
-			break;
+	case OPT_VERBOSE_ADD:
+		if (val)
+			initng_error_verbose_add(val);
+		break;
 #endif
 
-		case OPT_HELP:
-			printf("Options are given to initng by linux "
-			       "bootloader, you can use option=value, or "
-			       "option:value to set an option.\n\n"
-			       "Possible options:\n");
+	case OPT_HELP:
+		printf("Options are given to initng by linux "
+		       "bootloader, you can use option=value, or "
+		       "option:value to set an option.\n\n"
+		       "Possible options:\n");
 
-			for (i = 0; opts[i].name; i++) {
-				if (opts[i].desc &&
-				    (!val || strcmp(opts[i].name, val) == 0))
-					printf(" %16s: %s\n", opts[i].name,
-					       opts[i].desc);
+		for (i = 0; opts[i].name; i++) {
+			if (opts[i].desc && (!val ||
+			    strcmp(opts[i].name, val) == 0)) {
+				printf(" %16s: %s\n", opts[i].name,
+				       opts[i].desc);
 			}
+		}
 
-			printf("\n\n");
-			_exit(0);
+		printf("\n\n");
+		_exit(0);
 
-		case OPT_VERSION:
-			printf(INITNG_VERSION " (API %i)\n"
-			       INITNG_COPYRIGHT, API_VERSION);
-			_exit(0);
+	case OPT_VERSION:
+		printf(INITNG_VERSION " (API %i)\n"
+		       INITNG_COPYRIGHT, API_VERSION);
+		_exit(0);
 
-		default:
-			break;
+	default:
+		break;
 	}
 }
 
@@ -134,8 +135,7 @@ void options_parse_args(char **argv)
 	int i;
 	char *opt;
 
-	for (i = 0; argv[i] != NULL; i++)
-	{
+	for (i = 0; argv[i] != NULL; i++) {
 		opt = argv[i];
 
 		/* don't parse options starting with an '+' */
@@ -148,8 +148,7 @@ void options_parse_args(char **argv)
 		 * if arg is verbose, check it below
 		 */
 
-		if (opt[0] == '-')
-		{
+		if (opt[0] == '-') {
 			if (opt[1] != '-')
 				continue;
 
@@ -167,14 +166,12 @@ int options_parse_file(const char *file)
 	FILE *f;
 	char tmp[BUF_LEN + 1];
 
-	if ((f = fopen(file, "r")) == NULL)
-	{
+	if ((f = fopen(file, "r")) == NULL) {
 		F_("Failed opening configuration file '%s'", file);
 		return (-1);
 	}
 	
-	while (fgets(tmp, BUF_LEN, f))
-	{
+	while (fgets(tmp, BUF_LEN, f)) {
 		tmp[BUF_LEN] = '\0';
 		handle_it(tmp);
 	}

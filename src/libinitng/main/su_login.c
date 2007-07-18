@@ -50,12 +50,10 @@ void initng_main_su_login(void)
 	int status;
 
 #ifdef SELINUX
-	if (is_selinux_enabled > 0)
-	{
+	if (is_selinux_enabled > 0) {
 		security_context_t *contextlist = NULL;
 
-		if (get_ordered_context_list("root", 0, &contextlist) > 0)
-		{
+		if (get_ordered_context_list("root", 0, &contextlist) > 0) {
 			if (setexeccon(contextlist[0]) != 0)
 				fprintf(stderr, "setexeccon failed\n");
 			freeconary(contextlist);
@@ -63,43 +61,32 @@ void initng_main_su_login(void)
 	}
 #endif
 	/* sulogin nicely 2 times */
-	if (local_sulogin_count <= TRY_TIMES)
-	{
+	if (local_sulogin_count <= TRY_TIMES) {
 		printf("This is a sulogin offer,\n"
-			   "you will be able to login for %i times (now %i),\n"
-			   "and on return initng will try continue where it was,\n"
-			   "if the times go out, initng will launch\n"
-			   "/sbin/initng-segfault on next su_login request.\n\n",
-			   TRY_TIMES, local_sulogin_count);
+		       "you will be able to login for %i times (now %i),\n"
+		       "and on return initng will try continue where it was,\n"
+		       "if the times go out, initng will launch\n"
+		       "/sbin/initng-segfault on next su_login request.\n\n",
+		       TRY_TIMES, local_sulogin_count);
 		sulogin_pid = fork();
 
-		if (sulogin_pid == 0)
-		{
+		if (sulogin_pid == 0) {
 			const char *sulogin_argv[] = { "/sbin/sulogin", NULL };
 			const char *sulogin_env[] = { NULL };
-			int i = 0;
-
-			/* make sure all fds but stdin, stdout, stderr is closed */
-			for (i = 3; i <= 1013; i++)
-			{
-				close(i);
-			}
 
 			/* launch sulogin */
 			execve(sulogin_argv[0], (char **) sulogin_argv,
-				   (char **) sulogin_env);
+			       (char **) sulogin_env);
 
 			printf("Unable to execute /sbin/sulogin!\n");
 			_exit(1);
 		}
 
-		if (sulogin_pid > 0)
-		{
-			do
-			{
-				sulogin_pid = waitpid(sulogin_pid, &status, WUNTRACED);
-			}
-			while (!WIFEXITED(status) && !WIFSIGNALED(status));
+		if (sulogin_pid > 0) {
+			do {
+				sulogin_pid = waitpid(sulogin_pid, &status,
+				                      WUNTRACED);
+			} while (!WIFEXITED(status) && !WIFSIGNALED(status));
 
 			/* increase the sulogin_count */
 			local_sulogin_count++;

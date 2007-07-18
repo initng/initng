@@ -21,8 +21,7 @@
 #define INITNG_SYSTEM_STATES_H
 
 /* System states */
-typedef enum
-{
+typedef enum {
 	STATE_NULL = 0,
 	STATE_STARTING = 1,
 	STATE_UP = 2,

@@ -20,7 +20,7 @@
 #include <initng.h>
 
 #include <stdio.h>
-#include <stdlib.h>							/* free() exit() */
+#include <stdlib.h>					/* free() exit() */
 #include <string.h>
 #include <assert.h>
 
@@ -36,16 +36,17 @@ int initng_depend_stop_dep_met(active_db_h * service, int verbose)
 	int count = 0;
 
 	/*
-	 *    Check so all deps, that needs service, is down.
-	 *    if there are services depending on this one still running, return false and still try
+	 * Check so all deps, that needs service, is down.
+	 * if there are services depending on this one still running,
+	 * return false and still try.
 	 */
-	while_active_db(currentA)
-	{
+	while_active_db(currentA) {
 		count++;
 		if (service->depend_cache >= count)
 			continue;
 
-		/* temporary increase depend_cache - will degrese before reutrn (FALSE) */
+		/* temporary increase depend_cache - will degrese before
+		 * reutrn (FALSE) */
 		service->depend_cache++;
 
 		if (currentA == service)
@@ -65,33 +66,37 @@ int initng_depend_stop_dep_met(active_db_h * service, int verbose)
 
 		/* BIG TODO.
 		 * This is not correct, but if we wait for a service that is
-		 * starting to stop, and that service is waiting for this service
-		 * to start, until it starts, makes a deadlock.
+		 * starting to stop, and that service is waiting for this
+		 * service to start, until it starts, makes a deadlock.
 		 *
-		 * Asuming that STARTING services WAITING_FOR_START_DEP are down for now.
+		 * Asuming that STARTING services WAITING_FOR_START_DEP are
+		 * down for now.
 		 */
-		if (IS_STARTING(currentA)
-			&& strstr(currentA->current_state->state_name,
-					  "WAITING_FOR_START_DEP"))
+		if (IS_STARTING(currentA) &&
+		    strstr(currentA->current_state->name,
+		           "WAITING_FOR_START_DEP"))
 			continue;
 
 #ifdef DEBUG
 		/* else RETURN */
 		if (verbose)
-			D_("still waiting for service %s state %s\n", currentA->name,
-			   currentA->current_state->state_name);
+			D_("still waiting for service %s state %s\n",
+			   currentA->name,
+			   currentA->current_state->name);
 		else
-			D_("still waiting for service %s state %s\n", currentA->name,
-			   currentA->current_state->state_name);
+			D_("still waiting for service %s state %s\n",
+			   currentA->name,
+			   currentA->current_state->name);
 #endif
 
-		/* if its still marked as UP and not stopping, tell the service AGAIN nice to stop */
+		/* if its still marked as UP and not stopping, tell the
+		 * service AGAIN nice to stop */
 		/*if (IS_UP(currentA))
 		   initng_handler_stop_service(currentA); */
 
 		/* no, the dependency are not met YET */
 		service->depend_cache--;
-		return (FALSE);
+		return FALSE;
 	}
 
 
@@ -103,17 +108,17 @@ int initng_depend_stop_dep_met(active_db_h * service, int verbose)
 		event.data = service;
 
 		initng_event_send(&event);
-		if (event.status == FAILED)
-		{
-			if (verbose)
-			{
-				F_("Service %s can not be started because a plugin (START_DEP_MET) says so.\n", service->name);
+		if (event.status == FAILED) {
+			if (verbose) {
+				F_("Service %s can not be started because a "
+				   "plugin (START_DEP_MET) says so.\n",
+				   service->name);
 			}
 
-			return (FALSE);
+			return FALSE;
 		}
 	}
 
 	service->depend_cache = 0;
-	return (TRUE);
+	return TRUE;
 }

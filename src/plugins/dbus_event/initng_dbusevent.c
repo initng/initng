@@ -45,26 +45,25 @@ INITNG_PLUGIN_MACRO;
 void send_to_all(char *buf);
 
 
-static void astatus_change(s_event * event);
-static void check_socket(s_event * event);
+static void astatus_change(s_event *event);
+static void check_socket(s_event *event);
 static int connect_to_dbus(void);
-static void system_state_change(s_event * event);
-static void system_pipe_watchers(s_event * event);
-static void print_error(s_event * event);
+static void system_state_change(s_event *event);
+static void system_pipe_watchers(s_event *event);
+static void print_error(s_event *event);
 
-static dbus_bool_t add_dbus_watch(DBusWatch * watch, void *data);
-static void rem_dbus_watch(DBusWatch * watch, void *data);
-static void toggled_dbus_watch(DBusWatch * watch, void *data);
-static void fdw_callback(f_module_h * from, e_fdw what);
+static dbus_bool_t add_dbus_watch(DBusWatch *watch, void *data);
+static void rem_dbus_watch(DBusWatch *watch, void *data);
+static void toggled_dbus_watch(DBusWatch *watch, void *data);
+static void fdw_callback(f_module_h *from, e_fdw what);
 
 static void free_dbus_watch_data(void *data);
 
-static void w_handler(s_event * event);
+static void w_handler(s_event *event);
 
 DBusConnection *conn;
 
-typedef struct
-{
+typedef struct {
 	f_module_h fdw;
 	DBusWatch *dbus;
 	list_h list;
@@ -73,7 +72,7 @@ typedef struct
 initng_dbus_watch dbus_watches;
 
 
-static void w_handler(s_event * event)
+static void w_handler(s_event *event)
 {
 	s_event_fd_watcher_data * data;
 	initng_dbus_watch *current = NULL;
@@ -83,10 +82,8 @@ static void w_handler(s_event * event)
 
 	data = event->data;
 
-	list_for_each_entry(current, &dbus_watches.list, list);
-	{
-		switch (data->action)
-		{
+	list_for_each_entry(current, &dbus_watches.list, list) {
+		switch (data->action) {
 			case FDW_ACTION_CLOSE:
 				if (current->fdw.fds > 0)
 					close(current->fdw.fds);
@@ -96,10 +93,11 @@ static void w_handler(s_event * event)
 				if (current->fdw.fds <= 2)
 					break;
 
-				/* This is a expensive test, but better safe then sorry */
-				if (!STILL_OPEN(current->fdw.fds))
-				{
-					D_("%i is not open anymore.\n", current->fdw.fds);
+				/* This is a expensive test, but better safe
+				 * then sorry */
+				if (!STILL_OPEN(current->fdw.fds)) {
+					D_("%i is not open anymore.\n",
+					   current->fdw.fds);
 					current->fdw.fds = -1;
 					break;
 				}
@@ -115,33 +113,38 @@ static void w_handler(s_event * event)
 				if(!FD_ISSET(current->fdw.fds, data->readset))
 					break;
 
-				current->fdw.call_module(&current->fdw, FDW_READ);
+				current->fdw.call_module(&current->fdw,
+				                         FDW_READ);
 				data->added--;
 				break;
 
 			case FDW_ACTION_DEBUG:
-				if (!data->debug_find_what || strstr(__FILE__, data->debug_find_what))
-					mprintf(data->debug_out, " %i: Used by plugin: %s\n",
-						current->fdw.fds, __FILE__);
+				if (!data->debug_find_what ||
+				    strstr(__FILE__, data->debug_find_what)) {
+					mprintf(data->debug_out,
+					        " %i: Used by plugin: %s\n",
+					        current->fdw.fds, __FILE__);
+				}
 				break;
 		}
 	}
 }
 
 /* ------  DBus Watch Handling --------
+ *
+ * NOTE: if any of the F_, D_ etc macros are called during execution of these
+ * functions, bad things happen as these call DBus functions and the DBus
+ * code is *not* reentrant
+ */
 
-   NOTE: if any of the F_, D_ etc macros are called during execution of these
-   functions, bad things happen as these call DBus functions and the DBus
-   code is *not* reentrant */
-
-static dbus_bool_t add_dbus_watch(DBusWatch * watch, void *data)
+static dbus_bool_t add_dbus_watch(DBusWatch *watch, void *data)
 {
-	initng_dbus_watch *w = i_calloc(1, sizeof(initng_dbus_watch));
+	initng_dbus_watch *w =
+		initng_toolbox_calloc(1, sizeof(initng_dbus_watch));
 
-	if (w == NULL)
-	{
+	if (w == NULL) {
 		printf("Memory allocation failed\n");
-		return (FALSE);
+		return FALSE;
 	}
 
 	w->fdw.fds = dbus_watch_get_fd(watch);
@@ -150,11 +153,11 @@ static dbus_bool_t add_dbus_watch(DBusWatch * watch, void *data)
 	w->fdw.what = 0;
 
 	dbus_watch_set_data(watch, w, free_dbus_watch_data);
-	toggled_dbus_watch(watch, data);		/* to set initial state */
+	toggled_dbus_watch(watch, data);	/* to set initial state */
 
 	list_add(&w->list, &dbus_watches.list);
 
-	return (TRUE);
+	return TRUE;
 }
 
 static void rem_dbus_watch(DBusWatch * watch, void *data)
@@ -169,8 +172,7 @@ static void toggled_dbus_watch(DBusWatch * watch, void *data)
 	initng_dbus_watch *w = dbus_watch_get_data(watch);
 
 	w->fdw.what = 0;
-	if (dbus_watch_get_enabled(watch))
-	{
+	if (dbus_watch_get_enabled(watch)) {
 		int flags = dbus_watch_get_flags(watch);
 
 		if (flags & DBUS_WATCH_READABLE)
@@ -192,7 +194,7 @@ static void free_dbus_watch_data(void *data)
 	free(w);
 }
 
-static void fdw_callback(f_module_h * from, e_fdw what)
+static void fdw_callback(f_module_h *from, e_fdw what)
 {
 	initng_dbus_watch *w = (initng_dbus_watch *) from;
 	int flgs = 0;
@@ -213,9 +215,9 @@ static void fdw_callback(f_module_h * from, e_fdw what)
 
 /* --- End DBus watch handling ---- */
 
-static void astatus_change(s_event * event)
+static void astatus_change(s_event *event)
 {
-	active_db_h * service;
+	active_db_h *service;
 
 	DBusMessage *msg;
 	dbus_uint32_t serial = 0;
@@ -228,38 +230,33 @@ static void astatus_change(s_event * event)
 	/* these values will be send */
 	const char *service_name = service->name;
 	int is = service->current_state->is;
-	const char *state_name = service->current_state->state_name;
+	const char *state_name = service->current_state->name;
 
 	if (conn == NULL)
 		return;
 
-	D_("Sending signal with value \"%.10s\" %i \"%.10s\"\n", service_name, is,
-	   state_name);
+	D_("Sending signal with value \"%.10s\" %i \"%.10s\"\n", service_name,
+	   is, state_name);
 
 	/* create a signal & check for errors */
-	msg = dbus_message_new_signal(OBJECT,	/* object name of the signal */
-					  INTERFACE,	/* interface name of the signal */
-					  "astatus_change");	/* name of the signal */
-	if (NULL == msg)
-	{
+	msg = dbus_message_new_signal(OBJECT, INTERFACE, "astatus_change");
+	if (NULL == msg) {
 		F_("Unable to create ne dbus signal\n");
 		return;
 	}
 
 
 	/* Append some arguments to the call */
-	if (!dbus_message_append_args
-		(msg, DBUS_TYPE_STRING, &service_name, DBUS_TYPE_INT32, &is,
-		 DBUS_TYPE_STRING, &state_name, DBUS_TYPE_INVALID))
-	{
+	if (!dbus_message_append_args(msg, DBUS_TYPE_STRING, &service_name,
+	                              DBUS_TYPE_INT32, &is, DBUS_TYPE_STRING,
+	                              &state_name, DBUS_TYPE_INVALID)) {
 		F_("Unable to append args to dbus signal!\n");
 		return;
 	}
 
 
 	/* send the message and flush the connection */
-	if (!dbus_connection_send(conn, msg, &serial))
-	{
+	if (!dbus_connection_send(conn, msg, &serial)) {
 		F_("Unable to send dbus signal!\n");
 		return;
 	}
@@ -286,28 +283,24 @@ static void system_state_change(s_event * event)
 		return;
 
 	/* create a signal & check for errors */
-	msg = dbus_message_new_signal(OBJECT,	/* object name of the signal */
-								  INTERFACE,	/* interface name of the signal */
-								  "system_state_change");	/* name of the signal */
-	if (NULL == msg)
-	{
+	msg = dbus_message_new_signal(OBJECT, INTERFACE,
+	                              "system_state_change");
+	if (NULL == msg) {
 		F_("Unable to create new dbus signal\n");
 		return;
 	}
 
 
 	/* Append some arguments to the call */
-	if (!dbus_message_append_args
-		(msg, DBUS_TYPE_INT32, &state, DBUS_TYPE_INVALID))
-	{
+	if (!dbus_message_append_args(msg, DBUS_TYPE_INT32, &state,
+	                              DBUS_TYPE_INVALID)) {
 		F_("Unable to append args to dbus signal!\n");
 		return;
 	}
 
 
 	/* send the message and flush the connection */
-	if (!dbus_connection_send(conn, msg, &serial))
-	{
+	if (!dbus_connection_send(conn, msg, &serial)) {
 		F_("Unable to send dbus signal!\n");
 		return;
 	}
@@ -328,8 +321,10 @@ static void system_pipe_watchers(s_event * event)
 	assert(event->event_type == &EVENT_PIPE_WATCHER);
 	assert(event->data);
 
-	const char *service_name = ((s_event_pipe_watcher_data *) event->data)->service->name;
-	const char *process_name = ((s_event_pipe_watcher_data *) event->data)->process->pt->name;
+	const char *service_name =
+		((s_event_pipe_watcher_data *)event->data)->service->name;
+	const char *process_name =
+		((s_event_pipe_watcher_data *)event->data)->process->pt->name;
 
 	char output[100]; //used for ? needs fix
 
@@ -339,11 +334,8 @@ static void system_pipe_watchers(s_event * event)
 	}
 
 	/* create a signal & check for errors */
-	msg = dbus_message_new_signal(OBJECT,	/* object name of the signal */
-					  INTERFACE,	/* interface name of the signal */
-					  "system_output");	/* name of the signal */
-	if (NULL == msg)
-	{
+	msg = dbus_message_new_signal(OBJECT, INTERFACE, "system_output");
+	if (NULL == msg) {
 		F_("Unable to create new dbus signal\n");
 		event->status = HANDLED;
 		return;
@@ -351,10 +343,10 @@ static void system_pipe_watchers(s_event * event)
 
 
 	/* Append some arguments to the call */
-	if (!dbus_message_append_args
-		(msg, DBUS_TYPE_STRING, &service_name, DBUS_TYPE_STRING,
-		 &process_name, DBUS_TYPE_STRING, &output, DBUS_TYPE_INVALID))
-	{
+	if (!dbus_message_append_args(msg, DBUS_TYPE_STRING, &service_name,
+	                              DBUS_TYPE_STRING, &process_name,
+	                              DBUS_TYPE_STRING, &output,
+	                              DBUS_TYPE_INVALID)) {
 		F_("Unable to append args to dbus signal!\n");
 		event->status = HANDLED;
 		return;
@@ -362,8 +354,7 @@ static void system_pipe_watchers(s_event * event)
 
 
 	/* send the message and flush the connection */
-	if (!dbus_connection_send(conn, msg, &serial))
-	{
+	if (!dbus_connection_send(conn, msg, &serial)) {
 		F_("Unable to send dbus signal!\n");
 		event->status = HANDLED;
 		return;
@@ -392,34 +383,30 @@ static void print_error(s_event * event)
 		return;
 
 	/* create a signal & check for errors */
-	msg = dbus_message_new_signal(OBJECT,	/* object name of the signal */
-					  INTERFACE,	/* interface name of the signal */
-					  "print_error");	/* name of the signal */
-	if (NULL == msg)
-	{
+	msg = dbus_message_new_signal(OBJECT, INTERFACE, "print_error");
+	if (NULL == msg) {
 		F_("Unable to create new dbus signal\n");
 		return;
 	}
 
 	/* compose the message */
-	char *message = i_calloc(1001, sizeof(char));
+	char *message = initng_toolbox_calloc(1001, 1);
 
 	vsnprintf(message, 1000, data->format, data->arg);
 
 	/* Append some arguments to the call */
-	if (!dbus_message_append_args
-		(msg, DBUS_TYPE_INT32, &data->mt, DBUS_TYPE_STRING, &data->file, DBUS_TYPE_STRING,
-		 &data->func, DBUS_TYPE_INT32, &data->line, DBUS_TYPE_STRING, &message,
-		 DBUS_TYPE_INVALID))
-	{
+	if (!dbus_message_append_args(msg, DBUS_TYPE_INT32, &data->mt,
+	                              DBUS_TYPE_STRING, &data->file,
+	                              DBUS_TYPE_STRING, &data->func,
+	                              DBUS_TYPE_INT32, &data->line,
+	                              DBUS_TYPE_STRING, &message,
+	                              DBUS_TYPE_INVALID)) {
 		F_("Unable to append args to dbus signal!\n");
 		return;
 	}
 
-
 	/* send the message and flush the connection */
-	if (!dbus_connection_send(conn, msg, &serial))
-	{
+	if (!dbus_connection_send(conn, msg, &serial)) {
 		F_("Unable to send dbus signal!\n");
 		return;
 	}
@@ -449,8 +436,7 @@ static void check_socket(s_event * event)
 		return;
 
 	/* close if open */
-	if (conn)
-	{
+	if (conn) {
 		dbus_connection_close(conn);
 		conn = NULL;
 	}
@@ -470,27 +456,24 @@ static int connect_to_dbus(void)
 
 	/* connect to the DBUS system bus, and check for errors */
 	conn = dbus_bus_get(DBUS_BUS_SYSTEM, &err);
-	if (dbus_error_is_set(&err))
-	{
+	if (dbus_error_is_set(&err)) {
 		F_("Connection Error (%s)\n", err.message);
 		dbus_error_free(&err);
 	}
+
 	if (conn == NULL)
-	{
-		return (FALSE);
-	}
+		return FALSE;
 
-
-	dbus_connection_set_watch_functions(conn, add_dbus_watch, rem_dbus_watch,
-										toggled_dbus_watch, NULL, NULL);
+	dbus_connection_set_watch_functions(conn, add_dbus_watch,
+	                                    rem_dbus_watch,
+	                                    toggled_dbus_watch, NULL, NULL);
 
 	/* register our name on the bus, and check for errors */
 	ret = dbus_bus_request_name(conn, SOURCE_REQUEST,
-								DBUS_NAME_FLAG_REPLACE_EXISTING, &err);
+	                            DBUS_NAME_FLAG_REPLACE_EXISTING, &err);
 
 	/* Make sure no error is set */
-	if (dbus_error_is_set(&err))
-	{
+	if (dbus_error_is_set(&err)) {
 		F_("Name Error (%s)\n", err.message);
 		dbus_error_free(&err);
 	}
@@ -501,15 +484,16 @@ static int connect_to_dbus(void)
 	   return(FALSE);
 	   } */
 
-	return (TRUE);
+	return TRUE;
 }
 
 int module_init(int api_version)
 {
-	if (api_version != API_VERSION)
-	{
-		F_("This module is compiled for api_version %i version and initng is compiled on %i version, won't load this module!\n", INITNG_VERSION, api_version);
-		return (FALSE);
+	if (api_version != API_VERSION) {
+		F_("This module is compiled for api_version %i version and "
+		   "initng is compiled on %i version, won't load this "
+		   "module!\n", INITNG_VERSION, api_version);
+		return FALSE;
 	}
 
 	connect_to_dbus();
@@ -525,15 +509,13 @@ int module_init(int api_version)
 	initng_event_hook_register(&EVENT_FD_WATCHER, &w_handler);
 
 	/* return happily */
-	return (TRUE);
+	return TRUE;
 }
-
 
 
 void module_unload(void)
 {
-	if (conn != NULL)
-	{
+	if (conn != NULL) {
 		dbus_connection_close(conn);
 		conn = NULL;
 	}

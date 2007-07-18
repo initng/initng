@@ -23,39 +23,35 @@
  * Changing these variables, will make reload incompatible,
  * and probably hang initng
  */
-#define MAX_SERVICE_NAME_STRING_LEN 200
-#define MAX_SERVICE_STATE_LEN 100
-#define MAX_DATA_STRING_LEN 200
-#define MAX_TYPE_STRING_LEN 100
-#define MAX_PROCESSES 6
-#define MAX_PTYPE_STRING_LEN 100
-#define MAX_ENTRYS_FOR_SERVICE 20
-#define MAX_DATA_VN_LEN 100
-#define MAX_PIPES 6
-#define MAX_PIPE_TARGETS 5
+#define MAX_SERVICE_NAME_STRING_LEN	200
+#define MAX_SERVICE_STATE_LEN		100
+#define MAX_DATA_STRING_LEN		200
+#define MAX_TYPE_STRING_LEN		100
+#define MAX_PROCESSES			6
+#define MAX_PTYPE_STRING_LEN		100
+#define MAX_ENTRYS_FOR_SERVICE		20
+#define MAX_DATA_VN_LEN			100
+#define MAX_PIPES			6
+#define MAX_PIPE_TARGETS		5
 
-typedef struct
-{
+typedef struct {
 	char type[MAX_TYPE_STRING_LEN + 1];
 	e_dt opt_type;
 	char vn[MAX_DATA_VN_LEN + 1];
-	union
-	{
+	union {
 		char s[MAX_DATA_STRING_LEN + 1];
 		int i;
 	} t;
 } r_d_e;
 
-typedef struct
-{
+typedef struct {
 	int pipe[2];
 	e_dir dir;
 	int targets[MAX_PIPE_TARGETS + 1];
 } r_pipe;
 
 
-typedef struct
-{
+typedef struct {
 	char ptype[MAX_PTYPE_STRING_LEN + 1];
 	r_pipe pipes[MAX_PIPES + 1];
 	int pid;
@@ -63,8 +59,7 @@ typedef struct
 } r_process;
 
 /* this lines will the active contain */
-typedef struct
-{
+typedef struct {
 	char name[MAX_SERVICE_NAME_STRING_LEN + 1];
 	char type[MAX_TYPE_STRING_LEN + 1];
 	char state[MAX_SERVICE_STATE_LEN + 1];
@@ -77,29 +72,25 @@ typedef struct
 	r_d_e data[MAX_ENTRYS_FOR_SERVICE + 1];
 } data_save_struct;
 
-typedef struct
-{
-        char type[MAX_TYPE_STRING_LEN + 1];
-        e_dt opt_type;
-        union
-        {
-                char s[MAX_DATA_STRING_LEN + 1];
-                int i;
-        } t;
+typedef struct {
+	char type[MAX_TYPE_STRING_LEN + 1];
+	e_dt opt_type;
+	union {
+		char s[MAX_DATA_STRING_LEN + 1];
+		int i;
+	} t;
 } r_d_e_v13;
 
-typedef struct
-{
-        char ptype[MAX_PTYPE_STRING_LEN + 1];
-        int stdout1;
-        int stdout2;
-        int pid;
-        int rcode;
+typedef struct {
+	char ptype[MAX_PTYPE_STRING_LEN + 1];
+	int stdout1;
+	int stdout2;
+	int pid;
+	int rcode;
 } r_process_v13;
 
 /* this lines will the active contain */
-typedef struct
-{
+typedef struct {
         char name[MAX_SERVICE_NAME_STRING_LEN + 1];
         char type[MAX_TYPE_STRING_LEN + 1];
         char state[101];

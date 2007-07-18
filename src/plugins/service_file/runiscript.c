@@ -151,14 +151,17 @@ int main(int argc, char *argv[])
 	/* end check */
 
 	/* check if command is valid */
-	if (strncmp(argv[2], "internal_", 9) != 0)
-	{
+	if (strncmp(argv[2], "internal_", 9) != 0) {
 		int i;
+
 		printf("Bad command: ");
+
 		for(i = 0; argv[i]; i++)
 			printf(" %s", argv[i]);
+
 		printf("\n");
 		print_usage(argv[1]);
+
 		exit(3);
 	}
 
@@ -177,5 +180,6 @@ int main(int argc, char *argv[])
 
 	/* Never get here */
 	printf("error executing %s.\n", new_argv[0]);
+
 	exit(3);
 }

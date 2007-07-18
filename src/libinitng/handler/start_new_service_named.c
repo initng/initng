@@ -43,27 +43,24 @@ active_db_h *initng_handler_start_new_service_named(const char *service)
 	assert(service);
 
 	/* Try to find it */
-	if ((to_load = initng_active_db_find_by_name(service)))
-	{
-		if (!IS_DOWN(to_load))
-		{
+	if ((to_load = initng_active_db_find_by_name(service))) {
+		if (!IS_DOWN(to_load)) {
 			D_("Service %s exits already, and is not stopped!\n",
 			   to_load->name);
-			return (to_load);
+			return to_load;
 		}
 
 		/* okay, now start it */
 		initng_handler_start_service(to_load);
 
-		return (to_load);
-
+		return to_load;
 	}
 
 	/* get from hook */
 	if ((to_load = initng_plugin_active_new(service)))
-		return (to_load);
+		return to_load;
 
 	/* the function calling this function will print out an error */
 	D_("Unable to load active for service %s\n", service);
-	return (NULL);
+	return NULL;
 }

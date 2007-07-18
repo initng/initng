@@ -43,26 +43,26 @@ void initng_main_when_out(void)
 	int failing = 0;
 	active_db_h *current = NULL;
 
-	while_active_db(current)
-	{
-		if (IS_FAILED(current))
-		{
+	while_active_db(current) {
+		if (IS_FAILED(current)) {
 			failing++;
-			printf("\n [%i] service \"%s\" marked \"%s\"\n", failing,
-				   current->name, current->current_state->state_name);
+			printf("\n [%i] service \"%s\" marked \"%s\"\n",
+			       failing, current->name,
+			       current->current_state->name);
 		}
 	}
-	if (failing > 0)
-	{
-		printf("\n\n All %i services listed above, are marked with a failure.\n", failing);
-		printf(" Will sleep for 15 seconds before reboot/halt so you can see them.\n\n");
+	
+	if (failing > 0) {
+		printf("\n\n All %i services listed above, are marked with a "
+		       "failure.\n"
+		       " Will sleep for 15 seconds before reboot/halt so you "
+		       "can see them.\n\n", failing);
 		sleep(15);
 	}
 
 
 
-	if (g.i_am == I_AM_INIT && getpid() != 1)
-	{
+	if (g.i_am == I_AM_INIT && getpid() != 1) {
 		F_("I AM NOT INIT, THIS CANT BE HAPPENING!\n");
 		sleep(3);
 		return;
@@ -72,24 +72,27 @@ void initng_main_when_out(void)
 	sync();
 
 	/* none of these calls should return, so the su_login on the end will be a fallback */
-	switch (g.when_out)
-	{
+	switch (g.when_out) {
 		case THEN_QUIT:
 			P_(" ** Now Quiting **\n");
 			initng_main_exit(0);
 			break;
+
 		case THEN_SULOGIN:
 			P_(" ** Now SuLogin\n");
 			/* break here leads to su_login below */
 			break;
+
 		case THEN_RESTART:
 			P_(" ** Now restarting\n");
 			initng_main_restart();
 			break;
+
 		case THEN_NEW_INIT:
 			P_(" ** Launching new init\n");
 			initng_main_new_init();
 			break;
+
 		case THEN_REBOOT:
 		case THEN_HALT:
 		case THEN_POWEROFF:

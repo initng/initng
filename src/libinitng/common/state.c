@@ -18,15 +18,15 @@
  */
 
 #include <sys/time.h>
-#include <time.h>							/* time() */
-#include <fcntl.h>							/* fcntl() */
-#include <sys/un.h>							/* memmove() strcmp() */
-#include <sys/wait.h>						/* waitpid() sa */
-#include <linux/kd.h>						/* KDSIGACCEPT */
-#include <sys/ioctl.h>						/* ioctl() */
-#include <stdio.h>							/* printf() */
-#include <stdlib.h>							/* free() exit() */
-#include <sys/reboot.h>						/* reboot() RB_DISABLE_CAD */
+#include <time.h>				/* time() */
+#include <fcntl.h>				/* fcntl() */
+#include <sys/un.h>				/* memmove() strcmp() */
+#include <sys/wait.h>				/* waitpid() sa */
+#include <linux/kd.h>				/* KDSIGACCEPT */
+#include <sys/ioctl.h>				/* ioctl() */
+#include <stdio.h>				/* printf() */
+#include <stdlib.h>				/* free() exit() */
+#include <sys/reboot.h>				/* reboot() RB_DISABLE_CAD */
 #include <assert.h>
 
 #include <initng.h>
@@ -47,23 +47,22 @@ int initng_common_mark_service(active_db_h * service, a_state_h * state)
 
 	if (service->state_lock && service->next_state != NULL) {
 		W_("Trying to set state %s on locked service %s!\n",
-		   state->state_name, service->name);
-		return (FALSE);
+		   state->name, service->name);
+		return FALSE;
 	}
 
 	/* Test if already set */
-	if (service->current_state == state)
-	{
+	if (service->current_state == state) {
 		D_("state %s is already set on %s!\n",
-		   state->state_name, service->name);
+		   state->name, service->name);
 
 		/* clear next_state */
 		service->next_state = NULL;
-		return (TRUE);
+		return TRUE;
 	}
 
 	D_("Going to mark service %s from %s to %s\n", service->name,
-	   service->current_state->state_name, state->state_name);
+	   service->current_state->name, state->name);
 
 	service->next_state = state;
 
@@ -71,7 +70,7 @@ int initng_common_mark_service(active_db_h * service, a_state_h * state)
 	if (!service->state_lock)
 		initng_common_state_unlock(service);
 
-	return (TRUE);
+	return TRUE;
 }
 
 void initng_common_state_lock(active_db_h * service)
@@ -80,7 +79,8 @@ void initng_common_state_lock(active_db_h * service)
 	assert(service->name);
 
 	service->state_lock++;
-	D_("Locked state of %s (level: %d)\n", service->name, service->state_lock);
+	D_("Locked state of %s (level: %d)\n", service->name,
+	   service->state_lock);
 }
 
 int initng_common_state_unlock(active_db_h * service)
@@ -90,34 +90,32 @@ int initng_common_state_unlock(active_db_h * service)
 	assert(service->current_state);
 
 	/* If locked, decrement the lock counter */
-	if (service->state_lock)
-	{
+	if (service->state_lock) {
 		/* Test if locked more than one time */
-		if (--service->state_lock)
-		{
+		if (--service->state_lock) {
 			D_("State of %s is still locked (level: %d)\n", service->name, service->state_lock);
-			return (FALSE);
+			return FALSE;
 		}
 	}
 
 	/* Test if state has changed */
 	if (!service->next_state)
-		return (FALSE);
+		return FALSE;
 
 	D_(" %-20s : %10s -> %-10s\n", service->name,
-	   service->current_state->state_name, service->next_state->state_name);
+	   service->current_state->name,
+	   service->next_state->name);
 
 	/* Fill last entries */
 	service->last_state = service->current_state;
 	memcpy(&service->time_last_state, &service->time_current_state,
-		   sizeof(struct timeval));
+	       sizeof(struct timeval));
 
 	/* update rough last to */
-	if (service->last_rought_state != service->current_state->is)
-	{
+	if (service->last_rought_state != service->current_state->is) {
 		service->last_rought_state = service->current_state->is;
-		memcpy(&service->last_rought_time, &service->time_current_state,
-			   sizeof(memcpy));
+		memcpy(&service->last_rought_time,
+		       &service->time_current_state, sizeof(memcpy));
 	}
 
 	/* reset alarm, set state and time */
@@ -135,15 +133,14 @@ int initng_common_state_unlock(active_db_h * service)
 
 	D_("Unlocked state of %s\n", service->name);
 
-	return (TRUE);
+	return TRUE;
 }
 
 void initng_common_state_lock_all(void)
 {
 	active_db_h * current;
 
-	while_active_db(current)
-	{
+	while_active_db(current) {
 		initng_common_state_lock(current);
 	}
 }
@@ -153,15 +150,14 @@ int initng_common_state_unlock_all(void)
 	active_db_h * current;
 	int ret = 0;
 
-	while_active_db(current)
-	{
+	while_active_db(current) {
 		ret |= initng_common_state_unlock(current);
 	}
 
-	return (ret);
+	return ret;
 }
 
 a_state_h *initng_common_state_has_changed(active_db_h * service)
 {
-	return (service->next_state);
+	return service->next_state;
 }

@@ -23,8 +23,7 @@
 #include <initng/service/type.h>
 #include <initng/list.h>
 
-typedef enum
-{
+typedef enum {
 	U_D_T = 0,					/* UnDefinedType, unknown data type */
 	STRING = 1,								/* Entry shud contain a string, when set again, the old string is owerwritten */
 	STRINGS = 2,							/* On every add, a new string with same name is added */
@@ -45,17 +44,22 @@ typedef enum
 } e_dt;
 
 typedef struct ss_entry s_entry;
-struct ss_entry
-{
+struct ss_entry {
 	/* set in statically */
-	const char *opt_name;		/* The option name in a string */
-	e_dt opt_type;				/* The variable type, the type of content, see abow */
-	stype_h *ot;				/* Only used if you want to bound the option, to a special service type */
-	const char *opt_desc;		/* Short description, shown by ngc -O */
-	s_entry *alias;				/* You might point this to another s_entry, with another option_name, to get an alias */
+	const char *name;		/* The option name in a string */
+	e_dt type;			/* The variable type, the type of
+					 * content, see abow */
+	stype_h *ot;			/* Only used if you want to bound the
+					 * option, to a special service type
+					 */
+	const char *description;	/* Short description, shown by
+					 * ngc -O */
+	s_entry *alias;			/* You might point this to another
+					 * s_entry, with another name,
+					 * to get an alias */
 
 	/* this should not be set static */
-	int opt_name_len;
+	int name_len;
 	struct list_head list;
 };
 

@@ -30,8 +30,12 @@
 
 INITNG_PLUGIN_MACRO;
 
-s_entry CRITICAL = { "critical", SET, NULL,
-	"If this option is set, and service doesn't succeed, initng will quit and offer a sulogin."
+s_entry CRITICAL = {
+	.name = "critical",
+	.description = "If this option is set, and service doesn't succeed, "
+	               "initng will quit and offer a sulogin.",
+	.type = SET,
+	.ot = NULL,
 };
 
 /* returns TRUE if all use deps are started */
@@ -70,9 +74,12 @@ static void check_critical(s_event * event)
 	initng_handler_start_service(service);
 
 	/* Make sure full runlevel starting fine */
-	if (!initng_active_db_find_by_exact_name(g.runlevel))
-		if (!initng_handler_start_new_service_named(g.runlevel))
-			F_("runlevel \"%s\" could not be executed!\n", g.runlevel);
+	if (!initng_active_db_find_by_exact_name(g.runlevel)) {
+		if (!initng_handler_start_new_service_named(g.runlevel)) {
+			F_("runlevel \"%s\" could not be executed!\n",
+			   g.runlevel);
+		}
+	}
 
 	return;
 }
@@ -80,15 +87,16 @@ static void check_critical(s_event * event)
 int module_init(int api_version)
 {
 	D_("module_init();\n");
-	if (api_version != API_VERSION)
-	{
-		F_("This module is compiled for api_version %i version and initng is compiled on %i version, won't load this module!\n", API_VERSION, api_version);
-		return (FALSE);
+	if (api_version != API_VERSION) {
+		F_("This module is compiled for api_version %i version and "
+		   "initng is compiled on %i version, won't load this "
+		   "module!\n", API_VERSION, api_version);
+		return FALSE;
 	}
 
 	initng_service_data_type_register(&CRITICAL);
 	initng_event_hook_register(&EVENT_IS_CHANGE, &check_critical);
-	return (TRUE);
+	return TRUE;
 }
 
 void module_unload(void)

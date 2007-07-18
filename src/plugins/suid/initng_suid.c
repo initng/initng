@@ -29,27 +29,36 @@
 
 INITNG_PLUGIN_MACRO;
 
-s_entry SUID = { "suid", STRING, NULL, "Set this user id on launch." };
-s_entry SGID = { "sgid", STRING, NULL, "Set this group id on launch." };
+s_entry SUID = {
+	.name = "suid",
+	.description = "Set this user id on launch.",
+	.type = STRING,
+	.ot = NULL,
+};
+
+s_entry SGID = {
+	.name = "sgid",
+	.description = "Set this group id on launch.",
+	.type = STRING,
+	.ot = NULL,
+};
 
 void adjust_env(active_db_h * service, const char *vn, const char *vv);
 void adjust_env(active_db_h * service, const char *vn, const char *vv)
 {
 	/* add to service cache */
-	if (is_var(&ENV, vn, service))
-	{
-		return;								/* Assume they were set by .i file, don't override */
-	}
-	else
-	{
+	if (is_var(&ENV, vn, service)) {
+		return;			/* Assume they were set by .i file,
+					 * don't override */
+	} else {
 		set_string_var(&ENV, initng_toolbox_strdup(vn), service,
-			initng_toolbox_strdup(vv));
+		               initng_toolbox_strdup(vv));
 	}
 }
 
 static void do_suid(s_event * event)
 {
-	s_event_after_fork_data * data;
+	s_event_after_fork_data *data;
 
 	struct passwd *passwd = NULL;
 	struct group *group = NULL;
@@ -75,30 +84,26 @@ static void do_suid(s_event * event)
 
 	if (groupname)
 		group = getgrnam(groupname);
+
 	if (username)
 		passwd = getpwnam(username);
 
-	if (passwd)
-	{
+	if (passwd) {
 		uid = passwd->pw_uid;
 		gid = passwd->pw_gid;
-	}
-	else if (username)
-	{
+	} else if (username) {
 		F_("USER \"%s\" not found!\n", username);
 		ret += 2;
 	}
 
-	if (group)
+	if (group) {
 		gid = group->gr_gid;
-	else if (groupname)
-	{
+	} else if (groupname) {
 		F_("GROUP \"%s\" not found!\n", groupname);
-		ret += 1;
+		ret++;
 	}
 
-	if (gid)
-	{
+	if (gid) {
 		D_("Change to gid %i", gid);
 		setgid(gid);
 	}
@@ -106,8 +111,7 @@ static void do_suid(s_event * event)
 	if (passwd)
 		initgroups(passwd->pw_name, passwd->pw_gid);
 
-	if (uid)
-	{
+	if (uid) {
 		D_("Change to uid %i", uid);
 		setuid(uid);
 
@@ -123,10 +127,11 @@ static void do_suid(s_event * event)
 int module_init(int api_version)
 {
 	D_("module_init();\n");
-	if (api_version != API_VERSION)
-	{
-		F_("This module is compiled for api_version %i version and initng is compiled on %i version, won't load this module!\n", API_VERSION, api_version);
-		return (FALSE);
+	if (api_version != API_VERSION) {
+		F_("This module is compiled for api_version %i version and "
+		   "initng is compiled on %i version, won't load this "
+		   "module!\n", API_VERSION, api_version);
+		return FALSE;
 	}
 
 	initng_service_data_type_register(&SUID);

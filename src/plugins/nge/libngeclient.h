@@ -20,24 +20,21 @@
 #include "initng_nge.h"
 #include <initng.h>
 
-
-typedef enum
-{
-	PING = 0,
-	SERVICE_STATE_CHANGE = 1,
-	SYSTEM_STATE_CHANGE = 2,
-	ERR_MSG = 3,
-	CONNECT = 4,
-	DISSCONNECT = 5,
-	INITIAL_SERVICE_STATE_CHANGE = 6,
-	INITIAL_SYSTEM_STATE_CHANGE = 7,
-	INITIAL_STATE_FINISHED = 8,
-	SERVICE_OUTPUT = 9,
-	PROCESS_KILLED = 10,
+typedef enum {
+	PING				= 0,
+	SERVICE_STATE_CHANGE		= 1,
+	SYSTEM_STATE_CHANGE		= 2,
+	ERR_MSG				= 3,
+	CONNECT				= 4,
+	DISCONNECT			= 5,
+	INITIAL_SERVICE_STATE_CHANGE	= 6,
+	INITIAL_SYSTEM_STATE_CHANGE	= 7,
+	INITIAL_STATE_FINISHED		= 8,
+	SERVICE_OUTPUT			= 9,
+	PROCESS_KILLED			= 10,
 } e_state_type;
 
-typedef struct
-{
+typedef struct {
 	/* standard variables to have */
 	int sock;
 	char *read_buffer;
@@ -47,16 +44,13 @@ typedef struct
 	void *user_data;
 } nge_connection;
 
-typedef struct
-{
+typedef struct {
 	e_state_type state_type;
 
 	/* Here comes the possible payload */
-	union
-	{
+	union {
 		/* service_state_change and initial_service_state */
-		struct
-		{
+		struct {
 			char *service;
 			e_is is;
 			char *state_name;
@@ -67,8 +61,7 @@ typedef struct
 		} service_state_change;
 
 		/* process_killed event */
-		struct
-		{
+		struct {
 			char *service;
 			e_is is;
 			char *state_name;
@@ -78,23 +71,20 @@ typedef struct
 		} process_killed;
 
 		/* system_state_change  and initial_system_state */
-		struct
-		{
+		struct {
 			h_sys_state system_state;
 			char *runlevel;
 		} system_state_change;
 
 		/* service_output */
-		struct
-		{
+		struct {
 			char *service;
 			char *process;
 			char *output;
 		} service_output;
 
 		/* err_msg */
-		struct
-		{
+		struct {
 			e_mt mt;
 			char *file;
 			char *func;
@@ -103,22 +93,20 @@ typedef struct
 		} err_msg;
 
 		/* connect */
-		struct
-		{
+		struct {
 			int pver;
 			char *initng_version;
 		} connect;
 	} payload;
-
 } nge_event;
 
 extern const char *ngeclient_error;
 
-nge_event *get_next_event(nge_connection * c, int block);
-void ngeclient_event_free(nge_event * e);
+nge_event *get_next_event(nge_connection *c, int block);
+void ngeclient_event_free(nge_event *e);
 
 nge_connection *ngeclient_connect(const char *path);
-void ngeclient_close(nge_connection * c);
+void ngeclient_close(nge_connection *c);
 
 
-int ngeclient_poll_for_input(nge_connection * c, int sec);
+int ngeclient_poll_for_input(nge_connection *c, int sec);

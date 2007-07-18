@@ -36,23 +36,22 @@ void initng_data_set_another_string_var(s_entry * type, char *vn,
 	assert(d);
 	assert(string);
 
-	if (!type)
-	{
+	if (!type) {
 		F_("Type can't be zero!\n");
 		return;
 	}
 
 	ALIAS_WALK;
 
-	if (!vn && type->opt_type >= 50)
-	{
-		F_("The vn variable is missing for a type %i %s, trying to set string: \"%s\"!\n", type->opt_type, type->opt_name, string);
+	if (!vn && type->type >= 50) {
+		F_("The vn variable is missing for a type %i %s, trying to "
+		   "set string: \"%s\"!\n", type->type, type->name,
+		   string);
 		return;
 	}
 
-	if (!IT(STRINGS))
-	{
-		F_(" \"%s\" is not an strings type!\n", type->opt_name);
+	if (!IT(STRINGS)) {
+		F_(" \"%s\" is not an strings type!\n", type->name);
 		return;
 	}
 

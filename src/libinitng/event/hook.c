@@ -27,15 +27,14 @@
 #include <initng.h>
 
 int initng_event_hook_register_real(const char *from_file, s_event_type *t,
-					void (*hook) (s_event * event))
+                                    void (*hook) (s_event * event))
 {
 	s_call *new_call = NULL;
 
 	assert(hook);
 	assert(t);
 
-	D_("\n\nAdding event hook type %i from file %s\n", t,
-	   from_file);
+	D_("\n\nAdding event hook type %i from file %s\n", t, from_file);
 
 	/* allocate space for new call */
 	new_call = initng_toolbox_calloc(1, sizeof(s_call));
@@ -46,13 +45,13 @@ int initng_event_hook_register_real(const char *from_file, s_event_type *t,
 
 	list_add(&new_call->list, &t->hooks.list);
 
-	return (TRUE);
+	return TRUE;
 }
 
 void initng_event_hook_unregister_real(const char *from_file,
-					const char *func, int line,
-					s_event_type *t,
-					void (*hook) (s_event * event))
+                                       const char *func, int line,
+                                       s_event_type *t,
+                                       void (*hook) (s_event * event))
 {
 	s_call *current, *safe = NULL;
 
@@ -62,8 +61,7 @@ void initng_event_hook_unregister_real(const char *from_file,
 	D_("Deleting event hook from file %s, func %s, line %i.\n", from_file,
 	   func, line);
 
-	while_list_safe(current, &t->hooks, safe)
-	{
+	while_list_safe(current, &t->hooks, safe) {
 		/* make sure the pointer is right */
 		if (current->c.pointer != hook)
 			continue;
@@ -77,6 +75,6 @@ void initng_event_hook_unregister_real(const char *from_file,
 		return;
 	}
 
-	F_("Could not find event hook to delete, file: %s, func:%s, line %i!!!!\n",
-	   from_file, func, line);
+	F_("Could not find event hook to delete, "
+	   "file: %s, func:%s, line %i!!!\n", from_file, func, line);
 }

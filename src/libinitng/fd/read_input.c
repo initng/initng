@@ -34,7 +34,7 @@
  * or when a process is freed ( with flush_buffer set)
  */
 void initng_fd_process_read_input(active_db_h * service, process_h * p,
-								  pipe_h * pi)
+                                  pipe_h * pi)
 {
 	int old_content_offset = pi->buffer_len;
 	int read_ret = 0;
@@ -43,18 +43,16 @@ void initng_fd_process_read_input(active_db_h * service, process_h * p,
 	D_("\ninitng_fd_process_read_input(%s, %s);\n", service->name,
 	   p->pt->name);
 
-	if (pi->pipe[0] <= 0)
-	{
+	if (pi->pipe[0] <= 0) {
 		F_("FIFO, can't be read! NOT OPEN!\n");
 		return;
 	}
 
-	/* INITZIATE
-	 * if this are not set to out_pipe, if there is nothing to read. read() will block.
-	 * initng and sit down waiting for input.
+	/* INITIATE
+	 * if this are not set to out_pipe, if there is nothing to read.
+	 * read() will block initng and sit down waiting for input.
 	 */
-	if (!pi->buffer)
-	{
+	if (!pi->buffer) {
 		/* initziate buffer fnctl */
 		int fd_flags;
 
@@ -63,27 +61,30 @@ void initng_fd_process_read_input(active_db_h * service, process_h * p,
 	}
 
 	/* read data from process, and continue again after a interrupt */
-	do
-	{
+	do {
 		errno = 0;
 
 		/* OBSERVE, initng_toolbox_realloc may change the path to the
 		 * data, so dont set buffer_pos to early */
 
 		/* Make sure there is room for 100 more chars */
-		D_(" %i (needed buffersize) > %i(current buffersize)\n", pi->buffer_len + 100, pi->buffer_allocated);
-		if (pi->buffer_len + 100 >= pi->buffer_allocated)
-		{
+		D_(" %i (needed buffersize) > %i(current buffersize)\n",
+		   pi->buffer_len + 100, pi->buffer_allocated);
+
+		if (pi->buffer_len + 100 >= pi->buffer_allocated) {
 			/* do a realloc */
-			D_("Changing size of buffer %p from %i to: %i bytes.\n", pi->buffer, pi->buffer_allocated,
+			D_("Changing size of buffer %p from %i to: %i "
+			   "bytes.\n", pi->buffer, pi->buffer_allocated,
 			   pi->buffer_allocated + 100 + 1 );
+
 			tmp = initng_toolbox_realloc(pi->buffer,
-							(pi->buffer_allocated + 100 + 1) * sizeof(char));
+				(pi->buffer_allocated + 100 + 1));
 
 			/* make sure realloc suceeded */
-			if (tmp)
-			{
-				D_("pi->buffer changes from %p to %p.\n", pi->buffer, tmp);
+			if (tmp) {
+				D_("pi->buffer changes from %p to %p.\n",
+				   pi->buffer, tmp);
+
 				pi->buffer = tmp;
 				pi->buffer_allocated += 100;
 
@@ -94,9 +95,7 @@ void initng_fd_process_read_input(active_db_h * service, process_h * p,
 				 * by read
 				 */
 				pi->buffer[pi->buffer_len] = '\0';
-			}
-			else
-			{
+			} else {
 				F_("realloc failed, possibly out of memory!\n");
 				return;
 			}
@@ -105,7 +104,7 @@ void initng_fd_process_read_input(active_db_h * service, process_h * p,
 		/* read the data */
 		D_("Trying to read 100 chars:\n");
 		read_ret = read(pi->pipe[0], &pi->buffer[pi->buffer_len], 100);
-		/*printf("read_ret = %i  : \"%.100s\"\n", read_ret, read_pos); */
+		/* printf("read_ret = %i  : \"%.100s\"\n", read_ret, read_pos); */
 		D_("And got %i chars...\n", read_ret);
 
 		/* make sure read does not return -1 */
@@ -118,24 +117,22 @@ void initng_fd_process_read_input(active_db_h * service, process_h * p,
 		/* make sure its nulled at end */
 		pi->buffer[pi->buffer_len] = '\0';
 	}
-	/* if read_ret == 100, it migit be more to read, or it got interrupted. */
+	/* if read_ret == 100, it migit be more to read, or it got
+	 * interrupted. */
 	while (read_ret >= 100 || errno == EINTR);
-
 
 	D_("Done reading (read_ret=%i) (errno == %i).\n", read_ret, errno);
 
 	/* make sure there is any */
-	if (pi->buffer_len > old_content_offset)
-	{
+	if (pi->buffer_len > old_content_offset) {
 		D_("Calling plugins for new buffer content...");
 		/* let all plugin take part of data */
-		initng_fd_plugin_readpipe(service, p, pi,
-								  pi->buffer + old_content_offset);
+		initng_fd_plugin_readpipe(service, p, pi, pi->buffer +
+		                                          old_content_offset);
 	}
 
 	/*if empty, dont waist memory */
-	if (pi->buffer_len == 0 && pi->buffer)
-	{
+	if (pi->buffer_len == 0 && pi->buffer) {
 		D_("Freeing empty buffer..");
 		free(pi->buffer);
 		pi->buffer = NULL;
@@ -148,8 +145,7 @@ void initng_fd_process_read_input(active_db_h * service, process_h * p,
 	 * if EOF close pipes.
 	 * Dont free buffer, until the whole process_h frees
 	 */
-	if (read_ret == 0)
-	{
+	if (read_ret == 0) {
 		D_("Closing fifos for %s.\n", service->name);
 		if (pi->pipe[0] > 0)
 			close(pi->pipe[0]);
@@ -159,11 +155,10 @@ void initng_fd_process_read_input(active_db_h * service, process_h * p,
 		pi->pipe[1] = -1;
 
 		/* else, realloc to exact size */
-		if (pi->buffer && pi->buffer_allocated > (pi->buffer_len + 1))
-		{
-			tmp = initng_toolbox_realloc(pi->buffer, (pi->buffer_len + 1) * sizeof(char));
-			if (tmp)
-			{
+		if (pi->buffer && pi->buffer_allocated > (pi->buffer_len + 1)) {
+			tmp = initng_toolbox_realloc(pi->buffer,
+					(pi->buffer_len + 1) * sizeof(char));
+			if (tmp) {
 				pi->buffer = tmp;
 				pi->buffer_allocated = pi->buffer_len;
 			}
@@ -172,30 +167,25 @@ void initng_fd_process_read_input(active_db_h * service, process_h * p,
 	}
 
 	/* if buffer reached 10000 chars */
-	if (pi->buffer_len > 10000)
-	{
+	if (pi->buffer_len > 10000) {
 		D_("Buffer to big (%i > 10000), purging...", pi->buffer_len);
 		/* copy the last 9000 chars to start */
-		memmove(pi->buffer, &pi->buffer[pi->buffer_len - 9000],
-				9000 * sizeof(char));
+		memmove(pi->buffer, &pi->buffer[pi->buffer_len - 9000], 9000);
 		/* rezise the buffer - leave some expansion space! */
-		tmp = initng_toolbox_realloc(pi->buffer, 9501 * sizeof(char));
+		tmp = initng_toolbox_realloc(pi->buffer, 9501);
 
 		/* make sure realloc suceeded */
-		if (tmp)
-		{
+		if (tmp) {
 			pi->buffer = tmp;
 			pi->buffer_allocated = 9500;
-		}
-		else
-		{
+		} else {
 			F_("realloc failed, possibly out of memory!\n");
 		}
 
 		/* Even if realloc failed, the buffer is still valid
 		   and we've still reduced the length of its contents */
-		pi->buffer_len = 9000;				/* shortened by 1000 chars */
-		pi->buffer[9000] = '\0';			/* shortened by 1000 chars */
+		pi->buffer_len = 9000;		/* shortened by 1000 chars */
+		pi->buffer[9000] = '\0';	/* shortened by 1000 chars */
 	}
 
 	D_("function done...");

@@ -24,7 +24,6 @@
 #include <assert.h>
 #include <errno.h>
 #include <string.h>
-#include <fcntl.h>							/* fcntl() */
 #include <time.h>
 
 #include <initng.h>
@@ -41,5 +40,5 @@ active_db_h *initng_plugin_active_new(const char *name)
 	if (event.status == HANDLED)
 		return event.ret;
 
-	return (NULL);
+	return NULL;
 }

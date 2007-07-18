@@ -26,12 +26,19 @@
 
 INITNG_PLUGIN_MACRO;
 
-s_entry S_DELAY = { "exec_delay", VARIABLE_INT, NULL,
-	"Pause this much seconds before service is launched."
+s_entry S_DELAY = {
+	.name = "exec_delay",
+	.description = "Pause this much seconds before service is launched.",
+	.type = VARIABLE_INT,
+	.ot = NULL,
 };
 
-s_entry MS_DELAY = { "exec_m_delay", VARIABLE_INT, NULL,
-	"Pause this much microseconds before service is launched."
+s_entry MS_DELAY = {
+	.name = "exec_m_delay",
+	.description = "Pause this much microseconds before service is "
+	               "launched.",
+	.type = VARIABLE_INT,
+	.ot = NULL,
 };
 
 static void do_pause(s_event * event)
@@ -53,18 +60,17 @@ static void do_pause(s_event * event)
 	D_(" %s\n", data->service->name);
 
 
-	s_delay = get_int_var(&S_DELAY, data->process->pt->name, data->service);
-	ms_delay = get_int_var(&MS_DELAY, data->process->pt->name, data->service);
+	s_delay = get_int_var(&S_DELAY, data->process->pt->name,
+			      data->service);
+	ms_delay = get_int_var(&MS_DELAY, data->process->pt->name,
+			       data->service);
 
-
-	if (s_delay)
-	{
+	if (s_delay) {
 		D_("Sleeping for %i seconds.\n", s_delay);
 		sleep(s_delay);
 	}
 
-	if (ms_delay)
-	{
+	if (ms_delay) {
 		D_("Sleeping for %i milliseconds.\n", ms_delay);
 		usleep(ms_delay);
 	}
@@ -73,10 +79,12 @@ static void do_pause(s_event * event)
 int module_init(int api_version)
 {
 	D_("module_init();\n");
-	if (api_version != API_VERSION)
-	{
-		F_("This module is compiled for api_version %i version and initng is compiled on %i version, won't load this module!\n", API_VERSION, api_version);
-		return (FALSE);
+
+	if (api_version != API_VERSION) {
+		F_("This module is compiled for api_version %i version and "
+		   "initng is compiled on %i version, won't load this "
+		   "module!\n", API_VERSION, api_version);
+		return FALSE;
 	}
 
 	initng_service_data_type_register(&S_DELAY);

@@ -29,9 +29,12 @@
 
 /* returns a string pointer */
 const char *initng_data_get_string_var(s_entry * type, const char *vn,
-									data_head * head)
+                                       data_head * head)
 {
 	s_data *current = initng_data_get_next_var(type, vn, head, NULL);
 
-	return (current ? current->t.s : NULL);
+	if (current)
+		return current->t.s;
+
+	return NULL;
 }

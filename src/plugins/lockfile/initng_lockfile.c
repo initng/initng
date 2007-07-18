@@ -29,15 +29,19 @@
 
 INITNG_PLUGIN_MACRO;
 
-s_entry LOCKFILE = { "lockfile", SET, NULL,
-	"If this option is set, plugin will create /var/lock/subsys/$NAME lockfile."
+s_entry LOCKFILE = {
+	.name = "lockfile",
+	.description = "If this option is set, plugin will create "
+		       "/var/lock/subsys/$NAME lockfile.",
+	.type = SET,
+	.ot = NULL,
 };
 
 #define LOCKDIR "/var/lock/subsys/"
 
-static void status_change(s_event * event)
+static void status_change(s_event *event)
 {
-	active_db_h * service;
+	active_db_h *service;
 
 	assert(event->event_type == &EVENT_IS_CHANGE);
 	assert(event->data);
@@ -46,27 +50,23 @@ static void status_change(s_event * event)
 
 	D_("status change [%s]\n", service->name);
 
-	// are we under influence of lockfile?
-	if (is(&LOCKFILE, service))
-	{
+	/* are we under influence of lockfile? */
+	if (is(&LOCKFILE, service)) {
 		char *p = strrchr(service->name, '/') + 1;
 		char lockfile[sizeof(LOCKDIR) + strlen(p)];
 
 		strcpy(mempcpy(lockfile, LOCKDIR, sizeof(LOCKDIR) - 1), p);
 
 		D_("lockfile path [%s]\n", lockfile);
-		// service states from initng_is.h
-		if (IS_UP(service))
-		{
+		/* service states from initng_is.h */
+		if (IS_UP(service)) {
 			int fd;
 
 			D_("service got up\n");
 			fd = creat(lockfile, 0640);
 			if (fd != -1)
 				close(fd);
-		}
-		else if (IS_DOWN(service))
-		{
+		} else if (IS_DOWN(service)) {
 			D_("service went down\n");
 			unlink(lockfile);
 		}
@@ -76,15 +76,16 @@ static void status_change(s_event * event)
 int module_init(int api_version)
 {
 	D_("module_init();\n");
-	if (api_version != API_VERSION)
-	{
-		F_("This module is compiled for api_version %i version and initng is compiled on %i version, won't load this module!\n", API_VERSION, api_version);
-		return (FALSE);
+	if (api_version != API_VERSION) {
+		F_("This module is compiled for api_version %i version and "
+		   "initng is compiled on %i version, won't load this "
+		   "module!\n", API_VERSION, api_version);
+		return FALSE;
 	}
 
 	initng_service_data_type_register(&LOCKFILE);
 	initng_event_hook_register(&EVENT_IS_CHANGE, &status_change);
-	return (TRUE);
+	return TRUE;
 }
 
 void module_unload(void)

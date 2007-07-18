@@ -48,41 +48,39 @@ char *initng_string_dup_next_word(const char **string)
 		return (NULL);
 
 	/* handle '"' chars */
-	if ((*string)[0] == '"')
-	{
+	if ((*string)[0] == '"') {
 		(*string)++;
 		i = strcspn(*string, "\"");
 		if (i < 1)
-			return (NULL);
+			return NULL;
 		td = initng_toolbox_strndup(*string, i);
 		(*string) += i;
 		if (*string[0] == '"')
 			(*string)++;
-		return (td);
+		return td;
 	}
 
 	/* handle '{' '}' chars */
-	if ((*string)[0] == '{')
-	{
+	if ((*string)[0] == '{') {
 		(*string)++;
 		i = strcspn(*string, "}");
 		if (i < 1)
-			return (NULL);
+			return NULL;
 		td = initng_toolbox_strndup(*string, i);
 		(*string) += i;
 		if (*string[0] == '}')
 			(*string)++;
-		return (td);
+		return td;
 	}
 
 	/* or copy until space tab newline, ; or , */
 	i = strcspn(*string, " \t\n;,");
 	if (i < 1)
-		return (NULL);
+		return NULL;
 	/* copy string */
 	td = initng_toolbox_strndup(*string, i);
 	(*string) += i;
-	return (td);
+	return td;
 }
 
 /*
@@ -99,42 +97,40 @@ char *initng_string_dup_line(char **string)
 	/* skip beginning first spaces */
 	JUMP_SPACES(*string);
 	if (!(*string)[0] || (*string)[0] == '\n')
-		return (NULL);
+		return NULL;
 
 	/* handle '"' chars */
-	if ((*string)[0] == '"')
-	{
+	if ((*string)[0] == '"') {
 		(*string)++;
 		i = strcspn(*string, "\"");
 		if (i < 1)
-			return (NULL);
+			return NULL;
 		td = initng_toolbox_strndup(*string, i);
 		(*string) += i;
 		if (*string[0] == '"')
 			(*string)++;
-		return (td);
+		return td;
 	}
 
 	/* handle '{' '}' chars */
-	if ((*string)[0] == '{')
-	{
+	if ((*string)[0] == '{') {
 		(*string)++;
 		i = strcspn(*string, "}");
 		if (i < 1)
-			return (NULL);
+			return NULL;
 		td = initng_toolbox_strndup(*string, i);
 		(*string) += i;
 		if (*string[0] == '}')
 			(*string)++;
-		return (td);
+		return td;
 	}
 
 	/* or copy until space tab newline, ; or , */
 	i = strcspn(*string, "\n;");
 	if (i < 1)
-		return (NULL);
+		return NULL;
 	/* copy string */
 	td = initng_toolbox_strndup(*string, i);
 	(*string) += i;
-	return (td);
+	return td;
 }

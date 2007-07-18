@@ -55,20 +55,19 @@ int bp_set_variable(char *service, int argc, char **argv);
 int bp_add_exec(char *service, int argc, char **argv);
 char *message;
 
-typedef struct
-{
+typedef struct {
 	const char *name;
-	int (*function) (char *service, int argc, char **argv);
+	int (*function)(char *service, int argc, char **argv);
 } command_entry;
 
 command_entry commands[] = {
-	{"iabort", &bp_abort},
-	{"iregister", &bp_new_active},
-	{"idone", &bp_done},
-	{"iget", &bp_get_variable},
-	{"iset", &bp_set_variable},
-	{"iexec", &bp_add_exec},
-	{NULL, NULL}
+	{ "iabort", &bp_abort },
+	{ "iregister", &bp_new_active },
+	{ "idone", &bp_done },
+	{ "iget", &bp_get_variable },
+	{ "iset", &bp_set_variable },
+	{ "iexec", &bp_add_exec },
+	{ NULL, NULL }
 };
 
 int main(int argc, char **argv)
@@ -85,6 +84,7 @@ int main(int argc, char **argv)
 
 	if (!argv0)
 		argv0 = argv[0];
+
 	if (argv0[0] == '/')
 		argv0++;
 
@@ -93,21 +93,18 @@ int main(int argc, char **argv)
 
 	/* first is the full path to service file */
 	new_argv[0] = getenv("SFILE");
-	if (!new_argv[0])
-	{
+	if (!new_argv[0]) {
 		printf("SFILE path is unset!\n");
 		exit(1);
 	}
 
 	/* copy all, but not options */
 	new_argc = 0;
-	for (i = 1; argv[i]; i++)
-	{
+	for (i = 1; argv[i]; i++) {
 		/* iset -s service test */
-		if (stop_checking == FALSE && argv[i][0] == '-')
-		{
-			if (argv[i][1] == 's' && !argv[i][2] && argv[i + 1][0])
-			{
+		if (stop_checking == FALSE && argv[i][0] == '-') {
+			if (argv[i][1] == 's' && !argv[i][2] &&
+			    argv[i + 1][0]) {
 				service = argv[i + 1];
 				i++;
 				continue;
@@ -129,8 +126,7 @@ int main(int argc, char **argv)
 		service = getenv("SERVICE");
 
 	/* make sure */
-	if (!service)
-	{
+	if (!service) {
 		printf("I dont know what service you want!\n");
 		exit(1);
 	}
@@ -146,8 +142,7 @@ int main(int argc, char **argv)
 
 	/* LIST THE DB OF COMMANDS AND EXECUTE THE RIGHT ONE */
 	{
-		for (i = 0; commands[i].name; i++)
-		{
+		for (i = 0; commands[i].name; i++) {
 			if (strcasecmp(argv0, commands[i].name) == 0)
 				status = (*commands[i].function) (service,
 						new_argc, new_argv);
@@ -157,10 +152,9 @@ int main(int argc, char **argv)
 	}
 
 	/* if still 99, print usage */
-	if (status == 99)
-	{
+	if (status == 99) {
 		printf("Bad command \"");
-		for(i=0; argv[i];i++)
+		for(i = 0; argv[i]; i++)
 			printf(" %s", argv[i]);
 		printf("\"\nAvaible commands:\n");
 		for (i = 0; commands[i].name; i++)
@@ -168,8 +162,7 @@ int main(int argc, char **argv)
 		exit(status);
 	}
 
-	if (message)
-	{
+	if (message) {
 		printf("%s (%s) :", commands[i].name, service);
 		for (i = 1; new_argv[i]; i++)
 			printf(" %s", new_argv[i]);
@@ -179,7 +172,7 @@ int main(int argc, char **argv)
 	}
 
 	/* invert result */
-	exit(status == TRUE ? 0 : 1);
+	exit(status != TRUE);
 }
 
 /*
@@ -202,23 +195,21 @@ int bp_add_exec(char *service, int argc, char **argv)
 
 			/* " internal_" */
 			strncat(to_send.u.set_variable.value, " internal_",
-					1024 - strlen(to_send.u.set_variable.value));
+			        1024 - strlen(to_send.u.set_variable.value));
 		}
 
 		if (argc == 1) {
 			/* "start" */
 			strncat(to_send.u.set_variable.value, argv[1],
-					1024 - strlen(to_send.u.set_variable.value));
-		}
-		else
-		{
+			        1024 - strlen(to_send.u.set_variable.value));
+		} else {
 			/* "dodo" */
 			strncat(to_send.u.set_variable.value, argv[3],
 					1024 - strlen(to_send.u.set_variable.value));
 		}
+	} else {
+		return FALSE;
 	}
-	else
-		return (FALSE);
 
 	/* use service */
 	strncpy(to_send.u.get_variable.service, service, 100);
@@ -272,7 +263,7 @@ int bp_get_variable(char *service, int argc, char **argv)
 
 	/* make sure its 1 or 2 args with this */
 	if (argc != 1 && argc != 2)
-		return (FALSE);
+		return FALSE;
 
 	memset(&to_send, 0, sizeof(bp_req));
 
@@ -282,12 +273,9 @@ int bp_get_variable(char *service, int argc, char **argv)
 	strncpy(to_send.u.get_variable.service, service, 100);
 
 
-	if (argc == 1)
-	{
+	if (argc == 1) {
 		strncpy(to_send.u.get_variable.vartype, argv[1], 100);
-	}
-	else
-	{
+	} else {
 		strncpy(to_send.u.get_variable.varname, argv[1], 100);
 		strncpy(to_send.u.get_variable.vartype, argv[2], 100);
 	}
@@ -319,61 +307,56 @@ int bp_set_variable(char *service, int argc, char **argv)
 
 	/* make sure have enought variables */
 	if (argc < 1)
-		return (FALSE);
+		return FALSE;
 
 	/* use service set in main() */
 	strncpy(to_send.u.set_variable.service, service, 100);
 
 	/* if not usage 3 or 4 */
-	if (argc < 3)
-	{
+	if (argc < 3) {
 		/* handle valueless variable, type 1 */
-		if (argc == 1)
-		{
+		if (argc == 1) {
 			strncpy(to_send.u.set_variable.vartype, argv[1], 100);
 			return (bp_send(&to_send));
 		}
 
 		/* handle valueless variable, type 2 */
-		if (argc == 2)
-		{
+		if (argc == 2) {
 			strncpy(to_send.u.set_variable.vartype, argv[1], 100);
 			strncpy(to_send.u.set_variable.varname, argv[2], 100);
 			return (bp_send(&to_send));
 		}
 
 		/* then this is not valid */
-		return (FALSE);
+		return FALSE;
 	}
 
 	/* if its a short set ( type 3 )  without vartype */
-	if (argc >= 3 && argv[2][0] == '=')
-	{
+	if (argc >= 3 && argv[2][0] == '=') {
 		strncpy(to_send.u.set_variable.vartype, argv[1], 100);
 		/* argv[2] == '=' */
-		for (i = 3; argv[i]; i++)
-		{
+		for (i = 3; argv[i]; i++) {
 			strncpy(to_send.u.set_variable.value, argv[i], 1024);
 			ret = bp_send(&to_send);
 		}
-		return (ret);
+
+		return ret;
 	}
 
 	/* else type 4 */
-	if (argc >= 4 && argv[3][0] == '=')
-	{
+	if (argc >= 4 && argv[3][0] == '=') {
 		strncpy(to_send.u.set_variable.vartype, argv[1], 100);
 		strncpy(to_send.u.set_variable.varname, argv[2], 100);
 		/* argv[3] == '=' */
-		for (i = 4; argv[i]; i++)
-		{
+		for (i = 4; argv[i]; i++) {
 			strncpy(to_send.u.set_variable.value, argv[i], 1024);
 			ret = bp_send(&to_send);
 		}
-		return (ret);
+
+		return ret;
 	}
 
-	return (FALSE);
+	return FALSE;
 }
 
 
@@ -387,7 +370,7 @@ int bp_new_active(char *service, int argc, char **argv)
 
 	/* do a check */
 	if (argc != 1)
-		return (FALSE);
+		return FALSE;
 
 	/* use servicename from main() */
 	strncpy(to_send.u.new_active.service, service, 100);
@@ -417,15 +400,13 @@ int bp_send(bp_req * to_send)
 	to_send->version = SERVICE_FILE_VERSION;
 
 	/* check if we can use fd 3 to talk to initng */
-	if (fcntl(sock, F_GETFD) < 0)
-	{
+	if (fcntl(sock, F_GETFD) < 0) {
 
 		/* ELSE Create new socket. */
 		sock = socket(PF_UNIX, SOCK_STREAM, 0);
-		if (sock < 0)
-		{
+		if (sock < 0) {
 			message = strdup("Failed to init socket.");
-			return (FALSE);
+			return FALSE;
 		}
 
 		/* Bind a name to the socket. */
@@ -433,23 +414,21 @@ int bp_send(bp_req * to_send)
 		strcpy(sockname.sun_path, SOCKET_PATH);
 		len = strlen(SOCKET_PATH) + sizeof(sockname.sun_family);
 
-		if (connect(sock, (struct sockaddr *) &sockname, len) < 0)
-		{
+		if (connect(sock, (struct sockaddr *) &sockname, len) < 0) {
 			close(sock);
 			message = strdup("Error connecting to socket");
-			return (FALSE);
+			return FALSE;
 		}
 	}
 
 	/* send the request */
 	e = send(sock, to_send, sizeof(bp_req), 0);
-	if (e != (signed) sizeof(bp_req))
-	{
+	if (e != (signed) sizeof(bp_req)) {
 		char *m = strerror(errno);
-		message = calloc(501, sizeof(char));
-		snprintf(message, 500, "Unable to send the request: \"%s\" (%i)\n", m,
-				 errno);
-		return (FALSE);
+		message = calloc(501, 1);
+		snprintf(message, 500, "Unable to send the request: "
+		         "\"%s\" (%i)\n", m, errno);
+		return FALSE;
 	}
 
 	/* sleep to give initng a chanse */
@@ -457,15 +436,12 @@ int bp_send(bp_req * to_send)
 
 	e = TEMP_FAILURE_RETRY(recv(sock, &rep, sizeof(bp_rep), 0));
 
-
-
-	if (e != (signed) sizeof(bp_rep))
-	{
+	if (e != (signed) sizeof(bp_rep)) {
 		char *m = strerror(errno);
-		message = calloc(501, sizeof(char));
-		snprintf(message, 500, "Did not get any reply: \"%s\" (%i)\n", m,
-				 errno);
-		return (FALSE);
+		message = calloc(501, 1);
+		snprintf(message, 500, "Did not get any reply: "
+		         "\"%s\" (%i)\n", m, errno);
+		return FALSE;
 	}
 
 	/* close the socket, if its an own created one */

@@ -30,7 +30,12 @@
 
 INITNG_PLUGIN_MACRO;
 
-s_entry LOGFILE = { "logfile", STRING, NULL, "An extra output of service output." };
+s_entry LOGFILE = {
+	.name = "logfile",
+	.description = "An extra output of service output.",
+	.type = STRING,
+	.ot = NULL,
+};
 
 static void program_output(s_event * event)
 {
@@ -49,20 +54,18 @@ static void program_output(s_event * event)
 	assert(data->process);
 
 	/*D_("%s process fd: # %i, %i, service %s, have something to say\n",
-	   data->process->pt->name, data->process->out_pipe[0], data->process->out_pipe[1], data->service->name); */
+	   data->process->pt->name, data->process->out_pipe[0],
+	   data->process->out_pipe[1], data->service->name); */
 
 	/* get the filename */
 	filename = get_string(&LOGFILE, data->service);
-	if (!filename)
-	{
+	if (!filename) {
 		D_("Logfile not set\n");
 		return;
 	}
 
 	/* open the file */
-	fd = open(filename, O_WRONLY | O_CREAT | O_APPEND);
-	if (fd < 1)
-	{
+	if ((fd = open(filename, O_WRONLY | O_CREAT | O_APPEND)) < 1) {
 		F_("Error opening %s, err : %s\n", filename, strerror(errno));
 		return;
 	}
@@ -72,8 +75,8 @@ static void program_output(s_event * event)
 	len = strlen(data->buffer_pos);
 
 	if (write(fd, data->buffer_pos, len) != len)
-		F_("Error writing to %s's log, err : %s\n", data->service->name,
-		   strerror(errno));
+		F_("Error writing to %s's log, err : %s\n",
+		   data->service->name, strerror(errno));
 
 	close(fd);
 }
@@ -82,25 +85,24 @@ int module_init(int api_version)
 {
 	S_;
 
-	if (api_version != API_VERSION)
-	{
-		F_("This module is compiled for api_version %i version and initng is compiled on %i version, won't load this module!\n", API_VERSION, api_version);
-		return (FALSE);
+	if (api_version != API_VERSION) {
+		F_("This module is compiled for api_version %i version and "
+		   "initng is compiled on %i version, won't load this "
+		   "module!\n", API_VERSION, api_version);
+		return FALSE;
 	}
 
 	initng_service_data_type_register(&LOGFILE);
 
 	initng_event_hook_register(&EVENT_BUFFER_WATCHER, &program_output);
-	return (TRUE);
+	return TRUE;
 }
 
 void module_unload(void)
 {
 	S_;
-
 	D_("module_unload();\n");
 
 	initng_service_data_type_unregister(&LOGFILE);
-
 	initng_event_hook_unregister(&EVENT_BUFFER_WATCHER, &program_output);
 }

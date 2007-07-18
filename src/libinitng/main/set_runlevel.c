@@ -44,15 +44,13 @@
 void initng_main_set_runlevel(const char *runlevel)
 {
 	/* first free the old_runlevel */
-	if (g.old_runlevel)
-	{
+	if (g.old_runlevel) {
 		free(g.old_runlevel);
 		g.old_runlevel = NULL;
 	}
 
 	/* then move the last new, to the old */
-	if (g.runlevel)
-	{
+	if (g.runlevel) {
 		g.old_runlevel = g.runlevel;
 		g.runlevel = NULL;
 	}

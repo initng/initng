@@ -46,57 +46,53 @@ s_data *initng_data_get_next_var(s_entry * type, const char *vn,
 	 */
 #ifdef HURT_ME
 	/* Check that vn is sent, when needed */
-	if (!vn && type && type->opt_type >= 50)
-	{
+	if (!vn && type && type->opt_type >= 50) {
 		F_("The vn variable is missing for a type %i (%s): %s!\n",
 		   type->opt_type, type->opt_name);
-		return (NULL);
+		return NULL;
 	}
 
 	/* check that vn is not set, when not needed */
-	if (vn && type && type->opt_type < 50)
-	{
+	if (vn && type && type->opt_type < 50) {
 		F_("The vn %s is set, but not needed for type %i, %s\n", vn,
 		   type->opt_type, type->opt_name);
-		return (NULL);
+		return NULL;
 	}
 #endif
 
 	/* Now do the first hook if set */
 	if (head->data_request && (*head->data_request) (head) == FALSE)
-		return (NULL);
+		return NULL;
 
 	/* Make sure the list is not empty */
-	if (!list_empty(&head->head.list))
+	if (!list_empty(&head->head.list)) {
 		/* put place on the initial */
 		place = head->head.list.prev;
+	}
 
 	/* as long as we dont stand on the header */
-	while (place && place != &head->head.list)
-	{
+	while (place && place != &head->head.list) {
 		/* get the entry */
 		current = list_entry(place, s_data, list);
 
 		/* if last still set, fast forward */
-		if (last && current != last)
-		{
+		if (last && current != last) {
 			place = place->prev;
 			continue;
 		}
 
 		/* if this is the last entry */
-		if (last == current)
-		{
+		if (last == current) {
 			last = NULL;
 			place = place->prev;
 			continue;
 		}
 
 		/* Make sure the string variable name matches if set */
-		if ((!type || current->type == type)
-			&& (!current->vn || !vn || strcasecmp(current->vn, vn) == 0))
-		{
-			return (current);
+		if ((!type || current->type == type) &&
+		    (!current->vn || !vn ||
+		     strcasecmp(current->vn, vn) == 0)) {
+			return current;
 		}
 
 		/* try next */
@@ -106,15 +102,14 @@ s_data *initng_data_get_next_var(s_entry * type, const char *vn,
 
 	/* This second hook might fill head->res */
 	if (head->res_request && (*head->res_request) (head) == FALSE)
-		return (NULL);
+		return NULL;
 
 	/* if there is any resursive next to check, do that. */
-	if (head->res)
-	{
+	if (head->res) {
 		/* ok return with that */
-		return (initng_data_get_next_var(type, vn, head->res, last));
+		return initng_data_get_next_var(type, vn, head->res, last);
 	}
 
 	/* no luck */
-	return (NULL);
+	return NULL;
 }

@@ -37,8 +37,7 @@ void initng_string_fix_escapes(char * str)
 	if (!str)
 		return;
 
-	for (s = 0, d = 0; str[s] != '\0'; s++, d++)
-	{
+	for (s = 0, d = 0; str[s] != '\0'; s++, d++) {
 		if (str[s] != '\\') {
 			if (s != d)
 				str[d] = str[s];
@@ -46,8 +45,7 @@ void initng_string_fix_escapes(char * str)
 		}
 
 		s++;
-		switch(str[s])
-		{
+		switch(str[s]) {
 			case 'a':
 				str[d] = '\a';
 				break;

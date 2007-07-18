@@ -30,7 +30,6 @@
  */
 void initng_service_data_type_register(s_entry * ent)
 {
-
 	assert(ent);
 	S_;
 
@@ -38,30 +37,29 @@ void initng_service_data_type_register(s_entry * ent)
 	 * set the opt_name_len,
 	 * an optimize so that we don't need to strlen every time accessing this one.
 	 */
-	if (ent->opt_name)
-		ent->opt_name_len = strlen(ent->opt_name);
+	if (ent->name)
+		ent->name_len = strlen(ent->name);
 	else
-		ent->opt_name_len = 0;
+		ent->name_len = 0;
 
 #ifdef CHECK_IF_CURRENTLY_ADDED
 	{
 		s_entry *current = NULL;
 
 		/* walk the option_db, and make sure its not added, or option_name taken */
-		while_service_data_types(current)
-		{
-			if (current == ent)
-			{
+		while_service_data_types(current) {
+			if (current == ent) {
 				if (ent->opt_name)
-					F_("Option %s, already added!\n", ent->opt_name);
+					F_("Option %s, already added!\n",
+					   ent->opt_name);
 				else
 					F_("Option, already added!\n");
 
 				return;
 			}
-			if (current->opt_name && ent->opt_name
-				&& strcmp(current->opt_name, ent->opt_name) == 0)
-			{
+
+			if (current->opt_name && ent->opt_name &&
+			    strcmp(current->opt_name, ent->opt_name) == 0) {
 				F_("option %s, name taken.\n");
 				return;
 			}
@@ -72,8 +70,8 @@ void initng_service_data_type_register(s_entry * ent)
 	/* add the option to the option_db list */
 	list_add(&ent->list, &g.option_db.list);
 #ifdef DEBUG
-	if (ent->opt_name)
-		D_(" \"%s\" added to option_db!\n", ent->opt_name);
+	if (ent->name)
+		D_(" \"%s\" added to option_db!\n", ent->name);
 #endif
 }
 
@@ -90,8 +88,7 @@ void initng_service_data_type_unregister(s_entry * ent)
 	assert(ent);
 
 	/* clear the active db for this data */
-	while_active_db(currentA)
-	{
+	while_active_db(currentA) {
 		remove(ent, currentA);
 	}
 
@@ -108,8 +105,7 @@ void initng_service_data_type_unregister_all(void)
 	s_entry *current, *safe = NULL;
 
 	/* walk the option db, remove all */
-	while_service_data_types_safe(current, safe)
-	{
+	while_service_data_types_safe(current, safe) {
 		initng_service_data_type_unregister(current);
 	}
 
@@ -128,10 +124,12 @@ s_entry *initng_service_data_type_find(const char *string)
 	S_;
 	assert(string);
 	D_("looking for %s.\n", string);
-	while_service_data_types(current)
-	{
-		if (current->opt_name && strcmp(current->opt_name, string) == 0)
-			return (current);
+
+	while_service_data_types(current) {
+		if (current->name &&
+		    strcmp(current->name, string) == 0)
+			return current;
 	}
-	return (NULL);
+
+	return NULL;
 }

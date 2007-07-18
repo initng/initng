@@ -39,8 +39,7 @@ active_db_h *initng_active_db_new(const char *name)
 
 	/* allocate a new active entry */
 	new_active = (active_db_h *) initng_toolbox_calloc(1, sizeof(active_db_h));
-	if (!new_active) /* out of memory? */
-	{
+	if (!new_active) {
 		F_("Unable to allocate active, out of memory?\n");
 		return (NULL);
 	}
@@ -50,8 +49,7 @@ active_db_h *initng_active_db_new(const char *name)
 
 	/* set the name */
 	new_active->name = initng_toolbox_strdup(name);
-	if (!new_active->name)
-	{
+	if (!new_active->name) {
 		F_("Unable to set name, out of memory?\n");
 		return (NULL);
 	}
@@ -61,9 +59,9 @@ active_db_h *initng_active_db_new(const char *name)
 	/* get the time, and copy that time to all time entries */
 	gettimeofday(&new_active->time_current_state, NULL);
 	memcpy(&new_active->time_last_state, &new_active->time_current_state,
-		   sizeof(struct timeval));
+	       sizeof(struct timeval));
 	memcpy(&new_active->last_rought_time, &new_active->time_current_state,
-		   sizeof(struct timeval));
+	       sizeof(struct timeval));
 
 	/* mark this service as stopped, because it is not yet starting, or running */
 	new_active->current_state = &NEW;

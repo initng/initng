@@ -51,13 +51,12 @@ int initng_string_cmp(char **string, const char *to_cmp)
 		(*string)++;
 
 	/* ok, strcasecmp this */
-	if (strncasecmp((*string), to_cmp, chars) == 0)
-	{
+	if (strncasecmp((*string), to_cmp, chars) == 0) {
 		/* increase the string pointer */
 		(*string) += chars;
-		return (TRUE);
+		return TRUE;
 	}
-	return (FALSE);
+	return FALSE;
 }
 
 /*
@@ -83,22 +82,22 @@ int initng_string_match(const char *string, const char *pattern)
 	assert(pattern);
 	D_("matching string: \"%s\", to pattern: \"%s\"\n", string, pattern);
 
-	/* do pattern matching only if service name does not contain wildcards */
-	if (strchr(string, '*') || strchr(string, '?'))
-	{
+	/* do pattern matching only if service name does not contain
+	 * wildcards */
+	if (strchr(string, '*') || strchr(string, '?')) {
 		F_("The string \"%s\" contains wildcards line '*' and '?'!\n",
 		   string);
-		return (FALSE);
+		return FALSE;
 	}
 
 #ifdef FNM_CASEFOLD
 	/* check if its a match */
 	if (fnmatch(pattern, string, FNM_CASEFOLD) != 0)
-		return (FALSE);
+		return FALSE;
 #else
 	/* check if its a match */
 	if (fnmatch(pattern, string, 0) != 0)
-		return (FALSE);
+		return FALSE;
 #endif
 
 	/* count '/' in string */
@@ -129,9 +128,10 @@ int initng_string_match_in_service(const char *string, const char *pattern)
 	assert(string);
 	assert(pattern);
 
-	/* if the string contains a '/' it is looking for an exact match, so no searching here */
+	/* if the string contains a '/' it is looking for an exact match, so
+	 * no searching here */
 	if (strchr(pattern, '/'))
-		return (FALSE);
+		return FALSE;
 
 	/* remove starting wildcards */
 	while (pattern[0] == '*' || pattern[0] == '?')
@@ -139,11 +139,11 @@ int initng_string_match_in_service(const char *string, const char *pattern)
 
 	/* check if it matches */
 	if (strstr(string, pattern))
-		return (TRUE);
+		return TRUE;
 
 	/* if pattern wont have a '*' or '?' there is no ida to continue */
 	if (!strchr(pattern, '*') && !strchr(pattern, '?'))
-		return (FALSE);
+		return FALSE;
 
 	/* now copy pattern, and remove ending '*' && '?' */
 	copy = initng_toolbox_strdup(pattern);

@@ -32,11 +32,10 @@ void initng_event_type_register(s_event_type *ent)
 
 	S_;
 
-	if (ent->name) {
+	if (ent->name)
 		ent->name_len = strlen(ent->name);
-	} else {
+	else
 		ent->name_len = 0;
-	}
 
 	/* initialize the event types list */
 	INIT_LIST_HEAD(&ent->list);
@@ -59,9 +58,9 @@ void initng_event_type_register(s_event_type *ent)
 
 				return;
 			}
-			if (current->name && ent->name
-				&& strcmp(current->name, ent->name) == 0)
-			{
+
+			if (current->name && ent->name &&
+			    strcmp(current->name, ent->name) == 0) {
 				F_("option %s, name taken.\n");
 				return;
 			}
@@ -93,8 +92,7 @@ void initng_event_type_unregister_all(void)
 	s_event_type *current, *safe = NULL;
 
 	/* walk the event db, remove all */
-	while_event_types_safe(current, safe)
-	{
+	while_event_types_safe(current, safe) {
 		initng_event_type_unregister(current);
 	}
 
@@ -113,10 +111,9 @@ s_event_type *initng_event_type_find(const char *string)
 	S_;
 	assert(string);
 	D_("looking for %s.\n", string);
-	while_event_types(current)
-	{
+	while_event_types(current) {
 		if (current->name && strcmp(current->name, string) == 0)
-			return (current);
+			return current;
 	}
-	return (NULL);
+	return NULL;
 }

@@ -20,15 +20,15 @@
 #include <initng.h>
 
 #include <sys/time.h>
-#include <time.h>							/* time() */
-#include <fcntl.h>							/* fcntl() */
-#include <sys/un.h>							/* memmove() strcmp() */
-#include <sys/wait.h>						/* waitpid() sa */
-#include <linux/kd.h>						/* KDSIGACCEPT */
-#include <sys/ioctl.h>						/* ioctl() */
-#include <stdio.h>							/* printf() */
-#include <stdlib.h>							/* free() exit() */
-#include <sys/reboot.h>						/* reboot() RB_DISABLE_CAD */
+#include <time.h>				/* time() */
+#include <fcntl.h>				/* fcntl() */
+#include <sys/un.h>				/* memmove() strcmp() */
+#include <sys/wait.h>				/* waitpid() sa */
+#include <linux/kd.h>				/* KDSIGACCEPT */
+#include <sys/ioctl.h>				/* ioctl() */
+#include <stdio.h>				/* printf() */
+#include <stdlib.h>				/* free() exit() */
+#include <sys/reboot.h>				/* reboot() RB_DISABLE_CAD */
 #include <assert.h>
 #include <errno.h>
 
@@ -42,25 +42,23 @@ int initng_handler_restart_service(active_db_h * service_to_restart)
 
 	/* type has to be known to restart the service */
 	if (!service_to_restart->type)
-		return (FALSE);
+		return FALSE;
 
-	if (!IS_UP(service_to_restart))
-	{
-		D_("Can only restart a running service %s. ( now_state : %s )\n",
-		   service_to_restart->name,
-		   service_to_restart->current_state->state_name);
-		return (FALSE);
+	if (!IS_UP(service_to_restart)) {
+		D_("Can only restart a running service %s. "
+		   "(now_state : %s)\n", service_to_restart->name,
+		   service_to_restart->current_state->name);
+		return FALSE;
 	}
 
 	/* Restart all dependencys to this service */
 	initng_depend_restart_deps(service_to_restart);
 
 	/* if there exits a restart code, use it */
-	if (service_to_restart->type->restart_service)
-		return ((*service_to_restart->type->
-				 restart_service) (service_to_restart));
+	if (service_to_restart->type->restart)
+		return (*service_to_restart->type->restart)(service_to_restart);
 
 	/* else, mark the service for restarting and stop it */
 	set(&RESTARTING, service_to_restart);
-	return (initng_handler_stop_service(service_to_restart));
+	return initng_handler_stop_service(service_to_restart);
 }

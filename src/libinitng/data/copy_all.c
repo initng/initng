@@ -34,8 +34,7 @@ void initng_data_copy_all(data_head * from, data_head * to)
 	s_data *tmp = NULL;
 	s_data *current = NULL;
 
-	list_for_each_entry(current, &from->head.list, list)
-	{
+	list_for_each_entry(current, &from->head.list, list) {
 		/* make sure type is set
 		   TODO, should this be an assert(current->type) ??? */
 		if (!current->type)
@@ -48,14 +47,15 @@ void initng_data_copy_all(data_head * from, data_head * to)
 		memcpy(tmp, current, sizeof(s_data));
 
 		/* copy the data */
-		switch (current->type->opt_type)
-		{
+		switch (current->type->type) {
 			case STRING:
 			case STRINGS:
 			case VARIABLE_STRING:
 			case VARIABLE_STRINGS:
 				if (current->t.s)
-					tmp->t.s = initng_toolbox_strdup(current->t.s);
+					tmp->t.s = initng_toolbox_strdup(
+							current->t.s);
+
 			default:
 				break;
 		}

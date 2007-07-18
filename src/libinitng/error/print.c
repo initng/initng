@@ -20,7 +20,7 @@
 #include <initng.h>
 
 #define _GNU_SOURCE
-#include <stdlib.h>							/* free() exit() */
+#include <stdlib.h>					/* free() exit() */
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
@@ -40,35 +40,33 @@ static void failsafe_print_error(e_mt mt, const char *file, const char *func,
 	t = time(0);
 	ts = localtime(&t);
 
-
-	switch (mt)
-	{
+	switch (mt) {
 		case MSG_FAIL:
 			if (file && func)
-				fprintf(stderr,
-						"\n\n FAILSAFE ERROR ** \"%s\", %s() line %i:\n",
+				fprintf(stderr, "\n\n FAILSAFE ERROR ** "
+						"\"%s\", %s() line %i:\n",
 						file, func, line);
-			fprintf(stderr, " %.2i:%.2i:%.2i -- FAIL:\t", ts->tm_hour,
-					ts->tm_min, ts->tm_sec);
+			fprintf(stderr, " %.2i:%.2i:%.2i -- FAIL:\t",
+			        ts->tm_hour, ts->tm_min, ts->tm_sec);
 			break;
+
 		case MSG_WARN:
 			if (file && func)
-				fprintf(stderr,
-						"\n\n FAILSAFE ERROR ** \"%s\", %s() line %i:\n",
+				fprintf(stderr, "\n\n FAILSAFE ERROR ** "
+						"\"%s\", %s() line %i:\n",
 						file, func, line);
-			fprintf(stderr, " %.2i:%.2i:%.2i -- WARN:\t", ts->tm_hour,
-					ts->tm_min, ts->tm_sec);
-			break;
+			fprintf(stderr, " %.2i:%.2i:%.2i -- WARN:\t",
+				ts->tm_hour, ts->tm_min, ts->tm_sec);
+
 		default:
 			break;
 	}
 
 	vfprintf(stderr, format, arg);
-
 }
 
 int initng_error_print(e_mt mt, const char *file, const char *func, int line,
-					   const char *format, ...)
+                       const char *format, ...)
 {
 	assert(file);
 	assert(func);
@@ -110,8 +108,7 @@ int initng_error_print(e_mt mt, const char *file, const char *func, int line,
 	}
 
 	/* Print on failsafe if no hook is to listen. */
-	if (!delivered)
-	{
+	if (!delivered) {
 		va_list pass;
 
 		va_copy(pass, arg);
@@ -122,7 +119,7 @@ int initng_error_print(e_mt mt, const char *file, const char *func, int line,
 	va_end(arg);
 
 	lock_error_printing = 0;
-	return (TRUE);
+	return TRUE;
 }
 
 #ifdef DEBUG
@@ -139,9 +136,10 @@ static void initng_verbose_print(void)
 		return;
 
 	W_("This words will i look for in debug: \n");
-	for (i = 0; i < MAX_VERBOSES; i++)
+	for (i = 0; i < MAX_VERBOSES; i++) {
 		if (g.verbose_this[i])
 			W_("  * \"%s\"\n", g.verbose_this[i]);
+	}
 }
 
 int initng_error_verbose_add(const char *string)
@@ -155,12 +153,11 @@ int initng_error_verbose_add(const char *string)
 
 
 	while (g.verbose_this[i] && i < MAX_VERBOSES)
-		i++;
+	       i++;
 
-	if (i >= MAX_VERBOSES - 1)
-	{
+	if (i >= MAX_VERBOSES - 1) {
 		F_("Can't add another \"%s\" debug trace\n", string);
-		return (FALSE);
+		return FALSE;
 	}
 
 	g.verbose_this[i] = initng_toolbox_strdup(string);
@@ -169,6 +166,7 @@ int initng_error_verbose_add(const char *string)
 
 	if (g.verbose_this[i])
 		return (TRUE);
+
 	return (FALSE);
 }
 
@@ -177,15 +175,17 @@ int initng_error_verbose_del(const char *string)
 	int i;
 	int t = FALSE;
 
-	for (i = 0; i < MAX_VERBOSES; i++)
-		if (g.verbose_this[i] && strcasecmp(g.verbose_this[i], string) == 0)
-		{
+	for (i = 0; i < MAX_VERBOSES; i++) {
+		if (g.verbose_this[i] &&
+		    strcasecmp(g.verbose_this[i], string) == 0) {
 			free(g.verbose_this[i]);
 			g.verbose_this[i] = NULL;
 			t = TRUE;
 		}
+	}
+
 	initng_verbose_print();
-	return (t);
+	return t;
 }
 
 void initng_error_print_func(const char *file, const char *func)
@@ -194,28 +194,26 @@ void initng_error_print_func(const char *file, const char *func)
 
 	if (lock_error_printing == 1)
 		return;
+
 	lock_error_printing = 1;
 
-	if (g.verbose == 2 || g.verbose == 3)
-	{
-		for (i = 0; i < MAX_VERBOSES; i++)
-		{
-			if (g.verbose_this[i])
-			{
-				if (g.verbose_this[i][0] == '%' && (g.verbose_this[i] + 1))
-				{
-					if (strcasestr(file, (g.verbose_this[i]) + 1) ||
-						strcasestr(func, (g.verbose_this[i]) + 1))
-					{
+	if (g.verbose == 2 || g.verbose == 3) {
+		for (i = 0; i < MAX_VERBOSES; i++) {
+			if (g.verbose_this[i]) {
+				if (g.verbose_this[i][0] == '%' &&
+				    g.verbose_this[i] + 1) {
+					if (strcasestr(file,
+					    (g.verbose_this[i]) + 1) ||
+					    strcasestr(func,
+					    (g.verbose_this[i]) + 1)) {
 						lock_error_printing = 0;
 						return;
 					}
-				}
-				else
-				{
-					if (strcasestr(file, g.verbose_this[i]) ||
-						strcasestr(func, g.verbose_this[i]))
-					{
+				} else {
+					if (strcasestr(file,
+					    g.verbose_this[i]) ||
+					    strcasestr(func,
+					    g.verbose_this[i])) {
 						i = 1;
 						break;
 					}
@@ -224,12 +222,9 @@ void initng_error_print_func(const char *file, const char *func)
 		}
 	}
 
-	if (g.verbose == 1 || i == 1)
-	{
+	if (g.verbose == 1 || i == 1) {
 		if (last_file != file || last_func != func)
-		{
 			fprintf(stderr, "\n\n ** \"%s\", %s():\n", file, func);
-		}
 
 		last_file = file;
 		last_func = func;
@@ -240,7 +235,7 @@ void initng_error_print_func(const char *file, const char *func)
 
 
 int initng_error_print_debug(const char *file, const char *func, int line,
-							 const char *format, ...)
+                             const char *format, ...)
 {
 	int done;
 	struct tm *ts;
@@ -253,31 +248,29 @@ int initng_error_print_debug(const char *file, const char *func, int line,
 
 	if (lock_error_printing == 1)
 		return (0);
+
 	lock_error_printing = 1;
-
-
 
 	if (g.verbose == 1)
 		goto yes;
 
 	if (g.verbose == 2 || g.verbose == 3)
 		for (i = 0; i < MAX_VERBOSES; i++)
-			if (g.verbose_this[i])
-			{
-				if (g.verbose_this[i][0] == '%' && (g.verbose_this[i] + 1))
-				{
-					if (strcasestr(file, (g.verbose_this[i]) + 1) ||
-						strcasestr(func, (g.verbose_this[i]) + 1))
-					{
+			if (g.verbose_this[i]) {
+				if (g.verbose_this[i][0] == '%' &&
+				    (g.verbose_this[i] + 1)) {
+					if (strcasestr(file,
+					    (g.verbose_this[i]) + 1) ||
+					    strcasestr(func,
+					    (g.verbose_this[i]) + 1)) {
 						lock_error_printing = 0;
 						return (TRUE);
 					}
-				}
-				else
-				{
-					if (strcasestr(file, g.verbose_this[i]) ||
-						strcasestr(func, g.verbose_this[i]))
-					{
+				} else {
+					if (strcasestr(file,
+					    g.verbose_this[i]) ||
+					    strcasestr(func,
+					    g.verbose_this[i])) {
 						goto yes;
 					}
 				}
@@ -288,21 +281,19 @@ int initng_error_print_debug(const char *file, const char *func, int line,
 	/* else */
 
 	lock_error_printing = 0;
-	return (TRUE);
+	return TRUE;
 
-  yes:
+yes:
 
 	/* print the function name, if not set */
-	if (last_file != file || last_func != func)
-	{
+	if (last_file != file || last_func != func) {
 		fprintf(stderr, "\n\n ** \"%s\", %s():\n", file, func);
 	}
 
 	last_file = file;
 	last_func = func;
 
-	if (g.i_am != I_AM_INIT && getpid() != 1)
-	{
+	if (g.i_am != I_AM_INIT && getpid() != 1) {
 		fprintf(stderr, " [%i]: ", getpid());
 	}
 
@@ -312,11 +303,10 @@ int initng_error_print_debug(const char *file, const char *func, int line,
 
 
 	fprintf(stderr, " %.2i:%.2i:%.2i -- l:%i\t", ts->tm_hour,
-			ts->tm_min, ts->tm_sec, line);
+	        ts->tm_min, ts->tm_sec, line);
 
 	msgs++;
-	if (msgs > 20)
-	{
+	if (msgs > 20) {
 		sleep(0.5);
 		msgs = 0;
 	}

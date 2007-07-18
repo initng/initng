@@ -35,32 +35,29 @@ void initng_data_set_string_var(s_entry * type, char *vn, data_head * d, char *s
 	assert(d);
 	assert(string);
 
-	if (!type)
-	{
+	if (!type) {
 		F_("Type can't be zero!\n");
 		return;
 	}
 
 	ALIAS_WALK;
 
-	if (!vn && type->opt_type >= 50)
-	{
-		F_("The vn variable is missing for a type %i %s, trying to set \"%s\"!\n", type->opt_type, type->opt_name, string);
+	if (!vn && type->type >= 50) {
+		F_("The vn variable is missing for a type %i %s, trying to "
+		   "set \"%s\"!\n", type->type, type->name, string);
 		return;
 	}
 
 
-	if (!IT(STRING))
-	{
+	if (!IT(STRING)) {
 		F_(" \"%s\" is not an STRING type, sleeping 1 sec ..\n",
-		   type->opt_name);
+		   type->name);
 		sleep(1);
 		return;
 	}
 
 	/* check the db, for an current entry to overwrite */
-	if ((current = initng_data_get_next_var(type, vn, d, NULL)))
-	{
+	if ((current = initng_data_get_next_var(type, vn, d, NULL))) {
 		if (current->t.s)
 			free(current->t.s);
 		if (vn)

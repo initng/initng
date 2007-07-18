@@ -20,8 +20,7 @@
 #ifndef INITNG_MSG_H
 #define INITNG_MSG_H
 
-typedef enum e_errmsg_type
-{
+typedef enum e_errmsg_type {
 	MSG_FAIL = 0,
 	MSG_WARN = 1,
 	MSG = 2

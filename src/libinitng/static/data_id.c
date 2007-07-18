@@ -29,16 +29,40 @@
  * Description:
  * { "name_of_opt", TYPE_OF_OPT, STRING_LEN_OF("name_of_opt") }
  */
-s_entry USE = { "use", STRINGS, NULL,
-	"Need to be up if they are in this runlevel."
+s_entry USE = {
+	.name = "use",
+	.type = STRINGS,
+	.ot = NULL,
+	.description = "Need to be up if they are in this runlevel."
 };
-s_entry NEED = { "need", STRINGS, NULL, "Need to be up, ignore if not found."
+
+s_entry NEED = {
+	.name = "need",
+	.type = STRINGS,
+	.ot = NULL,
+	.description = "Need to be up, ignore if not found."
 };
-s_entry REQUIRE = { "require", STRINGS, NULL, "Need to be up, fail if not found." };
-s_entry FROM_FILE = { "from_file", STRING, NULL, NULL };
-s_entry ENV = { "env", VARIABLE_STRING, NULL, "Sets an environmental variable."
+
+s_entry REQUIRE = {
+	.name = "require",
+	.type = STRINGS,
+	.ot = NULL,
+	.description = "Need to be up, fail if not found."
 };
-s_entry RESTARTING = { "internal_restarting", SET, NULL, NULL };
+
+s_entry FROM_FILE = {
+	.name = "from_file",
+	.type = STRING,
+	.ot = NULL,
+	.description = NULL
+};
+
+s_entry RESTARTING = {
+	.name = "internal_restarting",
+	.type = SET,
+	.ot = NULL,
+	.description = NULL
+};
 
 /*
  * add some default options, that is needed by core, and should
@@ -51,7 +75,5 @@ void initng_static_data_id_register_defaults(void)
 	initng_service_data_type_register(&NEED);
 	initng_service_data_type_register(&REQUIRE);
 	initng_service_data_type_register(&FROM_FILE);
-	initng_service_data_type_register(&ENV);
-
 	initng_service_data_type_register(&RESTARTING);
 }

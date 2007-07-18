@@ -36,12 +36,14 @@
  */
 int mprintf(char **p, const char *format, ...)
 {
-	va_list arg;				/* used for the variable lists */
+	va_list arg;				/* used for the variable
+						 * lists */
+	int len = 0;				/* will contain lent for
+						 * current string */
+	int add_len = 0;			/* This mutch more strings are
+						 * we gonna alloc for */
 
-	int len = 0;				/* will contain lent for current string */
-	int add_len = 0;			/* This mutch more strings are we gonna alloc for */
-
-	/*printf("\n\nmprintf(%s);\n", format); */
+	/* printf("\n\nmprintf(%s);\n", format); */
 
 	/* count old chars */
 	if (*p)
@@ -62,11 +64,10 @@ int mprintf(char **p, const char *format, ...)
 	 */
 	/*printf("Changing size to %i\n", len + add_len); */
 	if (!(*p = realloc(*p, ((len + add_len) * sizeof(char)))))
-		return (-1);
+		return -1;
 
 	/* Ok, have a try until vsnprintf succeds */
-	while (1)
-	{
+	while (1) {
 		/* start filling the newly allocaded area */
 		va_start(arg, format);
 		int done = vsnprintf((*p) + len, add_len, format, arg);
@@ -74,23 +75,22 @@ int mprintf(char **p, const char *format, ...)
 		va_end(arg);
 
 		/* check if that was enouth */
-		if (done > -1 && done < add_len)
-		{
+		if (done > -1 && done < add_len) {
 			/*printf("GOOD: done : %i, len: %i\n", done, add_len); */
 
 			/* Ok return happily */
-			return (done);
+			return done;
 		}
 		/*printf("BAD: done : %i, len: %i\n", done, add_len); */
 
 		/* try increase it a bit. */
 		add_len = (done < 0 ? add_len * 2 : done + 1);
 		/*printf("Changing size to %i\n", len + add_len); */
-		if (!(*p = realloc(*p, ((len + add_len) * sizeof(char)))))
-			return (-1);
+		if (!(*p = realloc(*p, len + add_len)))
+			return -1;
 
 	}
 
 	/* will never go here */
-	return (-1);
+	return -1;
 }

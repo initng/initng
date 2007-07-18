@@ -39,12 +39,11 @@
 void initng_main_start_extra_services(void)
 {
 	int i;
-	int a_count = 0;			/* counts orders from argv to start */
+	int a_count = 0;		/* counts orders from argv to start */
 
 	initng_main_set_sys_state(STATE_STARTING);
 	/* check with argv which service to start initiating */
-	for (i = 1; i < g.Argc; i++)
-	{
+	for (i = 1; i < g.Argc; i++) {
 		/* start all services that is +service */
 		if (g.Argv[i][0] != '+')
 			continue;
@@ -53,7 +52,7 @@ void initng_main_start_extra_services(void)
 		if (initng_handler_start_new_service_named(g.Argv[i] + 1))
 			a_count++;
 		else
-			F_(" Requested service \"%s\", could not be executed!\n",
-			   g.Argv[i]);
+			F_(" Requested service \"%s\", could not be "
+			   "executed!\n", g.Argv[i]);
 	}
 }

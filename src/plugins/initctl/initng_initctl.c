@@ -44,13 +44,17 @@ INITNG_PLUGIN_MACRO;
 int utmp_stored = FALSE;
 
 /* static local function here */
-static void parse_control_input(f_module_h * mod, e_fdw what);
+static void parse_control_input(f_module_h *mod, e_fdw what);
 static void initctl_control_close(void);
 static int initctl_control_open(void);
 static void makeutmp(int runlevel);
 static void initng_reload(void);
 
-f_module_h pipe_fd = { &parse_control_input, FDW_READ, -1 };	/* /dev/initctl */
+f_module_h pipe_fd = {
+	.call_module = &parse_control_input,
+	.what = FDW_READ,
+	.fds = -1
+};	/* /dev/initctl */
 
 struct stat st, st2;
 
@@ -65,8 +69,7 @@ static void pipe_fd_handler(s_event * event)
 
 	data = event->data;
 
-	switch (data->action)
-	{
+	switch (data->action) {
 		case FDW_ACTION_CLOSE:
 			if (pipe_fd.fds > 0)
 				close(pipe_fd.fds);
@@ -76,9 +79,9 @@ static void pipe_fd_handler(s_event * event)
 			if (pipe_fd.fds <= 2)
 				break;
 
-			/* This is a expensive test, but better safe then sorry */
-			if (!STILL_OPEN(pipe_fd.fds))
-			{
+			/* This is a expensive test, but better safe then
+			 * sorry */
+			if (!STILL_OPEN(pipe_fd.fds)) {
 				D_("%i is not open anymore.\n", pipe_fd.fds);
 				pipe_fd.fds = -1;
 				break;
@@ -100,17 +103,19 @@ static void pipe_fd_handler(s_event * event)
 			break;
 
 		case FDW_ACTION_DEBUG:
-			if (!data->debug_find_what || strstr(__FILE__, data->debug_find_what))
-				mprintf(data->debug_out, " %i: Used by plugin: %s\n",
+			if (!data->debug_find_what ||
+			    strstr(__FILE__, data->debug_find_what)) {
+				mprintf(data->debug_out,
+				        " %i: Used by plugin: %s\n",
 					pipe_fd.fds, __FILE__);
+			}
 			break;
 	}
 }
 
 static void initctl_control_close(void)
 {
-	if (pipe_fd.fds > 2)
-	{
+	if (pipe_fd.fds > 2) {
 		close(pipe_fd.fds);
 		pipe_fd.fds = -1;
 	}
@@ -127,48 +132,47 @@ static int initctl_control_open(void)
 	 *  If /dev/initctl is open, stat the file to see if it
 	 *  is still the _same_ inode.
 	 */
-	if (pipe_fd.fds > 2)
-	{
+	if (pipe_fd.fds > 2) {
 		if (fstat(pipe_fd.fds, &st) < 0)
 			initctl_control_close();
-		if (stat(INIT_FIFO, &st2) < 0 || st.st_dev != st2.st_dev
-			|| st.st_ino != st2.st_ino)
-		{
+
+		if (stat(INIT_FIFO, &st2) < 0 || st.st_dev != st2.st_dev ||
+		    st.st_ino != st2.st_ino) {
 			initctl_control_close();
 		}
 	}
 
 	/* If the pipe isn't open, try to open it. */
-	if (pipe_fd.fds < 3)
-	{
+	if (pipe_fd.fds < 3) {
 		/* it the file descriptor has to be over 2 to be valid */
 		if ((pipe_fd.fds = open(INIT_FIFO, O_RDWR | O_NONBLOCK)) < 3)
-			return (FALSE);
+			return FALSE;
 
 		D_("Opened on fd %i\n", pipe_fd.fds);
 		fstat(pipe_fd.fds, &st);
-		if (!S_ISFIFO(st.st_mode))
-		{
+		if (!S_ISFIFO(st.st_mode)) {
 			/* /dev/initctl is there, but we can't open it */
 			F_("%s is not a fifo\n", INIT_FIFO);
-			if (pipe_fd.fds >= 0)
-			{
+			if (pipe_fd.fds >= 0) {
 				close(pipe_fd.fds);
 				pipe_fd.fds = -1;
 			}
-			return (FALSE);
+
+			return FALSE;
 		}
 
 		initng_fd_set_cloexec(pipe_fd.fds);
 
 		/* ok, finally add hook */
-		initng_event_hook_register(&EVENT_FD_WATCHER, &pipe_fd_handler);
+		initng_event_hook_register(&EVENT_FD_WATCHER,
+		                           &pipe_fd_handler);
 	}
-	return (TRUE);
+
+	return TRUE;
 }
 
 /* To be called when there is input on the control bus */
-void parse_control_input(f_module_h * from_module, e_fdw what)
+void parse_control_input(f_module_h *from_module, e_fdw what)
 {
 	int n;
 	struct init_request request;
@@ -180,20 +184,20 @@ void parse_control_input(f_module_h * from_module, e_fdw what)
 	n = read(pipe_fd.fds, &request, sizeof(request));
 
 	/* Check if request is ok : */
-	if (n == 0)
-	{
+	if (n == 0) {
 		F_("read 0 bytes, this should never happen!\n");
 		return;
 	}
-	if (n <= 0)
-	{
+
+	if (n < 0) {
 		if (errno == EINTR)
 			return;
+
 		F_("Error reading request\n");
 		return;
 	}
-	if (request.magic != INIT_MAGIC || n != sizeof(request))
-	{
+
+	if (request.magic != INIT_MAGIC || n != sizeof(request)) {
 		F_("got bogus init request\n");
 		return;
 	}
@@ -201,10 +205,10 @@ void parse_control_input(f_module_h * from_module, e_fdw what)
 	/*
 	 * Check that the request command is a valid one.
 	 */
-	if (request.cmd != INIT_CMD_RUNLVL)
-	{
+	if (request.cmd != INIT_CMD_RUNLVL) {
 		D_("got unimplemented init request - %d (%c),%d (%c).\n",
-		   request.runlevel, request.runlevel, request.cmd, request.cmd);
+		   request.runlevel, request.runlevel, request.cmd,
+		   request.cmd);
 		return;
 	}
 
@@ -220,8 +224,7 @@ void parse_control_input(f_module_h * from_module, e_fdw what)
 	D_("init data is : - %d (%c),%d (%c).\n", request.runlevel,
 	   request.runlevel, request.cmd, request.cmd);
 
-	switch (request.runlevel)
-	{
+	switch (request.runlevel) {
 			/* halting */
 		case '0':
 			D_("Halting.\n");
@@ -256,7 +259,8 @@ void parse_control_input(f_module_h * from_module, e_fdw what)
 			W_("init S, going singleuser\n");
 			g.when_out = THEN_RESTART;
 
-			/* set next runlevel to single (That will be loaded when no service is left in current one) */
+			/* set next runlevel to single (That will be loaded
+			 * when no service is left in current one) */
 			initng_main_set_runlevel("single");
 			initng_handler_stop_all();
 			return;
@@ -266,9 +270,12 @@ void parse_control_input(f_module_h * from_module, e_fdw what)
 				char tmp[20];
 
 				sprintf(tmp, "runlevel%c", request.runlevel);
-				if (!initng_handler_start_new_service_named(tmp))
-					F_(" service \"%s\" could not be executed.\n", tmp);
+				if (!initng_handler_start_new_service_named(tmp)) {
+					F_(" service \"%s\" could not be "
+					   "executed.\n", tmp);
+				}
 			}
+
 			return;
 	}
 }
@@ -280,11 +287,12 @@ static void makeutmp(int runlevel)
 	time_t t;
 
 	/*
-	 * this is created by bootmisc, if this isn't there we can't set runlevel.
+	 * this is created by bootmisc, if this isn't there we can't set
+	 * runlevel.
 	 */
-	if (access(UTMP_FILE, F_OK) < 0)
-	{
-		F_("/var/run/utmp does not exist, this should be created by bootmisc.i\n");
+	if (access(UTMP_FILE, F_OK) < 0) {
+		F_("/var/run/utmp does not exist, this should be created by "
+		   "bootmisc.i\n");
 		return;
 	}
 	/*
@@ -298,12 +306,12 @@ static void makeutmp(int runlevel)
 	utmp.ut_pid = ('#' << 8) + runlevel + '0';
 	time(&t);
 	utmp.ut_time = (int) t;
-	if (pututline(&utmp) == NULL)
-	{
+	if (pututline(&utmp) == NULL) {
 		F_("pututline failed\n");
 		endutent();
 		return;
 	}
+
 	endutent();
 	return;
 }
@@ -312,16 +320,15 @@ static void initng_reload(void)
 {
 	s_command *reload = initng_command_find_by_command_id('c');
 
-	if (reload && reload->u.void_command_call)
-	{
-		(*reload->u.void_command_call) (NULL);
+	if (reload && reload->u.void_command_call) {
+		(*reload->u.void_command_call)(NULL);
 	}
 }
 
 
 
 /* try open FIFO, every started service */
-static void hup_request(s_event * event)
+static void hup_request(s_event *event)
 {
 	int *signal;
 
@@ -330,18 +337,16 @@ static void hup_request(s_event * event)
 	signal = event->data;
 
 	/* Look for the right signal */
-	if (*signal == SIGHUP)
-	{
-		if (!initctl_control_open())
-		{
+	if (*signal == SIGHUP) {
+		if (!initctl_control_open()) {
 			F_("Warning, failed to open /dev/initctl\n");
 		}
 	}
 }
 
-static void is_system_up(s_event * event)
+static void is_system_up(s_event *event)
 {
-	h_sys_state * state;
+	h_sys_state *state;
 
 	assert(event->event_type == &EVENT_SYSTEM_CHANGE);
 	assert(event->data);
@@ -349,38 +354,36 @@ static void is_system_up(s_event * event)
 	state = event->data;
 
 	if (*state == STATE_UP && (!utmp_stored))
-	{
 		makeutmp(3);
-	}
 }
 
 
 int module_init(int api_version)
 {
 	D_("module_init();\n");
-	if (api_version != API_VERSION)
-	{
-		F_("This module is compiled for api_version %i version and initng is compiled on %i version, won't load this module!\n", API_VERSION, api_version);
-		return (FALSE);
+	if (api_version != API_VERSION) {
+		F_("This module is compiled for api_version %i version and "
+		   "initng is compiled on %i version, won't load this "
+		   "module!\n", API_VERSION, api_version);
+		return FALSE;
 	}
 
-	if (g.i_am != I_AM_INIT)
-	{
+	if (g.i_am != I_AM_INIT) {
 		initng_module_unload_named("initctl");
-		return (TRUE);			/* this is not a failure */
+		return TRUE;			/* this is not a failure */
 	}
 
 	utmp_stored = FALSE;
 
 	initctl_control_open();
 
-	if ((!initng_event_hook_register(&EVENT_SIGNAL, &hup_request))
-		|| (!initng_event_hook_register(&EVENT_SYSTEM_CHANGE, &is_system_up)))
-	{
+	if (!initng_event_hook_register(&EVENT_SIGNAL, &hup_request) ||
+	    !initng_event_hook_register(&EVENT_SYSTEM_CHANGE, &is_system_up)) {
 		F_("Fail add hook!\n");
-		return (FALSE);
+		return FALSE;
 	}
-	return (TRUE);
+
+	return TRUE;
 }
 
 
@@ -390,7 +393,7 @@ void module_unload(void)
 
 	/* then this module was never loaded */
 	if (g.i_am != I_AM_INIT)
-		return;								/* this is not a failure */
+		return;				/* this is not a failure */
 
 
 	initctl_control_close();

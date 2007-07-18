@@ -31,7 +31,8 @@
 #include <assert.h>
 
 
-/* called when a process got killed, identify it, and make a call with a pointer to the process */
+/* called when a process got killed, identify it, and make a call with a
+ * pointer to the process */
 void initng_kill_handler_killed_by_pid(pid_t kpid, int r_code)
 {
 	/* The process that got killed */
@@ -46,8 +47,7 @@ void initng_kill_handler_killed_by_pid(pid_t kpid, int r_code)
 		return;
 
 	/* Look in process database for a match */
-	if (!(service = initng_active_db_find_by_pid(kpid)))
-	{
+	if (!(service = initng_active_db_find_by_pid(kpid))) {
 		D_("handle_killed_by_pid(%i): No match in active_db!\n", kpid);
 		return;
 	}
@@ -56,60 +56,52 @@ void initng_kill_handler_killed_by_pid(pid_t kpid, int r_code)
 	   service->name);
 
 	/* Get the process pointer from the service */
-	if (!(process = initng_process_db_get_by_pid(kpid, service)))
-	{
-		W_("Could not fetch process, even when initng_active_db_find_by_pid() saw it here!\n");
+	if (!(process = initng_process_db_get_by_pid(kpid, service))) {
+		W_("Could not fetch process, even when "
+		   "initng_active_db_find_by_pid() saw it here!\n");
 		return;
 	}
 
 	D_("(%i), found process type: %s\n", kpid, process->pt->name);
 
-
 	/* set r_code */
 	process->r_code = r_code;
 
-
 	/* close all pipes */
-	while_pipes(current_pipe, process)
-	{
-		if ((current_pipe->dir == OUT_PIPE
-			 || current_pipe->dir == BUFFERED_OUT_PIPE)
-			&& current_pipe->pipe[0] > 0)
-		{
-			/*
-			 * calling initng_process_read_input, Make sure all buffers read, before closing them.
-			 */
-			initng_fd_process_read_input(service, process, current_pipe);
+	while_pipes(current_pipe, process) {
+		if ((current_pipe->dir == OUT_PIPE ||
+		     current_pipe->dir == BUFFERED_OUT_PIPE) &&
+		     current_pipe->pipe[0] > 0) {
+			/* calling initng_process_read_input, Make sure all
+			 * buffers read, before closing them. */
+			initng_fd_process_read_input(service, process,
+			                             current_pipe);
 
 			/* now close */
 			close(current_pipe->pipe[0]);
 			current_pipe->pipe[0] = -1;
-		}
-
-		else if (current_pipe->dir == IN_PIPE && current_pipe->pipe[1] > 0)
-		{
+		} else if (current_pipe->dir == IN_PIPE &&
+		           current_pipe->pipe[1] > 0) {
 			close(current_pipe->pipe[1]);
 			current_pipe->pipe[1] = -1;
 		}
 	}
 
 	/* Check if a plugin wants to override handle_killed behavior */
-	if (initng_plugin_callers_handle_killed(service, process))
-	{
+	if (initng_plugin_callers_handle_killed(service, process)) {
 		D_("Plugin did handle this kill.\n");
 		return;
 	}
 
 
 	/* launch a kill_handler if any */
-	if (process->pt && process->pt->kill_handler)
-	{
+	if (process->pt && process->pt->kill_handler) {
 		D_("Launching process->pt->kill_handler\n");
-		(*process->pt->kill_handler) (service, process);
-	}
-	else
-	{
-		D_("service %s pid %i p_type %s died with unknown handler, freeing process!\n", service->name, kpid, process->pt->name);
+		(*process->pt->kill_handler)(service, process);
+	} else {
+		D_("service %s pid %i p_type %s died with unknown handler, "
+		   "freeing process!\n", service->name, kpid,
+		   process->pt->name);
 		initng_process_db_free(process);
 	}
 }

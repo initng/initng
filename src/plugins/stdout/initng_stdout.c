@@ -30,17 +30,36 @@
 
 INITNG_PLUGIN_MACRO;
 
-s_entry STDOUT = { "stdout", STRING, NULL,
-	"Open a file with this path, and direct service output here."
+s_entry STDOUT = {
+	.name = "stdout",
+	.description = "Open a file with this path, and direct service "
+	               "output here.",
+	.type = STRING,
+	.ot = NULL,
 };
-s_entry STDERR = { "stderr", STRING, NULL,
-	"Open a file with this path, and direct service error output here."
+
+s_entry STDERR = {
+	.name = "stderr",
+	.description = "Open a file with this path, and direct service error "
+	               "output here.",
+	.type = STRING,
+	.ot = NULL,
 };
-s_entry STDALL = { "stdall", STRING, NULL,
-	"Open a file with this path, and direct service all output here."
+
+s_entry STDALL = {
+	.name = "stdall",
+	.description = "Open a file with this path, and direct service all "
+	               "output here.",
+	.type = STRING,
+	.ot = NULL,
 };
-s_entry STDIN = { "stdin", STRING, NULL,
-	"Open a file with this path, and direct service input here."
+
+s_entry STDIN = {
+	.name = "stdin",
+	.description = "Open a file with this path, and direct service input "
+	               "here.",
+	.type = STRING,
+	.ot = NULL,
 };
 
 
@@ -78,30 +97,25 @@ static void setup_output(s_event * event)
 	s_stdall = get_string(&STDALL, data->service);
 	s_stdin = get_string(&STDIN, data->service);
 
-	if (!(s_stdout || s_stderr || s_stdall || s_stdin))
-	{
+	if (!(s_stdout || s_stderr || s_stdall || s_stdin)) {
 		D_("This plugin won't do anything, because no opt set!\n");
 		return;
 	}
 
 	/* if stdout points to same as stderr, set s_stdall */
-	if (s_stdout && s_stderr && strcmp(s_stdout, s_stderr) == 0)
-	{
+	if (s_stdout && s_stderr && strcmp(s_stdout, s_stderr) == 0) {
 		s_stdall = s_stdout;
 		s_stdout = NULL;
 		s_stderr = NULL;
 	}
 
 	/* if stdall string is set */
-	if (s_stdall)
-	{
+	if (s_stdall) {
 		/* output all to this */
 		fd_stdall = open(s_stdall,
 				 O_WRONLY | O_NOCTTY | O_CREAT | O_APPEND,
 				 0644);
-	}
-	else
-	{
+	} else {
 		/* else set them to different files */
 		if (s_stdout)
 			fd_stdout = open(s_stdout,
@@ -112,6 +126,7 @@ static void setup_output(s_event * event)
 					 O_WRONLY | O_NOCTTY | O_CREAT |
 					 O_APPEND, 0644);
 	}
+
 	if (s_stdin)
 		fd_stdin = open(s_stdin, O_RDONLY | O_NOCTTY, 0644);
 
@@ -137,16 +152,13 @@ static void setup_output(s_event * event)
 #endif
 
 	/* if fd succeeded to open */
-	if (fd_stdall > 2)
-	{
+	if (fd_stdall > 2) {
 		/* dup both to stdall */
 		dup2(fd_stdall, 1);
 		dup2(fd_stdall, 2);
 
 		initng_fd_set_cloexec(fd_stdall);
-	}
-	else
-	{
+	} else {
 		/* else dup them to diffrent fds */
 		if (fd_stdout > 2)
 			dup2(fd_stdout, 1);
@@ -169,10 +181,11 @@ int module_init(int api_version)
 	S_;
 
 	D_("module_init();\n");
-	if (api_version != API_VERSION)
-	{
-		F_("This module is compiled for api_version %i version and initng is compiled on %i version, won't load this module!\n", API_VERSION, api_version);
-		return (FALSE);
+	if (api_version != API_VERSION) {
+		F_("This module is compiled for api_version %i version and "
+		   "initng is compiled on %i version, won't load this "
+		   "module!\n", API_VERSION, api_version);
+		return FALSE;
 	}
 
 	initng_service_data_type_register(&STDOUT);
@@ -181,7 +194,7 @@ int module_init(int api_version)
 	initng_service_data_type_register(&STDIN);
 
 	initng_event_hook_register(&EVENT_AFTER_FORK, &setup_output);
-	return (TRUE);
+	return TRUE;
 }
 
 void module_unload(void)

@@ -22,8 +22,7 @@
 
 #include <initng/list.h>
 
-typedef struct module_struct
-{
+typedef struct module_struct {
 	char *module_name;
 	char *module_filename;
 	void *module_dlhandle;

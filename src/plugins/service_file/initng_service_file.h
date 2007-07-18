@@ -26,8 +26,7 @@
 #define SOCKET_PATH DEVDIR "/initng/bp"
 
 /* incoming type */
-typedef enum
-{
+typedef enum {
 	UNSET_INVALID = 0,
 	NEW_ACTIVE = 1,
 	SET_VARIABLE = 2,
@@ -37,23 +36,20 @@ typedef enum
 } bp_req_type;
 
 
-typedef struct
-{
-	int version;				/* protocl version */
-	bp_req_type request;		/* Can be new service request, new daemon request, set option .... */
-	union
-	{
+typedef struct {
+	int version;			/* protocol version */
+	bp_req_type request;		/* Can be new service request, new
+					 * daemon request, set option .... */
+	union {
 		/* new active */
-		struct
-		{
+		struct {
 			char type[41];		/* What service type this is */
 			char service[101];	/* New service name */
 			char from_file[101];	/* The source file added from */
 		} new_active;
 
 		/* set value */
-		struct
-		{
+		struct {
 			char service[101];	/* Service to set option to */
 			char vartype[101];	/* The variable try to set */
 			char varname[101];	/* The local variable name */
@@ -61,29 +57,25 @@ typedef struct
 		} set_variable;
 
 		/* get value */
-		struct
-		{
+		struct {
 			char service[101];	/* Service to get option from */
 			char vartype[101];	/* The variable try to get */
 			char varname[101];	/* The local varname */
 		} get_variable;
 
 		/* parsing done, now start it */
-		struct
-		{
+		struct {
 			char service[101];	/* the service that is done parsing */
 		} done;
 
 		/* abort parsing, and clear service */
-		struct
-		{
+		struct {
 			char service[101];	/* name of service to abort */
 		} abort;
 	} u;
 } bp_req;
 
-typedef struct
-{
+typedef struct {
 	int success;				/* mainly TRUE or FALSE */
 	char message[1025];			/* used for transporting a string to the client */
 } bp_rep;

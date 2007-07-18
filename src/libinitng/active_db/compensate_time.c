@@ -36,8 +36,7 @@ void initng_active_db_compensate_time(time_t skew)
 	active_db_h *current = NULL;
 
 	/* walk the active_db */
-	while_active_db(current)
-	{
+	while_active_db(current) {
 		assert(current->name);
 		/* change this time */
 		current->time_current_state.tv_sec += skew;

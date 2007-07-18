@@ -19,17 +19,17 @@
 
 #include <initng.h>
 
-#include <time.h>							/* time() */
-#include <fcntl.h>							/* fcntl() */
-#include <sys/un.h>							/* memmove() strcmp() */
-#include <sys/wait.h>						/* waitpid() sa */
-#include <linux/kd.h>						/* KDSIGACCEPT */
-#include <sys/ioctl.h>						/* ioctl() */
-#include <stdio.h>							/* printf() */
-#include <stdlib.h>							/* free() exit() */
-#include <sys/reboot.h>						/* reboot() RB_DISABLE_CAD */
+#include <time.h>				/* time() */
+#include <fcntl.h>				/* fcntl() */
+#include <sys/un.h>				/* memmove() strcmp() */
+#include <sys/wait.h>				/* waitpid() sa */
+#include <linux/kd.h>				/* KDSIGACCEPT */
+#include <sys/ioctl.h>				/* ioctl() */
+#include <stdio.h>				/* printf() */
+#include <stdlib.h>				/* free() exit() */
+#include <sys/reboot.h>				/* reboot() RB_DISABLE_CAD */
 #include <assert.h>
-#include <ctype.h>							/* isgraph */
+#include <ctype.h>				/* isgraph */
 
 #include <initng-paths.h>
 
@@ -66,16 +66,16 @@ char **initng_env_new(active_db_h * s)
 	 * FIRST, try to figure out how big array we want to create.
 	 */
 
-	/*  At least 11 allocations below, and place for plugin added to (about 100) */
+	/* At least 11 allocations below, and place for plugin added to
+	 * (about 100) */
 	allocate = 114;
 
 	/* finally allocate */
 	env = (char **) initng_toolbox_calloc(allocate, sizeof(char *));
 
 	/* add all static defined above in initng_environ */
-	for (nr = 0; initng_environ[nr]; nr++)
-	{
-		env[nr] = initng_toolbox_strdup(initng_environ[nr]);
+	for (nr = 0; initng_environ[nr]; nr++) {
+		env[nr] = (char *) initng_environ[nr];
 	}
 
 	/* Set INITNG_PID, so we can send signals to initng */
@@ -84,47 +84,44 @@ char **initng_env_new(active_db_h * s)
 	env[nr][31] = '\0';
 	nr++;
 
-	if (s && (nr + 4) < allocate)
-	{
-		env[nr] = (char *) initng_toolbox_calloc(1, sizeof(char) * (9 + strlen(s->name)));
+	if (s && (nr + 4) < allocate) {
+		env[nr] = (char *) initng_toolbox_calloc(1,
+			  sizeof(char) * (9 + strlen(s->name)));
 		strcpy(env[nr], "SERVICE=");
 		strcat(env[nr], s->name);
 		nr++;
 
-		env[nr] = (char *) initng_toolbox_calloc(1, sizeof(char) * (6 + strlen(s->name)));
+		env[nr] = (char *) initng_toolbox_calloc(1,
+		          sizeof(char) * (6 + strlen(s->name)));
 		strcpy(env[nr], "NAME=");
 		strcat(env[nr], initng_string_basename(s->name));
 		nr++;
 
-		if (g.dev_console)
-		{
-			env[nr] = (char *) initng_toolbox_calloc(1, sizeof(char) *
-			                   (9 + strlen(g.dev_console)));
+		if (g.dev_console) {
+			env[nr] = (char *) initng_toolbox_calloc(1,
+			          sizeof(char) * (9 + strlen(g.dev_console)));
 			strcpy(env[nr], "CONSOLE=");
 			strcat(env[nr], g.dev_console);
 		}
-		else
-		{
-			env[nr] = (char *) initng_toolbox_calloc(1, sizeof(char) *
-			                   (9 + strlen(INITNG_CONSOLE)));
+		else {
+			env[nr] = (char *) initng_toolbox_calloc(1,
+			          sizeof(char) * (9 + strlen(INITNG_CONSOLE)));
 			strcpy(env[nr], "CONSOLE=");
 			strcat(env[nr], INITNG_CONSOLE);
 		}
 		nr++;
 
-		if (g.runlevel && (nr + 1) < allocate)
-		{
-			env[nr] = (char *) initng_toolbox_calloc(1, sizeof(char) *
-			                   (10 + strlen(g.runlevel)));
+		if (g.runlevel && (nr + 1) < allocate) {
+			env[nr] = (char *) initng_toolbox_calloc(1,
+				  sizeof(char) * (10 + strlen(g.runlevel)));
 			strcpy(env[nr], "RUNLEVEL=");
 			strcat(env[nr], g.runlevel);
 			nr++;
 		}
 
-		if (g.old_runlevel && (nr + 1) < allocate)
-		{
-			env[nr] = (char *) initng_toolbox_calloc(1, sizeof(char) *
-			                   (14 + strlen(g.old_runlevel)));
+		if (g.old_runlevel && (nr + 1) < allocate) {
+			env[nr] = (char *) initng_toolbox_calloc(1,
+			          sizeof(char) * (14 + strlen(g.old_runlevel)));
 			strcpy(env[nr], "PREVLEVEL=");
 			strcat(env[nr], g.old_runlevel);
 			nr++;
@@ -136,12 +133,11 @@ char **initng_env_new(active_db_h * s)
 	env[nr] = NULL;
 
 #ifdef DEBUG
-	for (nr = 0; env[nr]; nr++)
-	{
+	for (nr = 0; env[nr]; nr++) {
 		D_("environ[%i] = \"%s\"\n", nr, env[nr]);
 	}
 #endif
 
 	/* return new environ */
-	return (env);
+	return env;
 }

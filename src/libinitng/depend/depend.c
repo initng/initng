@@ -20,7 +20,7 @@
 #include <initng.h>
 
 #include <stdio.h>
-#include <stdlib.h>							/* free() exit() */
+#include <stdlib.h>					/* free() exit() */
 #include <string.h>
 #include <assert.h>
 
@@ -39,11 +39,11 @@ int initng_depend(active_db_h * service, active_db_h * check)
 
 	/* it can never depend on itself */
 	if (service == check)
-		return (FALSE);
+		return FALSE;
 
 	/* run the local static dep check */
 	if (dep_on(service, check) == TRUE)
-		return (TRUE);
+		return TRUE;
 
 	/* run the global plugin dep check */
 	{
@@ -57,9 +57,9 @@ int initng_depend(active_db_h * service, active_db_h * check)
 
 		initng_event_send(&event);
 		if (event.status == OK)
-			return (TRUE);
+			return TRUE;
 	}
 
 	/* No, "service" was not depending on "check" */
-	return (FALSE);
+	return FALSE;
 }

@@ -45,13 +45,12 @@ void run_interrupt_handlers(void)
 	S_;
 
 	/* walk through all active services */
-	while_active_db_safe(current, q)
-	{
+	while_active_db_safe(current, q) {
 		assert(current->name);
 		assert(current->current_state);
 
 		/* call state handler, now when we got an g.interrupt */
-		if (current->current_state->state_interrupt)
-			(*current->current_state->state_interrupt) (current);
+		if (current->current_state->interrupt)
+			(*current->current_state->interrupt)(current);
 	}
 }

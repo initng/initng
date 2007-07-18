@@ -34,31 +34,27 @@ void initng_data_set_int_var(s_entry * type, char *vn, data_head * d, int value)
 
 	assert(d);
 
-	if (!type)
-	{
+	if (!type) {
 		F_("Type can't be zero!\n");
 		return;
 	}
 
 	ALIAS_WALK;
 
-	if (!vn && type->opt_type >= 50)
-	{
-		F_("The vn variable is missing for a type %i %s!\n", type->opt_type,
-		   type->opt_name);
+	if (!vn && type->type >= 50) {
+		F_("The vn variable is missing for a type %i %s!\n",
+		   type->type, type->name);
 		return;
 	}
 
 
-	if (!IT(INT))
-	{
-		F_(" \"%s\" is not an int type!\n", type->opt_name);
+	if (!IT(INT)) {
+		F_(" \"%s\" is not an int type!\n", type->name);
 		return;
 	}
 
 	/* check the db, for an current entry to overwrite */
-	if ((current = initng_data_get_next_var(type, vn, d, NULL)))
-	{
+	if ((current = initng_data_get_next_var(type, vn, d, NULL))) {
 		current->t.i = value;
 		return;
 	}

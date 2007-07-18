@@ -46,32 +46,67 @@ static int cmd_add_verbose(char *arg);
 static int cmd_del_verbose(char *arg);
 #endif
 
-s_command LIST_FDS = { 'I', "list_filedescriptors", STRING_COMMAND, ADVANCHED_COMMAND, USES_OPT, {(void *) &cmd_print_fds}, "Print all open filedescriptors initng have." };
-
-s_command QUIT_INITNG = { 'q', "quit", TRUE_OR_FALSE_COMMAND, ADVANCHED_COMMAND, NO_OPT,
-	{(void *) &cmd_initng_quit},
-	"Quits initng"
+s_command LIST_FDS = {
+	.id = 'I',
+	.long_id = "list_filedescriptors",
+	.com_type = STRING_COMMAND,
+	.opt_visible = ADVANCHED_COMMAND,
+	.opt_type = USES_OPT,
+	.u = { (void *) &cmd_print_fds },
+	.description = "Print all open filedescriptors initng have."
 };
 
-s_command PRINT_ACTIVE_DB = { 'p', "print_active_db", STRING_COMMAND, ADVANCHED_COMMAND, USES_OPT,
-	{(void *) &active_db_print_all},
-	"Print active_db"
+s_command QUIT_INITNG = {
+	.id = 'q',
+	.long_id = "quit",
+	.com_type = TRUE_OR_FALSE_COMMAND,
+	.opt_visible = ADVANCHED_COMMAND,
+	.opt_type = NO_OPT,
+	.u = { (void *) &cmd_initng_quit },
+	.description = "Quits initng"
+};
+
+s_command PRINT_ACTIVE_DB = {
+	.id = 'p',
+	.long_id = "print_active_db",
+	.com_type = STRING_COMMAND,
+	.opt_visible = ADVANCHED_COMMAND,
+	.opt_type = USES_OPT,
+	.u = { (void *) &active_db_print_all },
+	.description = "Print active_db"
 };
 
 #ifdef DEBUG
-s_command TOGGLE_VERBOSE = { 'v', "verbose", TRUE_OR_FALSE_COMMAND, ADVANCHED_COMMAND, NO_OPT,
-	{(void *) &cmd_toggle_verbose},
-	"Toggle the verbose flag - ONLY FOR DEBUGGING"
+s_command TOGGLE_VERBOSE = {
+	.id = 'v',
+	.long_id = "verbose",
+	.com_type = TRUE_OR_FALSE_COMMAND,
+	.opt_visible = ADVANCHED_COMMAND,
+	.opt_type = NO_OPT,
+	.u = { (void *) &cmd_toggle_verbose },
+	.description = "Toggle the verbose flag - ONLY FOR DEBUGGING"
 };
-s_command ADD_VERBOSE = { 'i', "add_verbose", TRUE_OR_FALSE_COMMAND, ADVANCHED_COMMAND,
-	REQUIRES_OPT,
-	{(void *) &cmd_add_verbose},
-	"Add string to watch for to make initng verbose - ONLY FOR DEBUGGING"
+
+s_command ADD_VERBOSE = {
+	.id = 'i',
+	.long_id = "add_verbose",
+	.com_type = TRUE_OR_FALSE_COMMAND,
+	.opt_visible = ADVANCHED_COMMAND,
+	.opt_type = REQUIRES_OPT,
+	.u = { (void *) &cmd_add_verbose },
+	.description = "Add string to watch for to make initng verbose - "
+		       "ONLY FOR DEBUGGING"
 };
-s_command DEL_VERBOSE = { 'k', "del_verbose", TRUE_OR_FALSE_COMMAND, ADVANCHED_COMMAND,
-	REQUIRES_OPT,
-	{(void *) &cmd_del_verbose},
-	"Del string to watch for to make initng verbose - ONLY FOR DEBUGGING"
+
+s_command DEL_VERBOSE = {
+	.id = 'k',
+	.long_id = "del_verbose",
+	.com_type = TRUE_OR_FALSE_COMMAND,
+	.opt_visible = ADVANCHED_COMMAND,
+	.opt_type = REQUIRES_OPT,
+	.u = { (void *) &cmd_del_verbose },
+	.description = "Del string to watch for to make initng verbose - "
+		       "ONLY FOR DEBUGGING"
 };
 #endif
 
@@ -96,42 +131,40 @@ static char *cmd_print_fds(char *arg)
 		initng_event_send(&event);
 	}
 
-	for (i = 0; i < 1024; i++)
-	{
+	for (i = 0; i < 1024; i++) {
 		currentA = NULL;
 
 		/* for every service */
-		while_active_db(currentA)
-		{
+		while_active_db(currentA) {
 			/* if argument was set, only print matching */
-			if (!arg || initng_string_match(currentA->name, arg))
-			{
+			if (!arg || initng_string_match(currentA->name, arg)) {
 				/* for every process */
 				currentP = NULL;
-				while_processes(currentP, currentA)
-				{
+				while_processes(currentP, currentA) {
 					/* for every pipe */
 					current_pipe = NULL;
-					while_pipes(current_pipe, currentP)
-					{
+					while_pipes(current_pipe, currentP) {
 						/* if matching */
-						if (current_pipe->pipe[0] == i
-							|| current_pipe->pipe[1] == i)
-						{
+						if (current_pipe->pipe[0] == i ||
+						    current_pipe->pipe[1] == i) {
 							/* PRINT */
 							mprintf(&string,
-									" %i: Used service: %s, process: %s\n", i,
-									currentA->name, currentP->pt->name);
+								" %i: Used "
+								"service: %s, "
+								"process: "
+								"%s\n", i,
+								currentA->name,
+								currentP->pt->name);
 						}
 					}
 				}
 			}
 		}
 
-
 		/*mprintf(&string, " %i:\n", i); */
 	}
-	return (string);
+
+	return string;
 }
 
 static int cmd_initng_quit(char *arg)
@@ -139,68 +172,71 @@ static int cmd_initng_quit(char *arg)
 	(void) arg;
 	g.when_out = THEN_QUIT;
 	initng_handler_stop_all();
-	return (TRUE);
-}
 
+	return TRUE;
+}
 
 
 #ifdef DEBUG
 
-
 static int cmd_toggle_verbose(char *arg)
 {
 	(void) arg;
-	switch (g.verbose)
-	{
+	switch (g.verbose) {
 		case 0:
 			g.verbose = 1;
 			break;
+
 		case 1:
 			g.verbose = 0;
 			break;
+
 		case 2:
 			g.verbose = 3;
 			break;
+
 		case 3:
 			g.verbose = 2;
 			break;
+
 		default:
 			g.verbose = 0;
 			W_("Unknown verbose id %i\n", g.verbose);
 			break;
 	}
+
 	return (g.verbose);
 }
 
 static int cmd_add_verbose(char *arg)
 {
 	if (!arg)
-		return (FALSE);
+		return FALSE;
 
-	return (initng_error_verbose_add(arg));
+	return initng_error_verbose_add(arg);
 }
 
 static int cmd_del_verbose(char *arg)
 {
 	if (!arg)
-		return (FALSE);
+		return FALSE;
 
-	return (initng_error_verbose_del(arg));
+	return initng_error_verbose_del(arg);
 }
 #endif
 
 int module_init(int api_version)
 {
 	D_("module_init(stcmd);\n");
-	if (api_version != API_VERSION)
-	{
-		F_("This module is compiled for api_version %i version and initng is compiled on %i version, won't load this module!\n", API_VERSION, api_version);
-		return (FALSE);
+	if (api_version != API_VERSION) {
+		F_("This module is compiled for api_version %i version "
+		   "and initng is compiled on %i version, won't load this "
+		   "module!\n", API_VERSION, api_version);
+		return FALSE;
 	}
 
 	initng_command_register(&LIST_FDS);
-	if (g.i_am == I_AM_FAKE_INIT)
-	{
+	if (g.i_am == I_AM_FAKE_INIT) {
 		initng_command_register(&QUIT_INITNG);
 	}
 	initng_command_register(&PRINT_ACTIVE_DB);
@@ -211,9 +247,8 @@ int module_init(int api_version)
 	initng_command_register(&DEL_VERBOSE);
 #endif
 
-
 	D_("libstcmd.so.0.0 loaded!\n");
-	return (TRUE);
+	return TRUE;
 }
 
 
@@ -222,8 +257,7 @@ void module_unload(void)
 	D_("module_unload(stcmd);\n");
 
 	initng_command_unregister(&LIST_FDS);
-	if (g.i_am == I_AM_FAKE_INIT)
-	{
+	if (g.i_am == I_AM_FAKE_INIT) {
 		initng_command_unregister(&QUIT_INITNG);
 	}
 	initng_command_unregister(&PRINT_ACTIVE_DB);
@@ -234,5 +268,4 @@ void module_unload(void)
 #endif
 
 	D_("libstcmd.so.0.0 unloaded!\n");
-
 }

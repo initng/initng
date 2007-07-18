@@ -27,7 +27,12 @@
 
 INITNG_PLUGIN_MACRO;
 
-s_entry NICE = { "nice", INT, NULL, "Set this nice value before executing service." };
+s_entry NICE = {
+	.name = "nice",
+	.description = "Set this nice value before executing service.",
+	.type = INT,
+	.ot = NULL,
+};
 
 static void do_renice(s_event * event)
 {
@@ -42,13 +47,13 @@ static void do_renice(s_event * event)
 	assert(data->service->name);
 	assert(data->process);
 
-	if (is(&NICE, data->service))
-	{
-		D_("Will renice %s to %i !\n", data->service->name, get_int(&NICE, data->service));
+	if (is(&NICE, data->service)) {
+		D_("Will renice %s to %i !\n", data->service->name,
+		   get_int(&NICE, data->service));
 		errno = 0;
-		if (nice(get_int(&NICE, data->service)) == -1 && errno != 0)
-		{
-			F_("Failed to set the nice value: %s\n", strerror(errno));
+		if (nice(get_int(&NICE, data->service)) == -1 && errno != 0) {
+			F_("Failed to set the nice value: %s\n",
+			   strerror(errno));
 			event->status = FAILED;
 			return;
 		}
@@ -58,10 +63,11 @@ static void do_renice(s_event * event)
 int module_init(int api_version)
 {
 	D_("module_init();\n");
-	if (api_version != API_VERSION)
-	{
-		F_("This module is compiled for api_version %i version and initng is compiled on %i version, won't load this module!\n", API_VERSION, api_version);
-		return (FALSE);
+	if (api_version != API_VERSION) {
+		F_("This module is compiled for api_version %i version and "
+		   "initng is compiled on %i version, won't load this "
+		   "module!\n", API_VERSION, api_version);
+		return FALSE;
 	}
 
 	initng_service_data_type_register(&NICE);

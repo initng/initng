@@ -20,15 +20,15 @@
 #include <initng.h>
 
 #include <sys/time.h>
-#include <time.h>							/* time() */
-#include <fcntl.h>							/* fcntl() */
-#include <sys/un.h>							/* memmove() strcmp() */
-#include <sys/wait.h>						/* waitpid() sa */
-#include <linux/kd.h>						/* KDSIGACCEPT */
-#include <sys/ioctl.h>						/* ioctl() */
-#include <stdio.h>							/* printf() */
-#include <stdlib.h>							/* free() exit() */
-#include <sys/reboot.h>						/* reboot() RB_DISABLE_CAD */
+#include <time.h>				/* time() */
+#include <fcntl.h>				/* fcntl() */
+#include <sys/un.h>				/* memmove() strcmp() */
+#include <sys/wait.h>				/* waitpid() sa */
+#include <linux/kd.h>				/* KDSIGACCEPT */
+#include <sys/ioctl.h>				/* ioctl() */
+#include <stdio.h>				/* printf() */
+#include <stdlib.h>				/* free() exit() */
+#include <sys/reboot.h>				/* reboot() RB_DISABLE_CAD */
 #include <assert.h>
 
 #include "local.h"
@@ -42,8 +42,7 @@ int initng_interrupt(void)
 	/*D_(" ** INTERRUPT **\n"); */
 
 	/* check what services that changed state */
-	while_active_db_interrupt_safe(service, safe)
-	{
+	while_active_db_interrupt_safe(service, safe) {
 		/* mark as interrupt run */
 		interrupt = TRUE;
 
@@ -59,5 +58,5 @@ int initng_interrupt(void)
 		run_interrupt_handlers();
 
 	/* return positive if any interupt was handled */
-	return (interrupt);
+	return interrupt;
 }

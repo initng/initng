@@ -41,33 +41,29 @@ pid_t initng_fork(active_db_h * service, process_h * process)
 	/* This is the real service kicker */
 	pid_t pid_fork;				/* pid got from fork() */
 	int try_count = 0;			/* Count tryings */
-	pipe_h *current_pipe = NULL;	/* used while walking */
+	pipe_h *current_pipe = NULL;		/* used while walking */
 
 	assert(service);
 	assert(process);
 
 	/* Create all pipes */
-	while_pipes(current_pipe, process)
-	{
-		if (current_pipe->dir == IN_AND_OUT_PIPE)
-		{
+	while_pipes(current_pipe, process) {
+		if (current_pipe->dir == IN_AND_OUT_PIPE) {
 			/*printf("calling socketpair:\n"); */
 			/* create an two directional pipe with socketpair */
-			if (socketpair(AF_UNIX, SOCK_STREAM, 0, current_pipe->pipe) < 0)
-			{
+			if (socketpair(AF_UNIX, SOCK_STREAM, 0,
+			               current_pipe->pipe) < 0) {
 				F_("Fail call socketpair: \"%s\"\n", strerror(errno));
-				return (-1);
+				return -1;
 			}
 			/* printf("parent: fd%i fork: fd%i\n", current_pipe->pipe[1], current_pipe->pipe[0]); */
 
-		}
-		else
-		{
+		} else {
 			/* create an one directional pipe with pipe */
-			if (pipe(current_pipe->pipe) != 0)
-			{
-				F_("Failed adding pipe ! %s\n", strerror(errno));
-				return (-1);
+			if (pipe(current_pipe->pipe) != 0) {
+				F_("Failed adding pipe ! %s\n",
+				   strerror(errno));
+				return -1;
 			}
 		}
 	}
@@ -76,20 +72,18 @@ pid_t initng_fork(active_db_h * service, process_h * process)
 	current_pipe = NULL;
 
 	/* Try to fork 30 times */
-	while ((pid_fork = fork()) == -1)
-	{
-		if (try_count > 30)
-		{									/* Already tried 30 times = no more try */
+	while ((pid_fork = fork()) == -1) {
+		if (try_count > 30) {									/* Already tried 30 times = no more try */
 			F_("GIVING UP TRY TO FORK, FATAL for service.\n");
-			return (pid_fork);
+			return pid_fork;
 		}
 		F_("FAILED TO FORK! try no# %i, this can be FATAL!\n", try_count);
-		usleep(++try_count * 2000);			/* Sleep a while before trying again */
+		usleep(++try_count * 2000);	/* Sleep a while before trying
+						 * again */
 	}
 
 	/* if this is child */
-	if (pid_fork == 0)
-	{
+	if (pid_fork == 0) {
 		/* from now, don't trap signals */
 		initng_signal_disable();
 
@@ -98,14 +92,12 @@ pid_t initng_fork(active_db_h * service, process_h * process)
 		/* g.verbose = 0; */
 #endif
 
-
-		if (g.i_am != I_AM_UTILITY)
-		{
+		if (g.i_am != I_AM_UTILITY) {
 			/* TODO, comment this */
-			if (g.i_am == I_AM_INIT)
-			{
+			if (g.i_am == I_AM_INIT) {
 				ioctl(0, TIOCNOTTY, 0);
-				setsid();					/* Run a program in a new session ??? */
+				setsid();	/* Run a program in a new
+						 * session ??? */
 			}
 
 			/*
@@ -118,79 +110,67 @@ pid_t initng_fork(active_db_h * service, process_h * process)
 			 */
 
 			/* walk thru all the added pipes */
-			while_pipes(current_pipe, process)
-			{
+			while_pipes(current_pipe, process) {
 				int i;
 
 				/* for every target */
-				for (i = 0; current_pipe->targets[i] > 0 && i < MAX_TARGETS;
-					 i++)
-				{
+				for (i = 0; current_pipe->targets[i] > 0 &&
+				            i < MAX_TARGETS; i++) {
 					/* close any conflicting one */
 					close(current_pipe->targets[i]);
 
-					if (current_pipe->dir == OUT_PIPE
-						|| current_pipe->dir == BUFFERED_OUT_PIPE)
-					{
+					if (current_pipe->dir == OUT_PIPE ||
+					    current_pipe->dir == BUFFERED_OUT_PIPE) {
 						/* duplicate the new target right */
-						dup2(current_pipe->pipe[1], current_pipe->targets[i]);
-					}
-					else if (current_pipe->dir == IN_PIPE)
-					{
-						/* duplicate the input pipe instead */
-						dup2(current_pipe->pipe[0], current_pipe->targets[i]);
-					}
-					else if (current_pipe->dir == IN_AND_OUT_PIPE)
-					{
-						/* in a unidirectional socket, there is pipe[0] that is used in the child */
-						/*printf("dup2(%i, %i);\n", current_pipe->pipe[0], current_pipe->targets[i]); */
-						dup2(current_pipe->pipe[0], current_pipe->targets[i]);
-					}
-					else
+						dup2(current_pipe->pipe[1],
+						     current_pipe->targets[i]);
+					} else if (current_pipe->dir == IN_PIPE) {
+						/* duplicate the input pipe
+						 * instead */
+						dup2(current_pipe->pipe[0],
+						     current_pipe->targets[i]);
+					} else if (current_pipe->dir == IN_AND_OUT_PIPE) {
+						/* in a unidirectional socket,
+						 * there is pipe[0] that is
+						 * used in the child */
+						dup2(current_pipe->pipe[0],
+						     current_pipe->targets[i]);
+					} else
 						continue;
 
-					/* IMPORTANT Tell the os not to close the new target on execve */
-					/*printf("Put non close: fd%i\n", current_pipe->targets[i]); */
-					fcntl(current_pipe->targets[i], F_SETFD, 0);
+					/* IMPORTANT Tell the os not to close
+					 * the new target on execve */
+					fcntl(current_pipe->targets[i],
+					      F_SETFD, 0);
 				}
 			}
 		}
 
 		/* TODO, what does this do? */
-		if (g.i_am == I_AM_INIT)
-			tcsetpgrp(0, getpgrp());		/* run this in foreground on fd 0 */
-
+		if (g.i_am == I_AM_INIT) {
+			/* run this in foreground on fd 0 */
+			tcsetpgrp(0, getpgrp());
+		}
 
 		/* do a minimum sleep, to let the mother process
 		   to register child, and notice death */
 		usleep(ALL_USLEEP);
-
-	}
-	else
-	{
-
+	} else {
 		/* walk all pipes and close all remote sides of pipes */
-		while_pipes(current_pipe, process)
-		{
-			if (current_pipe->dir == OUT_PIPE
-				|| current_pipe->dir == BUFFERED_OUT_PIPE)
-			{
+		while_pipes(current_pipe, process) {
+			if (current_pipe->dir == OUT_PIPE ||
+			    current_pipe->dir == BUFFERED_OUT_PIPE) {
 				if (current_pipe->pipe[1] > 0)
 					close(current_pipe->pipe[1]);
 				current_pipe->pipe[1] = -1;
-			}
-			/* close the OUTPUT end */
-			else if (current_pipe->dir == IN_PIPE)
-			{
+			} else if (current_pipe->dir == IN_PIPE) {
+				/* close the OUTPUT end */
 				if (current_pipe->pipe[0] > 0)
 					close(current_pipe->pipe[0]);
 				current_pipe->pipe[0] = -1;
-			}
-
-			else if (current_pipe->dir == IN_AND_OUT_PIPE)
-			{
-				/* in an unidirectional pipe, pipe[0] is fork, and pipe[1] is parent */
-				/*printf("parent closing: fd%i\n", current_pipe->pipe[0]); */
+			} else if (current_pipe->dir == IN_AND_OUT_PIPE) {
+				/* in an unidirectional pipe, pipe[0] is fork,
+				 * and pipe[1] is parent */
 				if (current_pipe->pipe[0] > 0)
 					close(current_pipe->pipe[0]);
 				current_pipe->pipe[0] = -1;
@@ -199,10 +179,8 @@ pid_t initng_fork(active_db_h * service, process_h * process)
 
 		/* set process->pid if lucky */
 		if (pid_fork > 0)
-		{
 			process->pid = pid_fork;
-		}
 	}
 
-	return (pid_fork);
+	return pid_fork;
 }

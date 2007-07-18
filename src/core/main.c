@@ -58,7 +58,8 @@ int main(int argc, char *argv[], char *env[])
 	int retval;
 
 #ifdef DEBUG
-	int loop_counter = 0;		/* counts how many times the main_loop has run */
+	int loop_counter = 0;		/* counts how many times the main_loop
+					 * has run */
 #endif
 	S_;
 
@@ -67,16 +68,16 @@ int main(int argc, char *argv[], char *env[])
 
 	/* Initialize global variables */
 	initng_config_global_new(argc, argv, env);
-	
+
 	/* Parse options given by /etc/initng.conf */
 	options_parse_file(ETCDIR "/initng.conf");
 
 	/* Parse options given on argv. */
 	options_parse_args(argv);
 
-	if (getuid() != 0)
-	{
-		W_("Initng is designed to run as root user, a lot of functionality will not work correctly.\n");
+	if (getuid() != 0) {
+		W_("Initng is designed to run as root user, a lot of "
+		   "functionality will not work correctly.\n");
 	}
 
 	/* if this is real init */
@@ -86,42 +87,40 @@ int main(int argc, char *argv[], char *env[])
 		g.when_out = THEN_SULOGIN;
 		if (!g.runlevel)
 			initng_main_set_runlevel(RUNLEVEL_DEFAULT);
-	}
-	else if (g.i_am == I_AM_FAKE_INIT)
-	{
+	} else if (g.i_am == I_AM_FAKE_INIT) {
 		/* when last service stopped, quit initng */
-		W_("Starting initng in fake mode becouse pid is not 1 (now %i) or --fake is issued, running fake-default runlevel as default, issue no-fake at boot-prompt is this is real init.", getpid());
+		W_("Starting initng in fake mode, running fake-default "
+		   "runlevel as default.", getpid());
 		g.when_out = THEN_QUIT;
 		initng_main_set_runlevel(RUNLEVEL_FAKE);
 	}
 
 	D_("MAIN_LOAD_MODULES\n");
 	/* Load modules, if fails - launch sulogin and then try again */
-	if (!initng_module_load_all(INITNG_PLUGIN_DIR)
-		&& !initng_module_load_all("/lib/initng")
-		&& !initng_module_load_all("/lib32/initng")
-		&& !initng_module_load_all("/lib64/initng"))
-	{
+	if (!initng_module_load_all(INITNG_PLUGIN_DIR) &&
+	    !initng_module_load_all("/lib/initng") &&
+	    !initng_module_load_all("/lib32/initng") &&
+	    !initng_module_load_all("/lib64/initng")) {
 		/* if we can't load modules, revert to single-user login */
 		initng_main_su_login();
 	}
 
-	if (g.hot_reload)
-	{
+	if (g.hot_reload) {
 		/* Mark service as up */
 		retval = initng_plugin_callers_active_db_reload();
-		if (retval != TRUE)
-		{
+		if (retval != TRUE) {
 			if (retval == FALSE)
 				F_("No plugin handled hot_reload!\n");
 			else
 				F_("Hot reload failed!\n");
 
-			/* if the hot reload failed, we're probably in big trouble */
+			/* if the hot reload failed, we're probably in big
+			 * trouble */
 			initng_main_su_login();
 		}
 
-		/* Hopefully no-one will try a hot reload when the system isn't up... */
+		/* Hopefully no-one will try a hot reload when the system
+		 * isn't up... */
 		initng_main_set_sys_state(STATE_UP);
 	}
 
@@ -133,17 +132,17 @@ int main(int argc, char *argv[], char *env[])
 
 
 	/* make sure this is not a hot reload */
-	if (!g.hot_reload)
-	{
+	if (!g.hot_reload) {
 		/* change system state */
 		initng_main_set_sys_state(STATE_STARTING);
 
-		/* first start all services, prompted at boot with +daemon/test */
+		/* first start all services, prompted at boot with
+		 * +daemon/test */
 		initng_main_start_extra_services();
 
-		/* try load the default service, if it fails - launch sulogin and try again */
-		if (!initng_handler_start_new_service_named(g.runlevel))
-		{
+		/* try load the default service, if it fails - launch sulogin
+		 * and try again */
+		if (!initng_handler_start_new_service_named(g.runlevel)) {
 			F_("Failed to load runlevel (%s)!\n", g.runlevel);
 			initng_main_su_login();
 		}
@@ -151,12 +150,12 @@ int main(int argc, char *argv[], char *env[])
 
 	D_("MAIN_GOING_MAIN_LOOP\n");
 	/* %%%%%%%%%%%%%%%   MAIN LOOP   %%%%%%%%%%%%%%% */
-	for (;;)
-	{
+	for (;;) {
 		D_("MAIN_LOOP: %i\n", loop_counter++);
 		int interrupt = FALSE;
 
-		/* Update current time, save this in global so we don't need to call time() that often. */
+		/* Update current time, save this in global so we don't need
+		 * to call time() that often. */
 		gettimeofday(&g.now, NULL);
 
 		/*
@@ -164,14 +163,18 @@ int main(int argc, char *argv[], char *env[])
 		 * main loop, or if clock has gone backwards,
 		 * reset it.
 		 */
-		if ((g.now.tv_sec - last.tv_sec) >= 3600
-			|| (g.now.tv_sec - last.tv_sec) < 0)
-		{
-			D_(" Clock skew, time have changed over one hour, in one mainloop, compensating %i seconds.\n", (g.now.tv_sec - last.tv_sec));
-			initng_active_db_compensate_time(g.now.tv_sec - last.tv_sec);
-			initng_plugin_callers_compensate_time(g.now.tv_sec - last.tv_sec);
+		if ((g.now.tv_sec - last.tv_sec) >= 3600 ||
+		    (g.now.tv_sec - last.tv_sec) < 0) {
+			D_(" Clock skew, time have changed over one hour, in "
+			   "one mainloop, compensating %i seconds.\n",
+			   (g.now.tv_sec - last.tv_sec));
+			initng_active_db_compensate_time(g.now.tv_sec -
+			                                 last.tv_sec);
+			initng_plugin_callers_compensate_time(g.now.tv_sec -
+			                                      last.tv_sec);
 			last.tv_sec += (g.now.tv_sec - last.tv_sec);
 		}
+
 		/* put last time, to current time last = g.now; */
 		memcpy(&last, &g.now, sizeof(struct timeval));
 
@@ -190,15 +193,13 @@ int main(int argc, char *argv[], char *env[])
 		{
 			int i;
 
-			for (i = 0; i < SIGNAL_STACK; i++)
-			{
+			for (i = 0; i < SIGNAL_STACK; i++) {
 				if (signals_got[i] == -1)
 					continue;
 
 				initng_plugin_callers_signal(signals_got[i]);
 
-				switch (signals_got[i])
-				{
+				switch (signals_got[i]) {
 						/* dead children */
 					case SIGCHLD:
 						initng_signal_handle_sigchild();
@@ -218,8 +219,7 @@ int main(int argc, char *argv[], char *env[])
 
 
 		/* If there is modules to unload, handle this */
-		if (g.modules_to_unload == TRUE)
-		{
+		if (g.modules_to_unload == TRUE) {
 			g.modules_to_unload = FALSE;
 			D_("There is modules to unload!\n");
 			initng_module_unload_marked();
@@ -243,12 +243,12 @@ int main(int argc, char *argv[], char *env[])
 
 
 		/*
-		 * Check if there are any running processes left, otherwise quit, when_out try to do something when this happens.
+		 * Check if there are any running processes left, otherwise
+		 * quit, when_out try to do something when this happens.
 		 *
 		 * This check is also expensive.
 		 */
-		if (initng_main_ready_to_quit() == TRUE)
-		{
+		if (initng_main_ready_to_quit() == TRUE) {
 			initng_main_set_sys_state(STATE_ASE);
 			P_(" *** Last service has quit. ***\n");
 			initng_main_when_out();
@@ -260,7 +260,8 @@ int main(int argc, char *argv[], char *env[])
 		 */
 		initng_active_db_clean_down();
 
-		/* LAST: check for service state changes in a special function */
+		/* LAST: check for service state changes in a special
+		 * function */
 		interrupt = initng_interrupt();
 
 		/* figure out how long we can sleep */
@@ -269,16 +270,17 @@ int main(int argc, char *argv[], char *env[])
 			int closest_timeout = TIMEOUT;
 
 			/* if sleepseconds are set */
-			if (g.sleep_seconds && g.sleep_seconds < closest_timeout)
+			if (g.sleep_seconds &&
+			    g.sleep_seconds < closest_timeout)
 				closest_timeout = g.sleep_seconds;
 
-			/* Check how many seconds there are to the state alarm */
-			if (g.next_alarm && g.next_alarm > g.now.tv_sec)
-			{
+			/* Check how many seconds there are to the state
+			 * alarm */
+			if (g.next_alarm && g.next_alarm > g.now.tv_sec)  {
 				int time_to_next = g.next_alarm - g.now.tv_sec;
 
-				D_("g.next_alarm is set!, will trigger in %i sec.\n",
-				   time_to_next);
+				D_("g.next_alarm is set!, will trigger in %i "
+				   "sec.\n", time_to_next);
 				if (time_to_next < closest_timeout)
 					closest_timeout = time_to_next;
 			}
@@ -286,10 +288,12 @@ int main(int argc, char *argv[], char *env[])
 			/* if we got some seconds */
 			if (closest_timeout > 0 && interrupt == FALSE)
 			{
-				/* do a poll == the same as sleep but also watch fds */
-				D_("Will sleep for %i seconds.\n", closest_timeout);
+				/* do a poll == the same as sleep but also
+				 * watch fds */
+				D_("Will sleep for %i seconds.\n",
+				   closest_timeout);
 				initng_fd_plugin_poll(closest_timeout);
 			}
 		}
-	}										/* End main loop */
+	}						/* End main loop */
 }

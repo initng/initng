@@ -57,20 +57,19 @@ static void disconnected(void)
 }
 
 static void process_killed(char *service, e_is is, char *state, char *process,
-						   int exit_status, int term_sig)
+			   int exit_status, int term_sig)
 {
-	fprintf(stdout,
-			"Service \"%s\" state \"%s\" (%i) process \"%s\" killed: exit_status \"%i\" term_sig \"%i\"\n",
-			service, state, is, process, exit_status, term_sig);
+	fprintf(stdout, "Service \"%s\" state \"%s\" (%i) process \"%s\" "
+	        "killed: exit_status \"%i\" term_sig \"%i\"\n", service,
+	        state, is, process, exit_status, term_sig);
 
 }
 
 
 static void service_change(char *service, e_is is, char *state, int pstart,
-						   int pstop, char *service_type, int hidden)
+			   int pstop, char *service_type, int hidden)
 {
-	switch (is)
-	{
+	switch (is) {
 		case IS_UP:
 		case IS_DOWN:
 		case IS_FAILED:
@@ -78,10 +77,11 @@ static void service_change(char *service, e_is is, char *state, int pstart,
 		case IS_STOPPING:
 		case IS_WAITING:
 		default:
-			fprintf(stdout,
-					"%sService \"%s\"::\"%s\" have state \"%s\" (%i)  %i:%i\n",
-					hidden ? "<HIDDEN> " : "", service_type, service, state,
-					is, pstart, pstop);
+			fprintf(stdout, "%sService \"%s\"::\"%s\" have state "
+			        "\"%s\" (%i)  %i:%i\n",
+			        hidden ? "<HIDDEN> " : "",
+			        service_type, service, state, is, pstart,
+			        pstop);
 			break;
 	}
 }
@@ -98,14 +98,14 @@ static void ping(void)
 
 static void service_output(char *service, char *process, char *output)
 {
-	fprintf(stdout, "Service \"%s\" process \"%s\" outputed:\n%s\n", service,
-			process, output);
+	fprintf(stdout, "Service \"%s\" process \"%s\" outputed:\n%s\n",
+	        service, process, output);
 }
 
 static void err_msg(e_mt mt, char *file, char *func, int line, char *message)
 {
 	fprintf(stdout, "Message mt: %i, file: %s, func: %s, line %i.\n%s\n",
-			mt, file, func, line, message);
+                mt, file, func, line, message);
 }
 
 static void sys_state(h_sys_state state, char *runlevel)
@@ -125,45 +125,50 @@ static void sys_state(h_sys_state state, char *runlevel)
 		case STATE_REBOOT:
 		case STATE_EXECVE:
 		default:
-			fprintf(stdout, "Initng [%s] got a new system state no: %i\n",
-					runlevel, state);
+			fprintf(stdout, "Initng [%s] got a new system state "
+			        "no: %i\n", runlevel, state);
 			break;
 	}
 }
 
 static void handle_event(nge_event * e)
 {
-	switch (e->state_type)
-	{
+	switch (e->state_type) {
 		case PING:
 			ping();
 			return;
+
 		case SERVICE_STATE_CHANGE:
 		case INITIAL_SERVICE_STATE_CHANGE:
-			service_change(e->payload.service_state_change.service,
-						   e->payload.service_state_change.is,
-						   e->payload.service_state_change.state_name,
-						   e->payload.service_state_change.percent_started,
-						   e->payload.service_state_change.percent_stopped,
-						   e->payload.service_state_change.service_type,
-						   e->payload.service_state_change.hidden);
+			service_change(
+				e->payload.service_state_change.service,
+				e->payload.service_state_change.is,
+				e->payload.service_state_change.state_name,
+				e->payload.service_state_change.percent_started,
+				e->payload.service_state_change.percent_stopped,
+				e->payload.service_state_change.service_type,
+				e->payload.service_state_change.hidden);
 			return;
+
 		case SYSTEM_STATE_CHANGE:
 		case INITIAL_SYSTEM_STATE_CHANGE:
 			sys_state(e->payload.system_state_change.system_state,
 					  e->payload.system_state_change.runlevel);
 			return;
+
 		case ERR_MSG:
 			err_msg(e->payload.err_msg.mt,
-					e->payload.err_msg.file,
-					e->payload.err_msg.func,
-					e->payload.err_msg.line, e->payload.err_msg.message);
+			        e->payload.err_msg.file,
+			        e->payload.err_msg.func,
+				e->payload.err_msg.line, e->payload.err_msg.message);
 			return;
+
 		case CONNECT:
 			connected(e->payload.connect.pver,
-					  e->payload.connect.initng_version);
+			          e->payload.connect.initng_version);
 			return;
-		case DISSCONNECT:
+
+		case DISCONNECT:
 			disconnected();
 			return;
 
@@ -173,16 +178,20 @@ static void handle_event(nge_event * e)
 
 		case SERVICE_OUTPUT:
 			service_output(e->payload.service_output.service,
-						   e->payload.service_output.process,
-						   e->payload.service_output.output);
+				       e->payload.service_output.process,
+				       e->payload.service_output.output);
 			return;
+
 		case PROCESS_KILLED:
 			process_killed(e->payload.process_killed.service,
-						   e->payload.process_killed.is,
-						   e->payload.process_killed.state_name,
-						   e->payload.process_killed.process,
-						   e->payload.process_killed.exit_status,
-						   e->payload.process_killed.term_sig);
+				       e->payload.process_killed.is,
+				       e->payload.process_killed.state_name,
+				       e->payload.process_killed.process,
+				       e->payload.process_killed.exit_status,
+				       e->payload.process_killed.term_sig);
+			return;
+
+		default:
 			return;
 	}
 }
@@ -201,15 +210,13 @@ int main(int argc, char *argv[])
 		c = ngeclient_connect(NGE_REAL);
 
 	/* if open_socket fails, ngeclient_error is set */
-	if (ngeclient_error)
-	{
+	if (ngeclient_error) {
 		fprintf(stderr, "NGECLIENT ERROR: %s\n", ngeclient_error);
 		exit(1);
 	}
 	assert(c);
 
-	while ((e = get_next_event(c, 20000)))
-	{
+	while ((e = get_next_event(c, 20000))) {
 		/*printf("Got an event: %i!\n", e->state_type); */
 		handle_event(e);
 
@@ -220,8 +227,7 @@ int main(int argc, char *argv[])
 	ngeclient_close(c);
 
 	/* check so there is no ngeclient_error set */
-	if (ngeclient_error)
-	{
+	if (ngeclient_error) {
 		fprintf(stderr, "NGECLIENT ERROR: %s\n", ngeclient_error);
 		exit(1);
 	}

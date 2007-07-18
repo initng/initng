@@ -24,25 +24,24 @@
 #include <initng/active_db.h>
 
 /* service types struct */
-typedef struct
-{
+typedef struct {
 	/* Name of service type */
 	const char *name;
 
 	/* The description */
-	const char *desc;
+	const char *description;
 
 	/* IF the services is shown by ngc -s */
 	int hidden;
 
 	/* Called to start service */
-	int (*start_service) (active_db_h * service);
+	int (*start) (active_db_h *service);
 
 	/* Called to stop service */
-	int (*stop_service) (active_db_h * service);
+	int (*stop) (active_db_h *service);
 
 	/* Called to restart service */
-	int (*restart_service) (active_db_h * service);
+	int (*restart) (active_db_h *service);
 
 	/* length of name_len */
 	int name_len;

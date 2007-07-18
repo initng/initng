@@ -40,10 +40,42 @@
  * void state_interrupt
  */
 
-a_state_h NEW = { "NEW", "This is a newly created service, that has not got a real state yet.", IS_DOWN, NULL, NULL, NULL };
-a_state_h LOADING = { "LOADING", "This service is loading service data from disk.", IS_DOWN, NULL, NULL, NULL };
-a_state_h FREEING = { "FREEING", "This service is freeing, and will be removed soon.", IS_DOWN, NULL, NULL, NULL };
-a_state_h REQ_NOT_FOUND = { "REQ_NOT_FOUND", "A Required service was not found, cant start.", IS_FAILED, NULL, NULL, NULL };
+a_state_h NEW = {
+	.name = "NEW",
+	.description = "This is a newly created service, that has not got a "
+	               "real state yet.",
+	.is = IS_DOWN,
+	.interrupt = NULL,
+	.init = NULL,
+	.alarm = NULL
+};
+
+a_state_h LOADING = {
+	.name = "LOADING",
+	.description = "This service is loading service data from disk.",
+	.is = IS_DOWN,
+	.interrupt = NULL,
+	.init = NULL,
+	.alarm = NULL
+};
+
+a_state_h FREEING = {
+	.name = "FREEING",
+	.description = "This service is freeing, and will be removed soon.",
+	.is = IS_DOWN,
+	.interrupt = NULL,
+	.init = NULL,
+	.alarm = NULL
+};
+
+a_state_h REQ_NOT_FOUND = {
+	.name = "REQ_NOT_FOUND",
+	.description = "A Required service was not found, cant start.",
+	.is = IS_FAILED,
+	.interrupt = NULL,
+	.init = NULL,
+	.alarm = NULL
+};
 
 void initng_static_states_register_defaults(void)
 {

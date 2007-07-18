@@ -28,7 +28,7 @@
 
 active_db_h *initng_plugin_active_new(const char *name);
 int initng_plugin_callers_handle_killed(active_db_h * s, process_h * p);
-void initng_plugin_callers_compensate_time(int t);
+void initng_plugin_callers_compensate_time(time_t t);
 void initng_plugin_callers_signal(int signal);
 
 void initng_plugin_callers_system_changed(h_sys_state state);

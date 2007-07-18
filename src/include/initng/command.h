@@ -28,8 +28,7 @@
  * This sorts of type, the command retuns
  * when calling it.
  */
-typedef enum
-{
+typedef enum {
 	COMMAND_FAIL = 0,
 	PAYLOAD_COMMAND = 1,
 	VOID_COMMAND = 2,
@@ -42,8 +41,7 @@ typedef enum
  * This defines how visible the command is 
  * for the external user.
  */
-typedef enum
-{
+typedef enum {
 	STANDARD_COMMAND = 0,		/* shown by ngc -h */
 	ADVANCHED_COMMAND = 1,					/* shown by ngc -H */
 	HIDDEN_COMMAND = 2,						/* not shown by ngc -h/-H but still usable */
@@ -53,8 +51,7 @@ typedef enum
 /*
  * Defines if command requires an option or not 
  */
-typedef enum
-{
+typedef enum {
 	NO_OPT = 0,					/* Command uses no option ever */
 	USES_OPT = 1,							/* Command uses an option if sent */
 	REQUIRES_OPT = 2						/* Command requires an option set */
@@ -66,8 +63,7 @@ typedef enum
  * its put as an payload, here an struct there we got a
  * pointer to a payload (payload->p), and specify size of it in (payload->s)
  */
-typedef struct
-{
+typedef struct {
 	size_t s;
 	void *p;
 } s_payload;
@@ -76,20 +72,23 @@ typedef struct
 /*
  * This is a structure of an command.
  */
-typedef struct
-{
-	char command_id;			/* An short char describes a command, like ngc -h */
-	const char *long_id;		/* An long string, describes a command, like ngc --help */
-	e_com_type com_type;		/* Specify how data command returns looks like */
-	e_opt_vissible opt_vissible;	/* Specifys how accesible the command is for the end user */
-	e_opt_type opt_type;		/* Is an option required to the command */
+typedef struct {
+	char id;			/* An short char describes a command,
+					 * like ngc -h */
+	const char *long_id;		/* An long string, describes a
+					 * command, like ngc --help */
+	e_com_type com_type;		/* Specify how data command returns
+					 * looks like */
+	e_opt_vissible opt_visible;	/* Specifys how accesible the command
+					 * is for the end user */
+	e_opt_type opt_type;		/* Is an option required to the
+					 * command */
 
 	/*
 	 * Here we put a pointer to a function,
 	 * that is the command we call
 	 */
-	union
-	{
+	union {
 		void (*void_command_call) (void *data);
 		void (*void_command_void_call) (void);
 		int (*int_command_call) (void *data);

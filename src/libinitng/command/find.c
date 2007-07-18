@@ -30,12 +30,11 @@ s_command *initng_command_find_by_command_id(char cid)
 {
 	s_command *current = NULL;
 
-	while_command_db(current)
-	{
-		if (current->command_id == cid)
-			return (current);
+	while_command_db(current) {
+		if (current->id == cid)
+			return current;
 	}
-	return (NULL);
+	return NULL;
 }
 
 /* look for a command by command_id */
@@ -43,10 +42,9 @@ s_command *initng_command_find_by_command_string(char *name)
 {
 	s_command *current = NULL;
 
-	while_command_db(current)
-	{
+	while_command_db(current) {
 		if (current->long_id && strcmp(current->long_id, name) == 0)
-			return (current);
+			return current;
 	}
-	return (NULL);
+	return NULL;
 }

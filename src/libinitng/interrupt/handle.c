@@ -20,15 +20,15 @@
 #include <initng.h>
 
 #include <sys/time.h>
-#include <time.h>							/* time() */
-#include <fcntl.h>							/* fcntl() */
-#include <sys/un.h>							/* memmove() strcmp() */
-#include <sys/wait.h>						/* waitpid() sa */
-#include <linux/kd.h>						/* KDSIGACCEPT */
-#include <sys/ioctl.h>						/* ioctl() */
-#include <stdio.h>							/* printf() */
-#include <stdlib.h>							/* free() exit() */
-#include <sys/reboot.h>						/* reboot() RB_DISABLE_CAD */
+#include <time.h>				/* time() */
+#include <fcntl.h>				/* fcntl() */
+#include <sys/un.h>				/* memmove() strcmp() */
+#include <sys/wait.h>				/* waitpid() sa */
+#include <linux/kd.h>				/* KDSIGACCEPT */
+#include <sys/ioctl.h>				/* ioctl() */
+#include <stdio.h>				/* printf() */
+#include <stdlib.h>				/* free() exit() */
+#include <sys/reboot.h>				/* reboot() RB_DISABLE_CAD */
 #include <assert.h>
 
 #include "local.h"
@@ -53,8 +53,7 @@ void handle(active_db_h * service)
 		return;
 
 	/* If the rough state has changed */
-	if (service->last_rought_state != state->is)
-	{
+	if (service->last_rought_state != state->is) {
 		D_("An is change from %i to %i for %s.\n",
 		   service->last_rought_state, state->is, service->name);
 
@@ -67,26 +66,26 @@ void handle(active_db_h * service)
 		if (initng_common_state_unlock(service))
 			return;
 
-		/* This checks if all services on a runlevel is up, then set STATE_UP */
+		/* This checks if all services on a runlevel is up, then set
+		 * STATE_UP */
 		if (IS_UP(service))
 			check_sys_state_up();
 
-		/* this will make all services, that depend of this, DEP_FAILED_TO_START */
-		if (IS_FAILED(service))
-		{
+		/* this will make all services, that depend of this,
+		 * DEP_FAILED_TO_START */
+		if (IS_FAILED(service)) {
 			dep_failed_to_start(service);
 			check_sys_state_up();
 		}
 
-		/* if this service is marked restarting, please restart it if its set to STOPPED */
-		if (IS_DOWN(service))
-		{
+		/* if this service is marked restarting, please restart it if
+		 * its set to STOPPED */
+		if (IS_DOWN(service)) {
 			if (is(&RESTARTING, service))
-			{
 				initng_handler_restart_restarting();
-			}
 		}
-		/* this will make all services, that depend of this to stop, DEP_FAILED_TO_STOP */
+		/* this will make all services, that depend of this to stop,
+		 * DEP_FAILED_TO_STOP */
 		/* TODO
 		   if (IS_MARK(service, &FAIL_STOPPING))
 		   {
@@ -96,14 +95,13 @@ void handle(active_db_h * service)
 		   check_sys_state_up();
 		   }
 		 */
-
 	}
 
 
 	/* Run state init hook if present */
-	if (service->current_state->state_init)
-		(*service->current_state->state_init) (service);
+	if (service->current_state->init)
+		(*service->current_state->init)(service);
 
 	D_("service %s is now %s.\n", service->name,
-	   service->current_state->state_name);
+	   service->current_state->name);
 }

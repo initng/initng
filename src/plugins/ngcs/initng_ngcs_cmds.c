@@ -39,37 +39,35 @@
 #include "ngcs_marshal.h"
 #include "initng_ngcs_cmds.h"
 
-typedef struct ngcs_watch_s
-{
+typedef struct ngcs_watch_s {
 	ngcs_chan *chan;
 	char *name;
 	int flags;
 	struct list_head list;
 } ngcs_watch;
 
-typedef struct ngcs_genwatch_s
-{
+typedef struct ngcs_genwatch_s {
 	ngcs_chan *chan;
 	struct list_head list;
 } ngcs_genwatch;
 
 void register_ngcs_cmds(void);
 void unregister_ngcs_cmds(void);
-static void service_status_watch(s_event * event);
-static void ngcs_cmd_watch(ngcs_request * req);
-static void ngcs_free_watch(ngcs_chan * chan);
-static void service_output_watch(s_event * event);
-static ngcs_watch *ngcs_add_watch(ngcs_conn * conn, char *svcname, int flags);
-static void ngcs_cmd_start(ngcs_request * req);
-static int ngcs_watch_initial(ngcs_watch * watch);
-static void ngcs_cmd_stop(ngcs_request * req);
-static void ngcs_cmd_hot_reload(ngcs_request * req);
-static void ngcs_cmd_zap(ngcs_request * req);
-static void system_state_watch(s_event * event);
-static void ngcs_free_genwatch(ngcs_chan * chan);
-static void ngcs_cmd_swatch(ngcs_request * req);
-static void ngcs_cmd_ewatch(ngcs_request * req);
-static void error_watch(s_event * event);
+static void service_status_watch(s_event *event);
+static void ngcs_cmd_watch(ngcs_request *req);
+static void ngcs_free_watch(ngcs_chan *chan);
+static void service_output_watch(s_event *event);
+static ngcs_watch *ngcs_add_watch(ngcs_conn *conn, char *svcname, int flags);
+static void ngcs_cmd_start(ngcs_request *req);
+static int ngcs_watch_initial(ngcs_watch *watch);
+static void ngcs_cmd_stop(ngcs_request *req);
+static void ngcs_cmd_hot_reload(ngcs_request *req);
+static void ngcs_cmd_zap(ngcs_request *req);
+static void system_state_watch(s_event *event);
+static void ngcs_free_genwatch(ngcs_chan *chan);
+static void ngcs_cmd_swatch(ngcs_request *req);
+static void ngcs_cmd_ewatch(ngcs_request *req);
+static void error_watch(s_event *event);
 
 ngcs_cmd ngcs_start_cmd = {
 	"start",
@@ -131,22 +129,22 @@ ngcs_watch watches;
 ngcs_genwatch swatches;
 ngcs_genwatch ewatches;
 
-static void system_state_watch(s_event * event)
+static void system_state_watch(s_event *event)
 {
 	ngcs_genwatch *watch, *nextwatch;
 
 	assert(event->event_type == &EVENT_SYSTEM_CHANGE);
 	assert(event->data);
 
-	list_for_each_entry_prev_safe(watch, nextwatch, &swatches.list, list)
-	{
-		ngcs_chan_send(watch->chan, NGCS_TYPE_INT, sizeof(int), (char *) event->data);
+	list_for_each_entry_prev_safe(watch, nextwatch, &swatches.list, list) {
+		ngcs_chan_send(watch->chan, NGCS_TYPE_INT, sizeof(int),
+			       (char *) event->data);
 	}
 }
 
-static void error_watch(s_event * event)
+static void error_watch(s_event *event)
 {
-	s_event_error_message_data * data;
+	s_event_error_message_data *data;
 	ngcs_genwatch *watch, *nextwatch;
 	int len, size;
 	ngcs_data dat[5];
@@ -157,7 +155,8 @@ static void error_watch(s_event * event)
 
 	data = event->data;
 
-	/* Don't do the processing if we're just going to throw away the result */
+	/* Don't do the processing if we're just going to throw away the
+	 * result */
 	if (list_empty(&ewatches.list))
 		return;
 
@@ -175,27 +174,32 @@ static void error_watch(s_event * event)
 	dat[4].type = NGCS_TYPE_STRING;
 
 	size = 256;
-	dat[4].d.s = i_calloc(1, size);
+	dat[4].d.s = initng_toolbox_calloc(1, size);
 	len = vsnprintf(dat[4].d.s, size, data->format, data->arg);
-	while (len < 0 || len >= size)
-	{
-		/* Some glibc versions apparently return -1 if buffer too small */
-		size = (len < 0 ? size * 2 : len + 1);
+
+	while (len < 0 || len >= size) {
+		/* Some glibc versions apparently return -1 if buffer too
+		 * small */
+		if (len < 0)
+			size *= 2;
+		else
+			size = len + 1;
+
 		free(dat[4].d.s);
-		dat[4].d.s = i_calloc(1, size);
+		dat[4].d.s = initng_toolbox_calloc(1, size);
 		len = vsnprintf(dat[4].d.s, size, data->format, data->arg);
 	}
+
 	dat[4].len = len;
 
 	len = ngcs_pack(dat, 5, NULL);
 	assert(len >= 0);
-	buf = i_calloc(1, len);
-	assert(buf);							/* should always succeed */
+	buf = initng_toolbox_calloc(1, len);
+	assert(buf);				/* should always succeed */
 	len = ngcs_pack(dat, 5, buf);
 	assert(len >= 0);
 
-	list_for_each_entry_prev_safe(watch, nextwatch, &ewatches.list, list)
-	{
+	list_for_each_entry_prev_safe(watch, nextwatch, &ewatches.list, list) {
 		ngcs_chan_send(watch->chan, NGCS_TYPE_STRUCT, len, buf);
 	}
 
@@ -203,9 +207,9 @@ static void error_watch(s_event * event)
 	free(buf);
 }
 
-static void service_status_watch(s_event * event)
+static void service_status_watch(s_event *event)
 {
-	active_db_h * service;
+	active_db_h *service;
 	ngcs_watch *watch, *nextwatch;
 	int len = 0;
 	char *buf = NULL;
@@ -216,23 +220,22 @@ static void service_status_watch(s_event * event)
 	service = event->data;
 
 	len = ngcs_marshal_active_db_h(service, NULL);
-	list_for_each_entry_prev_safe(watch, nextwatch, &watches.list, list)
-	{
+	list_for_each_entry_prev_safe(watch, nextwatch, &watches.list, list) {
 		if ((watch->flags & NGCS_WATCH_STATUS) &&
-			(watch->name == NULL || strcmp(watch->name, service->name) == 0))
-		{
-			if (!buf)
-			{
-				buf = i_calloc(1, len);
+		    (watch->name == NULL ||
+		     strcmp(watch->name, service->name) == 0)) {
+			if (!buf) {
+				buf = initng_toolbox_calloc(1, len);
 				len = ngcs_marshal_active_db_h(service, buf);
-				if (len < 0)
-				{
-					F_("ngcs_marshal_active_db_h() failed!\n");
+				if (len < 0) {
+					F_("ngcs_marshal_active_db_h() "
+					   "failed!\n");
 					free(buf);
 					return;
 				}
 			}
-			ngcs_chan_send(watch->chan, NGCS_TYPE_STRUCT, len, buf);
+			ngcs_chan_send(watch->chan, NGCS_TYPE_STRUCT, len,
+				       buf);
 		}
 	}
 
@@ -240,35 +243,35 @@ static void service_status_watch(s_event * event)
 		free(buf);
 }
 
-static int ngcs_watch_initial(ngcs_watch * watch)
+static int ngcs_watch_initial(ngcs_watch *watch)
 {
-	if (watch->flags & NGCS_CURRENT_STATUS)
-	{
+	if (watch->flags & NGCS_CURRENT_STATUS) {
 		active_db_h *current;
 
 		current = NULL;
-		while_active_db(current)
-		{
-			if (watch->name == NULL
-				|| strcmp(watch->name, current->name) == 0)
-			{
+		while_active_db(current) {
+			if (watch->name == NULL ||
+			    strcmp(watch->name, current->name) == 0) {
 				int len = 0;
 				char *buf = NULL;
 
 				len = ngcs_marshal_active_db_h(current, NULL);
-				buf = i_calloc(1, len);
+				buf = initng_toolbox_calloc(1, len);
 				len = ngcs_marshal_active_db_h(current, buf);
-				if (len < 0)
-				{
-					F_("ngcs_marshal_active_db_h() failed!\n");
+				if (len < 0) {
+					F_("ngcs_marshal_active_db_h() "
+					   "failed!\n");
 					free(buf);
 					return 1;
 				}
-				if (ngcs_chan_send(watch->chan, NGCS_TYPE_STRUCT, len, buf))
-				{
+
+				if (ngcs_chan_send(watch->chan,
+				                   NGCS_TYPE_STRUCT, len,
+				                   buf)) {
 					free(buf);
 					return 1;
 				};
+
 				free(buf);
 			}
 		}
@@ -300,21 +303,20 @@ static void service_output_watch(s_event * event)
 	dat[1].len = -1;
 	dat[1].d.s = data->buffer_pos;
 
-	list_for_each_entry_prev_safe(watch, nextwatch, &watches.list, list)
-	{
+	list_for_each_entry_prev_safe(watch, nextwatch, &watches.list, list) {
 		if ((watch->flags & NGCS_WATCH_OUTPUT) &&
-			(watch->name == NULL || strcmp(watch->name, data->service->name) == 0))
-		{
-			if (!buf)
-			{
+		    (watch->name == NULL ||
+		     strcmp(watch->name, data->service->name) == 0)) {
+			if (!buf) {
 				len = ngcs_pack(dat, 2, NULL);
 				assert(len >= 0);
-				buf = i_calloc(1, len);
+				buf = initng_toolbox_calloc(1, len);
 				len = ngcs_pack(dat, 2, buf);
 				assert(len >= 0);
 			}
-			if (ngcs_chan_send(watch->chan, NGCS_TYPE_STRUCT, len, buf))
-			{
+
+			if (ngcs_chan_send(watch->chan, NGCS_TYPE_STRUCT, len,
+					   buf)) {
 				free(buf);
 				return;
 			};
@@ -325,7 +327,7 @@ static void service_output_watch(s_event * event)
 		free(buf);
 }
 
-static void ngcs_cmd_stop(ngcs_request * req)
+static void ngcs_cmd_stop(ngcs_request *req)
 {
 	int i = 0;
 	ngcs_watch *watch;
@@ -333,8 +335,7 @@ static void ngcs_cmd_stop(ngcs_request * req)
 	char *svcname = NULL;
 
 	if (req->argc != 2 || req->argv[1].type != NGCS_TYPE_STRING ||
-		req->argv[1].len <= 0)
-	{
+	    req->argv[1].len <= 0) {
 		F_("Bad call to ngcs command 'stop'\n");
 		ngcs_send_response(req, NGCS_TYPE_STRING, 8, "BAD_CALL");
 		return;
@@ -343,25 +344,24 @@ static void ngcs_cmd_stop(ngcs_request * req)
 	svcname = req->argv[1].d.s;
 
 	serv = initng_active_db_find_in_name(svcname);
-	if (!serv)
-	{
+	if (!serv) {
 		ngcs_send_response(req, NGCS_TYPE_STRING, 9, "NOT_FOUND");
 		return;
 	}
 
-	watch = ngcs_add_watch(req->conn, serv->name,
-						   NGCS_WATCH_STATUS | NGCS_WATCH_OUTPUT |
-						   NGCS_CURRENT_STATUS);
+	watch = ngcs_add_watch(req->conn, serv->name, NGCS_WATCH_STATUS |
+			       NGCS_WATCH_OUTPUT | NGCS_CURRENT_STATUS);
+
 	if (watch)
 		i = watch->chan->id;
+
 	ngcs_send_response(req, NGCS_TYPE_INT, sizeof(int), (char *) &i);
 	ngcs_watch_initial(watch);
 	initng_handler_stop_service(serv);
-	return;
 }
 
 
-static void ngcs_cmd_start(ngcs_request * req)
+static void ngcs_cmd_start(ngcs_request *req)
 {
 	int i = 0;
 	ngcs_watch *watch;
@@ -369,8 +369,7 @@ static void ngcs_cmd_start(ngcs_request * req)
 	char *svcname = NULL;
 
 	if (req->argc != 2 || req->argv[1].type != NGCS_TYPE_STRING ||
-		req->argv[1].len <= 0)
-	{
+	    req->argv[1].len <= 0) {
 		F_("Bad call to ngcs command 'start'\n");
 		ngcs_send_response(req, NGCS_TYPE_STRING, 8, "BAD_CALL");
 		return;
@@ -379,31 +378,36 @@ static void ngcs_cmd_start(ngcs_request * req)
 	svcname = req->argv[1].d.s;
 
 	serv = initng_active_db_find_in_name(svcname);
-	if (serv)
-	{
+	if (serv) {
 		watch = ngcs_add_watch(req->conn, serv->name,
-							   NGCS_WATCH_STATUS | NGCS_WATCH_OUTPUT |
-							   NGCS_CURRENT_STATUS);
+				       NGCS_WATCH_STATUS | NGCS_WATCH_OUTPUT |
+				       NGCS_CURRENT_STATUS);
+
 		if (watch)
 			i = watch->chan->id;
-		ngcs_send_response(req, NGCS_TYPE_INT, sizeof(int), (char *) &i);
+
+		ngcs_send_response(req, NGCS_TYPE_INT, sizeof(int),
+				   (char *) &i);
+
 		ngcs_watch_initial(watch);
 		if (!IS_UP(serv))
 			initng_handler_start_service(serv);
+
 		return;
 	}
 
 	serv = initng_handler_start_new_service_named(svcname);
-	if (!serv)
-	{
+	if (!serv) {
 		ngcs_send_response(req, NGCS_TYPE_STRING, 9, "NOT_FOUND");
 		return;
 	}
 
-	watch = ngcs_add_watch(req->conn, serv->name,
-						   NGCS_WATCH_STATUS | NGCS_WATCH_OUTPUT);
+	watch = ngcs_add_watch(req->conn, serv->name, NGCS_WATCH_STATUS |
+			       NGCS_WATCH_OUTPUT);
+
 	if (watch)
 		i = watch->chan->id;
+
 	ngcs_send_response(req, NGCS_TYPE_INT, sizeof(int), (char *) &i);
 	ngcs_watch_initial(watch);
 	return;
@@ -415,43 +419,44 @@ ngcs_watch *ngcs_add_watch(ngcs_conn * conn, char *svcname, int flags)
 	ngcs_chan *chan;
 	ngcs_watch *watch;
 
-	watch = i_calloc(1, sizeof(ngcs_watch));
+	watch = initng_toolbox_calloc(1, sizeof(ngcs_watch));
 
-	chan = ngcs_open_channel(conn, NULL, ngcs_free_watch);
-	if (!chan)
-	{
+	if (!(chan = ngcs_open_channel(conn, NULL, ngcs_free_watch))) {
 		F_("ngcs_open_channel failed!\n");
 		free(watch);
 		return 0;
 	}
+
 	if (svcname)
-		watch->name = i_strdup(svcname);
+		watch->name = initng_toolbox_strdup(svcname);
 	else
 		watch->name = NULL;
+
 	watch->flags = flags;
 	watch->chan = chan;
 	watch->list.prev = 0;
 	watch->list.next = 0;
 	list_add(&watch->list, &watches.list);
 	chan->userdata = watch;
+
 	return watch;
 }
 
-static void ngcs_cmd_swatch(ngcs_request * req)
+static void ngcs_cmd_swatch(ngcs_request *req)
 {
 	int i = 0;
 	ngcs_genwatch *watch;
 	ngcs_chan *chan;
 
-	watch = i_calloc(1, sizeof(ngcs_genwatch));
+	watch = initng_toolbox_calloc(1, sizeof(ngcs_genwatch));
 
 	chan = ngcs_open_channel(req->conn, NULL, &ngcs_free_genwatch);
-	if (!chan)
-	{
+	if (!chan) {
 		F_("ngcs_open_channel failed!\n");
 		free(watch);
 		return;
 	}
+	
 	watch->chan = chan;
 	watch->list.prev = 0;
 	watch->list.next = 0;
@@ -461,21 +466,21 @@ static void ngcs_cmd_swatch(ngcs_request * req)
 	ngcs_send_response(req, NGCS_TYPE_INT, sizeof(int), (char *) &i);
 }
 
-static void ngcs_cmd_ewatch(ngcs_request * req)
+static void ngcs_cmd_ewatch(ngcs_request *req)
 {
 	int i = 0;
 	ngcs_genwatch *watch;
 	ngcs_chan *chan;
 
-	watch = i_calloc(1, sizeof(ngcs_genwatch));
+	watch = initng_toolbox_calloc(1, sizeof(ngcs_genwatch));
 
 	chan = ngcs_open_channel(req->conn, NULL, &ngcs_free_genwatch);
-	if (!chan)
-	{
+	if (!chan) {
 		F_("ngcs_open_channel failed!\n");
 		free(watch);
 		return;
 	}
+
 	watch->chan = chan;
 	watch->list.prev = 0;
 	watch->list.next = 0;
@@ -492,44 +497,51 @@ static void ngcs_cmd_watch(ngcs_request * req)
 	char *name;
 
 	if (req->argc != 3 || req->argv[1].type != NGCS_TYPE_INT ||
-		(req->argv[2].type != NGCS_TYPE_STRING && req->argv[2].type !=
-		 NGCS_TYPE_NULL))
-	{
+	    (req->argv[2].type != NGCS_TYPE_STRING &&
+	     req->argv[2].type != NGCS_TYPE_NULL)) {
 		F_("Bad watch command\n");
-		ngcs_send_response(req, NGCS_TYPE_INT, sizeof(int), (char *) &i);
+		ngcs_send_response(req, NGCS_TYPE_INT, sizeof(int),
+				   (char *) &i);
 		return;
 	}
-	if (req->argv[2].type == NGCS_TYPE_NULL || req->argv[2].d.s[0] == '\0')
+
+	if (req->argv[2].type == NGCS_TYPE_NULL ||
+	    req->argv[2].d.s[0] == '\0')
 		name = NULL;
 	else
 		name = req->argv[2].d.s;
 
 	watch = ngcs_add_watch(req->conn, name, req->argv[1].d.i);
+
 	if (watch)
 		i = watch->chan->id;
+
 	ngcs_send_response(req, NGCS_TYPE_INT, sizeof(int), (char *) &i);
 	ngcs_watch_initial(watch);
 }
 
-static void ngcs_free_watch(ngcs_chan * chan)
+static void ngcs_free_watch(ngcs_chan *chan)
 {
 	ngcs_watch *watch = chan->userdata;
 
 	if (!watch)
 		return;
+
 	list_del(&watch->list);
 	if (watch->name)
 		free(watch->name);
+
 	free(watch);
 	chan->userdata = 0;
 }
 
-static void ngcs_free_genwatch(ngcs_chan * chan)
+static void ngcs_free_genwatch(ngcs_chan *chan)
 {
 	ngcs_genwatch *watch = chan->userdata;
 
 	if (!watch)
 		return;
+
 	list_del(&watch->list);
 	free(watch);
 	chan->userdata = 0;
@@ -557,8 +569,10 @@ void register_ngcs_cmds(void)
 
 void unregister_ngcs_cmds(void)
 {
-	initng_event_hook_unregister(&EVENT_STATE_CHANGE, &service_status_watch);
-	initng_event_hook_unregister(&EVENT_BUFFER_WATCHER, &service_output_watch);
+	initng_event_hook_unregister(&EVENT_STATE_CHANGE,
+				     &service_status_watch);
+	initng_event_hook_unregister(&EVENT_BUFFER_WATCHER,
+				     &service_output_watch);
 	ngcs_unreg_cmd(&ngcs_start_cmd);
 	ngcs_unreg_cmd(&ngcs_stop_cmd);
 	ngcs_unreg_cmd(&ngcs_watch_cmd);
@@ -576,14 +590,12 @@ static void ngcs_cmd_zap(ngcs_request * req)
 	int i = 0;
 	active_db_h *apt = NULL;
 
-	if (req->argc != 2 || req->argv[1].type != NGCS_TYPE_STRING)
-	{
+	if (req->argc != 2 || req->argv[1].type != NGCS_TYPE_STRING) {
 		ngcs_send_response(req, NGCS_TYPE_NULL, 0, NULL);
 		return;
 	}
 
-	if (!(apt = initng_active_db_find_in_name(req->argv[1].d.s)))
-	{
+	if (!(apt = initng_active_db_find_in_name(req->argv[1].d.s))) {
 		ngcs_send_response(req, NGCS_TYPE_STRING, 9, "NOT_FOUND");
 		return;
 	}
@@ -607,28 +619,25 @@ static void ngcs_cmd_hot_reload(ngcs_request * req)
 	int retval;
 	char *new_argv[4];
 
-	retval = initng_plugin_callers_dump_active_db();
+	retval = initng_plugin_callers_active_db_dump();
 
-	if (retval == TRUE)
-	{
-		ngcs_send_response(req, NGCS_TYPE_BOOL, sizeof(int), (char *) &i);
+	if (retval == TRUE) {
+		ngcs_send_response(req, NGCS_TYPE_BOOL, sizeof(int),
+				   (char *) &i);
 		D_("exec()ing initng\n");
-		new_argv[0] = i_strdup("/sbin/initng");
-		new_argv[1] = i_strdup("--hot_reload");
+		new_argv[0] = (char *) "/sbin/initng";
+		new_argv[1] = (char *) "--hot_reload";
 		new_argv[2] = NULL;
 
 		execve("/sbin/initng", new_argv, environ);
 		F_("Failed to reload initng!\n");
-	}
-	else if (retval == FALSE)
-	{
+	} else if (retval == FALSE) {
 		F_("No plugin was willing to dump state\n");
 		ngcs_send_response(req, NGCS_TYPE_ERROR, 13,
-						   (char *) "NOT_AVAILABLE");
-	}
-	else
-	{
+				   (char *) "NOT_AVAILABLE");
+	} else {
 		F_("dump_state failed!\n");
-		ngcs_send_response(req, NGCS_TYPE_ERROR, 10, (char *) "DUMP_ERROR");
+		ngcs_send_response(req, NGCS_TYPE_ERROR, 10,
+				   (char *) "DUMP_ERROR");
 	}
 }

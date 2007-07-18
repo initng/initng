@@ -17,11 +17,11 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#define OBJECT "/initng/system/event"
-#define INTERFACE "initng.signal.event"
+#define OBJECT		"/initng/system/event"
+#define INTERFACE	"initng.signal.event"
 
 /* This is the request id for the server (initng) */
-#define SOURCE_REQUEST "initng.signal.source"
+#define SOURCE_REQUEST	"initng.signal.source"
 
 /* This is the request id for the client */
-#define SINK_REQUEST "initng.signal.sink"
+#define SINK_REQUEST	"initng.signal.sink"

@@ -29,5 +29,5 @@ int initng_env_is_same_env_var(char *var1, char *var2)
 	for (i = 0; var1[i] && var2[i] && var1[i] != '=' && var1[i] == var2[i];
 	     i++);
 
-	return var1[i] == var2[i];
+	return (var1[i] == var2[i]);
 }

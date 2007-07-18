@@ -48,8 +48,8 @@ static void on_kill(s_event * event)
 		return;
 
 	/* start the T_DAEMON_CLEAN */
-	W_("%s %s has been killed!, executing DAEMON_CLEAN!\n", data->process->pt->name,
-	   data->service->name);
+	W_("%s %s has been killed!, executing DAEMON_CLEAN!\n",
+	   data->process->pt->name, data->service->name);
 	initng_execute_launch(data->service, &T_DAEMON_CLEAN, NULL);
 
 	/*
@@ -62,15 +62,16 @@ static void on_kill(s_event * event)
 int module_init(int api_version)
 {
 	D_("module_init();\n");
-	if (api_version != API_VERSION)
-	{
-		F_("This module is compiled for api_version %i version and initng is compiled on %i version, won't load this module!\n", API_VERSION, api_version);
-		return (FALSE);
+	if (api_version != API_VERSION) {
+		F_("This module is compiled for api_version %i version and "
+		   "initng is compiled on %i version, won't load this "
+		   "module!\n", API_VERSION, api_version);
+		return FALSE;
 	}
 
 	initng_process_db_ptype_register(&T_DAEMON_CLEAN);
 	initng_event_hook_register(&EVENT_HANDLE_KILLED, &on_kill);
-	return (TRUE);
+	return TRUE;
 }
 
 void module_unload(void)

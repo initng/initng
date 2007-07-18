@@ -34,7 +34,8 @@
 #include <errno.h>
 
 
-/* this function sets g.sys_state, and call plug-ins that listen on its change */
+/* this function sets g.sys_state, and call plug-ins that listen on its
+ * change */
 void initng_main_set_sys_state(h_sys_state state)
 {
 	/* don't set a state that is */
@@ -44,11 +45,8 @@ void initng_main_set_sys_state(h_sys_state state)
 	D_("set_sys_state(): %% Setting state to: %i %% \n", state);
 	g.sys_state = state;
 
-	/*
-	 * execute all functions in modules that want to
-	 * be executed when system state change occurs.
-	 */
-
+	/* execute all functions in modules that want to
+	 * be executed when system state change occurs. */
 	initng_plugin_callers_system_changed(state);
 	return;
 }

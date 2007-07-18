@@ -39,14 +39,12 @@ typedef struct t_ptype_h ptype_h;
 typedef struct t_process_h process_h;
 
 /* process state */
-typedef enum
-{
+typedef enum {
 	P_ACTIVE = 0,
 	P_FREE = 1,
 } e_pst;
 
-typedef enum
-{
+typedef enum {
 	UNKNOWN_PIPE = 0,
 	OUT_PIPE = 1,
 	IN_PIPE = 2,
@@ -55,8 +53,7 @@ typedef enum
 } e_dir;
 
 /* the pipe identifier */
-typedef struct
-{
+typedef struct {
 	/* this array contains the pipe fds */
 	int pipe[2];
 
@@ -75,8 +72,7 @@ typedef struct
 	struct list_head list;
 } pipe_h;
 
-struct t_process_h
-{
+struct t_process_h {
 	ptype_h *pt;
 	pid_t pid;					/* pid of process */
 
@@ -96,8 +92,7 @@ struct t_process_h
 	struct list_head list;		/* this process should be in a list */
 };
 
-struct t_ptype_h
-{
+struct t_ptype_h {
 	/* name to be used with launcher */
 	const char *name;
 

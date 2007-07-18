@@ -26,13 +26,12 @@ typedef struct a_state_t a_state_h;
 #include <initng/active_db.h>
 #include <initng/is_state.h>
 
-struct a_state_t
-{
+struct a_state_t {
 	/* the name of the state in a string, will be printed */
-	const char *state_name;
+	const char *name;
 
 	/* The long description of the state */
-	const char *state_desc;
+	const char *description;
 
 	/* If this state is set for a service, is it roughly: */
 	e_is is;
@@ -40,24 +39,24 @@ struct a_state_t
 	/*
 	 * This function will be run on service with this state set, if g.interrupt is set.
 	 */
-	void (*state_interrupt) (active_db_h * service);
+	void (*interrupt) (active_db_h *service);
 
 	/*
 	 * This will run directly after a service is set this state.
 	 */
-	void (*state_init) (active_db_h * service);
+	void (*init) (active_db_h *service);
 
 	/*
 	 * This function will be run when alarm (timeout) is reached
 	 */
-	void (*state_alarm) (active_db_h * service);
+	void (*alarm) (active_db_h *service);
 
 	/* The list this struct is in */
 	struct list_head list;
 };
 
 /* register */
-int initng_active_state_register(a_state_h * state);
+int initng_active_state_register(a_state_h *state);
 
 #define initng_active_state_unregister(st) list_del(&(st)->list)
 

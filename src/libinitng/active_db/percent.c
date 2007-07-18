@@ -41,21 +41,18 @@ int initng_active_db_percent_started(void)
 	active_db_h *current = NULL;
 
 	/* walk the active_db */
-	while_active_db(current)
-	{
+	while_active_db(current) {
 		assert(current->name);
 		assert(current->current_state);
 
 		/* count starting */
-		if (IS_STARTING(current))
-		{
+		if (IS_STARTING(current)) {
 			starting++;
 			continue;
 		}
 
 		/* count up */
-		if (IS_UP(current))
-		{
+		if (IS_UP(current)) {
 			up++;
 			continue;
 		}
@@ -70,8 +67,7 @@ int initng_active_db_percent_started(void)
 	if (starting <= 0)
 		return (100);
 
-	if (up > 0)
-	{
+	if (up > 0) {
 		tmp = 100 * (float) up / (float) (starting + up);
 		D_("active_db_percent_started(): up/starting: %f percent: %i\n\n",
 		   (float) up / (float) starting, (int) tmp);
@@ -89,21 +85,18 @@ int initng_active_db_percent_stopped(void)
 	float tmp = 0;
 	active_db_h *current = NULL;
 
-	while_active_db(current)
-	{
+	while_active_db(current) {
 		assert(current->name);
 		assert(current->current_state);
 
 		/* count stopped services */
-		if (IS_DOWN(current))
-		{
+		if (IS_DOWN(current)) {
 			down++;
 			continue;
 		}
 
 		/* count stopping */
-		if (IS_STOPPING(current))
-		{
+		if (IS_STOPPING(current)) {
 			stopping++;
 			continue;
 		}

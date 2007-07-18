@@ -40,16 +40,14 @@ static void set_signal(int sig)
 	int i;
 
 	/*printf("signal: %i\n", sig); */
-	for (i = 0; i < SIGNAL_STACK; i++)
-	{
+	for (i = 0; i < SIGNAL_STACK; i++) {
 		/* check if this signaltype is already
 		 * on the list of signals */
 		if (signals_got[i] == sig)
 			return;
 
 		/* else add this on a free spot */
-		if (signals_got[i] == -1)
-		{
+		if (signals_got[i] == -1) {
 			/*printf("signals_got[%i]=%i\n", i, sig); */
 			signals_got[i] = sig;
 			return;
@@ -97,8 +95,7 @@ void initng_signal_enable(void)
 	sa.sa_flags = SA_RESTART | SA_NOCLDSTOP;
 
 	/* segfault */
-	if (g.i_am == I_AM_INIT)
-	{
+	if (g.i_am == I_AM_INIT) {
 		sa.sa_handler = sigsegv;
 		sigaction(SIGSEGV, &sa, 0);
 		sigaction(SIGABRT, &sa, 0);

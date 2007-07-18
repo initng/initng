@@ -20,7 +20,7 @@
 #include <initng.h>
 
 #include <stdio.h>
-#include <stdlib.h>							/* free() exit() */
+#include <stdlib.h>					/* free() exit() */
 #include <string.h>
 #include <assert.h>
 
@@ -35,24 +35,22 @@ int initng_depend_any_depends_on(active_db_h * service)
 
 	D_("initng_any_depends_on(%s);\n", service->name);
 
-	while_active_db(current)
-	{
+	while_active_db(current) {
 		/* Dont mind stop itself */
 		if (current == service)
 			continue;
 
-		if (IS_UP(current) || IS_STARTING(current) || IS_STOPPING(current))
-		{
-
+		if (IS_UP(current) || IS_STARTING(current) ||
+		    IS_STOPPING(current)) {
 			/* if current depends on service */
-			if (initng_depend_deep(current, service) == TRUE)
-			{
+			if (initng_depend_deep(current, service) == TRUE) {
 				D_("Service %s depends on %s\n", current->name,
 				   service->name);
-				return (TRUE);
+				return TRUE;
 			}
 		}
 	}
+
 	D_("None found depending on %s.\n", service->name);
-	return (FALSE);
+	return FALSE;
 }

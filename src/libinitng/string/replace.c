@@ -30,7 +30,8 @@
 #include <stdarg.h>
 
 
-void initng_string_replace(char * dest, char * src, const char * n, const char * r)
+void initng_string_replace(char * dest, char * src, const char * n,
+                           const char * r)
 {
 	char *p;
 	char *d = dest;
@@ -38,8 +39,7 @@ void initng_string_replace(char * dest, char * src, const char * n, const char *
 	int nlen = strlen(n);
 	int rlen = strlen(r);
 
-	while ((p = strstr(last, n)))
-	{
+	while ((p = strstr(last, n))) {
 		memmove(d, last, p - last);
 		d += p - last;
 		memmove(d, r, rlen);

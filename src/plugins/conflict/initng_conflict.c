@@ -27,13 +27,23 @@
 
 INITNG_PLUGIN_MACRO;
 
-s_entry CONFLICT = { "conflict", STRINGS, NULL,
-	"If service put here is starting or running, bail out."
+s_entry CONFLICT = { 
+	.name = "conflict",
+	.description = "If service put here is starting or running, bail "
+	               "out.",
+	.type = STRINGS,
+	.ot = NULL,
 };
 
-a_state_h CONFLICTING = { "FAILED_BY_CONFLICT", 
-	"There is a running service that is conflicting with this service, "
-	"initng cannot launch this service.", IS_FAILED, NULL, NULL, NULL };
+a_state_h CONFLICTING = {
+	.name = "FAILED_BY_CONFLICT", 
+	.description = "There is a running service that is conflicting with "
+	               "this service, initng cannot launch this service.",
+	.is = IS_FAILED,
+	.interrupt = NULL,
+	.init = NULL,
+	.alarm = NULL
+};
 
 static void check_conflict(s_event * event)
 {
@@ -53,8 +63,7 @@ static void check_conflict(s_event * event)
 		return;
 
 	/* make sure the conflict entry is set */
-	while ((conflict_entry = get_next_string(&CONFLICT, service, &itt)))
-	{
+	while ((conflict_entry = get_next_string(&CONFLICT, service, &itt))) {
 		active_db_h *s = NULL;
 
 		/*D_("Making sure that %s is not running.\n", conflict_entry); */
@@ -65,11 +74,10 @@ static void check_conflict(s_event * event)
 		if (!s)
 			continue;
 
-		if (IS_UP(s) || IS_STARTING(s))
-		{
+		if (IS_UP(s) || IS_STARTING(s)) {
 			initng_common_mark_service(service, &CONFLICTING);
-			F_("Service \"%s\" is conflicting with service \"%s\"!\n",
-			   service->name, s->name);
+			F_("Service \"%s\" is conflicting with service "
+			   "\"%s\"!\n", service->name, s->name);
 			return;
 		}
 	}
@@ -78,22 +86,22 @@ static void check_conflict(s_event * event)
 int module_init(int api_version)
 {
 	D_("module_init();\n");
-	if (api_version != API_VERSION)
-	{
-		F_("This module is compiled for api_version %i version and initng is compiled on %i version, won't load this module!\n", API_VERSION, api_version);
-		return (FALSE);
+	if (api_version != API_VERSION) {
+		F_("This module is compiled for api_version %i version and "
+		   "initng is compiled on %i version, won't load this "
+		   "module!\n", API_VERSION, api_version);
+		return FALSE;
 	}
 
 	initng_service_data_type_register(&CONFLICT);
 	initng_event_hook_register(&EVENT_IS_CHANGE, &check_conflict);
 	initng_active_state_register(&CONFLICTING);
 
-	return (TRUE);
+	return TRUE;
 }
 
 void module_unload(void)
 {
-
 	initng_event_hook_unregister(&EVENT_IS_CHANGE, &check_conflict);
 	initng_active_state_unregister(&CONFLICTING);
 	initng_service_data_type_unregister(&CONFLICT);

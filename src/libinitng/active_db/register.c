@@ -41,8 +41,7 @@ int initng_active_db_register(active_db_h * add_this)
 	assert(add_this->name);
 
 	/* Look for duplicate */
-	if ((current = initng_active_db_find_by_name(add_this->name)))
-	{
+	if ((current = initng_active_db_find_by_name(add_this->name))) {
 		/* TODO, should add_this bee freed? */
 		W_("active_db_add(%s): duplicate here\n", add_this->name);
 		return (FALSE);

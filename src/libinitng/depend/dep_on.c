@@ -20,7 +20,7 @@
 #include <initng.h>
 
 #include <stdio.h>
-#include <stdlib.h>							/* free() exit() */
+#include <stdlib.h>					/* free() exit() */
 #include <string.h>
 #include <assert.h>
 
@@ -36,12 +36,12 @@ int dep_on(active_db_h * service, active_db_h * check)
 	assert(check);
 	assert(check->name);
 
-	/* walk all possible entrys, use get_next with NULL because we want both REQUIRE and NEED */
-	while ((current = get_next(NULL, service, current)))
-	{
+	/* walk all possible entrys, use get_next with NULL because we want
+	 * both REQUIRE and NEED */
+	while ((current = get_next(NULL, service, current))) {
 		/* only intreseted in two types */
-		if (current->type != &REQUIRE && current->type != &NEED
-			&& current->type != &USE)
+		if (current->type != &REQUIRE && current->type != &NEED &&
+		    current->type != &USE)
 			continue;
 
 		/* to be sure */
@@ -49,9 +49,9 @@ int dep_on(active_db_h * service, active_db_h * check)
 			continue;
 
 		if (strcmp(current->t.s, check->name) == 0)
-			return (TRUE);
+			return TRUE;
 	}
 
 	/* No, it did not */
-	return (FALSE);
+	return FALSE;
 }

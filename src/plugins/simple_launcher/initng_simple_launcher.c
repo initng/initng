@@ -19,12 +19,12 @@
 
 #include <initng.h>
 
-#include <time.h>							/* time() */
-#include <fcntl.h>							/* fcntl() */
-#include <unistd.h>							/* execv() usleep() pause() chown() */
-#include <sys/wait.h>						/* waitpid() sa */
-#include <sys/ioctl.h>						/* ioctl() */
-#include <stdlib.h>							/* free() exit() */
+#include <time.h>			/* time() */
+#include <fcntl.h>			/* fcntl() */
+#include <unistd.h>			/* execv() usleep() pause() chown() */
+#include <sys/wait.h>			/* waitpid() sa */
+#include <sys/ioctl.h>			/* ioctl() */
+#include <stdlib.h>			/* free() exit() */
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
@@ -36,16 +36,25 @@
 
 INITNG_PLUGIN_MACRO;
 
-s_entry EXEC = { "exec", VARIABLE_STRING, NULL,
-	"Contains the path and arguments to a file to exec."
+s_entry EXEC = {
+	.name = "exec",
+	.description = "Contains the path and arguments to a file to exec.",
+	.type = VARIABLE_STRING,
+	.ot = NULL,
 };
 
-s_entry EXECS = { "exec_path", VARIABLE_STRINGS, NULL,
-	"The path for one or more executables."
+s_entry EXECS = {
+	.name = "exec_path",
+	.description = "The path for one or more executables.",
+	.type = VARIABLE_STRINGS,
+	.ot = NULL,
 };
 
-s_entry EXEC_ARGS = { "exec_args", VARIABLE_STRING, NULL,
-	"The arguments for the executable."
+s_entry EXEC_ARGS = {
+	.name = "exec_args",
+	.description = "The arguments for the executable.",
+	.type = VARIABLE_STRING,
+	.ot = NULL,
 };
 
 /*
@@ -78,7 +87,7 @@ static char *expand_exec(char *exec)
 
 	/* if path provided, just return */
 	if (exec[0] == '/')
-		return (NULL);
+		return NULL;
 
 	/* get exec string length to later use */
 	exec_len = strlen(exec);
@@ -90,13 +99,10 @@ static char *expand_exec(char *exec)
 	PATH = getenv("PATH");
 
 	/* Make sure we got a path */
-	if (!PATH)
-	{
+	if (!PATH) {
 		D_("No $PATH found, using default path\n");
 		PATH = initng_toolbox_strdup("/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin");
-	}
-	else
-	{
+	} else {
 		/* PATH will later be changed, so we have to use a duplicate */
 		PATH = initng_toolbox_strdup(PATH);
 	}
@@ -107,23 +113,23 @@ static char *expand_exec(char *exec)
 	path_argv = initng_string_split_delim(PATH, ":", &path_c, 0);
 
 	/* walk the list of entries */
-	for (i = 0; path_argv[i]; i++)
-	{
+	for (i = 0; path_argv[i]; i++) {
 		/* get entry length */
 		len = strlen(path_argv[i]);
 
 		/* what does this do? */
-		filename = (char *) initng_toolbox_calloc(exec_len + len + 2, sizeof(char));
+		filename = (char *)initng_toolbox_calloc(exec_len + len + 2,
+		                                         1);
 		strcpy(filename, path_argv[i]);
 		if (filename[len - 1] != '/')
 			strcat(filename, "/");
+
 		strcat(filename, exec);
 
 		/* check so that file exits, if exists leave this loop */
-		if ((stat(filename, &test) != -1)
-			&& (test.
-				st_mode & (S_IXOTH | S_IXGRP | S_IXUSR | S_ISVTX | S_ISGID |
-						   S_ISUID | S_IFREG)))
+		if ((stat(filename, &test) != -1) &&
+		    (test.st_mode & (S_IXOTH | S_IXGRP | S_IXUSR | S_ISVTX |
+		                     S_ISGID | S_ISUID | S_IFREG)))
 			break;
 
 		/* cleanup */
@@ -139,23 +145,27 @@ static char *expand_exec(char *exec)
 
 	/* return the filename */
 #ifdef SELINUX
-	char *newfile=NULL;
-	if(newfile!=NULL) free(newfile);
-	newfile=malloc(sizeof(filename)+12);
-	sprintf(newfile,"sh -c \"%s\"",filename);
+	char *newfile = NULL;
+
+	if (newfile != NULL)
+		free(newfile);
+
+	newfile = malloc(sizeof(filename) + 12);
+	sprintf(newfile, "sh -c \"%s\"", filename);
+
 	return newfile;
+#else
+	return filename;
 #endif
-	return(filename);
 }
 
-static int simple_exec_fork(process_h * process_to_exec, active_db_h * s,
-							size_t argc, char **argv)
+static int simple_exec_fork(process_h *process_to_exec, active_db_h *s,
+                            size_t argc, char **argv)
 {
 	/* This is the real service kicker */
 	pid_t pid_fork;				/* pid got from fork() */
 
-	if ((pid_fork = initng_fork(s, process_to_exec)) == 0)
-	{
+	if ((pid_fork = initng_fork(s, process_to_exec)) == 0) {
 		/* run g.AFTER_FORK from other plugins */
 		initng_fork_aforkhooks(s, process_to_exec);
 
@@ -178,15 +188,16 @@ static int simple_exec_fork(process_h * process_to_exec, active_db_h * s,
 	D_("FROM_FORK Forkstarted pid %i.\n", pid_fork);
 
 	if (pid_fork > 0)
-		return (TRUE);
+		return TRUE;
 
 	process_to_exec->pid = 0;
 	return FALSE;
-	/* if to test want to lock this up until fork is done ...   waitpid(pid_fork,0,0); */
-}											/* end fork_and_exec() */
+	/* if to test want to lock this up until fork is done ...
+	 * waitpid(pid_fork,0,0); */
+}
 
-static int simple_exec_try(const char * exec, active_db_h * service,
-						   process_h * process)
+static int simple_exec_try(const char *exec, active_db_h *service,
+                           process_h *process)
 {
 	char *exec_args = NULL;
 	char **argv = NULL;
@@ -197,43 +208,40 @@ static int simple_exec_try(const char * exec, active_db_h * service,
 	   process->pt->name);
 
 	/* exec_args should be parsed at the moment, too */
-	exec_args = (char *) get_string_var(&EXEC_ARGS, process->pt->name, service);
-	if (exec_args)
-	{
+	exec_args = (char *)get_string_var(&EXEC_ARGS, process->pt->name,
+	                                   service);
+	if (exec_args) {
 		initng_string_fix_escapes(exec_args);
 
 		/* split the string, with entries to an array of strings */
 		argv = initng_string_split_delim(exec_args, WHITESPACE, &argc, 1);
 
 		/* make sure it succeeded */
-		if (!argv || !argv[0])
-		{
+		if (!argv || !argv[0]) {
 			if (argv)
 				initng_string_split_delim_free(argv);
 
 			F_("initng_string_split_delim exec_args returns NULL.\n");
-			return (FALSE);
+			return FALSE;
 		}
-	}
-	else
-	{
+	} else {
 		/* we need a empty argv anyway */
-		argv = (char **) initng_toolbox_calloc(2, sizeof(char *));
+		argv = (char **)initng_toolbox_calloc(2, sizeof(char *));
 		argv[1] = NULL;
 		argc = 0;
 	}
 
-	argv[0] = (char *) exec;
+	argv[0] = (char *)exec;
 
 	ret = simple_exec_fork(process, service, argc, argv);
 
 	if(argv)
 		initng_string_split_delim_free(argv);
 
-	return (ret);
+	return ret;
 }
 
-static int simple_exec(active_db_h * service, process_h * process)
+static int simple_exec(active_db_h *service, process_h *process)
 {
 	const char *exec = NULL;
 	struct stat stat_struct;
@@ -241,13 +249,12 @@ static int simple_exec(active_db_h * service, process_h * process)
 
 	D_("service: %s, process: %s\n", service->name, process->pt->name);
 
-	while ((exec = get_next_string_var(&EXECS, process->pt->name, service, &itt)))
-	{
+	while ((exec = get_next_string_var(&EXECS, process->pt->name, service,
+	                                   &itt))) {
 		int res = FALSE;
 
 		/* check if the file exist */
-		if (stat(exec, &stat_struct) != 0)
-		{
+		if (stat(exec, &stat_struct) != 0) {
 			D_(" note, %s exec_fixed does not exist. \n", exec);
 			continue;
 		}
@@ -257,13 +264,13 @@ static int simple_exec(active_db_h * service, process_h * process)
 
 		/* Return true if successfully */
 		if (res == TRUE)
-			return (TRUE);
+			return TRUE;
 	}
 
-	return (FALSE);
+	return FALSE;
 }
 
-static int simple_run(active_db_h * service, process_h * process)
+static int simple_run(active_db_h *service, process_h *process)
 {
 	char *exec = NULL;
 	char **argv = NULL;
@@ -275,7 +282,7 @@ static int simple_run(active_db_h * service, process_h * process)
 
 	exec = (char *) get_string_var(&EXEC, process->pt->name, service);
 	if (!exec)
-		return (FALSE);
+		return FALSE;
 
 	initng_string_fix_escapes(exec);
 
@@ -283,32 +290,30 @@ static int simple_run(active_db_h * service, process_h * process)
 	argv = initng_string_split_delim(exec, WHITESPACE, &argc, 0);
 
 	/* make sure we got something from the split */
-	if (!argv || !argv[0])
-	{
+	if (!argv || !argv[0]) {
 		if (argv)
 			initng_string_split_delim_free(argv);
 
 		D_("initng_string_split_delim on exec returns NULL.\n");
-		return (FALSE);
+		return FALSE;
 	}
 
 	/* if it not contains a full path */
-	if (argv[0][0] != '/')
-	{
+	if (argv[0][0] != '/') {
 		argv0 = expand_exec(argv[0]);
-		if (!argv0)
-		{
-			F_("SERVICE: %s %s -- %s was not found in search path.\n",
-			   service->name, process->pt->name, argv[0]);
+		if (!argv0) {
+			F_("SERVICE: %s %s -- %s was not found in search "
+			   "path.\n", service->name, process->pt->name,
+			   argv[0]);
 			initng_string_split_delim_free(argv);
 			argv = NULL;
-			return (FALSE);
+
+			return FALSE;
 		}
 
 		free(argv[0]);
-		argv[0] = argv0; // Check this before freeing!
+		argv[0] = argv0; /* Check this before freeing! */
 	}
-
 
 	/* try to execute, remember the result */
 	result = simple_exec_fork(process, service, argc, argv);
@@ -317,9 +322,8 @@ static int simple_run(active_db_h * service, process_h * process)
 
 	/* First free the fixed argv0 if its not a plain link to argv[0] */
 	if (argv0 && argv0 != argv[0])
-	{
 		free(argv0);
-	}
+
 	argv0 = NULL;
 
 	// Later free the big argv array
@@ -328,8 +332,9 @@ static int simple_run(active_db_h * service, process_h * process)
 
 	/* return result */
 	if (result == FAIL)
-		return (FALSE);
-	return (result);
+		return FALSE;
+
+	return result;
 }
 
 static void initng_s_launch(s_event * event)
@@ -346,23 +351,19 @@ static void initng_s_launch(s_event * event)
 	assert(data->process);
 	assert(data->exec_name);
 
-	D_("service: %s, process: %s\n", data->service->name, data->process->pt->name);
+	D_("service: %s, process: %s\n", data->service->name,
+	   data->process->pt->name);
 
-	if (is_var(&EXECS, data->exec_name, data->service))
-	{
-		if (simple_exec(data->service, data->process))
-		{
+	if (is_var(&EXECS, data->exec_name, data->service)) {
+		if (simple_exec(data->service, data->process)) {
 			event->status = HANDLED;
 			return;
 		}
 	}
 
-	if (is_var(&EXEC, data->exec_name, data->service))
-	{
+	if (is_var(&EXEC, data->exec_name, data->service)) {
 		if (simple_run(data->service, data->process))
-		{
 			event->status = HANDLED;
-		}
 	}
 }
 
@@ -370,17 +371,19 @@ static void initng_s_launch(s_event * event)
 int module_init(int api_version)
 {
 	D_("initng_simple_plugin: module_init();\n");
-	if (api_version != API_VERSION)
-	{
-		F_("This module is compiled for api_version %i version and initng is compiled on %i version, won't load this module!\n", API_VERSION, api_version);
-		return (FALSE);
+	if (api_version != API_VERSION) {
+		F_("This module is compiled for api_version %i version and "
+		   "initng is compiled on %i version, won't load this "
+		   "module!\n", API_VERSION, api_version);
+		return FALSE;
 	}
 
 	initng_event_hook_register(&EVENT_LAUNCH, &initng_s_launch);
 	initng_service_data_type_register(&EXEC);
 	initng_service_data_type_register(&EXECS);
 	initng_service_data_type_register(&EXEC_ARGS);
-	return (TRUE);
+
+	return TRUE;
 }
 
 void module_unload(void)
@@ -391,5 +394,4 @@ void module_unload(void)
 	initng_service_data_type_unregister(&EXECS);
 	initng_service_data_type_unregister(&EXEC_ARGS);
 	initng_event_hook_unregister(&EVENT_LAUNCH, &initng_s_launch);
-
 }

@@ -32,8 +32,15 @@
 #include <errno.h>
 
 
-stype_h TYPE_CONTAINER = { "container", "This is an empty set that can be used as a container, and you can relate other services data to this one.",
-	TRUE, NULL, NULL, NULL
+stype_h TYPE_CONTAINER = { 
+	.name = "container",
+	.description = "This is an empty set that can be used as a "
+	               "container, and you can relate other services data "
+	               "to this one.",
+	.hidden = TRUE,
+	.start = NULL,
+	.stop = NULL,
+	.restart = NULL
 };
 
 void initng_static_stypes_register_defaults(void)

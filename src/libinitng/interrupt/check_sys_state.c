@@ -42,9 +42,9 @@ void check_sys_state_up(void)
 	if (g.sys_state != STATE_STARTING)
 		return;
 
-	/* check actives, if any has one of these status, system cant be set to STATE_UP */
-	while_active_db(current)
-	{
+	/* check actives, if any has one of these status, system cant be set
+	 * to STATE_UP */
+	while_active_db(current) {
 		if (IS_STARTING(current))
 			return;
 	}

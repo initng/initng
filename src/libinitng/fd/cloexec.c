@@ -17,14 +17,7 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdarg.h>
-#include <dlfcn.h>
-#include <assert.h>
-#include <errno.h>
-#include <string.h>
-#include <fcntl.h>							/* fcntl() */
+#include <fcntl.h>					/* fcntl() */
 
 #include <initng.h>
 

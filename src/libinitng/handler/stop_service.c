@@ -42,51 +42,46 @@ int initng_handler_stop_service(active_db_h * service_to_stop)
 
 	D_("stop_service(%s);\n", service_to_stop->name);
 
-	if (!service_to_stop->type)
-	{
+	if (!service_to_stop->type) {
 		F_("Service %s type is missing!\n", service_to_stop->name);
-		return (FALSE);
+		return FALSE;
 	}
 
 	/* check so it not failed */
-	if (IS_FAILED(service_to_stop))
-	{
+	if (IS_FAILED(service_to_stop)) {
 		D_("Service %s is set filed, and cant be stopped.\n",
 		   service_to_stop->name);
-		return (TRUE);
+		return TRUE;
 	}
 
 	/* IF service is stopping, do nothing. */
-	if (IS_STOPPING(service_to_stop))
-	{
+	if (IS_STOPPING(service_to_stop)) {
 		D_("service %s is stopping already!\n", service_to_stop->name);
-		return (TRUE);
+		return TRUE;
 	}
 
 	/* check if its currently already down */
-	if (IS_DOWN(service_to_stop))
-	{
+	if (IS_DOWN(service_to_stop)) {
 		D_("Service %s is down already.\n", service_to_stop->name);
-		return (TRUE);
+		return TRUE;
 	}
 
 	/* must be up or starting, to stop */
-	if (!(IS_UP(service_to_stop) || IS_STARTING(service_to_stop)))
-	{
+	if (!(IS_UP(service_to_stop) || IS_STARTING(service_to_stop))) {
 		W_("Service %s is not up but %s, and cant be stopped.\n",
-		   service_to_stop->name, service_to_stop->current_state->state_name);
+		   service_to_stop->name,
+		   service_to_stop->current_state->name);
 
-		return (FALSE);
+		return FALSE;
 	}
 
 	/* if stop_service code is included in type, use it. */
-	if (!service_to_stop->type->stop_service)
-	{
+	if (!service_to_stop->type->stop) {
 		W_("Service %s Type %s  has no stopper, will return FALSE!\n",
 		   service_to_stop->name, service_to_stop->type->name);
-		return (FALSE);
+		return FALSE;
 	}
 
 
-	return ((*service_to_stop->type->stop_service) (service_to_stop));
+	return ((*service_to_stop->type->stop)(service_to_stop));
 }

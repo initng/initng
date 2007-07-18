@@ -19,11 +19,11 @@
 
 #include <initng.h>
 
-#include <sys/types.h>						/* time_t */
+#include <sys/types.h>					/* time_t */
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <stdio.h>							/* printf() */
+#include <stdio.h>					/* printf() */
 #include <assert.h>
 #include <errno.h>
 
@@ -49,38 +49,39 @@ static void cmd_history(char *arg, s_payload * payload)
 	history_h *current = NULL;
 
 	/* allocate space for payload */
-	payload->p = i_calloc(HISTORY + 1, sizeof(active_row));
+	payload->p = initng_toolbox_calloc(HISTORY + 1, sizeof(active_row));
 
-	while_history_db_prev(current)
-	{
+	while_history_db_prev(current) {
 		active_row *row = payload->p + (i * sizeof(active_row));
 
 		row->dt = ACTIVE_ROW;
 
-		/* if action is not set, it is probably a string logged in this db */
+		/* if action is not set, it is probably a string logged in
+		 * this db */
 		if (!current->action)
 			continue;
 
-		if ((arg && strlen(arg) > 1)
-			&& !(((current->name) && strcmp(current->name, arg) == 0)
-				 || ((current->service && current->service->name)
-					 && strcmp(current->service->name, arg) == 0)))
+		if (arg && strlen(arg) > 1 && !((current->name &&
+		    strcmp(current->name, arg) == 0) || (current->service &&
+		    current->service->name &&
+		    strcmp(current->service->name, arg) == 0))) {
 			continue;
+		}
 
 		if (current->data)
 			printf("%s\n", current->data);
 
 		if (current->action)
-			strncpy(row->state, current->action->state_name, 100);
+			strncpy(row->state, current->action->name, 100);
 		else
 			row->state[0] = '\0';
 
-		if (current->service && current->service->type
-			&& current->service->type->name)
+		if (current->service && current->service->type &&
+		    current->service->type->name) {
 			strncpy(row->type, current->service->type->name, 100);
-		else
+		} else {
 			row->type[0] = '\0';
-
+		}
 
 		memcpy(&row->time_set, &current->time, sizeof(struct timeval));
 
@@ -102,14 +103,20 @@ static void cmd_history(char *arg, s_payload * payload)
 }
 
 
-s_command HISTORYS = { 'L', "show_history", PAYLOAD_COMMAND, STANDARD_COMMAND, USES_OPT,
-	{(void *) &cmd_history},
-	"Print out history_db."
+s_command HISTORYS = {
+	.id = 'L',
+	.long_id = "show_history",
+	.com_type = PAYLOAD_COMMAND,
+	.opt_visible = STANDARD_COMMAND,
+	.opt_type = USES_OPT,
+	.u = { (void *) &cmd_history },
+	.description = "Print out history_db."
 };
 
 /* This is the maxumum length of a row with ngc -l */
 #define LOG_ROW_LEN 70
-/* If the row got a space after this number of chars, make a newline to prevent a word breakage */
+/* If the row got a space after this number of chars, make a newline to
+ * prevent a word breakage */
 #define LOG_ROW_LEN_BREAK_ON_SPACE 60
 #define NAME_SPACER "20"
 
@@ -123,8 +130,7 @@ static char *cmd_log(char *arg)
 
 
 	/* reset arg, if strlen is short */
-	if (arg)
-	{
+	if (arg) {
 		if (strlen(arg) < 1)
 			arg = NULL;
 		else if (strcmp(arg, "output") == 0)
@@ -132,20 +138,22 @@ static char *cmd_log(char *arg)
 	}
 
 	mprintf(&string, " %" NAME_SPACER "s : STATUS\n", "SERVICE");
-	mprintf(&string,
-			" ------------------------------------------------------\n");
-	while_history_db_prev(current)
-	{
-		/* if only_output is set, it have to be an output to continue */
+	mprintf(&string, " ---------------------------------------"
+	        "---------------\n");
+
+	while_history_db_prev(current) {
+		/* if only_output is set, it have to be an output to
+		 * continue */
 		if (only_output && !current->data)
 			continue;
 
 		/* if there is an argument, it have to match the service */
-		if (arg
-			&& !(((current->name) && strcmp(current->name, arg) == 0)
-				 || ((current->service && current->service->name)
-					 && strcmp(current->service->name, arg) == 0)))
+		if (arg && !(
+			(current->name && strcmp(current->name, arg) == 0) ||
+			(current->service && current->service->name &&
+			 strcmp(current->service->name, arg) == 0))) {
 			continue;
+		}
 
 		/* try to set the service name, from any source found */
 		if (current->name)
@@ -155,14 +163,13 @@ static char *cmd_log(char *arg)
 		else
 			name = NULL;
 
-		if (last != current->time.tv_sec)
-		{
+		if (last != current->time.tv_sec) {
 			/* print a nice service change status entry */
 			char *c = ctime(&current->time.tv_sec);
 
 			mprintf(&string, "\n %s", c);
-			mprintf(&string,
-					" ------------------------------------------------------\n");
+			mprintf(&string, " --------------------------------"
+			        "----------------------\n");
 
 			last = current->time.tv_sec;
 		}
@@ -170,29 +177,32 @@ static char *cmd_log(char *arg)
 
 
 		/* if the log entry contains output data ... */
-		if (current->data)
-		{
+		if (current->data) {
 			char *tmp = current->data;
 			char buf[LOG_ROW_LEN + 1];
 
-			while (tmp)
-			{
-				/* Variable that contains the no of chars to next newline */
+			while (tmp) {
+				/* Variable that contains the no of chars to
+				 * next newline */
 				int i = 0;
 
 				/* skip idention from data source */
-				while (tmp[0] == ' ' || tmp[0] == '\t' || tmp[0] == '\n')
+				while (tmp[0] == ' ' || tmp[0] == '\t' ||
+				       tmp[0] == '\n') {
 					tmp++;
+				}
+
 				/* if no more left, break */
 				if (!tmp[i])
 					break;
 
 				/* cont chars to newline */
-				while (tmp[i] && tmp[i] != '\n' && i < LOG_ROW_LEN)
-				{
-					/* This rules will decrease the chanse that a word is breaked */
-					if (i > LOG_ROW_LEN_BREAK_ON_SPACE
-						&& (tmp[i] == ' ' || tmp[i] == '\t'))
+				while (tmp[i] && tmp[i] != '\n' &&
+				       i < LOG_ROW_LEN) {
+					/* This rules will decrease the chanse
+					 * that a word is breaked */
+					if (i > LOG_ROW_LEN_BREAK_ON_SPACE &&
+					    (tmp[i] == ' ' || tmp[i] == '\t'))
 						break;
 					i++;
 				}
@@ -202,60 +212,65 @@ static char *cmd_log(char *arg)
 				buf[i] = '\0';
 
 				/* send that to client */
-				mprintf(&string, " %" NAME_SPACER "s : %s\n", name, buf);
+				mprintf(&string, " %" NAME_SPACER "s : %s\n",
+				        name, buf);
 
 				/* where to start next */
 				tmp = &tmp[i];
 			}
-		}
-		else
-		{
+		} else {
 
 			/* only print important state changes */
-			if (current->action->is == IS_UP || current->action->is == IS_DOWN
-				|| current->action->is == IS_FAILED)
-			{
-				/* if there has gone some seconds sence last change, print that */
-				if (current->duration > 0)
-					mprintf(&string,
-							" %" NAME_SPACER "s | %s (after %i seconds)\n",
-							name, current->action->state_name,
-							(int) current->duration);
-				else
-					mprintf(&string, " %" NAME_SPACER "s | %s\n", name,
-							current->action->state_name);
+			if (current->action->is == IS_UP ||
+			    current->action->is == IS_DOWN ||
+			    current->action->is == IS_FAILED) {
+				/* if there has gone some seconds sence last
+				 * change, print that */
+				if (current->duration > 0) {
+					mprintf(&string, " %" NAME_SPACER
+					        "s | %s (after %i seconds)\n",
+					        name,
+					        current->action->name,
+					        (int)current->duration);
+				} else {
+					mprintf(&string, " %" NAME_SPACER
+					        "s | %s\n", name,
+					        current->action->name);
+				}
 			}
 		}
 
 	}
-	return (string);
+
+	return string;
 }
 
 
-s_command LOG = { 'l', "log", STRING_COMMAND, STANDARD_COMMAND, USES_OPT,
-	{(void *) &cmd_log},
-	"Print out log."
+s_command LOG = {
+	.id = 'l',
+	.long_id = "log",
+	.com_type = STRING_COMMAND,
+	.opt_visible = STANDARD_COMMAND,
+	.opt_type = USES_OPT,
+	.u = { (void *) &cmd_log },
+	.description = "Print out log."
 };
 
 
-
-static int history_db_compensate_time(s_event * event)
+static void history_db_compensate_time(s_event *event)
 {
-	time_t skew;
+	time_t *skew;
 	history_h *current = NULL;
 
 	assert(event->event_type == &EVENT_COMPENSATE_TIME);
 
-	skew = (time_t) event->data;
+	skew = event->data;
 
-	D_("history_db_compensate_time(%i);\n", (int) skew);
+	D_("history_db_compensate_time(%i);\n", (int)(*skew));
 
-	while_history_db(current)
-	{
-		current->time.tv_sec += skew;
+	while_history_db(current) {
+		current->time.tv_sec += *skew;
 	}
-
-	return (TRUE);
 }
 
 
@@ -266,12 +281,10 @@ static void history_db_clear_service(active_db_h * service)
 
 	D_("history_db_clear_service(%s);\n", service->name);
 
-	while_history_db(current)
-	{
-		if (current->service == service)
-		{
+	while_history_db(current) {
+		if (current->service == service) {
 			current->service = NULL;
-			current->name = i_strdup(service->name);
+			current->name = initng_toolbox_strdup(service->name);
 			break;
 		}
 	}
@@ -283,8 +296,7 @@ static void history_free_all(void)
 	history_h *current, *safe = NULL;
 
 	/* while there is a history db */
-	while_history_db_safe(current, safe)
-	{
+	while_history_db_safe(current, safe) {
 		/* free history name */
 		if (current->name)
 			free(current->name);
@@ -311,17 +323,15 @@ static int add_hist(history_h * hist)
 	history_records++;
 
 	/* If maximum entrys are reached */
-	if (history_records > HISTORY)
-	{
-
+	if (history_records > HISTORY) {
 		struct list_head *last = history_db.list.prev;
 		history_h *entry = list_entry(last, history_h, list);
 
 		/* if we got anything */
-		if (!entry)
-		{
-			F_("Unable to free last histroty entry!, cant add more.\n");
-			return (FALSE);
+		if (!entry) {
+			F_("Unable to free last histroty entry!, cant add "
+			   "more.\n");
+			return FALSE;
 		}
 
 		/* free the name */
@@ -344,14 +354,15 @@ static int add_hist(history_h * hist)
 	}
 
 	/* leave */
-	return (TRUE);
+	return TRUE;
 }
 
 /* add values to history database */
-static int history_add_values(s_event * event)
+static void history_add_values(s_event *event)
 {
-	active_db_h * service;
-	history_h *tmp_e = NULL;	/* temporary pointer to insert data and add to db */
+	active_db_h *service;
+	history_h *tmp_e = NULL;	/* temporary pointer to insert data
+					 * and add to db */
 
 	assert(event->event_type == &EVENT_STATE_CHANGE);
 	assert(event->data);
@@ -362,7 +373,7 @@ static int history_add_values(s_event * event)
 
 	/* Don't bother adding */
 	if (!service->current_state)
-		return (TRUE);
+		return;
 
 	/*if (!service->current_state->state_name);
 	   return(TRUE); */
@@ -370,10 +381,10 @@ static int history_add_values(s_event * event)
 	D_("adding: %s.\n", service->name);
 
 	/* allocate space for data */
-	if (!(tmp_e = (history_h *) i_calloc(1, sizeof(history_h))))
-	{
+	if (!(tmp_e = (history_h *)
+	      initng_toolbox_calloc(1, sizeof(history_h)))) {
 		F_("Out of memory.\n");
-		return (TRUE);
+		return;
 	}
 
 	/* set data in struct */
@@ -384,28 +395,28 @@ static int history_add_values(s_event * event)
 	tmp_e->action = service->current_state;
 
 	/* set duration if possible */
-	if (service->last_state && service->time_last_state.tv_sec > 1)
+	if (service->last_state && service->time_last_state.tv_sec > 1) {
 		tmp_e->duration = difftime(service->time_current_state.tv_sec,
-								   service->time_last_state.tv_sec);
+		                           service->time_last_state.tv_sec);
+	}
 
 
-	/*D_("history_add_values() service : %s, name: %s, action: %s\n", service->name, NULL, service->current_state->state_name); */
+	/*D_("history_add_values() service : %s, name: %s, action: %s\n",
+	 *   service->name, NULL, service->current_state->state_name); */
 
 	add_hist(tmp_e);
 
 	/* if service is status freeing, clear the pointers in history db */
-	if (IS_MARK(service, &FREEING))
-	{
+	if (IS_MARK(service, &FREEING)) {
 		history_db_clear_service(service);
 	}
 
 	/* leave */
-	return (TRUE);
 }
 
-static int fetch_output(s_event * event)
+static void fetch_output(s_event *event)
 {
-	s_event_buffer_watcher_data * data;
+	s_event_buffer_watcher_data *data;
 	history_h *tmp_e = NULL;
 
 	assert(event->event_type == &EVENT_BUFFER_WATCHER);
@@ -417,33 +428,32 @@ static int fetch_output(s_event * event)
 	D_("fetch_output()\n");
 
 	/* allocate space for data */
-	if (!(tmp_e = (history_h *) i_calloc(1, sizeof(history_h))))
-	{
+	if (!(tmp_e = (history_h *)
+	      initng_toolbox_calloc(1, sizeof(history_h)))) {
 		F_("Out of memory.\n");
-		return (FALSE);
+		return;
 	}
 
 	/* set data in struct */
 	tmp_e->service = data->service;
 	tmp_e->name = NULL;
 	gettimeofday(&tmp_e->time, NULL);
-	tmp_e->data = i_strdup(data->buffer_pos);
+	tmp_e->data = initng_toolbox_strdup(data->buffer_pos);
 	tmp_e->action = NULL;
 
 	/* add to history struct */
 	add_hist(tmp_e);
-
-	return (TRUE);
 }
 
 
 
 int module_init(int api_version)
 {
-	if (api_version != API_VERSION)
-	{
-		F_("This module is compiled for api_version %i version and initng is compiled on %i version, won't load this module!\n", API_VERSION, api_version);
-		return (FALSE);
+	if (api_version != API_VERSION) {
+		F_("This module is compiled for api_version %i version and "
+		   "initng is compiled on %i version, won't load this "
+		   "module!\n", API_VERSION, api_version);
+		return FALSE;
 	}
 
 	INIT_LIST_HEAD(&history_db.list);
@@ -451,10 +461,11 @@ int module_init(int api_version)
 	initng_command_register(&HISTORYS);
 	initng_command_register(&LOG);
 	initng_event_hook_register(&EVENT_STATE_CHANGE, &history_add_values);
-	initng_event_hook_register(&EVENT_COMPENSATE_TIME, &history_db_compensate_time);
+	initng_event_hook_register(&EVENT_COMPENSATE_TIME,
+	                           &history_db_compensate_time);
 	initng_event_hook_register(&EVENT_BUFFER_WATCHER, &fetch_output);
 
-	return (TRUE);
+	return TRUE;
 }
 
 
@@ -463,7 +474,9 @@ void module_unload(void)
 	initng_command_unregister(&HISTORYS);
 	initng_command_unregister(&LOG);
 	history_free_all();
-	initng_event_hook_unregister(&EVENT_STATE_CHANGE, &history_add_values);
-	initng_event_hook_unregister(&EVENT_COMPENSATE_TIME, &history_db_compensate_time);
+	initng_event_hook_unregister(&EVENT_STATE_CHANGE,
+	                             &history_add_values);
+	initng_event_hook_unregister(&EVENT_COMPENSATE_TIME,
+	                             &history_db_compensate_time);
 	initng_event_hook_unregister(&EVENT_BUFFER_WATCHER, &fetch_output);
 }

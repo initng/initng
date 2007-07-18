@@ -37,11 +37,14 @@ const char *initng_data_get_next_string_var(s_entry * type, const char *vn,
 	s_data *current = initng_data_get_next_var(type, vn, d, *cur);
 
 	/* Get the string path out of it */
-	to_ret = current ? current->t.s : NULL;
+	if (current)
+		to_ret = current->t.s;
+	else
+		to_ret = NULL;
 
 	/* update to next */
 	*cur = current;
 
 	/* return string */
-	return (to_ret);
+	return to_ret;
 }

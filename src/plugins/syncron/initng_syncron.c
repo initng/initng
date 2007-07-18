@@ -21,8 +21,8 @@
 #include <initng.h>
 
 #include <stdio.h>
-#include <string.h>							/* strstr() */
-#include <stdlib.h>							/* free() exit() */
+#include <string.h>					/* strstr() */
+#include <stdlib.h>					/* free() exit() */
 #include <assert.h>
 
 
@@ -33,8 +33,12 @@ const char *module_needs[] = {
 	NULL
 };
 
-s_entry SYNCRON = { "syncron", STRING, NULL,
-	"All services with this same syncron string, can't be started asynchronous."
+s_entry SYNCRON = {
+	.name = "syncron",
+	.description = "All services with this same syncron string, "
+	               "can't be started asynchronous.",
+	.type = STRING,
+	.ot = NULL,
 };
 
 a_state_h *SERVICE_START_RUN;
@@ -43,20 +47,21 @@ static int check;
 static int resolv_SSR(void)
 {
 	SERVICE_START_RUN = initng_active_state_find("SERVICE_START_RUN");
-	if (!SERVICE_START_RUN)
-	{
-		F_("Could not resolve SERVICE_START_RUN, is service type loaded?");
-		return (FALSE);
-
+	if (!SERVICE_START_RUN) {
+		F_("Could not resolve SERVICE_START_RUN, is service type "
+		   "loaded?");
+		return FALSE;
 	}
-	return (TRUE);
+
+	return TRUE;
 }
 
 
-/* Make sure if service syncron=module_loading, only one of the services with module_loading runs at once */
+/* Make sure if service syncron=module_loading, only one of the services with
+ * module_loading runs at once */
 static void check_syncronicly_service(s_event * event)
 {
-	active_db_h * service;
+	active_db_h *service;
 	active_db_h *current, *q = NULL;
 	const char *service_syncron;
 	const char *current_syncron;
@@ -75,21 +80,19 @@ static void check_syncronicly_service(s_event * event)
 	if ((service_syncron = get_string(&SYNCRON, service)) == NULL)
 		return;
 
-	while_active_db_safe(current, q)
-	{
+	while_active_db_safe(current, q) {
 		/* don't check ourself */
 		if (current == service)
 			continue;
 
 		/* If this service has the start process running */
-		if (IS_MARK(current, SERVICE_START_RUN))
-		{
-			if ((current_syncron = get_string(&SYNCRON, current)) != NULL)
-			{
-				if (strcmp(service_syncron, current_syncron) == 0)
-				{
-					D_("Service %s has to wait for %s\n", service->name,
-					   current->name);
+		if (IS_MARK(current, SERVICE_START_RUN)) {
+			current_syncron = get_string(&SYNCRON, current);
+			if (current_syncron != NULL) {
+				if (strcmp(service_syncron,
+				           current_syncron) == 0) {
+					D_("Service %s has to wait for %s\n",
+					   service->name, current->name);
 					/* refuse to change status */
 					event->status = FAILED;
 					return;
@@ -114,14 +117,12 @@ static void check_syncronicly(s_event * event)
 	if (!resolv_SSR())
 		return;
 
-	while_active_db_safe(current, q)
-	{
+	while_active_db_safe(current, q) {
 		/* don't check ourself */
 		if (current == service)
 			continue;
 
-		if (IS_MARK(service, SERVICE_START_RUN))
-		{
+		if (IS_MARK(service, SERVICE_START_RUN)) {
 			/* no i cant set this status yet */
 			event->status = FAILED;
 			return;
@@ -136,42 +137,42 @@ int module_init(int api_version)
 	SERVICE_START_RUN = NULL;
 
 	D_("module_init();\n");
-	if (api_version != API_VERSION)
-	{
-		F_("This module is compiled for api_version %i version and initng is compiled on %i version, won't load this module!\n", API_VERSION, api_version);
-		return (FALSE);
+	if (api_version != API_VERSION) {
+		F_("This module is compiled for api_version %i version and "
+		   "initng is compiled on %i version, won't load this "
+		   "module!\n", API_VERSION, api_version);
+		return FALSE;
 	}
 
 	initng_service_data_type_register(&SYNCRON);
-	for (i = 0; g.Argv[i]; i++)
-		if (strstr(g.Argv[i], "synchronously"))
-		{
+	for (i = 0; g.Argv[i]; i++) {
+		if (strstr(g.Argv[i], "synchronously")) {
 			check = TRUE;
 			initng_event_hook_register(&EVENT_START_DEP_MET,
-							&check_syncronicly);
+			                           &check_syncronicly);
 
-			return (TRUE);
+			return TRUE;
 		}
+	}
+
 	check = FALSE;
 	/* Notice this is only added if we don't have --synchronously */
 	D_("Adding synchron\n");
 	initng_event_hook_register(&EVENT_START_DEP_MET,
-					&check_syncronicly_service);
+	                           &check_syncronicly_service);
 
 
-	return (TRUE);
+	return TRUE;
 }
 
 void module_unload(void)
 {
-
-	if (check == TRUE)
-	{
+	if (check == TRUE) {
 		initng_event_hook_unregister(&EVENT_START_DEP_MET,
-						&check_syncronicly);
+		                             &check_syncronicly);
 	}
 
 	initng_event_hook_unregister(&EVENT_START_DEP_MET,
-					  &check_syncronicly_service);
+	                             &check_syncronicly_service);
 	initng_service_data_type_unregister(&SYNCRON);
 }

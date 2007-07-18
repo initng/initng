@@ -20,7 +20,7 @@
 #include <initng.h>
 
 #include <stdio.h>
-#include <stdlib.h>							/* free() exit() */
+#include <stdlib.h>					/* free() exit() */
 #include <string.h>
 #include <assert.h>
 
@@ -34,45 +34,44 @@
  * Summary, does service depends on check?
  */
 static int initng_depend_deep2(active_db_h * service, active_db_h * check,
-							   int *stack);
+                               int *stack);
+
 int initng_depend_deep(active_db_h * service, active_db_h * check)
 {
 	int stack = 0;
 
-	return (initng_depend_deep2(service, check, &stack));
+	return initng_depend_deep2(service, check, &stack);
 }
 
 static int initng_depend_deep2(active_db_h * service, active_db_h * check,
-							   int *stack)
+                               int *stack)
 {
 	active_db_h *current = NULL;
 	int result = FALSE;
 
 	/* avoid cirular */
 	if (current == service)
-		return (FALSE);
+		return FALSE;
 
-	/* if service depends on check, it also dep_on_deep's on check */
-	/* this serves as an exit from the recursion */
+	/* if service depends on check, it also dep_on_deep's on check
+	 * this serves as an exit from the recursion */
 	if (initng_depend(service, check))
-		return (TRUE);
+		return TRUE;
 
-	/* in case there is a circular dependency, break after 10 levels of recursion */
-	(*stack)++;
-	if (*stack > 10)
-		return (FALSE);
+	/* in case there is a circular dependency, break after 10 levels of
+	 * recursion */
+	if (++(*stack) > 10)
+		return FALSE;
 
-	/* loop over all services, if service depends on current, recursively check if
-	 * current may depend (deep) on check */
-	while_active_db(current)
-	{
-		if (initng_depend(service, current))
-		{
+	/* loop over all services, if service depends on current, recursively
+	 * check if current may depend (deep) on check */
+	while_active_db(current) {
+		if (initng_depend(service, current)) {
 			if ((result = initng_depend_deep2(current, check, stack)))
 				break;
 		}
 	}
 
 	/* return with the result found at last */
-	return (result);
+	return result;
 }

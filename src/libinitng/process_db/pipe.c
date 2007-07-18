@@ -38,11 +38,11 @@ pipe_h *initng_process_db_pipe_new(e_dir dir)
 	pipe_h *pipe_struct = initng_toolbox_calloc(1, sizeof(pipe_h));
 
 	if (!pipe_struct)
-		return (NULL);
+		return NULL;
 
 	/* set the type */
 	pipe_struct->dir = dir;
 
 	/* return the pointer */
-	return (pipe_struct);
+	return pipe_struct;
 }

@@ -28,8 +28,11 @@
 
 INITNG_PLUGIN_MACRO;
 
-s_entry CHROOT = { "chroot", STRING, NULL,
-	"Chroot this path, before launching the service."
+s_entry CHROOT = {
+	.name = "chroot",
+	.description = "Chroot this path, before launching the service.",
+	.type = STRING,
+	.ot = NULL,
 };
 
 static void do_chroot(s_event * event)
@@ -48,20 +51,18 @@ static void do_chroot(s_event * event)
 	assert(data->process);
 
 	D_("do_suid!\n");
-	if (!(tmp = get_string(&CHROOT, data->service)))
-	{
+	if (!(tmp = get_string(&CHROOT, data->service))) {
 		D_("SUID not set!\n");
 		return;
 	}
 
-	if (chdir(tmp) == -1)
-	{
+	if (chdir(tmp) == -1) {
 		F_("Chdir %s failed with %s\n", tmp, strerror(errno));
 		event->status = FAILED;
 		return;
 	}
-	if (chroot(tmp) == -1)
-	{
+	
+	if (chroot(tmp) == -1) {
 		F_("Chroot %s failed with %s\n", tmp, strerror(errno));
 		event->status = FAILED;
 		return;
@@ -71,10 +72,11 @@ static void do_chroot(s_event * event)
 int module_init(int api_version)
 {
 	D_("module_init();\n");
-	if (api_version != API_VERSION)
-	{
-		F_("This module is compiled for api_version %i version and initng is compiled on %i version, won't load this module!\n", API_VERSION, api_version);
-		return (FALSE);
+	if (api_version != API_VERSION) {
+		F_("This module is compiled for api_version %i version and "
+		   "initng is compiled on %i version, won't load this "
+		   "module!\n", API_VERSION, api_version);
+		return FALSE;
 	}
 
 	initng_service_data_type_register(&CHROOT);

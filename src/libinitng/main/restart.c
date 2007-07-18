@@ -37,16 +37,11 @@
 void initng_main_restart(void)
 {
 	char **argv = NULL;
-	int i;
 
 	initng_main_set_sys_state(STATE_RESTART);
-	for (i = 3; i <= 1013; i++)
-	{
-		close(i);
-	}
 	argv = (char **) initng_toolbox_calloc(3, sizeof(char *));
 
-	argv[0] = (char *) initng_toolbox_calloc(strlen(g.runlevel) + 12, sizeof(char));
+	argv[0] = (char *) initng_toolbox_calloc(strlen(g.runlevel) + 12, 1);
 	strcpy(argv[0], "runlevel=");
 	strcat(argv[0], g.runlevel);
 	argv[1] = NULL;

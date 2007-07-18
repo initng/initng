@@ -20,8 +20,7 @@
 #ifndef INITNG_IS_STATE_H
 #define INITNG_IS_STATE_H
 
-typedef enum
-{
+typedef enum {
 	IS_NEW = 0,
 	IS_UP = 1,
 	IS_DOWN = 2,

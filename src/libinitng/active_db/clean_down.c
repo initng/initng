@@ -41,12 +41,10 @@ void initng_active_db_clean_down(void)
 	active_db_h *current = NULL;
 	active_db_h *safe = NULL;
 
-	while_active_db_safe(current, safe)
-	{
+	while_active_db_safe(current, safe) {
 		assert(current->name);
 		assert(current->current_state);
-		if (g.now.tv_sec > current->time_current_state.tv_sec + CLEAN_DELAY)
-		{
+		if (g.now.tv_sec > current->time_current_state.tv_sec + CLEAN_DELAY) {
 			initng_process_db_clear_freed(current);
 
 			/* count stopped services */

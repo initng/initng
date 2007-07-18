@@ -59,42 +59,34 @@ int main(int argc, char *argv[])
 		c = ngeclient_connect(NGE_REAL);
 
 	/* if open_socket errors, ngeclient_error is set */
-	if (ngeclient_error)
-	{
+	if (ngeclient_error) {
 		fprintf(stderr, "%s\n", ngeclient_error);
 		exit(1);
 	}
 
-	if (!c)
-	{
+	if (!c) {
 		fprintf(stderr, "No connection");
 		exit(1);
 	}
 
 
-
 	/* poll_for_input will return -1 if socket closes */
-	while ((got = ngeclient_poll_for_input(c, 10000) >= 0))
-	{
-		if (ngeclient_error)
-		{
+	while ((got = ngeclient_poll_for_input(c, 10000) >= 0)) {
+		if (ngeclient_error) {
 			fprintf(stderr, "%s\n", ngeclient_error);
 			ngeclient_error = NULL;
 		}
 
 		/* if we got something */
 		if (got > 0 && c->read_buffer && c->read_buffer[0])
-		{
 			fprintf(stdout, "%s", c->read_buffer);
-		}
 
 		free(c->read_buffer);
 		c->read_buffer = 0;
 	}
 
 	/* check for error messages from ngeclinet.so */
-	if (ngeclient_error)
-	{
+	if (ngeclient_error) {
 		fprintf(stderr, "%s\n", ngeclient_error);
 		ngeclient_error = NULL;
 	}

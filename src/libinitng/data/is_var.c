@@ -35,5 +35,5 @@ inline int initng_data_is_var(s_entry * type, const char *vn, data_head * d)
 {
 	s_data *current = initng_data_get_next_var(type, vn, d, NULL);
 
-	return (current ? TRUE : FALSE);
+	return (current != NULL);
 }
