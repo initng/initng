@@ -25,7 +25,6 @@
 #include <initng.h>
 #include "local.h"
 
-
 /*
  * Walk the db, copy all strings in list from to to.
  */
@@ -48,16 +47,15 @@ void initng_data_copy_all(data_head * from, data_head * to)
 
 		/* copy the data */
 		switch (current->type->type) {
-			case STRING:
-			case STRINGS:
-			case VARIABLE_STRING:
-			case VARIABLE_STRINGS:
-				if (current->t.s)
-					tmp->t.s = initng_toolbox_strdup(
-							current->t.s);
+		case STRING:
+		case STRINGS:
+		case VARIABLE_STRING:
+		case VARIABLE_STRINGS:
+			if (current->t.s)
+				tmp->t.s = initng_toolbox_strdup(current->t.s);
 
-			default:
-				break;
+		default:
+			break;
 		}
 
 		/* copy variable name */

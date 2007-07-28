@@ -20,18 +20,17 @@
 #include <initng.h>
 
 #include <sys/time.h>
-#include <time.h>				/* time() */
-#include <fcntl.h>				/* fcntl() */
-#include <sys/un.h>				/* memmove() strcmp() */
-#include <sys/wait.h>				/* waitpid() sa */
-#include <linux/kd.h>				/* KDSIGACCEPT */
-#include <sys/ioctl.h>				/* ioctl() */
-#include <stdio.h>				/* printf() */
-#include <stdlib.h>				/* free() exit() */
-#include <sys/reboot.h>				/* reboot() RB_DISABLE_CAD */
+#include <time.h>		/* time() */
+#include <fcntl.h>		/* fcntl() */
+#include <sys/un.h>		/* memmove() strcmp() */
+#include <sys/wait.h>		/* waitpid() sa */
+#include <linux/kd.h>		/* KDSIGACCEPT */
+#include <sys/ioctl.h>		/* ioctl() */
+#include <stdio.h>		/* printf() */
+#include <stdlib.h>		/* free() exit() */
+#include <sys/reboot.h>		/* reboot() RB_DISABLE_CAD */
 #include <assert.h>
 #include <errno.h>
-
 
 int initng_handler_stop_service(active_db_h * service_to_stop)
 {
@@ -69,8 +68,7 @@ int initng_handler_stop_service(active_db_h * service_to_stop)
 	/* must be up or starting, to stop */
 	if (!(IS_UP(service_to_stop) || IS_STARTING(service_to_stop))) {
 		W_("Service %s is not up but %s, and cant be stopped.\n",
-		   service_to_stop->name,
-		   service_to_stop->current_state->name);
+		   service_to_stop->name, service_to_stop->current_state->name);
 
 		return FALSE;
 	}
@@ -82,6 +80,5 @@ int initng_handler_stop_service(active_db_h * service_to_stop)
 		return FALSE;
 	}
 
-
-	return ((*service_to_stop->type->stop)(service_to_stop));
+	return ((*service_to_stop->type->stop) (service_to_stop));
 }

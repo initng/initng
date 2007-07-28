@@ -20,17 +20,16 @@
 #include <initng.h>
 
 #include <stdio.h>
-#include <stdlib.h>					/* free() exit() */
+#include <stdlib.h>		/* free() exit() */
 #include <string.h>
 #include <assert.h>
-
 
 /*
  * This will check with plug-ins if dependencies for start this is met.
  * If this returns FALSE deps are not met yet, try later.
  * If this returns FAIL deps wont ever be met, so stop trying.
  */
-int initng_depend_start_dep_met(active_db_h *service, int verbose)
+int initng_depend_start_dep_met(active_db_h * service, int verbose)
 {
 	active_db_h *dep = NULL;
 	s_data *current = NULL;
@@ -60,7 +59,6 @@ int initng_depend_start_dep_met(active_db_h *service, int verbose)
 			continue;
 		}
 
-
 		/* tell the user what we got */
 #ifdef DEBUG
 		if (current->type == &REQUIRE)
@@ -76,14 +74,14 @@ int initng_depend_start_dep_met(active_db_h *service, int verbose)
 			if (current->type == &USE) {
 				/* if its not yet found, and i dont care */
 				continue;
-			}
-			else if (current->type == &REQUIRE) {
+			} else if (current->type == &REQUIRE) {
 				F_("%s required dep \"%s\" could not start!\n",
 				   service->name, current->t.s);
-				initng_common_mark_service(service, &REQ_NOT_FOUND);
+				initng_common_mark_service(service,
+							   &REQ_NOT_FOUND);
 				/* if its not yet found, this dep is not reached */
 				return FAIL;
-			} else { /* NEED */
+			} else {	/* NEED */
 				/* if its not yet found, this dep is not
 				 * reached */
 				return FALSE;
@@ -116,8 +114,8 @@ int initng_depend_start_dep_met(active_db_h *service, int verbose)
 
 		/* if its marked down, and not starting, start it */
 		if (IS_DOWN(dep)) {
-		   initng_handler_start_service(dep);
-		   return FALSE;
+			initng_handler_start_service(dep);
+			return FALSE;
 		}
 
 		/* if its not starting or up, return FAIL */

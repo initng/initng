@@ -19,13 +19,13 @@
 
 #include <initng.h>
 
-#include <sys/types.h>					/* time_t */
+#include <sys/types.h>		/* time_t */
 #include <sys/stat.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <stdio.h>					/* printf() */
+#include <stdio.h>		/* printf() */
 #include <assert.h>
 #include <stdarg.h>
 #include <syslog.h>
@@ -57,7 +57,7 @@ static void check_syslog(void)
 
 			while_log_list_safe(current, safe) {
 				initng_log(current->prio, current->owner,
-				           "%s", current->buffert);
+					   "%s", current->buffert);
 				free(current->buffert);
 				if (current->owner)
 					free(current->owner);
@@ -115,7 +115,8 @@ static void initng_log(int prio, const char *owner, const char *format, ...)
 	} else {
 		char b[201];
 		log_ent *tmp = (log_ent *) initng_toolbox_calloc(1,
-						sizeof(log_ent));
+								 sizeof
+								 (log_ent));
 
 		if (!tmp)
 			return;
@@ -138,7 +139,7 @@ static void initng_log(int prio, const char *owner, const char *format, ...)
 /* add values to syslog database */
 static void syslog_print_status_change(s_event * event)
 {
-	active_db_h * service;
+	active_db_h *service;
 
 	assert(event->event_type == &EVENT_IS_CHANGE);
 	assert(event->data);
@@ -162,7 +163,7 @@ static void syslog_print_status_change(s_event * event)
 
 	if (IS_FAILED(service)) {
 		initng_log(LOG_NOTICE, NULL, "Service %s FAILED.\n",
-		           service->name);
+			   service->name);
 		return;
 	}
 
@@ -179,7 +180,6 @@ static void syslog_print_status_change(s_event * event)
 	}
 }
 
-
 static void syslog_print_system_state(s_event * event)
 {
 	h_sys_state *state;
@@ -190,61 +190,54 @@ static void syslog_print_system_state(s_event * event)
 	state = event->data;
 
 	switch (*state) {
-		case STATE_UP:
-			initng_log(LOG_NOTICE, NULL,
-				   "System is up and running!\n");
-			/*
-			 * if syslogd have not been started yet, its no ida,
-			 * to spend memory for the buffert anyway.
-			 */
-			free_buffert();
-			break;
+	case STATE_UP:
+		initng_log(LOG_NOTICE, NULL, "System is up and running!\n");
+		/*
+		 * if syslogd have not been started yet, its no ida,
+		 * to spend memory for the buffert anyway.
+		 */
+		free_buffert();
+		break;
 
-		case STATE_STARTING:
-			initng_log(LOG_NOTICE, NULL,
-				   "System is starting up.\n");
-			break;
+	case STATE_STARTING:
+		initng_log(LOG_NOTICE, NULL, "System is starting up.\n");
+		break;
 
-		case STATE_STOPPING:
-			initng_log(LOG_NOTICE, NULL,
-				   "System is going down.\n");
-			break;
+	case STATE_STOPPING:
+		initng_log(LOG_NOTICE, NULL, "System is going down.\n");
+		break;
 
-		case STATE_ASE:
-			initng_log(LOG_NOTICE, NULL,
-				   "Last service exited.\n");
-			break;
+	case STATE_ASE:
+		initng_log(LOG_NOTICE, NULL, "Last service exited.\n");
+		break;
 
-		case STATE_EXIT:
-			initng_log(LOG_NOTICE, NULL, "Initng is exiting.\n");
-			break;
+	case STATE_EXIT:
+		initng_log(LOG_NOTICE, NULL, "Initng is exiting.\n");
+		break;
 
-		case STATE_RESTART:
-			initng_log(LOG_NOTICE, NULL,
-				   "Initng is restarting.\n");
-			break;
+	case STATE_RESTART:
+		initng_log(LOG_NOTICE, NULL, "Initng is restarting.\n");
+		break;
 
-		case STATE_HALT:
-			initng_log(LOG_NOTICE, NULL, "System is halting.\n");
-			break;
+	case STATE_HALT:
+		initng_log(LOG_NOTICE, NULL, "System is halting.\n");
+		break;
 
-		case STATE_POWEROFF:
-			initng_log(LOG_NOTICE, NULL,
-				   "System is power-off.\n");
-			break;
+	case STATE_POWEROFF:
+		initng_log(LOG_NOTICE, NULL, "System is power-off.\n");
+		break;
 
-		case STATE_REBOOT:
-			initng_log(LOG_NOTICE, NULL,
-				   "System is rebooting.\n");
+	case STATE_REBOOT:
+		initng_log(LOG_NOTICE, NULL, "System is rebooting.\n");
 
-		default:
-			break;
+	default:
+		break;
 	}
 }
 
 static void syslog_fetch_output(s_event * event)
 {
-	s_event_buffer_watcher_data * data;
+	s_event_buffer_watcher_data *data;
 	char log[201];
 	int pos = 0;
 	int i;
@@ -282,10 +275,9 @@ static void syslog_fetch_output(s_event * event)
 	}
 }
 
-
 static void syslog_print_error(s_event * event)
 {
-	s_event_error_message_data * data;
+	s_event_error_message_data *data;
 
 	assert(event->event_type == &EVENT_ERROR_MESSAGE);
 	assert(event->data);
@@ -300,30 +292,29 @@ static void syslog_print_error(s_event * event)
 	vsnprintf(tempspace, 200, data->format, data->arg);
 
 	switch (data->mt) {
-		case MSG_FAIL:
+	case MSG_FAIL:
 #ifdef DEBUG
-			syslog(LOG_EMERG, "\"%s\", %s() #%i FAIL: %s",
-			       data->file, data->func, data->line, tempspace);
+		syslog(LOG_EMERG, "\"%s\", %s() #%i FAIL: %s", data->file,
+		       data->func, data->line, tempspace);
 #else
-			syslog(LOG_EMERG, "FAIL: %s", tempspace);
+		syslog(LOG_EMERG, "FAIL: %s", tempspace);
 #endif
-			break;
+		break;
 
-		case MSG_WARN:
+	case MSG_WARN:
 #ifdef DEBUG
-			syslog(LOG_WARNING, "\"%s\", %s() #%i WARN: %s",
-			       data->file, data->func, data->line, tempspace);
+		syslog(LOG_WARNING, "\"%s\", %s() #%i WARN: %s", data->file,
+		       data->func, data->line, tempspace);
 #else
-			syslog(LOG_EMERG, "WARN: %s", tempspace);
+		syslog(LOG_EMERG, "WARN: %s", tempspace);
 #endif
-			break;
+		break;
 
-		default:
-			syslog(LOG_NOTICE, "%s", tempspace);
-			break;
+	default:
+		syslog(LOG_NOTICE, "%s", tempspace);
+		break;
 	}
 }
-
 
 int module_init(int api_version)
 {
@@ -349,17 +340,14 @@ int module_init(int api_version)
 	openlog("InitNG", 0, LOG_LOCAL1);
 
 	initng_event_hook_register(&EVENT_IS_CHANGE,
-	                           &syslog_print_status_change);
+				   &syslog_print_status_change);
 	initng_event_hook_register(&EVENT_SYSTEM_CHANGE,
-	                           &syslog_print_system_state);
-	initng_event_hook_register(&EVENT_BUFFER_WATCHER,
-	                           &syslog_fetch_output);
-	initng_event_hook_register(&EVENT_ERROR_MESSAGE,
-	                           &syslog_print_error);
+				   &syslog_print_system_state);
+	initng_event_hook_register(&EVENT_BUFFER_WATCHER, &syslog_fetch_output);
+	initng_event_hook_register(&EVENT_ERROR_MESSAGE, &syslog_print_error);
 
 	return TRUE;
 }
-
 
 void module_unload(void)
 {
@@ -371,13 +359,12 @@ void module_unload(void)
 	}
 
 	initng_event_hook_unregister(&EVENT_IS_CHANGE,
-	                             &syslog_print_status_change);
+				     &syslog_print_status_change);
 	initng_event_hook_unregister(&EVENT_SYSTEM_CHANGE,
-	                             &syslog_print_system_state);
+				     &syslog_print_system_state);
 	initng_event_hook_unregister(&EVENT_BUFFER_WATCHER,
-	                             &syslog_fetch_output);
-	initng_event_hook_unregister(&EVENT_ERROR_MESSAGE,
-	                             &syslog_print_error);
+				     &syslog_fetch_output);
+	initng_event_hook_unregister(&EVENT_ERROR_MESSAGE, &syslog_print_error);
 	free_buffert();
 	closelog();
 }

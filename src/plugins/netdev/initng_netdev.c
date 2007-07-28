@@ -20,7 +20,7 @@
 #include <initng.h>
 
 #include <stdio.h>
-#include <stdlib.h>					/* free() exit() */
+#include <stdlib.h>		/* free() exit() */
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -33,7 +33,6 @@
 #include <string.h>
 #include <arpa/inet.h>
 #include <assert.h>
-
 
 INITNG_PLUGIN_MACRO;
 
@@ -49,7 +48,6 @@ stype_h NETDEV = {
 
 static void net_remove(const char *name);
 static int net_set_up(const char *name);
-
 
 /* THE UP STATE GOT */
 a_state_h NIC_STARTING = {
@@ -189,7 +187,6 @@ static active_db_h *find_or_create(const char *name)
 	return NULL;
 }
 
-
 /*
  * When an netdevice gets an ip-adress its set to UP
  */
@@ -260,8 +257,7 @@ static void net_remove(const char *name)
 	initng_common_mark_service(netdev, &NIC_DOWN);
 }
 
-
-static void probe_network_devices(s_event *event)
+static void probe_network_devices(s_event * event)
 {
 	struct ifconf ifc;
 	struct ifreq *ifr;
@@ -309,10 +305,9 @@ static void probe_network_devices(s_event *event)
 	initng_global_set_sleep(120);
 }
 
-
-static void system_stopping(s_event *event)
+static void system_stopping(s_event * event)
 {
-	h_sys_state * state;
+	h_sys_state *state;
 	active_db_h *current = NULL;
 
 	assert(event->event_type == &EVENT_SYSTEM_CHANGE);
@@ -332,7 +327,6 @@ static void system_stopping(s_event *event)
 		}
 	}
 }
-
 
 int module_init(int api_version)
 {

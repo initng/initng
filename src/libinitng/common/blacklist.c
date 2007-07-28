@@ -17,21 +17,19 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-
 #include <sys/time.h>
-#include <time.h>				/* time() */
-#include <fcntl.h>				/* fcntl() */
-#include <sys/un.h>				/* memmove() strcmp() */
-#include <sys/wait.h>				/* waitpid() sa */
-#include <linux/kd.h>				/* KDSIGACCEPT */
-#include <sys/ioctl.h>				/* ioctl() */
-#include <stdio.h>				/* printf() */
-#include <stdlib.h>				/* free() exit() */
-#include <sys/reboot.h>				/* reboot() RB_DISABLE_CAD */
+#include <time.h>		/* time() */
+#include <fcntl.h>		/* fcntl() */
+#include <sys/un.h>		/* memmove() strcmp() */
+#include <sys/wait.h>		/* waitpid() sa */
+#include <linux/kd.h>		/* KDSIGACCEPT */
+#include <sys/ioctl.h>		/* ioctl() */
+#include <stdio.h>		/* printf() */
+#include <stdlib.h>		/* free() exit() */
+#include <sys/reboot.h>		/* reboot() RB_DISABLE_CAD */
 #include <assert.h>
 
 #include <initng.h>
-
 
 /*
  * this function walks through the g.Argv, if it founds service name,

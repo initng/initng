@@ -24,7 +24,6 @@
 
 #include <initng.h>
 
-
 /* look for a command by command_id */
 s_command *initng_command_find_by_command_id(char cid)
 {

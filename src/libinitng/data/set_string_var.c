@@ -26,9 +26,9 @@
 
 #include "local.h"
 
-
 /* this has to be only one of */
-void initng_data_set_string_var(s_entry * type, char *vn, data_head * d, char *string)
+void initng_data_set_string_var(s_entry * type, char *vn, data_head * d,
+				char *string)
 {
 	s_data *current = NULL;
 
@@ -47,7 +47,6 @@ void initng_data_set_string_var(s_entry * type, char *vn, data_head * d, char *s
 		   "set \"%s\"!\n", type->type, type->name, string);
 		return;
 	}
-
 
 	if (!IT(STRING)) {
 		F_(" \"%s\" is not an STRING type, sleeping 1 sec ..\n",

@@ -19,14 +19,14 @@
 
 #include <initng.h>
 
-#include <time.h>							/* time() */
-#include <fcntl.h>							/* fcntl() */
-#include <sys/un.h>							/* memmove() strcmp() */
-#include <sys/wait.h>						/* waitpid() sa */
-#include <linux/kd.h>						/* KDSIGACCEPT */
-#include <sys/ioctl.h>						/* ioctl() */
-#include <stdlib.h>							/* free() exit() */
-#include <sys/reboot.h>						/* reboot() RB_DISABLE_CAD */
+#include <time.h>		/* time() */
+#include <fcntl.h>		/* fcntl() */
+#include <sys/un.h>		/* memmove() strcmp() */
+#include <sys/wait.h>		/* waitpid() sa */
+#include <linux/kd.h>		/* KDSIGACCEPT */
+#include <sys/ioctl.h>		/* ioctl() */
+#include <stdlib.h>		/* free() exit() */
+#include <sys/reboot.h>		/* reboot() RB_DISABLE_CAD */
 #include <termios.h>
 #include <stdio.h>
 #include <sys/klog.h>
@@ -43,10 +43,8 @@
 
 #include <initng-paths.h>
 
-
 /* include some soruce files directly, remember this is only a test */
 #include "../plugins/debug_commands/print_service.c"
-
 
 #define MAX_PATH_LEN 40
 
@@ -55,14 +53,12 @@ static char *fix_path(char *ipath)
 	char *path = NULL;
 
 	/* if path is specified with CWD */
-	if (ipath[0] == '.')
-	{
-		path = malloc(sizeof(char) * (strlen(ipath) + MAX_PATH_LEN + 1));
+	if (ipath[0] == '.') {
+		path =
+		    malloc(sizeof(char) * (strlen(ipath) + MAX_PATH_LEN + 1));
 		path = getcwd(path, MAX_PATH_LEN);
 		path = strcat(path, &ipath[1]);
-	}
-	else
-	{
+	} else {
 		path = strdup(ipath);
 	}
 
@@ -88,34 +84,28 @@ int main(int argc, char *argv[], char *env[])
 	g.i_am = I_AM_UTILITY;
 
 	/* Load all plugins */
-	if (!initng_load_module_load_all(INITNG_PLUGIN_DIR))
-	{
+	if (!initng_load_module_load_all(INITNG_PLUGIN_DIR)) {
 		printf("could not load all modules\n");
 		exit(1);
 	}
 
 	/* fallback */
-	if (argc == 3)
-	{
+	if (argc == 3) {
 		service_cache_h *serv = NULL;
 
 		serv = parse_path(argv[1]);
-		if (serv)
-		{
+		if (serv) {
 
-			if (strcmp(argv[2], "list") == 0)
-			{
-				serv = NULL;				/* walk them all */
-				while_service_cache(serv)
-				{
+			if (strcmp(argv[2], "list") == 0) {
+				serv = NULL;	/* walk them all */
+				while_service_cache(serv) {
 					printf("%s ", serv->name);
 				}
 				putchar('\n');
 				goto end;
 			}
 
-			if (strcmp(argv[2], "print") == 0)
-			{
+			if (strcmp(argv[2], "print") == 0) {
 				char *out = service_db_print_all(serv->name);
 
 				printf("%s\n", out);
@@ -126,8 +116,7 @@ int main(int argc, char *argv[], char *env[])
 		}
 	}
 
-	if (argc == 4 && argv[3] && strcmp(argv[2], "execute") == 0)
-	{
+	if (argc == 4 && argv[3] && strcmp(argv[2], "execute") == 0) {
 
 		/* create an active struct */
 		ptype_h ptype = { "test-run", NULL };
@@ -140,7 +129,6 @@ int main(int argc, char *argv[], char *env[])
 
 		printf("Executing service %s type %s\n", active->name, argv[3]);
 
-
 		/* Now launch! (will fork) */
 		initng_execute_launch(active, &ptype, argv[3]);
 
@@ -148,9 +136,8 @@ int main(int argc, char *argv[], char *env[])
 		goto end;
 	}
 
-
 	puts("Usage: itool i_file.i [list] [print] [execute name]\n");
-  end:
+      end:
 	/* unload all modules */
 	initng_unload_module_unload_all();
 	initng_service_cache_free_all();

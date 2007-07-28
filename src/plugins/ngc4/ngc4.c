@@ -49,7 +49,6 @@
 #include <libngeclient.h>
 #endif
 
-
 int debug = FALSE;
 
 int header_printed = FALSE;
@@ -74,29 +73,28 @@ static int service_change(char *service, e_is is, char *state)
 	}
 
 	switch (is) {
-		case IS_UP:
-			printf("\nService \"%s\" is started!\n", service);
-			/* Close the event socket, and ngclient_exec() should
-			 * return */
-			return 0;
-		case IS_DOWN:
-			printf("\nService \"%s\" have stopped!\n", service);
-			/* Close the event socket, and ngclient_exec() should
-			 * return */
-			return 0;
-		case IS_FAILED:
-			printf("\nService \"%s\" have failed!\n", service);
-			/* Close the event socket, and ngclient_exec() should
-			 * return */
-			return 0;
-		default:
-			printf("\nService \"%s\" is now in state: %s\n",
-			       service, state);
+	case IS_UP:
+		printf("\nService \"%s\" is started!\n", service);
+		/* Close the event socket, and ngclient_exec() should return */
+		return 0;
+
+	case IS_DOWN:
+		printf("\nService \"%s\" have stopped!\n", service);
+		/* Close the event socket, and ngclient_exec() should return */
+		return 0;
+
+	case IS_FAILED:
+		printf("\nService \"%s\" have failed!\n", service);
+		/* Close the event socket, and ngclient_exec() should
+		 * return */
+		return 0;
+	default:
+		printf("\nService \"%s\" is now in state: %s\n", service,
+		       state);
 	}
 
 	return 1;
 }
-
 
 static void service_output(char *service, char *process, char *output)
 {
@@ -105,7 +103,6 @@ static void service_output(char *service, char *process, char *output)
 
 	fprintf(stdout, "%s", output);
 }
-
 
 static int start_or_stop_command(reply * rep)
 {
@@ -117,40 +114,39 @@ static int start_or_stop_command(reply * rep)
 
 	/* check what state they are in */
 	switch (service_starting_stopping->is) {
-		case IS_STARTING:
-			print_out("Starting service \"%s\", hang on..\n",
-				  service_starting_stopping->name);
-			break;
+	case IS_STARTING:
+		print_out("Starting service \"%s\", hang on..\n",
+			  service_starting_stopping->name);
+		break;
 
-		case IS_STOPPING:
-			print_out("Stopping service \"%s\", hang on..\n\n\n",
-				  service_starting_stopping->name);
-			break;
+	case IS_STOPPING:
+		print_out("Stopping service \"%s\", hang on..\n\n\n",
+			  service_starting_stopping->name);
+		break;
 
-		case IS_DOWN:
-			printf("Service %s is down.\n\n\n",
-				   service_starting_stopping->name);
-			return FALSE;
+	case IS_DOWN:
+		printf("Service %s is down.\n\n\n",
+		       service_starting_stopping->name);
+		return FALSE;
 
-		case IS_UP:
-			printf("Service %s is up.\n",
-			       service_starting_stopping->name);
-			return FALSE;
+	case IS_UP:
+		printf("Service %s is up.\n", service_starting_stopping->name);
+		return FALSE;
 
-		case IS_FAILED:
-			printf("Service \"%s\" previously failed (%s),\nit "
-			       "needs to be zaped \"ngc -z %s\", so initng "
-			       "will forget the failing state before you are "
-			       "able to retry start it.\n",
-			       service_starting_stopping->name,
-			       service_starting_stopping->state,
-			       service_starting_stopping->name);
-			return FALSE;
+	case IS_FAILED:
+		printf("Service \"%s\" previously failed (%s),\nit "
+		       "needs to be zaped \"ngc -z %s\", so initng "
+		       "will forget the failing state before you are "
+		       "able to retry start it.\n",
+		       service_starting_stopping->name,
+		       service_starting_stopping->state,
+		       service_starting_stopping->name);
+		return FALSE;
 
-		default:
-			print_out("Service has state: %s\n",
-				  service_starting_stopping->state);
-			return FALSE;
+	default:
+		print_out("Service has state: %s\n",
+			  service_starting_stopping->state);
+		return FALSE;
 	}
 
 	/*
@@ -178,29 +174,28 @@ static int start_or_stop_command(reply * rep)
 	/* do for every event that comes in */
 	while (go == 1 && (e = get_next_event(c, 20000))) {
 		switch (e->state_type) {
-			case SERVICE_STATE_CHANGE:
-			case INITIAL_SERVICE_STATE_CHANGE:
-				go = service_change(
-				  e->payload.service_state_change.service,
-				  e->payload.service_state_change.is,
-				  e->payload.service_state_change.state_name);
-				break;
+		case SERVICE_STATE_CHANGE:
+		case INITIAL_SERVICE_STATE_CHANGE:
+			go = service_change(e->payload.service_state_change.
+					    service,
+					    e->payload.service_state_change.is,
+					    e->payload.service_state_change.
+					    state_name);
+			break;
 
-			case SERVICE_OUTPUT:
-				service_output(
-				  e->payload.service_output.service,
-				  e->payload.service_output.process,
-				  e->payload.service_output.output);
-				break;
+		case SERVICE_OUTPUT:
+			service_output(e->payload.service_output.service,
+				       e->payload.service_output.process,
+				       e->payload.service_output.output);
+			break;
 
-			default:
-				break;
+		default:
+			break;
 		}
 
 		/* This will free all strings got */
 		ngeclient_event_free(e);
 	}
-
 
 	/* check for failures */
 	if (ngeclient_error) {
@@ -221,11 +216,9 @@ static int send_and_handle(const char c, const char *l, const char *opt,
 	/*printf("send_and_handle(%c, %s, %s);\n", c, l, opt); */
 
 	if (debug == TRUE) {
-		rep = ngcclient_send_command(SOCKET_4_FILENAME_TEST, c, l,
-					     opt);
+		rep = ngcclient_send_command(SOCKET_4_FILENAME_TEST, c, l, opt);
 	} else {
-		rep = ngcclient_send_command(SOCKET_4_FILENAME_REAL, c, l,
-					     opt);
+		rep = ngcclient_send_command(SOCKET_4_FILENAME_REAL, c, l, opt);
 	}
 
 	if (ngcclient_error) {
@@ -251,7 +244,6 @@ static int send_and_handle(const char c, const char *l, const char *opt,
 		}
 		header_printed = TRUE;
 	}
-
 #ifdef HAVE_NGE
 	if (instant == FALSE && quiet == FALSE) {
 		/*
@@ -345,7 +337,6 @@ int main(int argc, char *argv[])
 		debug = TRUE;
 	}
 
-
 	if (debug == FALSE && getuid() != 0) {
 		if (ansi) {
 			print_out(C_ERROR "You need root access to "
@@ -416,7 +407,6 @@ int main(int argc, char *argv[])
 		 * its considered an option */
 		if (argv[cc + 1] && argv[cc + 1][0] != '-')
 			opt = argv[cc + 1];
-
 
 		/* if it is an --option */
 		if (argv[cc][1] == '-') {

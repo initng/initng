@@ -20,11 +20,10 @@
 #include <initng.h>
 
 #include <stdio.h>
-#include <stdlib.h>					/* free() exit() */
+#include <stdlib.h>		/* free() exit() */
 #include <string.h>
 #include <assert.h>
 #include <time.h>
-
 
 INITNG_PLUGIN_MACRO;
 
@@ -37,7 +36,7 @@ ptype_h T_DAEMON_CLEAN = { "daemon_clean", NULL };
 
 static void on_kill(s_event * event)
 {
-	s_event_handle_killed_data * data;
+	s_event_handle_killed_data *data;
 
 	assert(event->event_type == &EVENT_HANDLE_KILLED);
 	assert(event->data);

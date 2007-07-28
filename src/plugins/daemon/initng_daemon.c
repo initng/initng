@@ -19,15 +19,15 @@
 
 #include <initng.h>
 
-#include <time.h>				/* time() */
-#include <fcntl.h>				/* fcntl() */
-#include <sys/un.h>				/* memmove() strcmp() */
-#include <sys/wait.h>				/* waitpid() sa */
-#include <linux/kd.h>				/* KDSIGACCEPT */
-#include <sys/ioctl.h>				/* ioctl() */
-#include <stdio.h>				/* printf() */
-#include <stdlib.h>				/* free() exit() */
-#include <sys/reboot.h>				/* reboot() RB_DISABLE_CAD */
+#include <time.h>		/* time() */
+#include <fcntl.h>		/* fcntl() */
+#include <sys/un.h>		/* memmove() strcmp() */
+#include <sys/wait.h>		/* waitpid() sa */
+#include <linux/kd.h>		/* KDSIGACCEPT */
+#include <sys/ioctl.h>		/* ioctl() */
+#include <stdio.h>		/* printf() */
+#include <stdlib.h>		/* free() exit() */
+#include <sys/reboot.h>		/* reboot() RB_DISABLE_CAD */
 #include <assert.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -36,8 +36,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <dirent.h>
-#include <ctype.h>				/* isdigit */
-
+#include <ctype.h>		/* isdigit */
 
 INITNG_PLUGIN_MACRO;
 
@@ -78,59 +77,56 @@ INITNG_PLUGIN_MACRO;
  */
 #define DEFAULT_KILL_TIMEOUT 2
 
-
 /*
  * ############################################################################
  * #                         LOCAL FUNCTION DEFINES                           #
  * ############################################################################
  */
 
-static void kill_daemon(active_db_h *service, int sig);
-static void clear_pidfile(active_db_h *s);
-static pid_t get_pidof(active_db_h *s);
-static pid_t get_pidfile(active_db_h *s);
-static int check_respawn(active_db_h *service);
-static int try_get_pid(active_db_h *s);
+static void kill_daemon(active_db_h * service, int sig);
+static void clear_pidfile(active_db_h * s);
+static pid_t get_pidof(active_db_h * s);
+static pid_t get_pidfile(active_db_h * s);
+static int check_respawn(active_db_h * service);
+static int try_get_pid(active_db_h * s);
 
 /*
  * ############################################################################
  * #                         STYPE HANDLERS FUNCTION DEFINES                  #
  * ############################################################################
  */
-static int start_DAEMON(active_db_h *daemon_to_start);
-static int stop_DAEMON(active_db_h *daemon);
+static int start_DAEMON(active_db_h * daemon_to_start);
+static int stop_DAEMON(active_db_h * daemon);
 
 /*
  * ############################################################################
  * #                        STATE HANDLERS FUNCTION DEFINES                   #
  * ############################################################################
  */
-static void handle_DAEMON_WAITING_FOR_START_DEP(active_db_h *daemon);
-static void handle_DAEMON_WAITING_FOR_STOP_DEP(active_db_h *daemon);
+static void handle_DAEMON_WAITING_FOR_START_DEP(active_db_h * daemon);
+static void handle_DAEMON_WAITING_FOR_STOP_DEP(active_db_h * daemon);
 
-static void init_DAEMON_START_DEPS_MET(active_db_h *daemon);
-static void init_DAEMON_STOP_DEPS_MET(active_db_h *daemon);
-static void init_DAEMON_START_MARKED(active_db_h *daemon);
-static void init_DAEMON_STOP_MARKED(active_db_h *daemon);
+static void init_DAEMON_START_DEPS_MET(active_db_h * daemon);
+static void init_DAEMON_STOP_DEPS_MET(active_db_h * daemon);
+static void init_DAEMON_START_MARKED(active_db_h * daemon);
+static void init_DAEMON_STOP_MARKED(active_db_h * daemon);
 
-
-static void init_DAEMON_WAIT_FOR_PID_FILE(active_db_h *daemon);
-static void timeout_DAEMON_WAIT_FOR_PID_FILE(active_db_h *daemon);
-static void init_DAEMON_WAIT_RESP_TOUT(active_db_h *service);
-static void timeout_DAEMON_WAIT_RESP_TOUT(active_db_h *service);
-static void init_DAEMON_KILL(active_db_h *daemon);
-static void timeout_DAEMON_KILL(active_db_h *daemon);
-static void init_DAEMON_TERM(active_db_h *daemon);
-static void timeout_DAEMON_TERM(active_db_h *daemon);
-
+static void init_DAEMON_WAIT_FOR_PID_FILE(active_db_h * daemon);
+static void timeout_DAEMON_WAIT_FOR_PID_FILE(active_db_h * daemon);
+static void init_DAEMON_WAIT_RESP_TOUT(active_db_h * service);
+static void timeout_DAEMON_WAIT_RESP_TOUT(active_db_h * service);
+static void init_DAEMON_KILL(active_db_h * daemon);
+static void timeout_DAEMON_KILL(active_db_h * daemon);
+static void init_DAEMON_TERM(active_db_h * daemon);
+static void timeout_DAEMON_TERM(active_db_h * daemon);
 
 /*
  * ############################################################################
  * #                        PROCESS TYPE FUNCTION DEFINES                     #
  * ############################################################################
  */
-static void handle_killed_daemon(active_db_h *killed_daemon,
-                                 process_h * process);
+static void handle_killed_daemon(active_db_h * killed_daemon,
+				 process_h * process);
 
 /*
  * ############################################################################
@@ -164,9 +160,9 @@ ptype_h T_KILL = { "kill", NULL };
  * The name of the process, initng should probe.
  */
 s_entry PIDOF = {
-	.name = "pid_of", 
+	.name = "pid_of",
 	.description = "When daemon exits, initng will look for a process "
-	               "with this name, and set daemon pid no to that pid.",
+	    "with this name, and set daemon pid no to that pid.",
 	.type = STRING,
 	.ot = &TYPE_DAEMON,
 };
@@ -177,7 +173,7 @@ s_entry PIDOF = {
 s_entry PIDFILE = {
 	.name = "pid_file",
 	.description = "When daemon exits, initng will get pid of daemon "
-	               "from this file.",
+	    "from this file.",
 	.type = STRINGS,
 	.ot = &TYPE_DAEMON,
 };
@@ -198,11 +194,10 @@ s_entry FORKS = {
 s_entry RESPAWN = {
 	.name = "respawn",
 	.description = "If this is set and daemon dies, it will be "
-	               "restarted.",
+	    "restarted.",
 	.type = SET,
 	.ot = &TYPE_DAEMON,
 };
-
 
 /*
  * When respwaning, wait this many seconds before restarting the daemon.
@@ -220,7 +215,7 @@ s_entry RESPAWN_PAUSE = {
 s_entry RESPAWN_RATE = {
 	.name = "respawn_rate",
 	.description = "The minimum of seconds that this daemon must be up, "
-	               "to be respawned when it dies.",
+	    "to be respawned when it dies.",
 	.type = INT,
 	.ot = &TYPE_DAEMON,
 };
@@ -232,7 +227,7 @@ s_entry RESPAWN_RATE = {
 s_entry TERM_TIMEOUT = {
 	.name = "term_timeout",
 	.description = "Wait this many seconds before KILL daemon, after a "
-	               "TERM.",
+	    "TERM.",
 	.type = INT,
 	.ot = &TYPE_DAEMON,
 };
@@ -241,17 +236,16 @@ s_entry TERM_TIMEOUT = {
 s_entry DAEMON_FAIL_OK = {
 	.name = "daemon_fail_ok",
 	.description = "If daemon returns a positive return code, this is "
-	               "till ok",
+	    "till ok",
 	.type = SET,
 	.ot = &TYPE_DAEMON,
 };
-
 
 /* A return code > 0 is ok, but only if it's stopping */
 s_entry DAEMON_STOPS_BADLY = {
 	.name = "daemon_stops_badly",
 	.description = "If the daemon is stopping and returns a positive "
-	               "return code, this is OK",
+	    "return code, this is OK",
 	.type = SET,
 	.ot = &TYPE_DAEMON,
 };
@@ -316,7 +310,7 @@ a_state_h DAEMON_RUNNING = {
 a_state_h DAEMON_WAITING_FOR_START_DEP = {
 	.name = "DAEMON_WAITING_FOR_START_DEP",
 	.description = "Waiting for depdencencies before starting this "
-	               "daemon",
+	    "daemon",
 	.is = IS_STARTING,
 	.interrupt = &handle_DAEMON_WAITING_FOR_START_DEP,
 	.init = NULL,
@@ -421,13 +415,12 @@ a_state_h DAEMON_WAIT_FOR_PID_FILE = {
 a_state_h DAEMON_WAIT_RESP_TOUT = {
 	.name = "WAIT_FOR_RESPAWN_TIMEOUT",
 	.description = "This daemon is waiting a bit, before the daemon is "
-	               "respawn.",
+	    "respawn.",
 	.is = IS_STARTING,
 	.interrupt = NULL,
 	.init = &init_DAEMON_WAIT_RESP_TOUT,
 	.alarm = &timeout_DAEMON_WAIT_RESP_TOUT
 };
-
 
 /*
  * Generally FAILING states, if something goes wrong, some of these are set.
@@ -435,7 +428,7 @@ a_state_h DAEMON_WAIT_RESP_TOUT = {
 a_state_h DAEMON_START_DEPS_FAILED = {
 	.name = "DAEMON_START_DEPS_FAILED",
 	.description = "One of the dependencies for starting this daemon is "
-	               "not met",
+	    "not met",
 	.is = IS_FAILED,
 	.interrupt = NULL,
 	.init = NULL,
@@ -445,7 +438,7 @@ a_state_h DAEMON_START_DEPS_FAILED = {
 a_state_h DAEMON_STOP_DEPS_FAILED = {
 	.name = "DAEMON_STOP_DEPS_FAILED",
 	.description = "One of the dependencies for stopping this daemon is "
-	               "not met.",
+	    "not met.",
 	.is = IS_FAILED,
 	.interrupt = NULL,
 	.init = NULL,
@@ -482,7 +475,7 @@ a_state_h DAEMON_FAIL_START_LAUNCH = {
 a_state_h DAEMON_FAIL_START_TIMEOUT_PIDFILE = {
 	.name = "DAEMON_FAIL_START_TIMEOUT_PIDFILE",
 	.description = "Initng timed out waiting for the daemon to set a "
-	                "pidfile.",
+	    "pidfile.",
 	.is = IS_FAILED,
 	.interrupt = NULL,
 	.init = NULL,
@@ -492,7 +485,7 @@ a_state_h DAEMON_FAIL_START_TIMEOUT_PIDFILE = {
 a_state_h DAEMON_FAIL_START_NONEXIST = {
 	.name = "DAEMON_FAIL_START_NONEXIST",
 	.description = "Could not launch the daemon, the executable was not "
-	               "found.",
+	    "found.",
 	.is = IS_FAILED,
 	.interrupt = NULL,
 	.init = NULL,
@@ -511,7 +504,7 @@ a_state_h DAEMON_FAIL_STOPPING = {
 a_state_h DAEMON_UP_CHECK_FAILED = {
 	.name = "DAEMON_UP_CHECK_FAILED",
 	.description = "The last checks done before starting the daemon "
-	               "failed.",
+	    "failed.",
 	.is = IS_FAILED,
 	.interrupt = NULL,
 	.init = NULL,
@@ -521,7 +514,7 @@ a_state_h DAEMON_UP_CHECK_FAILED = {
 a_state_h DAEMON_RESPAWN_RATE_EXCEEDED = {
 	.name = "DAEMON_RESPAWN_RATE_EXCEEDED",
 	.description = "This daemon has been respawned too many times, and "
-	               "will be disabled.",
+	    "will be disabled.",
 	.is = IS_FAILED,
 	.interrupt = NULL,
 	.init = NULL,
@@ -533,7 +526,6 @@ a_state_h DAEMON_RESPAWN_RATE_EXCEEDED = {
  * #                         STYPE HANDLERS FUNCTIONS                         #
  * ############################################################################
  */
-
 
 /* This are run, when initng wants to start a daemon */
 static int start_DAEMON(active_db_h * daemon_to_start)
@@ -557,7 +549,6 @@ static int start_DAEMON(active_db_h * daemon_to_start)
 	return TRUE;
 }
 
-
 /* This are run, when initng wants to stop a daemon */
 static int stop_DAEMON(active_db_h * daemon)
 {
@@ -577,7 +568,6 @@ static int stop_DAEMON(active_db_h * daemon)
 	/* return happily */
 	return TRUE;
 }
-
 
 /*
  * ############################################################################
@@ -699,7 +689,6 @@ void module_unload(void)
  * ############################################################################
  */
 
-
 /*
  * Everything DAEMON_START_MARKED are gonna do, is to set it DAEMON_WAITING_FOR_START_DEP
  */
@@ -729,7 +718,6 @@ static void handle_DAEMON_WAITING_FOR_START_DEP(active_db_h * daemon)
 {
 	assert(daemon);
 
-
 	/*
 	 * this checks depencncy.
 	 * initng_depend_start_dep_met() will return:
@@ -738,16 +726,16 @@ static void handle_DAEMON_WAITING_FOR_START_DEP(active_db_h * daemon)
 	 * FAIL (dep is failed)
 	 */
 	switch (initng_depend_start_dep_met(daemon, FALSE)) {
-		case TRUE:
-			break;
+	case TRUE:
+		break;
 
-		case FAIL:
-			initng_common_mark_service(daemon, &DAEMON_START_DEPS_FAILED);
-			return;
+	case FAIL:
+		initng_common_mark_service(daemon, &DAEMON_START_DEPS_FAILED);
+		return;
 
-		default:
-			/* return and hope that this handler will be called again. */
-			return;
+	default:
+		/* return and hope that this handler will be called again. */
+		return;
 	}
 
 	/* if system is shutting down, Don't start anything. */
@@ -798,7 +786,8 @@ static void init_DAEMON_START_DEPS_MET(active_db_h * daemon)
 		/* if the pid really exist on the system */
 		if (pid > 1 && kill(pid, 0) == 0) {
 			/* create an new process */
-			process_h *existing_process = initng_process_db_new(&T_DAEMON);
+			process_h *existing_process =
+			    initng_process_db_new(&T_DAEMON);
 
 			if (existing_process) {
 				W_("Daemon for service %s was already "
@@ -810,36 +799,32 @@ static void init_DAEMON_START_DEPS_MET(active_db_h * daemon)
 				existing_process->pid = pid;
 
 				/* add process */
-				initng_process_db_register_to_service(
-					existing_process, daemon);
+				initng_process_db_register_to_service
+				    (existing_process, daemon);
 				initng_common_mark_service(daemon,
-				                           &DAEMON_RUNNING);
+							   &DAEMON_RUNNING);
 				return;
 			}
 		}
 	}
 
-
 	/* F I N A L L Y   S T A R T */
 	switch (initng_execute_launch(daemon, &T_DAEMON, NULL)) {
-		case FALSE:
-			F_("Did not find a service->\"daemon\" entry to "
-			   "run!\n", daemon->name);
-			initng_common_mark_service(daemon,
-			                           &DAEMON_FAIL_START_LAUNCH);
-			return;
+	case FALSE:
+		F_("Did not find a service->\"daemon\" entry to run!\n",
+		   daemon->name);
+		initng_common_mark_service(daemon, &DAEMON_FAIL_START_LAUNCH);
+		return;
 
-		case FAIL:
-			F_("Service %s, could not launch "
-			   "service->\"daemon\"\n", daemon->name);
-			initng_common_mark_service(daemon,
-		        	&DAEMON_FAIL_START_NONEXIST);
-			return;
+	case FAIL:
+		F_("Service %s, could not launch service->\"daemon\"\n",
+		   daemon->name);
+		initng_common_mark_service(daemon, &DAEMON_FAIL_START_NONEXIST);
+		return;
 
-		default:
-			break;
+	default:
+		break;
 	}
-
 
 	/* if PIDFILE or PIDOF set, put daemon in WAIT_FOR_PIDFILE_STATE */
 	if (is(&PIDFILE, daemon) || is(&PIDOF, daemon)) {
@@ -889,36 +874,31 @@ static void init_DAEMON_STOP_DEPS_MET(active_db_h * service)
 		return;
 	}
 
-
 	/* launch stop service */
 	switch (initng_execute_launch(service, &T_KILL, NULL)) {
-		case FAIL:
-			F_("  --  (%s): fail launch stop!\n", service->name);
-			initng_common_mark_service(service,
-			                           &DAEMON_FAIL_STOPPING);
-			return;
+	case FAIL:
+		F_("  --  (%s): fail launch stop!\n", service->name);
+		initng_common_mark_service(service, &DAEMON_FAIL_STOPPING);
+		return;
 
-		case FALSE:
-			{
-				/* if there is no plugin that wanna kill this
-				 * daemon, we do it ourself. */
-				kill_daemon(service, SIGTERM);
-				if (!initng_common_mark_service(service,
-				                                &DAEMON_TERM))
-					return;
-				break;
-			}
-		default:
-			/* Set its state to GOING_KILLED, to mark that we put
-			 * some effort on killing it. */
-			if (!initng_common_mark_service(service,
-			                                &DAEMON_TERM))
+	case FALSE:
+		{
+			/* if there is no plugin that wanna kill this
+			 * daemon, we do it ourself. */
+			kill_daemon(service, SIGTERM);
+			if (!initng_common_mark_service(service, &DAEMON_TERM))
 				return;
 			break;
+		}
+
+	default:
+		/* Set its state to GOING_KILLED, to mark that we put
+		 * some effort on killing it. */
+		if (!initng_common_mark_service(service, &DAEMON_TERM))
+			return;
+		break;
 	}
-
 }
-
 
 /*
  * Set an alarm to 1 seconds .
@@ -944,7 +924,7 @@ static void timeout_DAEMON_WAIT_FOR_PID_FILE(active_db_h * s)
 		   "daemon now.\n", s->name);
 
 		initng_common_mark_service(s,
-			&DAEMON_FAIL_START_TIMEOUT_PIDFILE);
+					   &DAEMON_FAIL_START_TIMEOUT_PIDFILE);
 		kill_daemon(s, SIGKILL);
 
 		/* Free the process if found */
@@ -963,7 +943,6 @@ static void timeout_DAEMON_WAIT_FOR_PID_FILE(active_db_h * s)
 		initng_handler_set_alarm(s, 1);
 	}
 }
-
 
 /*
  * When a service has quit, and should respwan, it is set to this state.
@@ -992,7 +971,6 @@ static void timeout_DAEMON_WAIT_RESP_TOUT(active_db_h * service)
 	/* to make sure it will be started */
 	initng_handler_start_service(service);
 }
-
 
 /* set timeout */
 static void init_DAEMON_TERM(active_db_h * daemon)
@@ -1088,7 +1066,6 @@ static void handle_killed_daemon(active_db_h * daemon, process_h * process)
 		return;
 	}
 
-
 	/* if exit with sucess */
 	if (WEXITSTATUS(rcode) == 0) {
 		/* OK! now daemon is STOPPED! */
@@ -1120,7 +1097,6 @@ static void handle_killed_daemon(active_db_h * daemon, process_h * process)
  * #                         LOCAL FUNCTIONS                                  #
  * ############################################################################
  */
-
 
 static void kill_daemon(active_db_h * service, int sig)
 {
@@ -1186,13 +1162,13 @@ static pid_t pid_of(const char *name)
 	/* Walk through the directory. */
 	while ((d = readdir(dir)) != NULL) {
 		char buf[BUFF_SIZE + 1];	/* Will contain a fixed string
-		                                 * like "/proc/12232/stat" */
-		char *s = NULL;			/* Temporary pointer when
-		                                 * parsing the content of the
-		                                 * stat file */
-		int len = 0;			/* An length counter */
-		pid_t pid = -1;			/* Will contain the pid to
-		                                 * return */
+						 * like "/proc/12232/stat" */
+		char *s = NULL;	/* Temporary pointer when
+				 * parsing the content of the
+				 * stat file */
+		int len = 0;	/* An length counter */
+		pid_t pid = -1;	/* Will contain the pid to
+				 * return */
 
 		/* Make sure this dirname is a number == pid */
 		if ((pid = atoi(d->d_name)) <= 0)
@@ -1263,8 +1239,6 @@ static pid_t pid_of(const char *name)
 	return (-1);
 }
 
-
-
 /*
  * Check if a pidfile exists, if it exists, update the
  * pid in the active_db entry. and return TRUE
@@ -1294,7 +1268,7 @@ static pid_t pid_from_file(const char *name)
 		return -1;
 	}
 
-	for (i = 0; i < len && !isdigit(buf[i]); i++);
+	for (i = 0; i < len && !isdigit(buf[i]); i++) ;
 
 	for (; i < len && isdigit(buf[i]); i++)
 		ret = ret * 10 - '0' + buf[i];
@@ -1321,7 +1295,7 @@ static pid_t get_pidof(active_db_h * s)
 }
 
 /* this will get the pid of PIDFILE entry of service */
-static pid_t get_pidfile(active_db_h *s)
+static pid_t get_pidfile(active_db_h * s)
 {
 	pid_t pid;
 	const char *pidfile = NULL;
@@ -1350,7 +1324,7 @@ static pid_t get_pidfile(active_db_h *s)
 	return -1;
 }
 
-static void clear_pidfile(active_db_h *s)
+static void clear_pidfile(active_db_h * s)
 {
 	const char *pidfile = NULL;
 	s_data *itt = NULL;
@@ -1388,7 +1362,7 @@ static void clear_pidfile(active_db_h *s)
  * Will return TRUE if respawn is handled.
  * Else false and function can set it into stopped mode.
  */
-static int check_respawn(active_db_h *service)
+static int check_respawn(active_db_h * service)
 {
 	time_t last = 0;
 	int respawn_rate = DEFAULT_RESPAWN_RATE;
@@ -1426,14 +1400,14 @@ static int check_respawn(active_db_h *service)
 			   g.now.tv_sec - last);
 
 			initng_common_mark_service(service,
-				&DAEMON_RESPAWN_RATE_EXCEEDED);
+						   &DAEMON_RESPAWN_RATE_EXCEEDED);
 
 			return FALSE;
 		}
 	}
 
 	/* set the next INTERNAL_LAST_RESPAWN no to use. */
-	set_int(&INTERNAL_LAST_RESPAWN, service, (int) g.now.tv_sec);
+	set_int(&INTERNAL_LAST_RESPAWN, service, (int)g.now.tv_sec);
 
 	initng_common_mark_service(service, &DAEMON_WAIT_RESP_TOUT);
 	return TRUE;
@@ -1454,7 +1428,7 @@ static int try_get_pid(active_db_h * s)
 		/* get pid by process name */
 		pid = get_pidof(s);
 		D_("result : %d\n", pid);
-	/* Try get the pid from PIDFILE if set */
+		/* Try get the pid from PIDFILE if set */
 	} else if (is(&PIDFILE, s)) {
 		D_("getting pid by PIDFILE!\n");
 		pid = get_pidfile(s);
@@ -1477,8 +1451,7 @@ static int try_get_pid(active_db_h * s)
 		if (!(p = initng_process_db_get(&T_DAEMON, s))) {
 			F_("Did not find a daemon process on this "
 			   "service!\n");
-			initng_common_mark_service(s,
-			                           &DAEMON_UP_CHECK_FAILED);
+			initng_common_mark_service(s, &DAEMON_UP_CHECK_FAILED);
 			return FALSE;
 		}
 
@@ -1489,11 +1462,9 @@ static int try_get_pid(active_db_h * s)
 
 		/* check with up_check */
 		if (initng_depend_up_check(s) != TRUE) {
-			initng_common_mark_service(s,
-			                           &DAEMON_UP_CHECK_FAILED);
+			initng_common_mark_service(s, &DAEMON_UP_CHECK_FAILED);
 			return FALSE;
 		}
-
 
 		/* set the new state */
 		initng_common_mark_service(s, &DAEMON_RUNNING);

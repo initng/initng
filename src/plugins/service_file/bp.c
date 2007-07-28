@@ -57,17 +57,17 @@ char *message;
 
 typedef struct {
 	const char *name;
-	int (*function)(char *service, int argc, char **argv);
+	int (*function) (char *service, int argc, char **argv);
 } command_entry;
 
 command_entry commands[] = {
-	{ "iabort", &bp_abort },
-	{ "iregister", &bp_new_active },
-	{ "idone", &bp_done },
-	{ "iget", &bp_get_variable },
-	{ "iset", &bp_set_variable },
-	{ "iexec", &bp_add_exec },
-	{ NULL, NULL }
+	{"iabort", &bp_abort},
+	{"iregister", &bp_new_active},
+	{"idone", &bp_done},
+	{"iget", &bp_get_variable},
+	{"iset", &bp_set_variable},
+	{"iexec", &bp_add_exec},
+	{NULL, NULL}
 };
 
 int main(int argc, char **argv)
@@ -103,8 +103,7 @@ int main(int argc, char **argv)
 	for (i = 1; argv[i]; i++) {
 		/* iset -s service test */
 		if (stop_checking == FALSE && argv[i][0] == '-') {
-			if (argv[i][1] == 's' && !argv[i][2] &&
-			    argv[i + 1][0]) {
+			if (argv[i][1] == 's' && !argv[i][2] && argv[i + 1][0]) {
 				service = argv[i + 1];
 				i++;
 				continue;
@@ -130,7 +129,6 @@ int main(int argc, char **argv)
 		printf("I dont know what service you want!\n");
 		exit(1);
 	}
-
 #ifdef DEBUG_EXTRA
 	{
 		printf(" **  %-12s ** ", service);
@@ -145,7 +143,8 @@ int main(int argc, char **argv)
 		for (i = 0; commands[i].name; i++) {
 			if (strcasecmp(argv0, commands[i].name) == 0)
 				status = (*commands[i].function) (service,
-						new_argc, new_argv);
+								  new_argc,
+								  new_argv);
 			if (status != 99)
 				break;
 		}
@@ -154,7 +153,7 @@ int main(int argc, char **argv)
 	/* if still 99, print usage */
 	if (status == 99) {
 		printf("Bad command \"");
-		for(i = 0; argv[i]; i++)
+		for (i = 0; argv[i]; i++)
 			printf(" %s", argv[i]);
 		printf("\"\nAvaible commands:\n");
 		for (i = 0; commands[i].name; i++)
@@ -187,7 +186,6 @@ int bp_add_exec(char *service, int argc, char **argv)
 	memset(&to_send, 0, sizeof(bp_req));
 	to_send.request = SET_VARIABLE;
 
-
 	if (argc == 1 || (argc == 3 && argv[2][0] == '=')) {
 		if (argc != 3 || argv[3][0] != '/') {
 			/* "/etc/initng/file" */
@@ -195,17 +193,17 @@ int bp_add_exec(char *service, int argc, char **argv)
 
 			/* " internal_" */
 			strncat(to_send.u.set_variable.value, " internal_",
-			        1024 - strlen(to_send.u.set_variable.value));
+				1024 - strlen(to_send.u.set_variable.value));
 		}
 
 		if (argc == 1) {
 			/* "start" */
 			strncat(to_send.u.set_variable.value, argv[1],
-			        1024 - strlen(to_send.u.set_variable.value));
+				1024 - strlen(to_send.u.set_variable.value));
 		} else {
 			/* "dodo" */
 			strncat(to_send.u.set_variable.value, argv[3],
-					1024 - strlen(to_send.u.set_variable.value));
+				1024 - strlen(to_send.u.set_variable.value));
 		}
 	} else {
 		return FALSE;
@@ -271,7 +269,6 @@ int bp_get_variable(char *service, int argc, char **argv)
 
 	/* use service */
 	strncpy(to_send.u.get_variable.service, service, 100);
-
 
 	if (argc == 1) {
 		strncpy(to_send.u.get_variable.vartype, argv[1], 100);
@@ -359,7 +356,6 @@ int bp_set_variable(char *service, int argc, char **argv)
 	return FALSE;
 }
 
-
 int bp_new_active(char *service, int argc, char **argv)
 {
 	/* the request to send */
@@ -379,14 +375,13 @@ int bp_new_active(char *service, int argc, char **argv)
 	strncpy(to_send.u.new_active.type, argv[1], 40);
 	strncpy(to_send.u.new_active.from_file, argv[0], 100);
 
-
 	return (bp_send(&to_send));
 }
 
 /* Open, Send, Read, Close */
 int bp_send(bp_req * to_send)
 {
-	int sock = 3;				/* testing fd 3, that is the oficcial pipe to initng for this communication */
+	int sock = 3;		/* testing fd 3, that is the oficcial pipe to initng for this communication */
 	int len;
 	struct sockaddr_un sockname;
 	int e;
@@ -414,7 +409,7 @@ int bp_send(bp_req * to_send)
 		strcpy(sockname.sun_path, SOCKET_PATH);
 		len = strlen(SOCKET_PATH) + sizeof(sockname.sun_family);
 
-		if (connect(sock, (struct sockaddr *) &sockname, len) < 0) {
+		if (connect(sock, (struct sockaddr *)&sockname, len) < 0) {
 			close(sock);
 			message = strdup("Error connecting to socket");
 			return FALSE;
@@ -423,11 +418,11 @@ int bp_send(bp_req * to_send)
 
 	/* send the request */
 	e = send(sock, to_send, sizeof(bp_req), 0);
-	if (e != (signed) sizeof(bp_req)) {
+	if (e != (signed)sizeof(bp_req)) {
 		char *m = strerror(errno);
 		message = calloc(501, 1);
 		snprintf(message, 500, "Unable to send the request: "
-		         "\"%s\" (%i)\n", m, errno);
+			 "\"%s\" (%i)\n", m, errno);
 		return FALSE;
 	}
 
@@ -436,11 +431,11 @@ int bp_send(bp_req * to_send)
 
 	e = TEMP_FAILURE_RETRY(recv(sock, &rep, sizeof(bp_rep), 0));
 
-	if (e != (signed) sizeof(bp_rep)) {
+	if (e != (signed)sizeof(bp_rep)) {
 		char *m = strerror(errno);
 		message = calloc(501, 1);
 		snprintf(message, 500, "Did not get any reply: "
-		         "\"%s\" (%i)\n", m, errno);
+			 "\"%s\" (%i)\n", m, errno);
 		return FALSE;
 	}
 

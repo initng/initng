@@ -20,18 +20,17 @@
 #include <initng.h>
 
 #include <sys/time.h>
-#include <time.h>							/* time() */
-#include <fcntl.h>							/* fcntl() */
-#include <sys/un.h>							/* memmove() strcmp() */
-#include <sys/wait.h>						/* waitpid() sa */
-#include <linux/kd.h>						/* KDSIGACCEPT */
-#include <sys/ioctl.h>						/* ioctl() */
-#include <stdio.h>							/* printf() */
-#include <stdlib.h>							/* free() exit() */
-#include <sys/reboot.h>						/* reboot() RB_DISABLE_CAD */
+#include <time.h>		/* time() */
+#include <fcntl.h>		/* fcntl() */
+#include <sys/un.h>		/* memmove() strcmp() */
+#include <sys/wait.h>		/* waitpid() sa */
+#include <linux/kd.h>		/* KDSIGACCEPT */
+#include <sys/ioctl.h>		/* ioctl() */
+#include <stdio.h>		/* printf() */
+#include <stdlib.h>		/* free() exit() */
+#include <sys/reboot.h>		/* reboot() RB_DISABLE_CAD */
 #include <assert.h>
 #include <errno.h>
-
 
 /* enter a new runlevel */
 int initng_handler_stop_all(void)

@@ -20,10 +20,9 @@
 #include <initng.h>
 
 #include <stdio.h>
-#include <stdlib.h>					/* free() exit() */
+#include <stdlib.h>		/* free() exit() */
 #include <string.h>
 #include <assert.h>
-
 
 /*
  * This will check with plug-ins if dependencies for stop is met.
@@ -74,19 +73,17 @@ int initng_depend_stop_dep_met(active_db_h * service, int verbose)
 		 */
 		if (IS_STARTING(currentA) &&
 		    strstr(currentA->current_state->name,
-		           "WAITING_FOR_START_DEP"))
+			   "WAITING_FOR_START_DEP"))
 			continue;
 
 #ifdef DEBUG
 		/* else RETURN */
 		if (verbose)
 			D_("still waiting for service %s state %s\n",
-			   currentA->name,
-			   currentA->current_state->name);
+			   currentA->name, currentA->current_state->name);
 		else
 			D_("still waiting for service %s state %s\n",
-			   currentA->name,
-			   currentA->current_state->name);
+			   currentA->name, currentA->current_state->name);
 #endif
 
 		/* if its still marked as UP and not stopping, tell the
@@ -98,7 +95,6 @@ int initng_depend_stop_dep_met(active_db_h * service, int verbose)
 		service->depend_cache--;
 		return FALSE;
 	}
-
 
 	/* run the global plugin dep check */
 	{

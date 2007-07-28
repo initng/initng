@@ -21,8 +21,7 @@
 #include <assert.h>
 #include <initng.h>
 
-
-void initng_event_send(s_event *event)
+void initng_event_send(s_event * event)
 {
 	s_call *current;
 

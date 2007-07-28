@@ -29,7 +29,6 @@
 
 #include <initng.h>
 
-
 /* creates a new active_h at new_active */
 active_db_h *initng_active_db_new(const char *name)
 {
@@ -38,7 +37,8 @@ active_db_h *initng_active_db_new(const char *name)
 	assert(name);
 
 	/* allocate a new active entry */
-	new_active = (active_db_h *) initng_toolbox_calloc(1, sizeof(active_db_h));
+	new_active =
+	    (active_db_h *) initng_toolbox_calloc(1, sizeof(active_db_h));
 	if (!new_active) {
 		F_("Unable to allocate active, out of memory?\n");
 		return (NULL);

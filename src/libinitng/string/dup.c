@@ -29,7 +29,6 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
-
 /*
  * Senses what in the string, that is a word, (can be a
  * line with "this is one word", it will i_strdup it, and

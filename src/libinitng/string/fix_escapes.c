@@ -29,8 +29,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
-
-void initng_string_fix_escapes(char * str)
+void initng_string_fix_escapes(char *str)
 {
 	int s, d;
 
@@ -45,37 +44,37 @@ void initng_string_fix_escapes(char * str)
 		}
 
 		s++;
-		switch(str[s]) {
-			case 'a':
-				str[d] = '\a';
-				break;
+		switch (str[s]) {
+		case 'a':
+			str[d] = '\a';
+			break;
 
-			case 'b':
-				str[d] = '\b';
-				break;
+		case 'b':
+			str[d] = '\b';
+			break;
 
-			case 'f':
-				str[d] = '\f';
-				break;
+		case 'f':
+			str[d] = '\f';
+			break;
 
-			case 'n':
-				str[d] = '\n';
-				break;
+		case 'n':
+			str[d] = '\n';
+			break;
 
-			case 'r':
-				str[d] = '\r';
-				break;
+		case 'r':
+			str[d] = '\r';
+			break;
 
-			case 't':
-				str[d] = '\t';
-				break;
+		case 't':
+			str[d] = '\t';
+			break;
 
-			case 'v':
-				str[d] = '\v';
-				break;
+		case 'v':
+			str[d] = '\v';
+			break;
 
-			default:
-				str[d] = str[s];
+		default:
+			str[d] = str[s];
 		}
 	}
 

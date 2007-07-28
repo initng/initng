@@ -20,7 +20,7 @@
 #include <initng.h>
 
 #include <stdio.h>
-#include <stdlib.h>					/* free() exit() */
+#include <stdlib.h>		/* free() exit() */
 #include <string.h>
 #include <unistd.h>
 #include <assert.h>
@@ -56,7 +56,7 @@ s_command FAST_RELOAD = {
 	.com_type = VOID_COMMAND,
 	.opt_visible = STANDARD_COMMAND,
 	.opt_type = NO_OPT,
-	.u = { (void *) &cmd_fast_reload },
+	.u = {(void *)&cmd_fast_reload},
 	.description = "Fast Reload"
 };
 
@@ -80,7 +80,7 @@ static int fd_used_by_service(int fd)
 					   service->name);
 					return TRUE;
 				} else if (current_pipe->dir == IN_PIPE &&
-				           current_pipe->pipe[1] == fd) {
+					   current_pipe->pipe[1] == fd) {
 					W_("Wont close input_pipe fd %i, "
 					   "used by service \"%s\"\n", fd,
 					   service->name);
@@ -96,7 +96,7 @@ static int fd_used_by_service(int fd)
 
 static void cmd_fast_reload(char *arg)
 {
-	(void) arg;
+	(void)arg;
 	int retval;
 	char *new_argv[4];
 
@@ -104,8 +104,8 @@ static void cmd_fast_reload(char *arg)
 
 	if (retval == TRUE) {
 		D_("exec()ing initng\n");
-		new_argv[0] = (char *) "/sbin/initng";
-		new_argv[1] = (char *) "--hot_reload";
+		new_argv[0] = (char *)"/sbin/initng";
+		new_argv[1] = (char *)"--hot_reload";
 		new_argv[2] = NULL;
 
 		execve(new_argv[0], new_argv, environ);
@@ -117,7 +117,6 @@ static void cmd_fast_reload(char *arg)
 			F_("dump_state failed!\n");
 	}
 }
-
 
 /* FIXME - not all errors are detected, in some cases success could be
    reported incorrectly */
@@ -152,7 +151,8 @@ static int read_file(const char *filename)
 		}
 
 		/* set current_state */
-		new_entry->current_state = initng_active_state_find(entry.state);
+		new_entry->current_state =
+		    initng_active_state_find(entry.state);
 		if (!new_entry->current_state) {
 			F_("Could not find a proper state to set: %s.\n",
 			   entry.state);
@@ -184,7 +184,7 @@ static int read_file(const char *filename)
 
 				while_ptypes(pt) {
 					if (strcmp(entry.process[pnr].ptype,
-					           pt->name) == 0)
+						   pt->name) == 0)
 						break;
 				}
 
@@ -210,20 +210,28 @@ static int read_file(const char *filename)
 				       p < MAX_PIPES) {
 					int i;
 					pipe_h *op = initng_toolbox_calloc(1,
-						sizeof(pipe_h));
+									   sizeof
+									   (pipe_h));
 
 					if (!op) {
 						free(process);
 						continue;
 					}
 
-					op->pipe[0] = entry.process[pnr].pipes[p].pipe[0];
-					op->pipe[1] = entry.process[pnr].pipes[p].pipe[1];
-					op->dir = entry.process[pnr].pipes[p].dir;
-					for (i = 0; i < MAX_TARGETS &&
-					     i < MAX_PIPE_TARGETS &&
-					     entry.process[pnr].pipes[p].targets[i] > 0; i++) {
-						op->targets[i] = entry.process[pnr].pipes[p].targets[i];
+					op->pipe[0] =
+					    entry.process[pnr].pipes[p].pipe[0];
+					op->pipe[1] =
+					    entry.process[pnr].pipes[p].pipe[1];
+					op->dir =
+					    entry.process[pnr].pipes[p].dir;
+					for (i = 0;
+					     i < MAX_TARGETS
+					     && i < MAX_PIPE_TARGETS
+					     && entry.process[pnr].pipes[p].
+					     targets[i] > 0; i++) {
+						op->targets[i] =
+						    entry.process[pnr].pipes[p].
+						    targets[i];
 					}
 
 					add_pipe(op, process);
@@ -233,7 +241,7 @@ static int read_file(const char *filename)
 
 				/* add this process to the list */
 				list_add(&process->list,
-				         &new_entry->processes.list);
+					 &new_entry->processes.list);
 
 				D_("Added process type %i to %s\n",
 				   process->pt, new_entry->name);
@@ -247,10 +255,12 @@ static int read_file(const char *filename)
 
 			while (entry.data[i].opt_type) {
 				d = (s_data *) initng_toolbox_calloc(1,
-					sizeof(s_data));
+								     sizeof
+								     (s_data));
 
-				d->type = initng_service_data_type_find(
-					entry.data[i].type);
+				d->type =
+				    initng_service_data_type_find(entry.data[i].
+								  type);
 
 				if (!d->type) {
 					F_("Did not found %s!\n",
@@ -262,28 +272,31 @@ static int read_file(const char *filename)
 
 				/* copy data */
 				switch (d->type->type) {
-					case STRING:
-					case STRINGS:
-					case VARIABLE_STRING:
-					case VARIABLE_STRINGS:
-						d->t.s = initng_toolbox_strdup(
-							entry.data[i].t.s);
-						break;
-					case INT:
-					case VARIABLE_INT:
-						d->t.i = entry.data[i].t.i;
-						break;
-					default:
-						break;
+				case STRING:
+				case STRINGS:
+				case VARIABLE_STRING:
+				case VARIABLE_STRINGS:
+					d->t.s =
+					    initng_toolbox_strdup(entry.data[i].
+								  t.s);
+					break;
+
+				case INT:
+				case VARIABLE_INT:
+					d->t.i = entry.data[i].t.i;
+					break;
+
+				default:
+					break;
 				}
 
 				/* copy variable name if present */
 				if (d->type->type > 50)
-					d->vn = initng_toolbox_strdup(
-						entry.data[i].vn);
+					d->vn =
+					    initng_toolbox_strdup(entry.data[i].
+								  vn);
 
-				list_add(&d->list,
-				         &new_entry->data.head.list);
+				list_add(&d->list, &new_entry->data.head.list);
 				i++;
 			}
 		}
@@ -306,7 +319,7 @@ static int read_file(const char *filename)
 	fclose(fil);
 	if (unlink(filename) != 0) {
 		W_("Failed removing file %s !!!\n", filename);
-		return success;				/* not important */
+		return success;	/* not important */
 	}
 
 	return success;
@@ -343,8 +356,8 @@ static int read_file_v13(const char *filename)
 		}
 
 		/* set current_state */
-		new_entry->current_state = initng_active_state_find(
-			entry.state);
+		new_entry->current_state =
+		    initng_active_state_find(entry.state);
 		if (!new_entry->current_state) {
 			F_("Could not find a proper state to set: %s.\n",
 			   entry.state);
@@ -372,17 +385,17 @@ static int read_file_v13(const char *filename)
 			       pnr < MAX_PROCESSES) {
 				process_h *process = NULL;
 				ptype_h *pt = NULL;
-				int p = 0;		/* used to count pipes */
+				int p = 0;	/* used to count pipes */
 
 				while_ptypes(pt) {
 					if (strcmp(entry.process[pnr].ptype,
-					           pt->name) == 0)
+						   pt->name) == 0)
 						break;
 				}
 
 				/* check so it was found */
 				if (strcmp(entry.process[pnr].ptype,
-				           pt->name) != 0) {
+					   pt->name) != 0) {
 					F_("Unknown process type %s\n",
 					   entry.process[pnr].ptype);
 					pnr++;
@@ -400,15 +413,18 @@ static int read_file_v13(const char *filename)
 				/* for every pipe */
 				{
 					pipe_h *op = initng_toolbox_calloc(1,
-						sizeof(pipe_h));
+									   sizeof
+									   (pipe_h));
 
 					if (!op) {
 						free(process);
 						continue;
 					}
 
-					op->pipe[0] = entry.process[pnr].stdout1;
-					op->pipe[1] = entry.process[pnr].stdout2;
+					op->pipe[0] =
+					    entry.process[pnr].stdout1;
+					op->pipe[1] =
+					    entry.process[pnr].stdout2;
 					op->dir = BUFFERED_OUT_PIPE;
 					op->targets[0] = 1;
 					op->targets[1] = 2;
@@ -419,7 +435,7 @@ static int read_file_v13(const char *filename)
 
 				/* add this process to the list */
 				list_add(&process->list,
-				         &new_entry->processes.list);
+					 &new_entry->processes.list);
 
 				D_("Added process type %i to %s\n",
 				   process->pt, new_entry->name);
@@ -433,9 +449,11 @@ static int read_file_v13(const char *filename)
 
 			while (entry.data[i].opt_type) {
 				d = (s_data *) initng_toolbox_calloc(1,
-					sizeof(s_data));
-				d->type = initng_service_data_type_find(
-					entry.data[i].type);
+								     sizeof
+								     (s_data));
+				d->type =
+				    initng_service_data_type_find(entry.data[i].
+								  type);
 				if (!d->type) {
 					F_("Did not found %s!\n",
 					   entry.data[i].type);
@@ -446,19 +464,22 @@ static int read_file_v13(const char *filename)
 
 				/* copy data */
 				switch (d->type->type) {
-					case STRING:
-					case STRINGS:
-					case VARIABLE_STRING:
-					case VARIABLE_STRINGS:
-						d->t.s = initng_toolbox_strdup(
-							entry.data[i].t.s);
-						break;
-					case INT:
-					case VARIABLE_INT:
-						d->t.i = entry.data[i].t.i;
-						break;
-					default:
-						break;
+				case STRING:
+				case STRINGS:
+				case VARIABLE_STRING:
+				case VARIABLE_STRINGS:
+					d->t.s =
+					    initng_toolbox_strdup(entry.data[i].
+								  t.s);
+					break;
+
+				case INT:
+				case VARIABLE_INT:
+					d->t.i = entry.data[i].t.i;
+					break;
+
+				default:
+					break;
 				}
 
 				d->vn = NULL;
@@ -486,12 +507,11 @@ static int read_file_v13(const char *filename)
 	fclose(fil);
 	if (unlink(filename) != 0) {
 		W_("Failed removing file %s !!!\n", filename);
-		return success;				/* not important */
+		return success;	/* not important */
 	}
 
 	return success;
 }
-
 
 static int write_file(const char *filename)
 {
@@ -527,13 +547,12 @@ static int write_file(const char *filename)
 		}
 
 		memset(&entry, 0, sizeof entry);
-		strncpy(entry.name, current->name,
-		        MAX_SERVICE_NAME_STRING_LEN);
+		strncpy(entry.name, current->name, MAX_SERVICE_NAME_STRING_LEN);
 		strncpy(entry.state, current->current_state->name,
-		        MAX_SERVICE_STATE_LEN);
+			MAX_SERVICE_STATE_LEN);
 		if (current->type)
 			strncpy(entry.type, current->type->name,
-			        MAX_TYPE_STRING_LEN);
+				MAX_TYPE_STRING_LEN);
 
 		memcpy(&entry.time_current_state,
 		       &current->time_current_state, sizeof(struct timeval));
@@ -545,22 +564,22 @@ static int write_file(const char *filename)
 			int p = 0;
 
 			strncpy(entry.process[pnr].ptype, process->pt->name,
-			        MAX_PTYPE_STRING_LEN);
+				MAX_PTYPE_STRING_LEN);
 			entry.process[pnr].pid = process->pid;
 
 			current_pipe = NULL;
 			while_pipes(current_pipe, process) {
 				entry.process[pnr].pipes[p].pipe[0] =
-					current_pipe->pipe[0];
+				    current_pipe->pipe[0];
 				entry.process[pnr].pipes[p].pipe[1] =
-					current_pipe->pipe[1];
+				    current_pipe->pipe[1];
 				entry.process[pnr].pipes[p].dir =
-					current_pipe->dir;
+				    current_pipe->dir;
 				for (i = 0; i < MAX_TARGETS &&
 				     i < MAX_PIPE_TARGETS &&
 				     current_pipe->targets[i] > 0; i++) {
 					entry.process[pnr].pipes[p].targets[i]
-					= current_pipe->targets[i];
+					    = current_pipe->targets[i];
 				}
 				p++;
 			}
@@ -589,31 +608,31 @@ static int write_file(const char *filename)
 
 			entry.data[i].opt_type = c_d->type->type;
 			strncpy(entry.data[i].type, c_d->type->name,
-			        MAX_TYPE_STRING_LEN);
+				MAX_TYPE_STRING_LEN);
 
 			/* copy the data */
 			switch (c_d->type->type) {
-				case STRING:
-				case STRINGS:
-				case VARIABLE_STRING:
-				case VARIABLE_STRINGS:
-					strncpy(entry.data[i].t.s, c_d->t.s,
-					        MAX_DATA_STRING_LEN);
-					break;
+			case STRING:
+			case STRINGS:
+			case VARIABLE_STRING:
+			case VARIABLE_STRINGS:
+				strncpy(entry.data[i].t.s, c_d->t.s,
+					MAX_DATA_STRING_LEN);
+				break;
 
-				case INT:
-				case VARIABLE_INT:
-					entry.data[i].t.i = c_d->t.i;
-					break;
+			case INT:
+			case VARIABLE_INT:
+				entry.data[i].t.i = c_d->t.i;
+				break;
 
-				default:
-					break;
+			default:
+				break;
 			}
 
 			/* if they have variable names */
 			if (c_d->type->type > 50)
 				strncpy(entry.data[i].vn, c_d->vn,
-				        MAX_DATA_VN_LEN);
+					MAX_DATA_VN_LEN);
 
 			/* save in next data entry row */
 			i++;
@@ -703,7 +722,7 @@ static void reload_state(s_event * event)
 /* Save a reload file for backup if initng segfaults */
 static void save_backup(s_event * event)
 {
-	h_sys_state * state;
+	h_sys_state *state;
 
 	assert(event->event_type == &EVENT_SYSTEM_CHANGE);
 	assert(event->data);

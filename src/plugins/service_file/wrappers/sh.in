@@ -4,7 +4,7 @@ export PATH="@LIB_INSTALL_DIR@/ibin:$PATH"
 if [ "$1" = "setup" ]; then
 	iregister service || exit
 	iset need = system/bootmisc
-	iset syncron = compat
+	iset syncron = legacy
 	iexec start
 	iexec stop
 	idone

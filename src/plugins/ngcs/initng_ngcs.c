@@ -42,20 +42,20 @@
 
 INITNG_PLUGIN_MACRO;
 
-static void accepted_client(f_module_h *from, e_fdw what);
+static void accepted_client(f_module_h * from, e_fdw what);
 static void closesock(void);
 
 /* static int sendping(void); */
 static int open_socket(void);
 static void check_socket(void);
-static void data_ready(f_module_h *from, e_fdw what);
+static void data_ready(f_module_h * from, e_fdw what);
 void register_ngcs_cmds(void);
 void unregister_ngcs_cmds(void);
 static void clean_dead_conns(void);
-static void handle_chan0(ngcs_chan *chan, int type, int len, char *data);
-static void handle_close(ngcs_conn *conn);
-static void ngcs_cmd_compat(ngcs_request *req);
-static void pollmode_hook(ngcs_conn *conn, int have_pending_writes);
+static void handle_chan0(ngcs_chan * chan, int type, int len, char *data);
+static void handle_close(ngcs_conn * conn);
+static void ngcs_cmd_compat(ngcs_request * req);
+static void pollmode_hook(ngcs_conn * conn, int have_pending_writes);
 
 const char *module_needs[] = {
 	"stcmd",
@@ -79,7 +79,6 @@ ngcs_cmd ngcs_compat_cmds = {
    programs should not rely on this feature for security.
  */
 
-
 /* globals */
 struct stat sock_stat;
 const char *socket_filename;
@@ -93,7 +92,7 @@ f_module_h fdh = {
 	.fds = -1
 };
 
-static void fdh_handler(s_event *event)
+static void fdh_handler(s_event * event)
 {
 	s_event_fd_watcher_data *data;
 
@@ -103,49 +102,48 @@ static void fdh_handler(s_event *event)
 	data = event->data;
 
 	switch (data->action) {
-		case FDW_ACTION_CLOSE:
-			if (fdh.fds > 0)
-				close(fdh.fds);
+	case FDW_ACTION_CLOSE:
+		if (fdh.fds > 0)
+			close(fdh.fds);
+		break;
+
+	case FDW_ACTION_CHECK:
+		if (fdh.fds <= 2)
 			break;
 
-		case FDW_ACTION_CHECK:
-			if (fdh.fds <= 2)
-				break;
+		/* This is a expensive test, but better safe then sorry */
+		if (!STILL_OPEN(fdh.fds)) {
+			D_("%i is not open anymore.\n", fdh.fds);
+			fdh.fds = -1;
+			break;
+		}
 
-			/* This is a expensive test, but better safe then
-			 * sorry */
-			if (!STILL_OPEN(fdh.fds)) {
-				D_("%i is not open anymore.\n", fdh.fds);
-				fdh.fds = -1;
-				break;
-			}
+		FD_SET(fdh.fds, data->readset);
+		data->added++;
+		break;
 
-			FD_SET(fdh.fds, data->readset);
-			data->added++;
+	case FDW_ACTION_CALL:
+		if (!data->added || fdh.fds <= 2)
 			break;
 
-		case FDW_ACTION_CALL:
-			if (!data->added || fdh.fds <= 2)
-				break;
-
-			if(!FD_ISSET(fdh.fds, data->readset))
-				break;
-
-			accepted_client(&fdh, FDW_READ);
-			data->added--;
+		if (!FD_ISSET(fdh.fds, data->readset))
 			break;
 
-		case FDW_ACTION_DEBUG:
-			if (!data->debug_find_what ||
-			    strstr(__FILE__, data->debug_find_what)) {
-				mprintf(data->debug_out, " %i: Used by plugin: %s\n",
-					fdh.fds, __FILE__);
-			}
-			break;
+		accepted_client(&fdh, FDW_READ);
+		data->added--;
+		break;
+
+	case FDW_ACTION_DEBUG:
+		if (!data->debug_find_what ||
+		    strstr(__FILE__, data->debug_find_what)) {
+			mprintf(data->debug_out, " %i: Used by plugin: %s\n",
+				fdh.fds, __FILE__);
+		}
+		break;
 	}
 }
 
-static void conn_fdw_handler(s_event *event)
+static void conn_fdw_handler(s_event * event)
 {
 	s_event_fd_watcher_data *data;
 	ngcs_svr_conn *current = NULL;
@@ -157,51 +155,50 @@ static void conn_fdw_handler(s_event *event)
 
 	list_for_each_entry(current, &ngcs_conns.list, list) {
 		switch (data->action) {
-			case FDW_ACTION_CLOSE:
-				if (current->fdw.fds > 0)
-					close(current->fdw.fds);
+		case FDW_ACTION_CLOSE:
+			if (current->fdw.fds > 0)
+				close(current->fdw.fds);
+			break;
+
+		case FDW_ACTION_CHECK:
+			if (current->fdw.fds <= 2)
 				break;
 
-			case FDW_ACTION_CHECK:
-				if (current->fdw.fds <= 2)
-					break;
+			/* This is a expensive test, but better safe
+			 * then sorry */
+			if (!STILL_OPEN(current->fdw.fds)) {
+				D_("%i is not open anymore.\n",
+				   current->fdw.fds);
+				current->fdw.fds = -1;
+				break;
+			}
 
-				/* This is a expensive test, but better safe
-				 * then sorry */
-				if (!STILL_OPEN(current->fdw.fds)) {
-					D_("%i is not open anymore.\n",
-					   current->fdw.fds);
-					current->fdw.fds = -1;
-					break;
-				}
+			FD_SET(current->fdw.fds, data->readset);
+			data->added++;
+			break;
 
-				FD_SET(current->fdw.fds, data->readset);
-				data->added++;
+		case FDW_ACTION_CALL:
+			if (!data->added || current->fdw.fds <= 2)
 				break;
 
-			case FDW_ACTION_CALL:
-				if (!data->added || current->fdw.fds <= 2)
-					break;
-
-				if(!FD_ISSET(current->fdw.fds, data->readset))
-					break;
-
-				current->fdw.call_module(&current->fdw, FDW_READ);
-				data->added--;
+			if (!FD_ISSET(current->fdw.fds, data->readset))
 				break;
 
-			case FDW_ACTION_DEBUG:
-				if (!data->debug_find_what ||
-				    strstr(__FILE__, data->debug_find_what)) {
-					mprintf(data->debug_out,
-						" %i: Used by plugin: %s\n",
-						current->fdw.fds, __FILE__);
-				}
-				break;
+			current->fdw.call_module(&current->fdw, FDW_READ);
+			data->added--;
+			break;
+
+		case FDW_ACTION_DEBUG:
+			if (!data->debug_find_what ||
+			    strstr(__FILE__, data->debug_find_what)) {
+				mprintf(data->debug_out,
+					" %i: Used by plugin: %s\n",
+					current->fdw.fds, __FILE__);
+			}
+			break;
 		}
 	}
 }
-
 
 static void closesock(void)
 {
@@ -216,7 +213,7 @@ static void closesock(void)
 }
 
 /* called by fd hook, when data is no socket */
-void accepted_client(f_module_h *from, e_fdw what)
+void accepted_client(f_module_h * from, e_fdw what)
 {
 	int newsock;
 	ngcs_svr_conn *conn;
@@ -251,9 +248,8 @@ void accepted_client(f_module_h *from, e_fdw what)
 
 		D_("read socket open, now setting options\n");
 		conn = (ngcs_svr_conn *)
-			initng_toolbox_calloc(1, sizeof(ngcs_svr_conn));
-		if (conn == NULL)
-		{
+		    initng_toolbox_calloc(1, sizeof(ngcs_svr_conn));
+		if (conn == NULL) {
 			F_("Couldn't allocate ngcs_svr_conn!");
 			close(newsock);
 			return;
@@ -300,7 +296,7 @@ void accepted_client(f_module_h *from, e_fdw what)
 	return;
 }
 
-static void handle_close(ngcs_conn *conn)
+static void handle_close(ngcs_conn * conn)
 {
 	ngcs_svr_conn *sconn = (ngcs_svr_conn *) conn->userdata;
 
@@ -308,7 +304,7 @@ static void handle_close(ngcs_conn *conn)
 	list_move(&sconn->list, &ngcs_dead_conns.list);
 }
 
-static void data_ready(f_module_h *from, e_fdw what)
+static void data_ready(f_module_h * from, e_fdw what)
 {
 	ngcs_svr_conn *conn = (ngcs_svr_conn *) from;
 
@@ -321,14 +317,14 @@ static void data_ready(f_module_h *from, e_fdw what)
 	clean_dead_conns();
 }
 
-static void pollmode_hook(ngcs_conn *conn, int have_pending_writes)
+static void pollmode_hook(ngcs_conn * conn, int have_pending_writes)
 {
 	ngcs_svr_conn *sconn = (ngcs_svr_conn *) conn->userdata;
 
 	sconn->fdw.what = FDW_READ | (have_pending_writes ? FDW_WRITE : 0);
 }
 
-static void handle_chan0(ngcs_chan *chan, int type, int len, char *data)
+static void handle_chan0(ngcs_chan * chan, int type, int len, char *data)
 {
 	ngcs_request req;
 	ngcs_cmd *cmd;
@@ -353,7 +349,6 @@ static void handle_chan0(ngcs_chan *chan, int type, int len, char *data)
 		return;
 	}
 
-
 	if (req.argc <= 0 || req.argv[0].type != NGCS_TYPE_STRING) {
 		F_("Bad unpacked message\n");
 		if (req.argc >= 0)
@@ -363,7 +358,7 @@ static void handle_chan0(ngcs_chan *chan, int type, int len, char *data)
 	}
 
 	req.chan = chan;
-	req.conn = chan->conn;			/* backwards compatibility */
+	req.conn = chan->conn;	/* backwards compatibility */
 	req.sent_resp_flag = 0;
 
 	/* run the associated command */
@@ -399,15 +394,14 @@ static void handle_chan0(ngcs_chan *chan, int type, int len, char *data)
 	return;
 }
 
-static void ngcs_cmd_compat(ngcs_request *req)
+static void ngcs_cmd_compat(ngcs_request * req)
 {
 	s_command *cur, *cmd = NULL;
 	int ret;
 	char *arg;
 	char *sret;
 
-	if (req->argv[0].type != NGCS_TYPE_STRING ||
-	    req->argv[0].d.s[0] != '-') {
+	if (req->argv[0].type != NGCS_TYPE_STRING || req->argv[0].d.s[0] != '-') {
 		return;
 	}
 
@@ -454,43 +448,40 @@ static void ngcs_cmd_compat(ngcs_request *req)
 	arg = req->argc > 1 ? req->argv[1].d.s : NULL;
 
 	switch (cmd->com_type) {
-		case TRUE_OR_FALSE_COMMAND:
-		case INT_COMMAND:
-			assert(cmd->u.int_command_call);
+	case TRUE_OR_FALSE_COMMAND:
+	case INT_COMMAND:
+		assert(cmd->u.int_command_call);
 
-			ret = cmd->u.int_command_call(arg);
-			ngcs_send_response(req, (cmd->com_type == INT_COMMAND ?
-					NGCS_TYPE_INT : NGCS_TYPE_BOOL),
-					 sizeof(int), (char *) &ret);
-			break;
+		ret = cmd->u.int_command_call(arg);
+		ngcs_send_response(req, (cmd->com_type == INT_COMMAND ?
+					 NGCS_TYPE_INT : NGCS_TYPE_BOOL),
+				   sizeof(int), (char *)&ret);
+		break;
 
-		case VOID_COMMAND:
-			assert(cmd->u.void_command_call);
-			cmd->u.void_command_call(arg);
+	case VOID_COMMAND:
+		assert(cmd->u.void_command_call);
+		cmd->u.void_command_call(arg);
+		ngcs_send_response(req, NGCS_TYPE_NULL, 0, NULL);
+		break;
+
+	case STRING_COMMAND:
+		assert(cmd->u.string_command_call);
+		sret = cmd->u.string_command_call(arg);
+		if (sret) {
+			ngcs_send_response(req, NGCS_TYPE_STRING,
+					   strlen(sret), sret);
+		} else {
 			ngcs_send_response(req, NGCS_TYPE_NULL, 0, NULL);
-			break;
+		}
+		break;
 
-		case STRING_COMMAND:
-			assert(cmd->u.string_command_call);
-			sret = cmd->u.string_command_call(arg);
-			if (sret)
-				ngcs_send_response(req, NGCS_TYPE_STRING,
-						   strlen(sret), sret);
-			else
-				ngcs_send_response(req, NGCS_TYPE_NULL, 0,
-						   NULL);
-			break;
+		/* case DATA_COMMAND: - TODO */
 
-			/* case DATA_COMMAND: - TODO */
-
-		default:
-			F_("Unknown s_command command type\n");
-			ngcs_send_response(req, NGCS_TYPE_ERROR, 12,
-					   "INTERNAL_ERROR");
-			return;
-
+	default:
+		F_("Unknown s_command command type\n");
+		ngcs_send_response(req, NGCS_TYPE_ERROR, 12, "INTERNAL_ERROR");
+		return;
 	}
-
 }
 
 static void clean_dead_conns(void)
@@ -515,13 +506,13 @@ ngcs_chan *ngcs_open_channel(ngcs_conn * conn,
 			     chanfree);
 }
 
-void ngcs_close_channel(ngcs_chan *chan)
+void ngcs_close_channel(ngcs_chan * chan)
 {
 	ngcs_chan_send(chan, NGCS_TYPE_NULL, -1, NULL);
 	ngcs_chan_del(chan);
 }
 
-int ngcs_send_response(ngcs_request *req, int type, int len, const char *data)
+int ngcs_send_response(ngcs_request * req, int type, int len, const char *data)
 {
 	assert(req);
 
@@ -532,14 +523,14 @@ int ngcs_send_response(ngcs_request *req, int type, int len, const char *data)
 	return ngcs_chan_send(req->chan, type, len, data);
 }
 
-void ngcs_reg_cmd(ngcs_cmd *cmd)
+void ngcs_reg_cmd(ngcs_cmd * cmd)
 {
 	cmd->list.prev = 0;
 	cmd->list.next = 0;
 	list_add(&cmd->list, &ngcs_cmds.list);
 }
 
-void ngcs_unreg_cmd(ngcs_cmd *cmd)
+void ngcs_unreg_cmd(ngcs_cmd * cmd)
 {
 	assert(cmd);
 	assert(cmd->list.prev);
@@ -557,7 +548,6 @@ static int sendping()
 
 	D_("Sending ping\n");
 
-
 	/* Create the socket. */
 	client = socket(PF_UNIX, SOCK_STREAM, 0);
 	if (client < 0) {
@@ -573,8 +563,9 @@ static int sendping()
 	strcpy(sockname.sun_path, socket_filename);
 
 	/* Try to connect */
-	if (connect(client, (struct sockaddr *) &sockname,
-	    (strlen(sockname.sun_path) + sizeof(sockname.sun_family))) < 0) {
+	if (connect(client, (struct sockaddr *)&sockname,
+		    (strlen(sockname.sun_path) + sizeof(sockname.sun_family))) <
+	    0) {
 		close(client);
 		return FALSE;
 	}
@@ -654,7 +645,7 @@ static int open_socket()
 	unlink(serv_sockname.sun_path);
 
 	/* Try to bind */
-	if (bind(fdh.fds, (struct sockaddr *) &serv_sockname,
+	if (bind(fdh.fds, (struct sockaddr *)&serv_sockname,
 		 (strlen(serv_sockname.sun_path) +
 		  sizeof(serv_sockname.sun_family))) < 0) {
 
@@ -689,7 +680,7 @@ static int open_socket()
 	/*    if (!sendping())
 	   {
 	   F_("Sendping check failed, ngcs communication not available "
-	      "(if you see this open a bug)\n");
+	   "(if you see this open a bug)\n");
 	   closesock();
 	   return (FALSE);
 	   } */
@@ -733,7 +724,7 @@ static void check_socket()
 
 /* this function, will make a check for socket, on every new service that
  * goes up */
-void service_status(s_event *event)
+void service_status(s_event * event)
 {
 	active_db_h *service;
 

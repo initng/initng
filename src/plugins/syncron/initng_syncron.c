@@ -21,10 +21,9 @@
 #include <initng.h>
 
 #include <stdio.h>
-#include <string.h>					/* strstr() */
-#include <stdlib.h>					/* free() exit() */
+#include <string.h>		/* strstr() */
+#include <stdlib.h>		/* free() exit() */
 #include <assert.h>
-
 
 INITNG_PLUGIN_MACRO;
 
@@ -36,7 +35,7 @@ const char *module_needs[] = {
 s_entry SYNCRON = {
 	.name = "syncron",
 	.description = "All services with this same syncron string, "
-	               "can't be started asynchronous.",
+	    "can't be started asynchronous.",
 	.type = STRING,
 	.ot = NULL,
 };
@@ -55,7 +54,6 @@ static int resolv_SSR(void)
 
 	return TRUE;
 }
-
 
 /* Make sure if service syncron=module_loading, only one of the services with
  * module_loading runs at once */
@@ -90,7 +88,7 @@ static void check_syncronicly_service(s_event * event)
 			current_syncron = get_string(&SYNCRON, current);
 			if (current_syncron != NULL) {
 				if (strcmp(service_syncron,
-				           current_syncron) == 0) {
+					   current_syncron) == 0) {
 					D_("Service %s has to wait for %s\n",
 					   service->name, current->name);
 					/* refuse to change status */
@@ -105,7 +103,7 @@ static void check_syncronicly_service(s_event * event)
 /* Make sure there is only one service starting */
 static void check_syncronicly(s_event * event)
 {
-	active_db_h * service;
+	active_db_h *service;
 	active_db_h *current, *q = NULL;
 
 	assert(event->event_type == &EVENT_START_DEP_MET);
@@ -149,7 +147,7 @@ int module_init(int api_version)
 		if (strstr(g.Argv[i], "synchronously")) {
 			check = TRUE;
 			initng_event_hook_register(&EVENT_START_DEP_MET,
-			                           &check_syncronicly);
+						   &check_syncronicly);
 
 			return TRUE;
 		}
@@ -159,8 +157,7 @@ int module_init(int api_version)
 	/* Notice this is only added if we don't have --synchronously */
 	D_("Adding synchron\n");
 	initng_event_hook_register(&EVENT_START_DEP_MET,
-	                           &check_syncronicly_service);
-
+				   &check_syncronicly_service);
 
 	return TRUE;
 }
@@ -169,10 +166,10 @@ void module_unload(void)
 {
 	if (check == TRUE) {
 		initng_event_hook_unregister(&EVENT_START_DEP_MET,
-		                             &check_syncronicly);
+					     &check_syncronicly);
 	}
 
 	initng_event_hook_unregister(&EVENT_START_DEP_MET,
-	                             &check_syncronicly_service);
+				     &check_syncronicly_service);
 	initng_service_data_type_unregister(&SYNCRON);
 }

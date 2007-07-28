@@ -20,10 +20,9 @@
 #include <initng.h>
 
 #include <stdio.h>
-#include <stdlib.h>					/* free() exit() */
+#include <stdlib.h>		/* free() exit() */
 #include <string.h>
 #include <assert.h>
-
 
 /* check if any service in list, that is starting, running, or stopping
  * is depending on service

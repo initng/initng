@@ -29,15 +29,13 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-
 static void bailout(int *, char **buffer);
-
 
 int initng_io_open_read_close(const char *filename, char **buffer)
 {
-	int conf_file;			/* File descriptor for config file */
+	int conf_file;		/* File descriptor for config file */
 	struct stat stat_buf;
-	int res;			/* Result of read */
+	int res;		/* Result of read */
 
 	/* Mark *buffer and conf_file as not set, for cleanup if bailing
 	 * out... */
@@ -45,7 +43,7 @@ int initng_io_open_read_close(const char *filename, char **buffer)
 	*buffer = NULL;
 	conf_file = -1;
 
-	conf_file = open(filename, O_RDONLY); /* Open config file. */
+	conf_file = open(filename, O_RDONLY);	/* Open config file. */
 
 	if (conf_file == -1) {
 		D_("open_read_close(%s) error %d opening file; %s\n",
@@ -65,7 +63,7 @@ int initng_io_open_read_close(const char *filename, char **buffer)
 
 	/* Allocate a file buffer */
 
-	*buffer = (char *) initng_toolbox_calloc((stat_buf.st_size + 1), 1);
+	*buffer = (char *)initng_toolbox_calloc((stat_buf.st_size + 1), 1);
 
 	/* Read whole file */
 
@@ -81,7 +79,7 @@ int initng_io_open_read_close(const char *filename, char **buffer)
 
 	if (res != stat_buf.st_size) {
 		F_("open_read_close(%s): read %d instead of %d bytes\n",
-		   filename, (int) res, (int) stat_buf.st_size);
+		   filename, (int)res, (int)stat_buf.st_size);
 
 		bailout(&conf_file, buffer);
 		return FALSE;
@@ -96,7 +94,7 @@ int initng_io_open_read_close(const char *filename, char **buffer)
 		return FALSE;
 	}
 
-	(*buffer)[stat_buf.st_size] = '\0'; /* Null terminate *buffer */
+	(*buffer)[stat_buf.st_size] = '\0';	/* Null terminate *buffer */
 
 	return TRUE;
 }
@@ -107,7 +105,7 @@ static void bailout(int *p_conf_file, char **buffer)
 	/* if conf_file != -1 it is open */
 
 	if (*p_conf_file != -1)
-		(void) close(*p_conf_file); /* Ignore result this time */
+		(void)close(*p_conf_file);	/* Ignore result this time */
 
 	*p_conf_file = -1;
 

@@ -19,14 +19,14 @@
 
 #include <initng.h>
 
-#include <time.h>				/* time() */
-#include <fcntl.h>				/* fcntl() */
-#include <sys/un.h>				/* memmove() strcmp() */
-#include <sys/wait.h>				/* waitpid() sa */
-#include <linux/kd.h>				/* KDSIGACCEPT */
-#include <sys/ioctl.h>				/* ioctl() */
-#include <stdlib.h>				/* free() exit() */
-#include <sys/reboot.h>				/* reboot() RB_DISABLE_CAD */
+#include <time.h>		/* time() */
+#include <fcntl.h>		/* fcntl() */
+#include <sys/un.h>		/* memmove() strcmp() */
+#include <sys/wait.h>		/* waitpid() sa */
+#include <linux/kd.h>		/* KDSIGACCEPT */
+#include <sys/ioctl.h>		/* ioctl() */
+#include <stdlib.h>		/* free() exit() */
+#include <sys/reboot.h>		/* reboot() RB_DISABLE_CAD */
 #include <sys/mount.h>
 #include <termios.h>
 #include <stdio.h>
@@ -44,21 +44,22 @@ void hard(h_then t)
 
 	/* set the sys state */
 	switch (t) {
-		case THEN_REBOOT:
-			initng_main_set_sys_state(STATE_REBOOT);
-			break;
-		case THEN_HALT:
-			initng_main_set_sys_state(STATE_HALT);
-			break;
-		case THEN_POWEROFF:
-			initng_main_set_sys_state(STATE_POWEROFF);
-			break;
-		default:
-			F_("initng_hard can only handle STATE_REBOOT, "
-			   "STATE_POWEROFF, or STATE_HALT for now.\n");
-			return;
-	}
+	case THEN_REBOOT:
+		initng_main_set_sys_state(STATE_REBOOT);
+		break;
 
+	case THEN_HALT:
+		initng_main_set_sys_state(STATE_HALT);
+		break;
+
+	case THEN_POWEROFF:
+		initng_main_set_sys_state(STATE_POWEROFF);
+		break;
+	default:
+		F_("initng_hard can only handle STATE_REBOOT, STATE_POWEROFF,"
+		   " or STATE_HALT for now.\n");
+		return;
+	}
 
 	/* sync data to disk */
 	sync();
@@ -90,7 +91,6 @@ void hard(h_then t)
 		F_("/ IS NOT REMOUNTED READ-ONLY, WON'T REBOOT/HALT BECAUSE THE FILE SYSTEM CAN BREAK!\n");
 		return;
 	}
-
 #endif
 
 	/* Under certain unknown circumstances, calling reboot(RB_POWER_OFF)
@@ -103,21 +103,21 @@ void hard(h_then t)
 	if (pid <= 0) {
 		/* child process - shut down the machine */
 		switch (t) {
-			case THEN_REBOOT:
-				reboot(RB_AUTOBOOT);
-				break;
+		case THEN_REBOOT:
+			reboot(RB_AUTOBOOT);
+			break;
 
-			case THEN_HALT:
-				reboot(RB_HALT_SYSTEM);
-				break;
+		case THEN_HALT:
+			reboot(RB_HALT_SYSTEM);
+			break;
 
-			case THEN_POWEROFF:
-				reboot(RB_POWER_OFF);
-				break;
+		case THEN_POWEROFF:
+			reboot(RB_POWER_OFF);
+			break;
 
-			default:
-				/* What to do here */
-				break;
+		default:
+			/* What to do here */
+			break;
 		}
 
 		/* if in fork, quit it */

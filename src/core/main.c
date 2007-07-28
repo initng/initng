@@ -17,12 +17,11 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-
 #include <unistd.h>
-#include <time.h>				/* time() */
-#include <fcntl.h>				/* fcntl() */
-#include <linux/kd.h>				/* KDSIGACCEPT */
-#include <stdlib.h>				/* free() exit() */
+#include <time.h>		/* time() */
+#include <fcntl.h>		/* fcntl() */
+#include <linux/kd.h>		/* KDSIGACCEPT */
+#include <stdlib.h>		/* free() exit() */
 #include <termios.h>
 #include <stdio.h>
 #include <dirent.h>
@@ -32,14 +31,14 @@
 
 #include <sys/stat.h>
 #include <sys/klog.h>
-#include <sys/reboot.h>				/* reboot() RB_DISABLE_CAD */
-#include <sys/ioctl.h>				/* ioctl() */
+#include <sys/reboot.h>		/* reboot() RB_DISABLE_CAD */
+#include <sys/ioctl.h>		/* ioctl() */
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <sys/mman.h>
 #include <sys/types.h>
-#include <sys/un.h>				/* memmove() strcmp() */
-#include <sys/wait.h>				/* waitpid() sa */
+#include <sys/un.h>		/* memmove() strcmp() */
+#include <sys/wait.h>		/* waitpid() sa */
 #include <sys/mount.h>
 #include <initng-paths.h>
 
@@ -47,19 +46,18 @@
 #include "options.h"
 #define TIMEOUT 60000
 
-
 #ifdef BUSYBOX
 int init_main(int argc, char *argv[], char *env[])
 #else
 int main(int argc, char *argv[], char *env[])
 #endif
 {
-	struct timeval last;		/* save the time here */
+	struct timeval last;	/* save the time here */
 	int retval;
 
 #ifdef DEBUG
-	int loop_counter = 0;		/* counts how many times the main_loop
-					 * has run */
+	int loop_counter = 0;	/* counts how many times the main_loop
+				 * has run */
 #endif
 	S_;
 
@@ -69,20 +67,17 @@ int main(int argc, char *argv[], char *env[])
 	/* Initialize global variables */
 	initng_config_global_new(argc, argv, env);
 
-	/* Parse options given by /etc/initng.conf */
-	options_parse_file(ETCDIR "/initng.conf");
-
 	/* Parse options given on argv. */
 	options_parse_args(argv);
 
 	if (getuid() != 0) {
 		W_("Initng is designed to run as root user, a lot of "
 		   "functionality will not work correctly.\n");
+		g.i_am = I_AM_FAKE_INIT;
 	}
 
 	/* if this is real init */
-	if (g.i_am == I_AM_INIT)
-	{
+	if (g.i_am == I_AM_INIT) {
 		/* when last service stopped, offer a sulogin */
 		g.when_out = THEN_SULOGIN;
 		if (!g.runlevel)
@@ -97,10 +92,7 @@ int main(int argc, char *argv[], char *env[])
 
 	D_("MAIN_LOAD_MODULES\n");
 	/* Load modules, if fails - launch sulogin and then try again */
-	if (!initng_module_load_all(INITNG_PLUGIN_DIR) &&
-	    !initng_module_load_all("/lib/initng") &&
-	    !initng_module_load_all("/lib32/initng") &&
-	    !initng_module_load_all("/lib64/initng")) {
+	if (!initng_module_load_all(INITNG_PLUGIN_DIR)) {
 		/* if we can't load modules, revert to single-user login */
 		initng_main_su_login();
 	}
@@ -129,7 +121,6 @@ int main(int argc, char *argv[], char *env[])
 
 	/* Configure signal handlers */
 	initng_signal_enable();
-
 
 	/* make sure this is not a hot reload */
 	if (!g.hot_reload) {
@@ -169,9 +160,9 @@ int main(int argc, char *argv[], char *env[])
 			   "one mainloop, compensating %i seconds.\n",
 			   (g.now.tv_sec - last.tv_sec));
 			initng_active_db_compensate_time(g.now.tv_sec -
-			                                 last.tv_sec);
+							 last.tv_sec);
 			initng_plugin_callers_compensate_time(g.now.tv_sec -
-			                                      last.tv_sec);
+							      last.tv_sec);
 			last.tv_sec += (g.now.tv_sec - last.tv_sec);
 		}
 
@@ -200,16 +191,16 @@ int main(int argc, char *argv[], char *env[])
 				initng_plugin_callers_signal(signals_got[i]);
 
 				switch (signals_got[i]) {
-						/* dead children */
-					case SIGCHLD:
-						initng_signal_handle_sigchild();
-						break;
-					case SIGALRM:
-						/*initng_plugin_callers_alarm(); */
-						initng_handler_run_alarm();
-						break;
-					default:
-						break;
+					/* dead children */
+				case SIGCHLD:
+					initng_signal_handle_sigchild();
+					break;
+				case SIGALRM:
+					/*initng_plugin_callers_alarm(); */
+					initng_handler_run_alarm();
+					break;
+				default:
+					break;
 				}
 				/* reset the signal */
 				signals_got[i] = -1;
@@ -217,14 +208,12 @@ int main(int argc, char *argv[], char *env[])
 
 		}
 
-
 		/* If there is modules to unload, handle this */
 		if (g.modules_to_unload == TRUE) {
 			g.modules_to_unload = FALSE;
 			D_("There is modules to unload!\n");
 			initng_module_unload_marked();
 		}
-
 
 		/*
 		 * After here i put things that should be done every main
@@ -240,7 +229,6 @@ int main(int argc, char *argv[], char *env[])
 			event.event_type = &EVENT_MAIN;
 			initng_event_send(&event);
 		}
-
 
 		/*
 		 * Check if there are any running processes left, otherwise
@@ -276,7 +264,7 @@ int main(int argc, char *argv[], char *env[])
 
 			/* Check how many seconds there are to the state
 			 * alarm */
-			if (g.next_alarm && g.next_alarm > g.now.tv_sec)  {
+			if (g.next_alarm && g.next_alarm > g.now.tv_sec) {
 				int time_to_next = g.next_alarm - g.now.tv_sec;
 
 				D_("g.next_alarm is set!, will trigger in %i "
@@ -286,8 +274,7 @@ int main(int argc, char *argv[], char *env[])
 			}
 
 			/* if we got some seconds */
-			if (closest_timeout > 0 && interrupt == FALSE)
-			{
+			if (closest_timeout > 0 && interrupt == FALSE) {
 				/* do a poll == the same as sleep but also
 				 * watch fds */
 				D_("Will sleep for %i seconds.\n",
@@ -295,5 +282,5 @@ int main(int argc, char *argv[], char *env[])
 				initng_fd_plugin_poll(closest_timeout);
 			}
 		}
-	}						/* End main loop */
+	}			/* End main loop */
 }

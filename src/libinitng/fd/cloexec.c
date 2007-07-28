@@ -17,10 +17,9 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <fcntl.h>					/* fcntl() */
+#include <fcntl.h>		/* fcntl() */
 
 #include <initng.h>
-
 
 int initng_fd_set_cloexec(int fd)
 {

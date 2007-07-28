@@ -21,12 +21,11 @@
 #include <initng.h>
 
 #include <stdio.h>
-#include <stdlib.h>							/* free() exit() */
+#include <stdlib.h>		/* free() exit() */
 #include <fcntl.h>
 #include <string.h>
 #include <errno.h>
 #include <assert.h>
-
 
 INITNG_PLUGIN_MACRO;
 
@@ -39,7 +38,7 @@ s_entry LOGFILE = {
 
 static void program_output(s_event * event)
 {
-	s_event_buffer_watcher_data * data;
+	s_event_buffer_watcher_data *data;
 	const char *filename = NULL;
 	int len = 0;
 	int fd = -1;

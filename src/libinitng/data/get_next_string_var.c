@@ -26,9 +26,8 @@
 
 #include "local.h"
 
-
 const char *initng_data_get_next_string_var(s_entry * type, const char *vn,
-                                            data_head * d, s_data ** cur)
+					    data_head * d, s_data ** cur)
 {
 	/* Temporary store string pointer here */
 	const char *to_ret;

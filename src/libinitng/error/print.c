@@ -20,7 +20,7 @@
 #include <initng.h>
 
 #define _GNU_SOURCE
-#include <stdlib.h>					/* free() exit() */
+#include <stdlib.h>		/* free() exit() */
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
@@ -28,11 +28,10 @@
 #include <time.h>
 #include <assert.h>
 
-
 int lock_error_printing = 0;
 
 static void failsafe_print_error(e_mt mt, const char *file, const char *func,
-                                 int line, const char *format, va_list arg)
+				 int line, const char *format, va_list arg)
 {
 	struct tm *ts;
 	time_t t;
@@ -41,32 +40,30 @@ static void failsafe_print_error(e_mt mt, const char *file, const char *func,
 	ts = localtime(&t);
 
 	switch (mt) {
-		case MSG_FAIL:
-			if (file && func)
-				fprintf(stderr, "\n\n FAILSAFE ERROR ** "
-						"\"%s\", %s() line %i:\n",
-						file, func, line);
-			fprintf(stderr, " %.2i:%.2i:%.2i -- FAIL:\t",
-			        ts->tm_hour, ts->tm_min, ts->tm_sec);
-			break;
+	case MSG_FAIL:
+		if (file && func)
+			fprintf(stderr, "\n\n FAILSAFE ERROR ** "
+				"\"%s\", %s() line %i:\n", file, func, line);
+		fprintf(stderr, " %.2i:%.2i:%.2i -- FAIL:\t",
+			ts->tm_hour, ts->tm_min, ts->tm_sec);
+		break;
 
-		case MSG_WARN:
-			if (file && func)
-				fprintf(stderr, "\n\n FAILSAFE ERROR ** "
-						"\"%s\", %s() line %i:\n",
-						file, func, line);
-			fprintf(stderr, " %.2i:%.2i:%.2i -- WARN:\t",
-				ts->tm_hour, ts->tm_min, ts->tm_sec);
+	case MSG_WARN:
+		if (file && func)
+			fprintf(stderr, "\n\n FAILSAFE ERROR ** "
+				"\"%s\", %s() line %i:\n", file, func, line);
+		fprintf(stderr, " %.2i:%.2i:%.2i -- WARN:\t",
+			ts->tm_hour, ts->tm_min, ts->tm_sec);
 
-		default:
-			break;
+	default:
+		break;
 	}
 
 	vfprintf(stderr, format, arg);
 }
 
 int initng_error_print(e_mt mt, const char *file, const char *func, int line,
-                       const char *format, ...)
+		       const char *format, ...)
 {
 	assert(file);
 	assert(func);
@@ -151,9 +148,8 @@ int initng_error_verbose_add(const char *string)
 	else
 		g.verbose = 2;
 
-
 	while (g.verbose_this[i] && i < MAX_VERBOSES)
-	       i++;
+		i++;
 
 	if (i >= MAX_VERBOSES - 1) {
 		F_("Can't add another \"%s\" debug trace\n", string);
@@ -203,17 +199,18 @@ void initng_error_print_func(const char *file, const char *func)
 				if (g.verbose_this[i][0] == '%' &&
 				    g.verbose_this[i] + 1) {
 					if (strcasestr(file,
-					    (g.verbose_this[i]) + 1) ||
-					    strcasestr(func,
-					    (g.verbose_this[i]) + 1)) {
+						       (g.verbose_this[i]) + 1)
+					    || strcasestr(func,
+							  (g.verbose_this[i]) +
+							  1)) {
 						lock_error_printing = 0;
 						return;
 					}
 				} else {
 					if (strcasestr(file,
-					    g.verbose_this[i]) ||
+						       g.verbose_this[i]) ||
 					    strcasestr(func,
-					    g.verbose_this[i])) {
+						       g.verbose_this[i])) {
 						i = 1;
 						break;
 					}
@@ -233,15 +230,13 @@ void initng_error_print_func(const char *file, const char *func)
 	lock_error_printing = 0;
 }
 
-
 int initng_error_print_debug(const char *file, const char *func, int line,
-                             const char *format, ...)
+			     const char *format, ...)
 {
 	int done;
 	struct tm *ts;
 	int i;
 	time_t t;
-
 
 	assert(file);
 	assert(func);
@@ -260,17 +255,18 @@ int initng_error_print_debug(const char *file, const char *func, int line,
 				if (g.verbose_this[i][0] == '%' &&
 				    (g.verbose_this[i] + 1)) {
 					if (strcasestr(file,
-					    (g.verbose_this[i]) + 1) ||
-					    strcasestr(func,
-					    (g.verbose_this[i]) + 1)) {
+						       (g.verbose_this[i]) + 1)
+					    || strcasestr(func,
+							  (g.verbose_this[i]) +
+							  1)) {
 						lock_error_printing = 0;
 						return (TRUE);
 					}
 				} else {
 					if (strcasestr(file,
-					    g.verbose_this[i]) ||
+						       g.verbose_this[i]) ||
 					    strcasestr(func,
-					    g.verbose_this[i])) {
+						       g.verbose_this[i])) {
 						goto yes;
 					}
 				}
@@ -283,7 +279,7 @@ int initng_error_print_debug(const char *file, const char *func, int line,
 	lock_error_printing = 0;
 	return TRUE;
 
-yes:
+      yes:
 
 	/* print the function name, if not set */
 	if (last_file != file || last_func != func) {
@@ -301,9 +297,8 @@ yes:
 	t = time(0);
 	ts = localtime(&t);
 
-
 	fprintf(stderr, " %.2i:%.2i:%.2i -- l:%i\t", ts->tm_hour,
-	        ts->tm_min, ts->tm_sec, line);
+		ts->tm_min, ts->tm_sec, line);
 
 	msgs++;
 	if (msgs > 20) {

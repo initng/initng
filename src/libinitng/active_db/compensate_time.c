@@ -29,7 +29,6 @@
 
 #include <initng.h>
 
-
 /* compensate time */
 void initng_active_db_compensate_time(time_t skew)
 {

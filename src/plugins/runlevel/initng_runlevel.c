@@ -20,10 +20,9 @@
 #include <initng.h>
 
 #include <stdio.h>
-#include <stdlib.h>					/* free() exit() */
+#include <stdlib.h>		/* free() exit() */
 #include <string.h>
 #include <assert.h>
-
 
 INITNG_PLUGIN_MACRO;
 
@@ -45,7 +44,6 @@ static void init_RUNLEVEL_STOP_MARKED(active_db_h * service);
 static void handle_RUNLEVEL_WAITING_FOR_START_DEP(active_db_h * service);
 static void handle_RUNLEVEL_WAITING_FOR_STOP_DEP(active_db_h * service);
 
-
 /*
  * ############################################################################
  * #                     Official SERVICE_TYPE STRUCT                         #
@@ -54,7 +52,7 @@ static void handle_RUNLEVEL_WAITING_FOR_STOP_DEP(active_db_h * service);
 stype_h TYPE_RUNLEVEL = {
 	.name = "runlevel",
 	.description = "A runlevel contains a set of services that shud be "
-	               "running on the system.",
+	    "running on the system.",
 	.hidden = FALSE,
 	.start = &start_RUNLEVEL,
 	.stop = &stop_RUNLEVEL,
@@ -63,14 +61,14 @@ stype_h TYPE_RUNLEVEL = {
 
 stype_h TYPE_VIRTUAL = {
 	.name = "virtual",
-	.description = "A virtual is a virtual set of services with an unik group "
-	               "name.",
+	.description =
+	    "A virtual is a virtual set of services with an unik group "
+	    "name.",
 	.hidden = TRUE,
 	.start = &start_RUNLEVEL,
 	.stop = &stop_RUNLEVEL,
 	.restart = NULL
 };
-
 
 /*
  * ############################################################################
@@ -135,7 +133,7 @@ a_state_h RUNLEVEL_WAITING_FOR_START_DEP = {
 a_state_h RUNLEVEL_WAITING_FOR_STOP_DEP = {
 	.name = "WAITING_FOR_STOP_DEP",
 	.description = "Waiting for all services depending on this runlevel "
-	               "to stop, before the runlevel can be stopped.",
+	    "to stop, before the runlevel can be stopped.",
 	.is = IS_STOPPING,
 	.interrupt = &handle_RUNLEVEL_WAITING_FOR_STOP_DEP,
 	.init = NULL,
@@ -172,7 +170,6 @@ a_state_h RUNLEVEL_START_DEPS_FAILED = {
  * ############################################################################
  */
 
-
 /* This are run, when initng wants to start a service */
 static int start_RUNLEVEL(active_db_h * service)
 {
@@ -192,7 +189,6 @@ static int start_RUNLEVEL(active_db_h * service)
 	/* return happily */
 	return TRUE;
 }
-
 
 /* This are run, when initng wants to stop a service */
 static int stop_RUNLEVEL(active_db_h * service)
@@ -266,7 +262,6 @@ void module_unload(void)
  * ############################################################################
  */
 
-
 /*
  * Everything RUNLEVEL_START_MARKED are gonna do, is to set it RUNLEVEL_WAITING_FOR_START_DEP
  */
@@ -302,13 +297,14 @@ static void init_RUNLEVEL_START_MARKED(active_db_h * new_runlevel)
 
 			/* for every dep the old runlevel have */
 			while ((dep_old = get_next_string(&NEED, old_runlevel,
-			                                  &itt_old))) {
+							  &itt_old))) {
 				const char *dep_new = NULL;
 				s_data *itt_new = NULL;
 				int found = 0;
 
 				while ((dep_new = get_next_string(&NEED,
-						new_runlevel, &itt_new))) {
+								  new_runlevel,
+								  &itt_new))) {
 					/* if it matches */
 					if (strcmp(dep_new, dep_old) == 0) {
 						found = 1;
@@ -316,28 +312,26 @@ static void init_RUNLEVEL_START_MARKED(active_db_h * new_runlevel)
 					}
 				}
 
-
 				/* If the service found in old runlevel, does
 				 * not exsist i new one, stop it */
 
 				/*if (found == 0) {
-					active_db_h *service_to_stop =
-						initng_active_db_find_by_name(
-								dep_old);
+				   active_db_h *service_to_stop =
+				   initng_active_db_find_by_name(
+				   dep_old);
 
-					if (service_to_stop) {
-						W_("Stopping service %s, not "
-						   "in new service %s\n",
-						   service_to_stop->name,
-						   new_runlevel->name);
-						initng_handler_stop_service(
-							service_to_stop);
-					}
+				   if (service_to_stop) {
+				   W_("Stopping service %s, not "
+				   "in new service %s\n",
+				   service_to_stop->name,
+				   new_runlevel->name);
+				   initng_handler_stop_service(
+				   service_to_stop);
+				   }
 
-				}*/
+				   } */
 			}
 			/* check that it also exists in new runlevel */
-
 
 			/* STEP 3, Stop old runlevel */
 			initng_handler_stop_service(old_runlevel);
@@ -356,35 +350,35 @@ static void init_RUNLEVEL_START_MARKED(active_db_h * new_runlevel)
 /*
  * Everything RUNLEVEL_STOP_MARKED are gonna do, is to set it RUNLEVEL_WAITING_FOR_STOP_DEP
  */
-static void init_RUNLEVEL_STOP_MARKED(active_db_h *service) {
+static void init_RUNLEVEL_STOP_MARKED(active_db_h * service)
+{
 	/* Stop all services dependeing on this service */
 	initng_depend_stop_deps(service);
 
 	initng_common_mark_service(service, &RUNLEVEL_WAITING_FOR_STOP_DEP);
 }
 
-static void handle_RUNLEVEL_WAITING_FOR_START_DEP(active_db_h *service)
+static void handle_RUNLEVEL_WAITING_FOR_START_DEP(active_db_h * service)
 {
 	assert(service);
 
 	/* this checks with external plug-ins, if its ok to start this service now */
 
 	switch (initng_depend_start_dep_met(service, FALSE)) {
-			/* if not met, youst return */
-		case FALSE:
-			return;
+		/* if not met, youst return */
+	case FALSE:
+		return;
 
+		/* set FAILURE */
+	case FAIL:
+		initng_common_mark_service(service,
+					   &RUNLEVEL_START_DEPS_FAILED);
+		return;
 
-			/* set FAILURE */
-		case FAIL:
-			initng_common_mark_service(service,
-				&RUNLEVEL_START_DEPS_FAILED);
-			return;
-
-			/* if met, continue */
-		case TRUE:
-		default:
-			break;
+		/* if met, continue */
+	case TRUE:
+	default:
+		break;
 	}
 
 	/* set status to START_DEP_MET */
@@ -397,15 +391,14 @@ static void handle_RUNLEVEL_WAITING_FOR_STOP_DEP(active_db_h * service)
 
 	/* check with other plug-ins, if it is ok to stop this service now */
 	switch (initng_depend_stop_dep_met(service, FALSE)) {
-			/* deps not met, youst return */
-		case FALSE:
-			return;
+		/* deps not met, youst return */
+	case FALSE:
+		return;
 
-			/* if met, youst continue */
-		case TRUE:
-		default:
-			break;
-
+		/* if met, youst continue */
+	case TRUE:
+	default:
+		break;
 	}
 
 	/* ok, stopping deps are met */

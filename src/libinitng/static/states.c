@@ -19,18 +19,17 @@
 
 #include <initng.h>
 
-#include <time.h>				/* time() */
-#include <fcntl.h>				/* fcntl() */
-#include <sys/un.h>				/* memmove() strcmp() */
-#include <sys/wait.h>				/* waitpid() sa */
-#include <linux/kd.h>				/* KDSIGACCEPT */
-#include <sys/ioctl.h>				/* ioctl() */
-#include <stdio.h>				/* printf() */
-#include <stdlib.h>				/* free() exit() */
-#include <sys/reboot.h>				/* reboot() RB_DISABLE_CAD */
+#include <time.h>		/* time() */
+#include <fcntl.h>		/* fcntl() */
+#include <sys/un.h>		/* memmove() strcmp() */
+#include <sys/wait.h>		/* waitpid() sa */
+#include <linux/kd.h>		/* KDSIGACCEPT */
+#include <sys/ioctl.h>		/* ioctl() */
+#include <stdio.h>		/* printf() */
+#include <stdlib.h>		/* free() exit() */
+#include <sys/reboot.h>		/* reboot() RB_DISABLE_CAD */
 #include <assert.h>
 #include <errno.h>
-
 
 /*
  * a_state_h
@@ -43,7 +42,7 @@
 a_state_h NEW = {
 	.name = "NEW",
 	.description = "This is a newly created service, that has not got a "
-	               "real state yet.",
+	    "real state yet.",
 	.is = IS_DOWN,
 	.interrupt = NULL,
 	.init = NULL,

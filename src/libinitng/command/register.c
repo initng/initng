@@ -24,7 +24,6 @@
 
 #include <initng.h>
 
-
 /* this adds a command to the global command struct */
 int initng_command_register(s_command * cmd)
 {

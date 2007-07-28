@@ -23,7 +23,6 @@
 #include <stdlib.h>
 #include <assert.h>
 
-
 /*
  * Simple function to add the option, to the official list
  * of options in initng.
@@ -126,8 +125,7 @@ s_entry *initng_service_data_type_find(const char *string)
 	D_("looking for %s.\n", string);
 
 	while_service_data_types(current) {
-		if (current->name &&
-		    strcmp(current->name, string) == 0)
+		if (current->name && strcmp(current->name, string) == 0)
 			return current;
 	}
 

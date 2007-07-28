@@ -34,7 +34,7 @@ INITNG_PLUGIN_MACRO;
 s_entry RLIMIT_AS_SOFT = {
 	.name = "rlimit_as_soft",
 	.description = "The maximum size of process virtual memory, soft "
-		       "limit.",
+	    "limit.",
 	.type = INT,
 	.ot = NULL,
 };
@@ -42,7 +42,7 @@ s_entry RLIMIT_AS_SOFT = {
 s_entry RLIMIT_AS_HARD = {
 	.name = "rlimit_as_hard",
 	.description = "The maximum size of process virtual memory, hard "
-		       "limit.",
+	    "limit.",
 	.type = INT,
 	.ot = NULL,
 };
@@ -64,7 +64,7 @@ s_entry RLIMIT_CORE_HARD = {
 s_entry RLIMIT_CPU_SOFT = {
 	.name = "rlimit_cpu_soft",
 	.description = "The maximum of cputime, in seconds processes can "
-		       "use, soft limit.",
+	    "use, soft limit.",
 	.type = INT,
 	.ot = NULL,
 };
@@ -72,7 +72,7 @@ s_entry RLIMIT_CPU_SOFT = {
 s_entry RLIMIT_CPU_HARD = {
 	.name = "rlimit_cpu_hard",
 	.description = "The maximum of cputime, in seconds processes can "
-		       "use, hard limit.",
+	    "use, hard limit.",
 	.type = INT,
 	.ot = NULL,
 };
@@ -80,7 +80,7 @@ s_entry RLIMIT_CPU_HARD = {
 s_entry RLIMIT_DATA_SOFT = {
 	.name = "rlimit_data_soft",
 	.description = "The maximum size of the process uninitalized data, "
-		       "soft limit.",
+	    "soft limit.",
 	.type = INT,
 	.ot = NULL,
 };
@@ -88,7 +88,7 @@ s_entry RLIMIT_DATA_SOFT = {
 s_entry RLIMIT_DATA_HARD = {
 	.name = "rlimit_data_hard",
 	.description = "The maximum size of the process uninitalized data, "
-		       "hard limit.",
+	    "hard limit.",
 	.type = INT,
 	.ot = NULL,
 };
@@ -96,7 +96,7 @@ s_entry RLIMIT_DATA_HARD = {
 s_entry RLIMIT_FSIZE_SOFT = {
 	.name = "rlimit_fsize_soft",
 	.description = "The maximum filesize of a file the process can "
-		       "create, soft limit.",
+	    "create, soft limit.",
 	.type = INT,
 	.ot = NULL,
 };
@@ -104,7 +104,7 @@ s_entry RLIMIT_FSIZE_SOFT = {
 s_entry RLIMIT_FSIZE_HARD = {
 	.name = "rlimit_fsize_hard",
 	.description = "The maximum filesize of a file the process can "
-		       "create, hard limit.",
+	    "create, hard limit.",
 	.type = INT,
 	.ot = NULL,
 };
@@ -112,7 +112,7 @@ s_entry RLIMIT_FSIZE_HARD = {
 s_entry RLIMIT_MEMLOCK_SOFT = {
 	.name = "rlimit_memlock_soft",
 	.description = "The maximum amount of memory, the process can lock, "
-		       "soft limit.",
+	    "soft limit.",
 	.type = INT,
 	.ot = NULL,
 };
@@ -120,7 +120,7 @@ s_entry RLIMIT_MEMLOCK_SOFT = {
 s_entry RLIMIT_MEMLOCK_HARD = {
 	.name = "rlimit_memlock_hard",
 	.description = "The maximum amount of memory, the process can lock, "
-		       "hard limit.",
+	    "hard limit.",
 	.type = INT,
 	.ot = NULL,
 };
@@ -128,7 +128,7 @@ s_entry RLIMIT_MEMLOCK_HARD = {
 s_entry RLIMIT_NOFILE_SOFT = {
 	.name = "rlimit_nofile_soft",
 	.description = "The maximum number of files the process can open, at "
-		       "the same time, soft limit.",
+	    "the same time, soft limit.",
 	.type = INT,
 	.ot = NULL,
 };
@@ -136,7 +136,7 @@ s_entry RLIMIT_NOFILE_SOFT = {
 s_entry RLIMIT_NOFILE_HARD = {
 	.name = "rlimit_nofile_hard",
 	.description = "The maximum number of files the process can open, at "
-		       "the same time, hard limit.",
+	    "the same time, hard limit.",
 	.type = INT,
 	.ot = NULL,
 };
@@ -144,7 +144,7 @@ s_entry RLIMIT_NOFILE_HARD = {
 s_entry RLIMIT_NPROC_SOFT = {
 	.name = "rlimit_nproc_soft",
 	.description = "The maximum number of processes that can be created, "
-		       "soft limit.",
+	    "soft limit.",
 	.type = INT,
 	.ot = NULL,
 };
@@ -152,7 +152,7 @@ s_entry RLIMIT_NPROC_SOFT = {
 s_entry RLIMIT_NPROC_HARD = {
 	.name = "rlimit_nproc_hard",
 	.description = "The maximum number of processes that can be created, "
-		       "hard limit.",
+	    "hard limit.",
 	.type = INT,
 	.ot = NULL,
 };
@@ -174,7 +174,7 @@ s_entry RLIMIT_RSS_HARD = {
 s_entry RLIMIT_SIGPENDING_SOFT = {
 	.name = "rlimit_sigpending_soft",
 	.description = "The maximum amount of signals that can be queued, "
-		       "soft limit.",
+	    "soft limit.",
 	.type = INT,
 	.ot = NULL,
 };
@@ -182,7 +182,7 @@ s_entry RLIMIT_SIGPENDING_SOFT = {
 s_entry RLIMIT_SIGPENDING_HARD = {
 	.name = "rlimit_sigpending_hard",
 	.description = "The maximum amount of signals that can be queued, "
-		       "soft limit.",
+	    "soft limit.",
 	.type = INT,
 	.ot = NULL,
 };
@@ -205,23 +205,22 @@ s_entry RLIMIT_STACK_HARD = {
 static const char *err_desc(void)
 {
 	switch (errno) {
-		case EFAULT:
-			return "Rlim prints outside the accessible address "
-			       "space.\n";
+	case EFAULT:
+		return "Rlim prints outside the accessible address space.\n";
 
-		case EINVAL:
-			return "Resource is not valid.\n";
+	case EINVAL:
+		return "Resource is not valid.\n";
 
-		case EPERM:
-			return "Unprivileged process tried to set rlimit.\n";
+	case EPERM:
+		return "Unprivileged process tried to set rlimit.\n";
 
-		default:
-			return NULL;
+	default:
+		return NULL;
 	}
 }
 
 /* this function set rlimit if it should, w-o overwriting old values. */
-static int set_limit(s_entry *soft, s_entry *hard, active_db_h *service,
+static int set_limit(s_entry * soft, s_entry * hard, active_db_h * service,
 		     int ltype, int times)
 {
 	int si = FALSE;
@@ -268,7 +267,7 @@ static int set_limit(s_entry *soft, s_entry *hard, active_db_h *service,
 	return 0;
 }
 
-static void do_limit(s_event *event)
+static void do_limit(s_event * event)
 {
 	s_event_after_fork_data *data;
 

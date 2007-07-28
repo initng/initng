@@ -21,19 +21,18 @@
 
 #define _GNU_SOURCE
 #include <stdio.h>
-#include <stdlib.h>					/* free() exit() */
+#include <stdlib.h>		/* free() exit() */
 #include <string.h>
 #include <assert.h>
 
 #include "active_db_print.h"
-
 
 INITNG_PLUGIN_MACRO;
 
 s_entry CRITICAL = {
 	.name = "critical",
 	.description = "If this option is set, and service doesn't succeed, "
-	               "initng will quit and offer a sulogin.",
+	    "initng will quit and offer a sulogin.",
 	.type = SET,
 	.ot = NULL,
 };
@@ -41,7 +40,7 @@ s_entry CRITICAL = {
 /* returns TRUE if all use deps are started */
 static void check_critical(s_event * event)
 {
-	active_db_h * service;
+	active_db_h *service;
 
 	assert(event->event_type == &EVENT_IS_CHANGE);
 	assert(event->data);
@@ -58,10 +57,10 @@ static void check_critical(s_event * event)
 
 	F_("Service %s failed, this is critical, going su_login!!\n",
 	   service->name);
-	   
+
 	// Sleep for 4 seconds make moast of running procces to end.
 	sleep(4);
-	   
+
 	active_db_print(service);
 
 	initng_main_su_login();

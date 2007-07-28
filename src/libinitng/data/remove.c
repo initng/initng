@@ -26,7 +26,6 @@
 
 #include "local.h"
 
-
 /*
  * A function to nicely free the s_data content.
  */
@@ -40,17 +39,17 @@ static void dfree(s_data * current)
 
 	/* free variable data */
 	switch (current->type->type) {
-		case STRING:
-		case STRINGS:
-		case VARIABLE_STRING:
-		case VARIABLE_STRINGS:
-			if (current->t.s) {
-				free(current->t.s);
-				current->t.s = NULL;
-			}
+	case STRING:
+	case STRINGS:
+	case VARIABLE_STRING:
+	case VARIABLE_STRINGS:
+		if (current->t.s) {
+			free(current->t.s);
+			current->t.s = NULL;
+		}
 
-		default:
-			break;
+	default:
+		break;
 	}
 
 	/* free variable name, if set */

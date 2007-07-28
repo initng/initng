@@ -25,7 +25,6 @@
 #include <string.h>
 #include <assert.h>
 
-
 INITNG_PLUGIN_MACRO;
 
 static void remove_virtual_service(const char *name);
@@ -33,11 +32,10 @@ static int add_virtual_service(const char *name);
 static int virtual_service_set_up(const char *name);
 static int dont_try_to_stop_start(active_db_h * service);
 
-
 s_entry PROVIDE = {
 	.name = "provide",
 	.description = "Used by service providers, automagically creates "
-	               "virtual services.",
+	    "virtual services.",
 	.type = STRINGS,
 	.ot = NULL,
 	.alias = NULL
@@ -47,7 +45,7 @@ s_entry PROVIDE = {
 stype_h PROVIDED = {
 	.name = "provided",
 	.description = "If a service sets provide, this virtual service is "
-	               "created with that name.",
+	    "created with that name.",
 	.hidden = TRUE,
 	.start = &dont_try_to_stop_start,
 	.stop = &dont_try_to_stop_start,
@@ -63,7 +61,7 @@ s_entry PCOUNT = {
 	.ot = &PROVIDED,
 	.description = NULL,
 	.alias = NULL
-};	
+};
 
 /* THE UP STATE GOT */
 a_state_h SOON_PROVIDED = {
@@ -87,15 +85,14 @@ a_state_h PROVIDE_UP = {
 a_state_h PROVIDE_DOWN = {
 	.name = "NOT_PROVIDED",
 	.description = "This service is no longer provided by a parent "
-	               "service.",
+	    "service.",
 	.is = IS_DOWN,
 	.interrupt = NULL,
 	.init = NULL,
 	.alarm = NULL
 };
 
-
-static int dont_try_to_stop_start(active_db_h *service)
+static int dont_try_to_stop_start(active_db_h * service)
 {
 	D_("You have to stop/start/restart the service providing this!\n");
 	return FALSE;
@@ -117,7 +114,6 @@ static int virtual_service_set_up(const char *name)
 static int add_virtual_service(const char *name)
 {
 	active_db_h *vserv;
-
 
 	/* if found */
 	if ((vserv = initng_active_db_find_by_exact_name(name))) {
@@ -201,7 +197,7 @@ static void remove_virtual_service(const char *name)
  */
 static void service_state(s_event * event)
 {
-	active_db_h * service;
+	active_db_h *service;
 	const char *tmp = NULL;
 	s_data *itt = NULL;
 
@@ -244,7 +240,6 @@ static void service_state(s_event * event)
 	}
 }
 
-
 #ifdef EXTRA_SURE
 static void system_stopping(s_event * event)
 {
@@ -269,7 +264,6 @@ static void system_stopping(s_event * event)
 	}
 }
 #endif
-
 
 int module_init(int api_version)
 {

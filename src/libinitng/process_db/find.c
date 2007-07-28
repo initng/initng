@@ -28,7 +28,6 @@
 #include <alloca.h>
 #include <assert.h>
 
-
 /*
  * Gets an special process from an service
  * if it exists
@@ -52,7 +51,7 @@ process_h *initng_process_db_get(ptype_h * type, active_db_h * service)
  * if it exists
  */
 process_h *initng_process_db_get_by_name(const char *name,
-										 active_db_h * service)
+					 active_db_h * service)
 {
 	process_h *current = NULL;
 

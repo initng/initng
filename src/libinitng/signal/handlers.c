@@ -19,9 +19,9 @@
 
 #include <initng.h>
 
-#include <sys/wait.h>				/* waitpid() sa */
-#include <stdlib.h>				/* free() exit() */
-#include <stdio.h>				/* printf() */
+#include <sys/wait.h>		/* waitpid() sa */
+#include <stdlib.h>		/* free() exit() */
+#include <stdio.h>		/* printf() */
 #include <errno.h>
 #include <string.h>
 #include <assert.h>
@@ -30,14 +30,13 @@
 
 #include "local.h"
 
-
 /*
  * If we got an child that died, this handler is called.
  */
 void initng_signal_handle_sigchild(void)
 {
-	int status;			/* data got from waitpid, never used */
-	pid_t killed;			/* pid of killed app */
+	int status;		/* data got from waitpid, never used */
+	pid_t killed;		/* pid of killed app */
 
 	while (1) {
 		/* slaying zombies */
@@ -92,7 +91,7 @@ void initng_signal_handle_sigchild(void)
 /* called by signal SIGSEGV */
 void sigsegv(int sig)
 {
-	(void) sig;
+	(void)sig;
 	printf("SEGFAULTED!\n");
 	initng_main_segfault();
 }

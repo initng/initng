@@ -21,7 +21,6 @@
 #include <stdio.h>
 #include <initng.h>
 
-
 /*
  * Here is where we define, the default options, and
  * relate to, by pointers

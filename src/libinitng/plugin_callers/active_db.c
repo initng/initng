@@ -28,7 +28,6 @@
 
 #include <initng.h>
 
-
 /* called to dump active_db */
 int initng_plugin_callers_active_db_dump(void)
 {

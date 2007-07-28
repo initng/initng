@@ -20,11 +20,10 @@
 #include <initng.h>
 
 #include <stdio.h>
-#include <stdlib.h>					/* free() exit() */
+#include <stdlib.h>		/* free() exit() */
 #include <string.h>
 #include <assert.h>
 #include <signal.h>
-
 
 INITNG_PLUGIN_MACRO;
 

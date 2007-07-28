@@ -28,7 +28,6 @@
 #include <alloca.h>
 #include <assert.h>
 
-
 /*
  * This function creates a new pipe, and creates a new
  * pipe struct entry.

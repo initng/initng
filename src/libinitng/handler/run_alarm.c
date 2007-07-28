@@ -20,18 +20,17 @@
 #include <initng.h>
 
 #include <sys/time.h>
-#include <time.h>				/* time() */
-#include <fcntl.h>				/* fcntl() */
-#include <sys/un.h>				/* memmove() strcmp() */
-#include <sys/wait.h>				/* waitpid() sa */
-#include <linux/kd.h>				/* KDSIGACCEPT */
-#include <sys/ioctl.h>				/* ioctl() */
-#include <stdio.h>				/* printf() */
-#include <stdlib.h>				/* free() exit() */
-#include <sys/reboot.h>				/* reboot() RB_DISABLE_CAD */
+#include <time.h>		/* time() */
+#include <fcntl.h>		/* fcntl() */
+#include <sys/un.h>		/* memmove() strcmp() */
+#include <sys/wait.h>		/* waitpid() sa */
+#include <linux/kd.h>		/* KDSIGACCEPT */
+#include <sys/ioctl.h>		/* ioctl() */
+#include <stdio.h>		/* printf() */
+#include <stdlib.h>		/* free() exit() */
+#include <sys/reboot.h>		/* reboot() RB_DISABLE_CAD */
 #include <assert.h>
 #include <errno.h>
-
 
 /*
  * Find alarm, will brows active_db for states when the timeout have gone
@@ -62,7 +61,7 @@ void initng_handler_run_alarm(void)
 
 			/* call alarm handler, now when we got an g.interrupt */
 			if (current->current_state->alarm)
-				(*current->current_state->alarm)(current);
+				(*current->current_state->alarm) (current);
 
 			continue;
 		}

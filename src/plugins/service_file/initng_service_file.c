@@ -40,26 +40,26 @@
 INITNG_PLUGIN_MACRO;
 
 #ifdef GLOBAL_SOCKET
-static void bp_incoming(f_module_h *from, e_fdw what);
+static void bp_incoming(f_module_h * from, e_fdw what);
 static int bp_open_socket(void);
 static void bp_check_socket(int signal);
 static void bp_closesock(void);
 #endif
 
-static int parse_new_service_file(s_event *event, char *file);
+static int parse_new_service_file(s_event * event, char *file);
 
 static void bp_handle_client(int fd);
-static void bp_new_active(bp_rep *rep, const char *type,
+static void bp_new_active(bp_rep * rep, const char *type,
 			  const char *service, const char *from_file);
-static void bp_set_variable(bp_rep *rep, const char *service,
+static void bp_set_variable(bp_rep * rep, const char *service,
 			    const char *vartype, const char *varname,
 			    const char *value);
-static void bp_get_variable(bp_rep *rep, const char *service,
+static void bp_get_variable(bp_rep * rep, const char *service,
 			    const char *vartype, const char *varname);
-static void bp_done(bp_rep *rep, const char *service);
-static void bp_abort(bp_rep *rep, const char *service);
+static void bp_done(bp_rep * rep, const char *service);
+static void bp_abort(bp_rep * rep, const char *service);
 
-static void handle_killed(active_db_h *service, process_h *process);
+static void handle_killed(active_db_h * service, process_h * process);
 
 #define SOCKET_4_ROOTPATH DEVDIR "/initng"
 
@@ -84,7 +84,7 @@ a_state_h PARSING_FOR_START = {
 a_state_h NOT_RUNNING = {
 	.name = "NOT_RUNNING",
 	.description = "When a service is parsed done, its marked DOWN ready "
-	               "for starting.",
+	    "for starting.",
 	.is = IS_DOWN,
 	.interrupt = NULL,
 	.init = NULL,
@@ -94,7 +94,7 @@ a_state_h NOT_RUNNING = {
 a_state_h REDY_FOR_START = {
 	.name = "REDY_TO_START",
 	.description = "When a service is parsed done, its marked DOWN ready "
-	               "for starting.",
+	    "for starting.",
 	.is = IS_DOWN,
 	.interrupt = NULL,
 	.init = NULL,
@@ -112,7 +112,7 @@ a_state_h PARSE_FAIL = {
 
 /* put null to the kill_handler here */
 ptype_h parse = { "parse-process", &handle_killed };
-stype_h unset =	{
+stype_h unset = {
 	.name = "unset",
 	.description = "Service type is not set yet, are still parsing.",
 	.hidden = FALSE,
@@ -131,7 +131,6 @@ stype_h unset =	{
    BSD derived systems which ignore permissions for Unix sockets.  Portable
    programs should not rely on this feature for security.
  */
-
 
 /* globals */
 struct stat sock_stat;
@@ -154,44 +153,44 @@ static int bpf_handler(s_event * event)
 	data = event->data;
 
 	switch (data->action) {
-		case FDW_ACTION_CLOSE:
-			if (bpf.fds > 0)
-				close(bpf.fds);
+	case FDW_ACTION_CLOSE:
+		if (bpf.fds > 0)
+			close(bpf.fds);
+		break;
+
+	case FDW_ACTION_CHECK:
+		if (bpf.fds <= 2)
 			break;
 
-		case FDW_ACTION_CHECK:
-			if (bpf.fds <= 2)
-				break;
+		/* This is a expensive test, but better safe then sorry */
+		if (!STILL_OPEN(bpf.fds)) {
+			D_("%i is not open anymore.\n", bpf.fds);
+			bpf.fds = -1;
+			break;
+		}
 
-			/* This is a expensive test, but better safe then
-			 * sorry */
-			if (!STILL_OPEN(bpf.fds)) {
-				D_("%i is not open anymore.\n", bpf.fds);
-				bpf.fds = -1;
-				break;
-			}
+		FD_SET(bpf.fds, data->readset);
+		data->added++;
+		break;
 
-			FD_SET(bpf.fds, data->readset);
-			data->added++;
+	case FDW_ACTION_CALL:
+		if (!data->added || bpf.fds <= 2)
 			break;
 
-		case FDW_ACTION_CALL:
-			if (!data->added || bpf.fds <= 2)
-				break;
-
-			if (!FD_ISSET(bpf.fds, data->readset))
-				break;
-
-			bp_incoming(&bpf, FDW_READ);
-			data->added--;
+		if (!FD_ISSET(bpf.fds, data->readset))
 			break;
 
-		case FDW_ACTION_DEBUG:
-			if (!data->debug_find_what ||
-			    strstr(__FILE__, data->debug_find_what)) {
-				mprintf(data->debug_out, " %i: Used by "
-					"plugin: %s\n", bpf.fds, __FILE__);
-			break;
+		bp_incoming(&bpf, FDW_READ);
+		data->added--;
+		break;
+
+	case FDW_ACTION_DEBUG:
+		if (!data->debug_find_what ||
+		    strstr(__FILE__, data->debug_find_what)) {
+			mprintf(data->debug_out, " %i: Used by plugin: %s\n",
+				bpf.fds, __FILE__);
+		}
+		break;
 	}
 
 	return TRUE;
@@ -201,7 +200,6 @@ static int bpf_handler(s_event * event)
 
 #define RSCV() (TEMP_FAILURE_RETRY(recv(fd, &req, sizeof(bp_req), 0)))
 #define SEND() send(fd, &rep, sizeof(bp_rep), 0)
-
 
 static void bp_handle_client(int fd)
 {
@@ -223,7 +221,7 @@ static void bp_handle_client(int fd)
 		return;
 	}
 
-	if (r != (signed) sizeof(bp_req)) {
+	if (r != (signed)sizeof(bp_req)) {
 		F_("Could not read incoming service_file req. (fd %i)\n", fd);
 		strcpy(rep.message, "Unable to read request");
 		rep.success = FALSE;
@@ -242,48 +240,47 @@ static void bp_handle_client(int fd)
 
 	/* handle by request type */
 	switch (req.request) {
-		case NEW_ACTIVE:
-			bp_new_active(&rep, req.u.new_active.type,
-				      req.u.new_active.service,
-				      req.u.new_active.from_file);
-			break;
+	case NEW_ACTIVE:
+		bp_new_active(&rep, req.u.new_active.type,
+			      req.u.new_active.service,
+			      req.u.new_active.from_file);
+		break;
 
-		case SET_VARIABLE:
-			bp_set_variable(&rep, req.u.set_variable.service,
-					req.u.set_variable.vartype,
-					req.u.set_variable.varname,
-					req.u.set_variable.value);
-			break;
+	case SET_VARIABLE:
+		bp_set_variable(&rep, req.u.set_variable.service,
+				req.u.set_variable.vartype,
+				req.u.set_variable.varname,
+				req.u.set_variable.value);
+		break;
 
-		case GET_VARIABLE:
-			bp_get_variable(&rep, req.u.get_variable.service,
-					req.u.get_variable.vartype,
-					req.u.get_variable.varname);
-			break;
+	case GET_VARIABLE:
+		bp_get_variable(&rep, req.u.get_variable.service,
+				req.u.get_variable.vartype,
+				req.u.get_variable.varname);
+		break;
 
-		case DONE:
-			bp_done(&rep, req.u.done.service);
-			break;
+	case DONE:
+		bp_done(&rep, req.u.done.service);
+		break;
 
-		case ABORT:
-			bp_abort(&rep, req.u.abort.service);
+	case ABORT:
+		bp_abort(&rep, req.u.abort.service);
 
-		default:
-			break;
+	default:
+		break;
 	}
 
 	/* send the reply */
 	SEND();
 }
 
-static void bp_new_active(bp_rep * rep, const char *type, const char *service,
-			  const char *from_file)
+static void bp_new_active(bp_rep * rep, const char *type,
+			  const char *service, const char *from_file)
 {
 	active_db_h *new_active;
 	stype_h *stype;
 
 	D_("bp_new_active(%s, %s)\n", type, service);
-
 
 	/* find service type */
 	stype = initng_service_type_get_by_name(type);
@@ -358,8 +355,8 @@ static void bp_set_variable(bp_rep * rep, const char *service,
 		return;
 	}
 
-	D_("bp_set_variable(%s, %s, %s, %s)\n", service, vartype, varname,
-	   value);
+	D_("bp_set_variable(%s, %s, %s, %s)\n", service, vartype,
+	   varname, value);
 
 	if (!active) {
 		strcpy(rep->message, "Service \"");
@@ -394,16 +391,15 @@ static void bp_set_variable(bp_rep * rep, const char *service,
 	}
 
 	switch (type->type) {
-		case STRING:
-		case VARIABLE_STRING:
-			set_string_var(type,
-				       varname ? initng_toolbox_strdup(varname) : NULL,
-				       active, initng_toolbox_strdup(value));
-			D_("string type - %s %s\n", type->name, value);
-			break;
+	case STRING:
+	case VARIABLE_STRING:
+		set_string_var(type, varname ? initng_toolbox_strdup(varname)
+			       : NULL, active, initng_toolbox_strdup(value));
+		D_("string type - %s %s\n", type->name, value);
+		break;
 
-		case STRINGS:
-		case VARIABLE_STRINGS: {
+	case STRINGS:
+	case VARIABLE_STRINGS:{
 			char *new_st = NULL;
 
 			while ((new_st = initng_string_dup_next_word(&value))) {
@@ -418,25 +414,26 @@ static void bp_set_variable(bp_rep * rep, const char *service,
 			break;
 		}
 
-		case SET:
-		case VARIABLE_SET:
-			D_("set type\n");
-			set_var(type, varname ? initng_toolbox_strdup(varname)
-				: NULL, active);
-			break;
+	case SET:
+	case VARIABLE_SET:
+		D_("set type\n");
+		set_var(type,
+			varname ? initng_toolbox_strdup(varname) : NULL,
+			active);
+		break;
 
-		case INT:
-		case VARIABLE_INT:
-			set_int_var(type,
-				    varname ? initng_toolbox_strdup(varname)
-				    : NULL, active, atoi(value));
-			D_("int type\n");
-			break;
+	case INT:
+	case VARIABLE_INT:
+		set_int_var(type,
+			    varname ? initng_toolbox_strdup(varname) :
+			    NULL, active, atoi(value));
+		D_("int type\n");
+		break;
 
-		default:
-			strcpy(rep->message, "Unknown data type.");
-			rep->success = FALSE;
-			return;
+	default:
+		strcpy(rep->message, "Unknown data type.");
+		rep->success = FALSE;
+		return;
 	}
 
 	rep->success = TRUE;
@@ -478,52 +475,52 @@ static void bp_get_variable(bp_rep * rep, const char *service,
 
 	/* depening on data type */
 	switch (type->type) {
-		case STRING:
-		case VARIABLE_STRING:
-			strncpy(rep->message, get_string_var(type, varname,
-				active), 1024);
-			break;
+	case STRING:
+	case VARIABLE_STRING:
+		strncpy(rep->message,
+			get_string_var(type, varname, active), 1024);
+		break;
 
-		case STRINGS:
-		case VARIABLE_STRINGS:
-			/* todo, will only return one */
-			{
-				s_data *itt = NULL;
-				const char *tmp = NULL;
+	case STRINGS:
+	case VARIABLE_STRINGS:
+		/* todo, will only return one */
+		{
+			s_data *itt = NULL;
+			const char *tmp = NULL;
 
-				while ((tmp = get_next_string_var(type,
-					varname, active, &itt))) {
-					if (!rep->message[0]) {
-						strcpy(rep->message, tmp);
-						continue;
-					}
-					strcat(rep->message, " ");
-					strncat(rep->message, tmp, 1024);
+			while ((tmp = get_next_string_var(type, varname,
+							  active, &itt))) {
+				if (!rep->message[0]) {
+					strcpy(rep->message, tmp);
+					continue;
 				}
+				strcat(rep->message, " ");
+				strncat(rep->message, tmp, 1024);
 			}
-			break;
+		}
+		break;
 
-		case SET:
-		case VARIABLE_SET:
-			if (is_var(type, varname, active))
-				rep->success = TRUE;
-			else
-				rep->success = FALSE;
-			return;
-
-		case INT:
-		case VARIABLE_INT:
-			{
-				int var = get_int_var(type, varname, active);
-
-				sprintf(rep->message, "%i", var);
-			}
-			break;
-
-		default:
-			strcpy(rep->message, "Unknown data type.");
+	case SET:
+	case VARIABLE_SET:
+		if (is_var(type, varname, active))
+			rep->success = TRUE;
+		else
 			rep->success = FALSE;
-			return;
+		return;
+
+	case INT:
+	case VARIABLE_INT:
+		{
+			int var = get_int_var(type, varname, active);
+
+			sprintf(rep->message, "%i", var);
+		}
+		break;
+
+	default:
+		strcpy(rep->message, "Unknown data type.");
+		rep->success = FALSE;
+		return;
 	}
 
 	rep->success = TRUE;
@@ -548,7 +545,6 @@ static void bp_done(bp_rep * rep, const char *service)
 		return;
 	}
 
-
 	/* must set to a DOWN state, to be able to start */
 	if (IS_MARK(active, &PARSING_FOR_START)) {
 		if (initng_common_mark_service(active, &REDY_FOR_START)) {
@@ -556,8 +552,7 @@ static void bp_done(bp_rep * rep, const char *service)
 			return;
 		}
 	} else if (IS_MARK(active, &PARSING)) {
-		rep->success =
-			initng_common_mark_service(active, &NOT_RUNNING);
+		rep->success = initng_common_mark_service(active, &NOT_RUNNING);
 		return;
 	}
 
@@ -586,7 +581,6 @@ static void bp_abort(bp_rep * rep, const char *service)
 		rep->success = FALSE;
 		return;
 	}
-
 
 	D_("bp_abort(%s)\n", service);
 
@@ -649,8 +643,8 @@ static int bp_open_socket()
 	bp_closesock();
 
 	/* Make /dev/initng if it doesn't exist (try either way) */
-	if (mkdir(SOCKET_4_ROOTPATH, S_IRUSR | S_IWUSR | S_IXUSR) == -1 &&
-	    errno != EEXIST) {
+	if (mkdir(SOCKET_4_ROOTPATH, S_IRUSR | S_IWUSR | S_IXUSR) == -1
+	    && errno != EEXIST) {
 		if (errno != EROFS) {
 			F_("Could not create " SOCKET_4_ROOTPATH
 			   " : %s, may be / fs not mounted read-write yet?, "
@@ -689,11 +683,11 @@ static int bp_open_socket()
 	unlink(serv_sockname.sun_path);
 
 	/* Try to bind */
-	if (bind(bpf.fds, (struct sockaddr *) &serv_sockname,
-	     (strlen(serv_sockname.sun_path) +
-	      sizeof(serv_sockname.sun_family))) < 0) {
-		F_("Error binding to socket (errno: %d str: '%s')\n", errno,
-		   strerror(errno));
+	if (bind(bpf.fds, (struct sockaddr *)&serv_sockname,
+		 (strlen(serv_sockname.sun_path) +
+		  sizeof(serv_sockname.sun_family))) < 0) {
+		F_("Error binding to socket (errno: %d str: '%s')\n",
+		   errno, strerror(errno));
 		bp_closesock();
 		unlink(serv_sockname.sun_path);
 		return FALSE;
@@ -756,8 +750,9 @@ static int bp_check_socket(s_event * event)
 
 	/* compare socket file, with the one that we know, reopen on
 	 * failure */
-	if (st.st_dev != sock_stat.st_dev || st.st_ino != sock_stat.st_ino ||
-	    st.st_mtime != sock_stat.st_mtime) {
+	if (st.st_dev != sock_stat.st_dev
+	    || st.st_ino != sock_stat.st_ino
+	    || st.st_mtime != sock_stat.st_mtime) {
 		F_("Invalid socket found, reopening\n");
 		bp_open_socket();
 		return TRUE;
@@ -817,8 +812,7 @@ static void create_new_active(s_event * event)
 			return;
 	}
 
-	file = malloc(sizeof(INITNG_ROOT) + sizeof("/this") +
-		      strlen(name) + 2);
+	file = malloc(sizeof(INITNG_ROOT) + sizeof("/this") + strlen(name) + 2);
 
 	/*
 	 * scheme: "daemon/samba/smbd"
@@ -909,12 +903,11 @@ static int parse_new_service_file(s_event * event, char *file)
 		char *new_env[4];
 
 		new_argv[0] = file;
-		new_argv[1] = (char *) "internal_setup";
+		new_argv[1] = (char *)"internal_setup";
 		new_argv[2] = NULL;
 
 		/* SERVICE=getty/tty1 */
-		new_env[0] =
-			initng_toolbox_calloc(strlen(name) + 20, 1);
+		new_env[0] = initng_toolbox_calloc(strlen(name) + 20, 1);
 		strcpy(new_env[0], "SERVICE=");
 		strcat(new_env[0], name);
 
@@ -965,7 +958,6 @@ int module_init(int api_version)
 		   "module!\n", API_VERSION, api_version);
 		return FALSE;
 	}
-
 #ifdef GLOBAL_SOCKET
 	/* zero globals */
 	bpf.fds = -1;

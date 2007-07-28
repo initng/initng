@@ -17,12 +17,11 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-
 #include <unistd.h>
-#include <time.h>				/* time() */
-#include <fcntl.h>				/* fcntl() */
-#include <linux/kd.h>				/* KDSIGACCEPT */
-#include <stdlib.h>				/* free() exit() */
+#include <time.h>		/* time() */
+#include <fcntl.h>		/* fcntl() */
+#include <linux/kd.h>		/* KDSIGACCEPT */
+#include <stdlib.h>		/* free() exit() */
 #include <termios.h>
 #include <stdio.h>
 #include <dirent.h>
@@ -32,14 +31,14 @@
 
 #include <sys/stat.h>
 #include <sys/klog.h>
-#include <sys/reboot.h>				/* reboot() RB_DISABLE_CAD */
-#include <sys/ioctl.h>				/* ioctl() */
+#include <sys/reboot.h>		/* reboot() RB_DISABLE_CAD */
+#include <sys/ioctl.h>		/* ioctl() */
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <sys/mman.h>
 #include <sys/types.h>
-#include <sys/un.h>				/* memmove() strcmp() */
-#include <sys/wait.h>				/* waitpid() sa */
+#include <sys/un.h>		/* memmove() strcmp() */
+#include <sys/wait.h>		/* waitpid() sa */
 #include <sys/mount.h>
 #include <initng-paths.h>
 
@@ -75,16 +74,16 @@ static void setup_console(const char *console)
 	tty.c_cflag &= CBAUD | CBAUDEX | CSIZE | CSTOPB | PARENB | PARODD;
 	tty.c_cflag |= HUPCL | CLOCAL | CREAD;
 
-	tty.c_cc[VINTR] = 3;				/* ctrl('c') */
-	tty.c_cc[VQUIT] = 28;				/* ctrl('\\') */
+	tty.c_cc[VINTR] = 3;	/* ctrl('c') */
+	tty.c_cc[VQUIT] = 28;	/* ctrl('\\') */
 	tty.c_cc[VERASE] = 127;
-	tty.c_cc[VKILL] = 24;				/* ctrl('x') */
-	tty.c_cc[VEOF] = 4;				/* ctrl('d') */
+	tty.c_cc[VKILL] = 24;	/* ctrl('x') */
+	tty.c_cc[VEOF] = 4;	/* ctrl('d') */
 	tty.c_cc[VTIME] = 0;
 	tty.c_cc[VMIN] = 1;
-	tty.c_cc[VSTART] = 17;				/* ctrl('q') */
-	tty.c_cc[VSTOP] = 19;				/* ctrl('s') */
-	tty.c_cc[VSUSP] = 26;				/* ctrl('z') */
+	tty.c_cc[VSTART] = 17;	/* ctrl('q') */
+	tty.c_cc[VSTOP] = 19;	/* ctrl('s') */
+	tty.c_cc[VSUSP] = 26;	/* ctrl('z') */
 
 	/* Set pre and post processing */
 	tty.c_iflag = IGNPAR | ICRNL | IXON | IXANY;
@@ -120,14 +119,14 @@ static void setup_selinux(void)
 			 * open /dev/console, so log() won't work
 			 */
 			fprintf(stderr, "Enforcing mode requested but"
-			        " no policy loaded. Halting now.\n");
+				" no policy loaded. Halting now.\n");
 			exit(1);
 		}
 	} else {
 		fclose(tmp_f);
 	}
 }
-#endif /* SELINUX */
+#endif				/* SELINUX */
 
 /*
  * %%%%%%%%%%%%%%%%%%%%   main ()   %%%%%%%%%%%%%%%%%%%%
@@ -139,7 +138,6 @@ int main(int argc, char *argv[], char *env[])
 #endif
 {
 	const char *console = INITNG_CONSOLE;
-	const char **new_argv;
 	int i;
 
 #ifdef SELINUX
@@ -164,16 +162,8 @@ int main(int argc, char *argv[], char *env[])
 	/* Disable Ctrl + Alt + Delete */
 	reboot(RB_DISABLE_CAD);
 
-	/* Alloc. new_argv */
-	new_argv = malloc((argc + 2) * sizeof(char *));
-	new_argv[0] = INITNG_BIN;
-	new_argv[argc] = "i_am_init";
-	new_argv[argc + 1] = NULL;
-
 	/* Copy argv into new_argv */
 	for (i = 1; i < argc; i++) {
-		new_argv[i] = argv[i];
-
 		/* look for "console" option, if it's there, set
 		 * console to it, so we will open the desired console
 		 */
@@ -183,6 +173,7 @@ int main(int argc, char *argv[], char *env[])
 
 	setup_console(console);
 
-	execv(new_argv[0], (char * const *)new_argv);
+	argv[0] = INITNG_BIN;
+	execv(argv[0], argv);
 	return 1;
 }

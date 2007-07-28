@@ -100,67 +100,67 @@ int ngcs_pack(ngcs_data * data, int cnt, char *buf)
 
 	for (n = 0; n < cnt; n++) {
 		if (buf) {
-			*(int *) buf = data[n].type;
+			*(int *)buf = data[n].type;
 			buf += sizeof(int);
 		}
 
 		switch (data[n].type) {
-			case NGCS_TYPE_INT:
-			case NGCS_TYPE_BOOL:
-				outcnt += 3 * sizeof(int);
-				if (buf) {
-					*(int *) buf = sizeof(int);
-					buf += sizeof(int);
-					*(int *) buf = data[n].d.i;
-					buf += sizeof(int);
-				}
-				break;
+		case NGCS_TYPE_INT:
+		case NGCS_TYPE_BOOL:
+			outcnt += 3 * sizeof(int);
+			if (buf) {
+				*(int *)buf = sizeof(int);
+				buf += sizeof(int);
+				*(int *)buf = data[n].d.i;
+				buf += sizeof(int);
+			}
+			break;
 
-			case NGCS_TYPE_LONG:
-				outcnt += 2 * sizeof(int) + sizeof(long);
-				if (buf) {
-					*(int *) buf = sizeof(long);
-					buf += sizeof(int);
-					*(int *) buf = data[n].d.l;
-					buf += sizeof(long);
-				}
-				break;
+		case NGCS_TYPE_LONG:
+			outcnt += 2 * sizeof(int) + sizeof(long);
+			if (buf) {
+				*(int *)buf = sizeof(long);
+				buf += sizeof(int);
+				*(int *)buf = data[n].d.l;
+				buf += sizeof(long);
+			}
+			break;
 
-			case NGCS_TYPE_ERROR:
-			case NGCS_TYPE_STRING:
-				if (data[n].len < 0)
-					data[n].len = strlen(data[n].d.s);
-				outcnt += 2 * sizeof(int) + data[n].len;
+		case NGCS_TYPE_ERROR:
+		case NGCS_TYPE_STRING:
+			if (data[n].len < 0)
+				data[n].len = strlen(data[n].d.s);
 
-				if (buf) {
-					*(int *) buf = data[n].len;
-					buf += sizeof(int);
-					if (data[n].len)
-						memcpy(buf, data[n].d.s, data[n].len);
-					buf += data[n].len;
-				}
-				break;
+			outcnt += 2 * sizeof(int) + data[n].len;
+			if (buf) {
+				*(int *)buf = data[n].len;
+				buf += sizeof(int);
+				if (data[n].len)
+					memcpy(buf, data[n].d.s, data[n].len);
+				buf += data[n].len;
+			}
+			break;
 
-			default:
-				if (data[n].len < 0)
-					return 1;
+		default:
+			if (data[n].len < 0)
+				return 1;
 
-				outcnt += 2 * sizeof(int) + data[n].len;
-				if (buf) {
-					*(int *) buf = data[n].len;
-					buf += sizeof(int);
-					if (data[n].len)
-						memcpy(buf, data[n].d.p, data[n].len);
-					buf += data[n].len;
-				}
-				break;
+			outcnt += 2 * sizeof(int) + data[n].len;
+			if (buf) {
+				*(int *)buf = data[n].len;
+				buf += sizeof(int);
+				if (data[n].len)
+					memcpy(buf, data[n].d.p, data[n].len);
+				buf += data[n].len;
+			}
+			break;
 		}
 	}
 
 	return outcnt;
 }
 
-int ngcs_unpack_one(int type, int len, const char *data, ngcs_data *res)
+int ngcs_unpack_one(int type, int len, const char *data, ngcs_data * res)
 {
 	res->type = type;
 	res->len = len;
@@ -171,47 +171,46 @@ int ngcs_unpack_one(int type, int len, const char *data, ngcs_data *res)
 	}
 
 	switch (type) {
-		case NGCS_TYPE_INT:
-		case NGCS_TYPE_BOOL:
-			if (len != sizeof(int))
-				return 1;
+	case NGCS_TYPE_INT:
+	case NGCS_TYPE_BOOL:
+		if (len != sizeof(int))
+			return 1;
 
-			res->d.i = *(const int *) data;
-			break;
+		res->d.i = *(const int *)data;
+		break;
 
-		case NGCS_TYPE_LONG:
-			if (len != sizeof(long))
-				return 1;
+	case NGCS_TYPE_LONG:
+		if (len != sizeof(long))
+			return 1;
 
-			res->d.i = *(const long *) data;
-			break;
+		res->d.i = *(const long *)data;
+		break;
 
-		case NGCS_TYPE_ERROR:
-		case NGCS_TYPE_STRING:
-			res->d.s = malloc(len + 1);
+	case NGCS_TYPE_ERROR:
+	case NGCS_TYPE_STRING:
+		res->d.s = malloc(len + 1);
 
-			if (!res->d.s)
-				return 1;
+		if (!res->d.s)
+			return 1;
 
-			memcpy(res->d.s, data, len);
-			res->d.s[len] = 0;
-			break;
+		memcpy(res->d.s, data, len);
+		res->d.s[len] = 0;
+		break;
 
-		default:
-			res->d.p = malloc(len);
+	default:
+		res->d.p = malloc(len);
 
-			if (!res->d.p)
-				return 1;
+		if (!res->d.p)
+			return 1;
 
-			memcpy(res->d.p, data, len);
-			break;
+		memcpy(res->d.p, data, len);
+		break;
 	}
 
 	return 0;
 }
 
-
-int ngcs_unpack(const char *data, int len, ngcs_data **res)
+int ngcs_unpack(const char *data, int len, ngcs_data ** res)
 {
 	const char *d = data;
 	int l = len;
@@ -271,29 +270,29 @@ int ngcs_unpack(const char *data, int len, ngcs_data **res)
 	return cnt;
 }
 
-void ngcs_free_unpack_one(ngcs_data *res)
+void ngcs_free_unpack_one(ngcs_data * res)
 {
 	switch (res->type) {
-		case NGCS_TYPE_INT:
-		case NGCS_TYPE_BOOL:
-		case NGCS_TYPE_LONG:
-			break;
+	case NGCS_TYPE_INT:
+	case NGCS_TYPE_BOOL:
+	case NGCS_TYPE_LONG:
+		break;
 
-		case NGCS_TYPE_ERROR:
-		case NGCS_TYPE_STRING:
-			if (res->d.s)
-				free(res->d.s);
-			break;
+	case NGCS_TYPE_ERROR:
+	case NGCS_TYPE_STRING:
+		if (res->d.s)
+			free(res->d.s);
+		break;
 
-		default:
-			if (res->d.p)
-				free(res->d.p);
-			break;
+	default:
+		if (res->d.p)
+			free(res->d.p);
+		break;
 	}
 
 }
 
-void ngcs_free_unpack(int len, ngcs_data *res)
+void ngcs_free_unpack(int len, ngcs_data * res)
 {
 	int n;
 
@@ -328,7 +327,6 @@ ngcs_conn *ngcs_conn_from_fd(int fd, void *userdata,
 		return NULL;
 	}
 
-
 	INIT_LIST_HEAD(&conn->chans.list);
 	INIT_LIST_HEAD(&conn->inqueue);
 
@@ -349,8 +347,7 @@ ngcs_conn *ngcs_conn_from_fd(int fd, void *userdata,
 	return conn;
 }
 
-
-static int ngcs_conn_send(ngcs_conn *conn, int chan, int type, int len,
+static int ngcs_conn_send(ngcs_conn * conn, int chan, int type, int len,
 			  const char *data)
 {
 	int total_len = 3 * sizeof(int) + (len < 0 ? 0 : len);
@@ -382,7 +379,8 @@ static int ngcs_conn_send(ngcs_conn *conn, int chan, int type, int len,
 	memcpy(conn->wrbuf + conn->towrite, head, 3 * sizeof(int));
 
 	if (len > 0)
-		memcpy(conn->wrbuf + conn->towrite + 3 * sizeof(int), data, len);
+		memcpy(conn->wrbuf + conn->towrite + 3 * sizeof(int), data,
+		       len);
 
 	conn->towrite += total_len;
 
@@ -396,7 +394,7 @@ static int ngcs_conn_send(ngcs_conn *conn, int chan, int type, int len,
 	return (conn->fd < 0);
 }
 
-ngcs_chan *ngcs_chan_reg(ngcs_conn *conn, int chanid,
+ngcs_chan *ngcs_chan_reg(ngcs_conn * conn, int chanid,
 			 void (*gotdata) (ngcs_chan *, int, int, char *),
 			 void (*chanclose) (ngcs_chan *),
 			 void (*chanfree) (ngcs_chan *))
@@ -422,7 +420,7 @@ ngcs_chan *ngcs_chan_reg(ngcs_conn *conn, int chanid,
 	return chan;
 }
 
-void ngcs_chan_close(ngcs_chan *chan)
+void ngcs_chan_close(ngcs_chan * chan)
 {
 	if (chan->close_state != NGCS_CHAN_OPEN)
 		return;
@@ -440,7 +438,7 @@ void ngcs_chan_close(ngcs_chan *chan)
 }
 
 /* Called when the other side closes a channel */
-static void ngcs_chan_closed(ngcs_chan *chan)
+static void ngcs_chan_closed(ngcs_chan * chan)
 {
 	assert(chan->close_state != NGCS_CHAN_CLOSED);
 
@@ -458,7 +456,7 @@ static void ngcs_chan_closed(ngcs_chan *chan)
 		chan->onclose(chan);
 }
 
-void ngcs_chan_close_now(ngcs_chan *chan)
+void ngcs_chan_close_now(ngcs_chan * chan)
 {
 	void (*onclose) (ngcs_chan *);
 
@@ -500,7 +498,7 @@ void ngcs_chan_del(ngcs_chan * chan)
 }
 
 /* called to dispatch a single message in various places */
-static void ngcs_conn_dispatch_one(ngcs_conn *conn, ngcs_incoming *it)
+static void ngcs_conn_dispatch_one(ngcs_conn * conn, ngcs_incoming * it)
 {
 	int done = 0;
 	ngcs_chan *chan;
@@ -527,7 +525,7 @@ static void ngcs_conn_dispatch_one(ngcs_conn *conn, ngcs_incoming *it)
 	}
 }
 
-void ngcs_conn_dispatch(ngcs_conn *conn)
+void ngcs_conn_dispatch(ngcs_conn * conn)
 {
 	ngcs_incoming *it, *next;
 
@@ -561,7 +559,7 @@ void ngcs_conn_data_ready(ngcs_conn * conn)
 		free(in.data);
 }
 
-void ngcs_conn_write_ready(ngcs_conn *conn)
+void ngcs_conn_write_ready(ngcs_conn * conn)
 {
 	int retval;
 
@@ -585,12 +583,12 @@ void ngcs_conn_write_ready(ngcs_conn *conn)
 		conn->pollmode_hook(conn, 0);
 }
 
-int ngcs_conn_has_pending_writes(ngcs_conn *conn)
+int ngcs_conn_has_pending_writes(ngcs_conn * conn)
 {
 	return (conn->fd >= 0 && conn->towrite > 0);
 }
 
-#if 0	/* FIXME - needs complete rewrite/rethink */
+#if 0				/* FIXME - needs complete rewrite/rethink */
 int ngcs_chan_read_msg(ngcs_chan * chan, int *type, int *len, char **data)
 {
 	fd_set fds;
@@ -690,7 +688,7 @@ void ngcs_conn_close(ngcs_conn * conn)
 		conn->close_hook(conn);
 }
 
-void ngcs_conn_free(ngcs_conn *conn)
+void ngcs_conn_free(ngcs_conn * conn)
 {
 	ngcs_chan *chan, *tmp;
 
@@ -740,7 +738,7 @@ int ngcs_recvall(int sock, void *buf, int len)
 	return 0;
 }
 
-int ngcs_chan_send(ngcs_chan *chan, int type, int len, const char *data)
+int ngcs_chan_send(ngcs_chan * chan, int type, int len, const char *data)
 {
 	return ngcs_conn_send(chan->conn, chan->id, type, len, data);
 }

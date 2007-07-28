@@ -42,8 +42,7 @@
 int module_init(int api_version)
 {
 	D_("module_init();\n");
-	if (api_version != API_VERSION)
-	{
+	if (api_version != API_VERSION) {
 		F_("This module is compiled for api_version %i version and initng is compiled on %i version, won't load this module!\n", API_VERSION, api_version);
 		return (FALSE);
 	}
@@ -53,7 +52,6 @@ int module_init(int api_version)
 	D_("empty.so loaded!\n");
 	return (TRUE);
 }
-
 
 void module_unload(void)
 {

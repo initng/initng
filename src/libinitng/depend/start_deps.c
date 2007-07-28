@@ -20,16 +20,15 @@
 #include <initng.h>
 
 #include <stdio.h>
-#include <stdlib.h>					/* free() exit() */
+#include <stdlib.h>		/* free() exit() */
 #include <string.h>
 #include <assert.h>
-
 
 /*
  * Start all deps, required or needed.
  * If a required deps failed to start, this will return FALSE
  */
-int initng_depend_start_deps(active_db_h *service)
+int initng_depend_start_deps(active_db_h * service)
 {
 	active_db_h *dep = NULL;
 	s_data *current = NULL;
@@ -79,11 +78,11 @@ int initng_depend_start_deps(active_db_h *service)
 				   "could not be found!\n", service->name,
 				   current->t.s);
 				continue;
-			} else { /* REQUIRE */
+			} else {	/* REQUIRE */
 				F_("%s required dep \"%s\" could not start!\n",
 				   service->name, current->t.s);
 				initng_common_mark_service(service,
-				                           &REQ_NOT_FOUND);
+							   &REQ_NOT_FOUND);
 				return FALSE;
 			}
 		}

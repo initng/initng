@@ -24,7 +24,6 @@
 #include <assert.h>
 #include <errno.h>
 
-
 INITNG_PLUGIN_MACRO;
 
 s_entry NICE = {
@@ -36,7 +35,7 @@ s_entry NICE = {
 
 static void do_renice(s_event * event)
 {
-	s_event_after_fork_data * data;
+	s_event_after_fork_data *data;
 
 	assert(event->event_type == &EVENT_AFTER_FORK);
 	assert(event->data);

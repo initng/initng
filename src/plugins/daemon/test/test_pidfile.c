@@ -9,8 +9,7 @@ static void set_pid_file(void)
 	FILE *fd;
 
 	fd = fopen(PIDFILE, "w+");
-	if (!fd)
-	{
+	if (!fd) {
 		printf("Could not open " PIDFILE " for writing!\n");
 		return;
 	}
@@ -20,14 +19,13 @@ static void set_pid_file(void)
 
 int main(int argc, char **argv)
 {
-	(void) argc;
-	(void) argv;
-	printf("This is a testing daemon pid %i, that will fork and leave pid in "
-		   PIDFILE ". \n", getpid());
+	(void)argc;
+	(void)argv;
+	printf
+	    ("This is a testing daemon pid %i, that will fork and leave pid in "
+	     PIDFILE ". \n", getpid());
 
-
-	if (fork() == 0)
-	{
+	if (fork() == 0) {
 		printf("This is fork, pid %i\n", getpid());
 		printf("Setting pid now!\n");
 		set_pid_file();

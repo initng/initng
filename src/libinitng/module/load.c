@@ -31,7 +31,6 @@
 
 #include "local.h"
 
-
 /*
  * Read the module information from the file. Does not actually call
  * module_init() for the module, so it is not "loaded" at this point.
@@ -63,7 +62,7 @@ m_h *initng_module_open(const char *module_path, const char *module_name)
 	}
 
 	/* open module */
-	dlerror();								/* clear any existing error */
+	dlerror();		/* clear any existing error */
 	m->module_dlhandle = dlopen(module_path, RTLD_LAZY);
 	/*
 	 * this breaks ngc2 on my testbox - neuron :
@@ -102,7 +101,7 @@ m_h *initng_module_open(const char *module_path, const char *module_name)
 	}
 
 	/* get initialization function */
-	dlerror();	/* clear any existing error */
+	dlerror();		/* clear any existing error */
 	m->module_init = dlsym(m->module_dlhandle, "module_init");
 	if (m->module_init == NULL) {
 		errmsg = dlerror();
@@ -112,7 +111,7 @@ m_h *initng_module_open(const char *module_path, const char *module_name)
 	}
 
 	/* get unload function */
-	dlerror();	/* clear any existing error */
+	dlerror();		/* clear any existing error */
 	m->module_unload = dlsym(m->module_dlhandle, "module_unload");
 	if (m->module_unload == NULL) {
 		errmsg = dlerror();
@@ -122,8 +121,8 @@ m_h *initng_module_open(const char *module_path, const char *module_name)
 	}
 
 	/* get dependency list (may be NULL - this is not an error) */
-	dlerror();	/* clear any existing error */
-	m->module_needs = (char **) dlsym(m->module_dlhandle, "module_needs");
+	dlerror();		/* clear any existing error */
+	m->module_needs = (char **)dlsym(m->module_dlhandle, "module_needs");
 	/* XXX: is there any way to check for "not found", since we don't
 	 * consider that an error? */
 
@@ -198,7 +197,7 @@ m_h *initng_module_load(const char *module)
 		module_name = initng_toolbox_strndup(&module[i], len - i - 3);
 	} else {
 		/* set modulename from module */
-		module_name = (char *) module;
+		module_name = (char *)module;
 	}
 
 	/* look for duplicates */
@@ -216,9 +215,12 @@ m_h *initng_module_load(const char *module)
 
 	if (!module_path) {
 		/* build a path */
-		module_path = (char *) initng_toolbox_calloc(1,
-						strlen(INITNG_PLUGIN_DIR) +
-						strlen(module_name) + 30);
+		module_path = (char *)initng_toolbox_calloc(1,
+							    strlen
+							    (INITNG_PLUGIN_DIR)
+							    +
+							    strlen(module_name)
+							    + 30);
 		strcpy(module_path, INITNG_PLUGIN_DIR "/lib");
 		strcat(module_path, module_name);
 		strcat(module_path, ".so");
@@ -247,7 +249,7 @@ m_h *initng_module_load(const char *module)
 				strcat(module_path, module_name);
 				strcat(module_path, ".so");
 				new_m = initng_module_open(module_path,
-				                           module_name);
+							   module_name);
 
 				/* make sure this succeded */
 				if (!new_m) {
@@ -276,13 +278,12 @@ m_h *initng_module_load(const char *module)
 	}
 
 	/* run module_init */
-	new_m->initziated = (*new_m->module_init)(API_VERSION);
+	new_m->initziated = (*new_m->module_init) (API_VERSION);
 
 	D_("for module \"%s\" return: %i\n", module_path, new_m->initziated);
 
 	if (new_m->initziated < 1) {
-		F_("Module %s did not load correctly (module_init() returned %i)\n",
-		   module_path, new_m->initziated);
+		F_("Module %s did not load correctly (module_init() returned %i)\n", module_path, new_m->initziated);
 		/* XXX: used to be here, but why? */
 		/* sleep(1); */
 		initng_module_close_and_free(new_m);
@@ -314,15 +315,16 @@ int initng_module_load_all(const char *plugin_path)
 
 	/* memory for full path */
 	module_path = initng_toolbox_calloc(strlen(plugin_path) +
-	                                    NAME_MAX + 2, 1);
+					    NAME_MAX + 2, 1);
 
 	/* get every entry */
 	for (i = 0; i < files; i++) {
 		/* check for files, ending with .so */
 		if (fnmatch("lib*.so", filelist[i]->d_name, 0) == 0) {
-			module_name = initng_toolbox_strndup(
-					filelist[i]->d_name + 3,
-					strlen(filelist[i]->d_name + 3) - 3);
+			module_name =
+			    initng_toolbox_strndup(filelist[i]->d_name + 3,
+						   strlen(filelist[i]->d_name +
+							  3) - 3);
 
 			/* search the plugin name, for blacklisted */
 			if (initng_common_service_blacklisted(module_name)) {
@@ -341,7 +343,7 @@ int initng_module_load_all(const char *plugin_path)
 			/* open the module */
 			current = initng_module_open(module_path, module_name);
 			free(module_name);	/* initng_module_open strdups
-			                         * this itself */
+						 * this itself */
 			module_name = NULL;
 
 			/* add this to the list of loaded modules */
@@ -360,8 +362,7 @@ int initng_module_load_all(const char *plugin_path)
 #ifdef DEBUG
 			if (filelist[i]->d_name[0] != '.') {
 				D_("Won't load module \"%s\", doesn't match "
-				   "\"*.so\" pattern.\n",
-				   filelist[i]->d_name);
+				   "\"*.so\" pattern.\n", filelist[i]->d_name);
 			}
 #endif
 		}

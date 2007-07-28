@@ -65,7 +65,6 @@ const char *module_needs[] = {
    programs should not rely on this feature for security.
  */
 
-
 /* globals */
 struct stat sock_stat;
 const char *socket_filename;
@@ -76,8 +75,7 @@ f_module_h fdh = {
 	.fds = -1
 };
 
-
-static void fdh_handler(s_event *event)
+static void fdh_handler(s_event * event)
 {
 	s_event_fd_watcher_data *data;
 
@@ -87,45 +85,44 @@ static void fdh_handler(s_event *event)
 	data = event->data;
 
 	switch (data->action) {
-		case FDW_ACTION_CLOSE:
-			if (fdh.fds > 0)
-				close(fdh.fds);
+	case FDW_ACTION_CLOSE:
+		if (fdh.fds > 0)
+			close(fdh.fds);
+		break;
+
+	case FDW_ACTION_CHECK:
+		if (fdh.fds <= 2)
 			break;
 
-		case FDW_ACTION_CHECK:
-			if (fdh.fds <= 2)
-				break;
+		/* This is a expensive test, but better safe then sorry */
+		if (!STILL_OPEN(fdh.fds)) {
+			D_("%i is not open anymore.\n", fdh.fds);
+			fdh.fds = -1;
+			break;
+		}
 
-			/* This is a expensive test, but better safe then sorry */
-			if (!STILL_OPEN(fdh.fds)) {
-				D_("%i is not open anymore.\n", fdh.fds);
-				fdh.fds = -1;
-				break;
-			}
+		FD_SET(fdh.fds, data->readset);
+		data->added++;
+		break;
 
-			FD_SET(fdh.fds, data->readset);
-			data->added++;
+	case FDW_ACTION_CALL:
+		if (!data->added || fdh.fds <= 2)
 			break;
 
-		case FDW_ACTION_CALL:
-			if (!data->added || fdh.fds <= 2)
-				break;
-
-			if(!FD_ISSET(fdh.fds, data->readset))
-				break;
-
-			accepted_client(&fdh, FDW_READ);
-			data->added--;
+		if (!FD_ISSET(fdh.fds, data->readset))
 			break;
 
-		case FDW_ACTION_DEBUG:
-			if (!data->debug_find_what ||
-			    strstr(__FILE__, data->debug_find_what)) {
-				mprintf(data->debug_out,
-					" %i: Used by plugin: %s\n",
-					fdh.fds, __FILE__);
-			}
-			break;
+		accepted_client(&fdh, FDW_READ);
+		data->added--;
+		break;
+
+	case FDW_ACTION_DEBUG:
+		if (!data->debug_find_what ||
+		    strstr(__FILE__, data->debug_find_what)) {
+			mprintf(data->debug_out, " %i: Used by plugin: %s\n",
+				fdh.fds, __FILE__);
+		}
+		break;
 	}
 }
 
@@ -153,7 +150,6 @@ static s_command *lfbs(char *name)
 	return NULL;
 }
 
-
 static void closesock(void)
 {
 	/* Check if we need to remove hooks */
@@ -166,7 +162,6 @@ static void closesock(void)
 	close(fdh.fds);
 	fdh.fds = -1;
 }
-
 
 /* this is called on protocol_missmatch to reload initng if that plugin is present */
 static void initng_reload(void)
@@ -181,10 +176,9 @@ static void initng_reload(void)
 	reload = initng_command_find_by_command_id('c');
 	if (reload && reload->u.void_command_call) {
 		/* call the reload call in that s_command */
-		(*reload->u.void_command_call)(NULL);
+		(*reload->u.void_command_call) (NULL);
 	}
 }
-
 
 static void handle_client(int fd)
 {
@@ -193,7 +187,7 @@ static void handle_client(int fd)
 	void *header_data = NULL;
 	ssize_t sent = 0;
 
-	s_command *tmp_cmd;		/* temporary storage for a command */
+	s_command *tmp_cmd;	/* temporary storage for a command */
 
 	assert(fd > 0);
 
@@ -201,7 +195,7 @@ static void handle_client(int fd)
 
 	/* use file descriptor, because fread hangs here? */
 	if (TEMP_FAILURE_RETRY(recv(fd, &header, sizeof(read_header), 0)) <
-	    (signed) sizeof(read_header)) {
+	    (signed)sizeof(read_header)) {
 		F_("Could not read header.\n");
 		return;
 	}
@@ -231,7 +225,7 @@ static void handle_client(int fd)
 		usleep(10);
 
 		if (TEMP_FAILURE_RETRY(recv(fd, header_data, header.body_len,
-					    0)) < (signed) header.body_len) {
+					    0)) < (signed)header.body_len) {
 			F_("Could not read header_data\n");
 
 			if (header_data)
@@ -272,17 +266,17 @@ static void handle_client(int fd)
 		tmp_cmd = lfbc(header.c);
 		if (!tmp_cmd)
 			tmp_cmd = initng_command_find_by_command_id(header.c);
-	/* find by long opt */
+		/* find by long opt */
 	} else if (header.l) {
 		/* first search in the local db */
 		tmp_cmd = lfbs(header.l);
 		if (!tmp_cmd)
-			tmp_cmd = initng_command_find_by_command_string(
-					header.l);
+			tmp_cmd =
+			    initng_command_find_by_command_string(header.l);
 	} else {
 		if (header_data)
 			free(header_data);
-		
+
 		if (result)
 			free(result);
 		return;
@@ -342,197 +336,180 @@ static void handle_client(int fd)
 	result->t = tmp_cmd->com_type;
 
 	switch (tmp_cmd->com_type) {
+	case TRUE_OR_FALSE_COMMAND:
+	case INT_COMMAND:
+		{
+			int ret = 0;
 
-		case TRUE_OR_FALSE_COMMAND:
-		case INT_COMMAND:
-			{
-				int ret = 0;
+			assert(tmp_cmd->u.int_command_call);
+			D_("Calling an int or true or false command.\n");
 
-				assert(tmp_cmd->u.int_command_call);
-				D_("Calling an int or true or false command.\n");
+			/* execute command */
+			ret = (int)(*tmp_cmd->u.int_command_call)
+			    ((char *)header_data);
 
-				/* execute command */
-				ret = (int) (*tmp_cmd->u.int_command_call)
-						((char *) header_data);
+			/* Write a header respond */
+			result->s = S_TRUE;
+			result->payload = sizeof(int);
 
-				/* Write a header respond */
-				result->s = S_TRUE;
-				result->payload = sizeof(int);
-
-				/* send the result */
-				if ((sent = send(fd, result,
-						 sizeof(result_desc), 0)) !=
-				    sizeof(result_desc)) {
-					F_("failed to send result, sent: %i "
-					   "of %i.\n", sent,
-					   sizeof(result_desc));
-					break;
-				}
-
-				/* send the payload */
-				if ((sent =
-					send(fd, &ret, result->payload, 0)) !=
-					(signed)result->payload) {
-					F_("Could not send complete payload, "
-					   "sent %i of %i.", sent,
-					   result->payload);
-
-					break;
-				}
+			/* send the result */
+			if ((sent = send(fd, result,
+					 sizeof(result_desc), 0)) !=
+			    sizeof(result_desc)) {
+				F_("failed to send result, sent: %i of %i.\n",
+				   sent, sizeof(result_desc));
 
 				break;
 			}
 
-		case STRING_COMMAND:
-			{
-				char *send_buf = NULL;
+			/* send the payload */
+			if ((sent = send(fd, &ret, result->payload, 0)) !=
+			    (signed)result->payload) {
+				F_("Could not send complete payload, "
+				   "sent %i of %i.", sent, result->payload);
+			}
+		}
+		break;
 
-				assert(tmp_cmd->u.string_command_call);
-				D_("Calling an string command.\n");
+	case STRING_COMMAND:
+		{
+			char *send_buf = NULL;
 
-				/* execute command */
-				send_buf = (*tmp_cmd->u.string_command_call)
-						((char *) header_data);
+			assert(tmp_cmd->u.string_command_call);
+			D_("Calling an string command.\n");
 
-				if (!send_buf)
-					break;
+			/* execute command */
+			send_buf = (*tmp_cmd->u.string_command_call)
+			    ((char *)header_data);
 
-				/* write an header respond */
-				result->s = S_TRUE;
-				result->payload = strlen(send_buf);
+			if (!send_buf)
+				break;
 
-				/* send the result */
-				if ((sent =
-					 send(fd, result, sizeof(result_desc),
-					      0)) != sizeof(result_desc)) {
-					F_("failed to send result, sent: %i "
-					   "of %i.\n", sent,
-					   sizeof(result_desc));
+			/* write an header respond */
+			result->s = S_TRUE;
+			result->payload = strlen(send_buf);
 
-					free(send_buf);
-					break;
-				}
+			/* send the result */
+			if ((sent = send(fd, result, sizeof(result_desc), 0))
+			    != sizeof(result_desc)) {
+				F_("failed to send result, sent: %i of %i.\n",
+				   sent, sizeof(result_desc));
 
-				/* send the payload */
-				if ((sent = send(fd, send_buf, result->payload,
-					0)) != (signed) result->payload) {
-					F_("Could not send complete payload, "
-					   "sent %i of %i.", sent,
-					   result->payload);
-
-					free(send_buf);
-					break;
-				}
-
-				/* free and clear */
 				free(send_buf);
 				break;
 			}
 
-		case VOID_COMMAND:
-			{
-				assert(tmp_cmd->u.void_command_call);
-				D_("Calling a void command!\n");
+			/* send the payload */
+			if ((sent = send(fd, send_buf, result->payload, 0)) !=
+			    (signed)result->payload) {
+				F_("Could not send complete payload, "
+				   "sent %i of %i.", sent, result->payload);
 
-				/* execute command */
-				(*tmp_cmd->u.void_command_call)
-					((char *) header_data);
-
-				/* write an header respond */
-				result->s = S_TRUE;
-				/* unknown payload size here, TODO FIX THIS */
-				result->payload = 0;
-
-				/* sent result */
-				if ((sent =
-					send(fd, result, sizeof(result_desc),
-					     0)) != sizeof(result_desc)) {
-					F_("failed to send result, sent: %i "
-					   "of %i.\n", sent,
-					   sizeof(result_desc));
-					break;
-				}
+				free(send_buf);
 				break;
 			}
 
-		case PAYLOAD_COMMAND:
-			{
-				/* iniziate a data payload variable */
-				s_payload payload;
+			/* free and clear */
+			free(send_buf);
+			break;
+		}
 
-				/* clear payload */
-				memset(&payload, 0, sizeof(s_payload));
+	case VOID_COMMAND:
+		{
+			assert(tmp_cmd->u.void_command_call);
+			D_("Calling a void command!\n");
 
-				assert(tmp_cmd->u.data_command_call);
-				D_("Calling an data_command.\n");
+			/* execute command */
+			(*tmp_cmd->u.void_command_call) ((char *)header_data);
 
-				/* execute command */
-				(*tmp_cmd->u.data_command_call)
-					((char *) header_data, &payload);
+			/* write an header respond */
+			result->s = S_TRUE;
+			/* unknown payload size here, TODO FIX THIS */
+			result->payload = 0;
 
-				/* check that there was any payload */
-				if (payload.s < 1) {
-					W_("Payload command, that dont set "
-					   "any payload size.\n");
-				}
+			/* sent result */
+			if ((sent = send(fd, result, sizeof(result_desc), 0))
+			    != sizeof(result_desc)) {
+				F_("failed to send result, sent: %i of %i.\n",
+				   sent, sizeof(result_desc));
+			}
+		}
+		break;
 
-				/* write an header respond */
-				result->s = S_TRUE;
-				result->payload = payload.s;
+	case PAYLOAD_COMMAND:
+		{
+			/* iniziate a data payload variable */
+			s_payload payload;
 
-				/* send the result */
-				if ((sent =
-					send(fd, result, sizeof(result_desc),
-					     0)) != sizeof(result_desc)) {
-					F_("failed to send result, sent: %i "
-					   "of %i.\n", sent,
-					   sizeof(result_desc));
+			/* clear payload */
+			memset(&payload, 0, sizeof(s_payload));
 
-					free(payload.p);
-					break;
-				}
+			assert(tmp_cmd->u.data_command_call);
+			D_("Calling an data_command.\n");
 
-				/* without this, the client wont get the 2nd
-				 * send. WHY? */
-				usleep(1);
+			/* execute command */
+			(*tmp_cmd->u.data_command_call)
+			    ((char *)header_data, &payload);
 
-				/* send the payload */
-				D_("Sending a payload of %i bytes.\n",
-				   result->payload);
-				if ((sent =
-					send(fd, payload.p, result->payload,
-					     0)) != (signed) result->payload) {
-					F_("Could not send complete payload, "
-					   "sent %i of %i.", sent,
-					   result->payload);
+			/* check that there was any payload */
+			if (payload.s < 1) {
+				W_("Payload command, that dont set "
+				   "any payload size.\n");
+			}
 
-					free(payload.p);
-					break;
-				}
+			/* write an header respond */
+			result->s = S_TRUE;
+			result->payload = payload.s;
 
-				/* cleanup and free */
+			/* send the result */
+			if ((sent = send(fd, result, sizeof(result_desc), 0))
+			    != sizeof(result_desc)) {
+				F_("failed to send result, sent: %i of %i.\n",
+				   sent, sizeof(result_desc));
+
 				free(payload.p);
 				break;
 			}
-		case COMMAND_FAIL:
 
-			/* return FAIL header respond */
-			result->s = S_INVALID_TYPE;
-			if ((sent =
-				send(fd, result, sizeof(result_desc),
-				     0)) != (signed) sizeof(result_desc)) {
-				F_("failed to send result, sent: %i of %i.\n",
-				   sent, sizeof(result_desc));
+			/* without this, the client wont get the 2nd send.
+			 * WHY? */
+			usleep(1);
+
+			/* send the payload */
+			D_("Sending a payload of %i bytes.\n", result->payload);
+
+			if ((sent = send(fd, payload.p, result->payload, 0))
+			    != (signed)result->payload) {
+				F_("Could not send complete payload, "
+				   "sent %i of %i.", sent, result->payload);
+
+				free(payload.p);
 				break;
 			}
-			/* TODO: really continue?? */
 
-			D_("Invalid command type '%c', line '%s'\n", header.c,
-			   header.l);
+			/* cleanup and free */
+			free(payload.p);
+			break;
+		}
 
-			if (header_data)
-				free(header_data);
-			return;
+	case COMMAND_FAIL:
+		/* return FAIL header respond */
+		result->s = S_INVALID_TYPE;
+		if ((sent = send(fd, result, sizeof(result_desc), 0)) !=
+		    (signed)sizeof(result_desc)) {
+			F_("failed to send result, sent: %i of %i.\n", sent,
+			   sizeof(result_desc));
+			break;
+		}
+
+		/* TODO: really continue?? */
+
+		D_("Invalid command type '%c', line '%s'\n", header.c,
+		   header.l);
+
+		if (header_data)
+			free(header_data);
+		return;
 	}
 
 	D_("Returned successfully.\n");
@@ -544,7 +521,6 @@ static void handle_client(int fd)
 
 	return;
 }
-
 
 /* called by fd hook, when data is no socket */
 void accepted_client(f_module_h * from, e_fdw what)
@@ -597,7 +573,6 @@ static int sendping()
 	read_header header;
 	result_desc result;
 
-
 	D_("Sending ping\n");
 
 	memset(&header, 0, sizeof(read_header));
@@ -618,9 +593,9 @@ static int sendping()
 	strcpy(sockname.sun_path, socket_filename);
 
 	/* Try to connect */
-	if (connect(client, (struct sockaddr *) &sockname,
-		(strlen(sockname.sun_path) + sizeof(sockname.sun_family)))
-		< 0) {
+	if (connect(client, (struct sockaddr *)&sockname,
+		    (strlen(sockname.sun_path) + sizeof(sockname.sun_family)))
+	    < 0) {
 
 		close(client);
 		return FALSE;
@@ -633,7 +608,7 @@ static int sendping()
 
 	D_("Sending PING..\n");
 	if (write(client, &header, sizeof(read_header)) <
-		  (signed) sizeof(read_header)) {
+	    (signed)sizeof(read_header)) {
 
 		F_("Unable to send PING!\n");
 		close(client);
@@ -648,7 +623,7 @@ static int sendping()
 
 	D_("Reading PONG..\n");
 	if ((read(client, &result, sizeof(result_desc)) <
-		  (signed) sizeof(result_desc)) || result.c != 'Y' ||
+	     (signed)sizeof(result_desc)) || result.c != 'Y' ||
 	    result.s != S_TRUE) {
 		F_("Unable to receive PONG!\n");
 		close(client);
@@ -718,7 +693,6 @@ static int open_socket()
 	   return (FALSE);
 	   } */
 
-
 	/* Bind a name to the socket. */
 	serv_sockname.sun_family = AF_UNIX;
 
@@ -728,7 +702,7 @@ static int open_socket()
 	unlink(serv_sockname.sun_path);
 
 	/* Try to bind */
-	if (bind(fdh.fds, (struct sockaddr *) &serv_sockname,
+	if (bind(fdh.fds, (struct sockaddr *)&serv_sockname,
 		 (strlen(serv_sockname.sun_path) +
 		  sizeof(serv_sockname.sun_family))) < 0) {
 
@@ -772,7 +746,7 @@ static int open_socket()
 }
 
 /* this will check socket, and reopen on failure */
-static void check_socket(s_event *event)
+static void check_socket(s_event * event)
 {
 	int *signal;
 	struct stat st;
@@ -812,13 +786,12 @@ static void check_socket(s_event *event)
 	D_("Socket ok.\n");
 }
 
-
-static void cmd_help(char *arg, s_payload *payload)
+static void cmd_help(char *arg, s_payload * payload)
 {
 	s_command *current = NULL;
 	int i = 0;
 
-	(void) arg;
+	(void)arg;
 	payload->p = (help_row *) initng_toolbox_calloc(101, sizeof(help_row));
 	memset(payload->p, 0, sizeof(help_row) * 100);
 
@@ -892,13 +865,12 @@ static void cmd_help(char *arg, s_payload *payload)
 	payload->s = i * sizeof(help_row);
 }
 
-static void cmd_help_all(char *arg, s_payload *payload)
+static void cmd_help_all(char *arg, s_payload * payload)
 {
 	int i = 0;
 	s_command *current = NULL;
 
-	(void) arg;
-
+	(void)arg;
 
 	/* allocate space for payload, static malloc for now */
 	payload->p = (help_row *) initng_toolbox_calloc(101, sizeof(help_row));
@@ -935,7 +907,7 @@ static void cmd_help_all(char *arg, s_payload *payload)
 		help_row *row = payload->p + (i * sizeof(help_row));
 
 		if (current->opt_visible != STANDARD_COMMAND
-			&& current->opt_visible != ADVANCHED_COMMAND)
+		    && current->opt_visible != ADVANCHED_COMMAND)
 			continue;
 
 		row->dt = HELP_ROW;
@@ -968,7 +940,7 @@ static void cmd_help_all(char *arg, s_payload *payload)
 	payload->s = i * sizeof(help_row);
 }
 
-static void cmd_start(char *arg, s_payload *payload)
+static void cmd_start(char *arg, s_payload * payload)
 {
 	active_db_h *serv = NULL;
 
@@ -1035,11 +1007,12 @@ static void cmd_start(char *arg, s_payload *payload)
 	}
 }
 
-static void cmd_stop(char *arg, s_payload *payload)
+static void cmd_stop(char *arg, s_payload * payload)
 {
 	active_db_h *serv = NULL;
 
-	payload->p = (active_row *) initng_toolbox_calloc(1, sizeof(active_row));
+	payload->p =
+	    (active_row *) initng_toolbox_calloc(1, sizeof(active_row));
 	payload->s = sizeof(active_row);
 	memset(payload->p, 0, sizeof(active_row));
 	active_row *row = payload->p;
@@ -1082,8 +1055,8 @@ static void cmd_stop(char *arg, s_payload *payload)
 	}
 }
 
-
-static void cmd_options(char *arg, s_payload *payload) {
+static void cmd_options(char *arg, s_payload * payload)
+{
 	int i = 0;
 	s_entry *current = NULL;
 
@@ -1091,7 +1064,8 @@ static void cmd_options(char *arg, s_payload *payload) {
 	if (arg && strlen(arg) > 1) {
 		/* malloc some space for it */
 		payload->p = (option_row *) initng_toolbox_calloc(1,
-							sizeof(option_row));
+								  sizeof
+								  (option_row));
 		memset(payload->p, 0, sizeof(option_row));
 		option_row *row = payload->p;
 
@@ -1118,9 +1092,9 @@ static void cmd_options(char *arg, s_payload *payload) {
 		return;
 	}
 
-
 	/* malloc some space for it (static for now) */
-	payload->p = (option_row *) initng_toolbox_calloc(101, sizeof(option_row));
+	payload->p =
+	    (option_row *) initng_toolbox_calloc(101, sizeof(option_row));
 
 	while_service_data_types(current) {
 		option_row *row = payload->p + (i * sizeof(option_row));
@@ -1219,17 +1193,17 @@ static void cmd_states(char *arg, s_payload * payload)
 	payload->s = i * sizeof(state_row);
 }
 
-static void cmd_services(char *arg, s_payload *payload)
+static void cmd_services(char *arg, s_payload * payload)
 {
 	int i = 0;
 	active_db_h *current = NULL;
-
 
 	/* if an argument is provided */
 	if (arg && strlen(arg) > 1) {
 		/* malloc some space for it */
 		payload->p = (active_row *) initng_toolbox_calloc(1,
-							sizeof(active_row));
+								  sizeof
+								  (active_row));
 		memset(payload->p, 0, sizeof(active_row));
 		active_row *row = payload->p;
 
@@ -1243,8 +1217,7 @@ static void cmd_services(char *arg, s_payload *payload)
 			    current->current_state->name) {
 				row->is = current->current_state->is;
 				strncpy(row->state,
-					current->current_state->name,
-					100);
+					current->current_state->name, 100);
 
 				/* Copy service type name */
 				if (current->type && current->type->name) {
@@ -1285,8 +1258,7 @@ static void cmd_services(char *arg, s_payload *payload)
 
 		row->dt = ACTIVE_ROW;
 
-		if (current->current_state &&
-		    current->current_state->name) {
+		if (current->current_state && current->current_state->name) {
 			row->is = current->current_state->is;
 			strncpy(row->state, current->current_state->name, 100);
 			/* Copy service type name */
@@ -1313,7 +1285,7 @@ static void cmd_services(char *arg, s_payload *payload)
 	payload->s = i * sizeof(active_row);
 }
 
-static void cmd_all_services(char *arg, s_payload *payload)
+static void cmd_all_services(char *arg, s_payload * payload)
 {
 	int i = 0;
 	active_db_h *current = NULL;
@@ -1333,11 +1305,9 @@ static void cmd_all_services(char *arg, s_payload *payload)
 
 		row->dt = ACTIVE_ROW;
 
-		if (current->current_state &&
-		    current->current_state->name) {
+		if (current->current_state && current->current_state->name) {
 			row->is = current->current_state->is;
-			strncpy(row->state,
-				current->current_state->name, 100);
+			strncpy(row->state, current->current_state->name, 100);
 			/* Copy service type name */
 			if (current->type && current->type->name)
 				strncpy(row->type, current->type->name, 100);
@@ -1362,8 +1332,6 @@ static void cmd_all_services(char *arg, s_payload *payload)
 	payload->s = i * sizeof(active_row);
 }
 
-
-
 /*
  * These are local commands, not added to initng commands db,
  * other plugins wont be able to use the replys from these commands
@@ -1376,7 +1344,7 @@ s_command HELP = {
 	.com_type = PAYLOAD_COMMAND,
 	.opt_visible = STANDARD_COMMAND,
 	.opt_type = NO_OPT,
-	.u = { (void *) &cmd_help },
+	.u = {(void *)&cmd_help},
 	.description = "Print what commands you can send to initng."
 };
 
@@ -1386,7 +1354,7 @@ s_command HELP_ALL = {
 	.com_type = PAYLOAD_COMMAND,
 	.opt_visible = STANDARD_COMMAND,
 	.opt_type = NO_OPT,
-	.u = { (void *) &cmd_help_all },
+	.u = {(void *)&cmd_help_all},
 	.description = "Print out verbose list of all commands."
 };
 
@@ -1396,7 +1364,7 @@ s_command SERVICES = {
 	.com_type = PAYLOAD_COMMAND,
 	.opt_visible = STANDARD_COMMAND,
 	.opt_type = USES_OPT,
-	.u = { (void *) &cmd_services },
+	.u = {(void *)&cmd_services},
 	.description = "Print all services."
 };
 
@@ -1406,7 +1374,7 @@ s_command ALL_SERVICES = {
 	.com_type = PAYLOAD_COMMAND,
 	.opt_visible = HIDDEN_COMMAND,
 	.opt_type = NO_OPT,
-	.u = { (void *) &cmd_all_services },
+	.u = {(void *)&cmd_all_services},
 	.description = "Print all servics, even hidden ones."
 };
 
@@ -1416,7 +1384,7 @@ s_command STATES = {
 	.com_type = PAYLOAD_COMMAND,
 	.opt_visible = STANDARD_COMMAND,
 	.opt_type = USES_OPT,
-	.u = { (void *) &cmd_states },
+	.u = {(void *)&cmd_states},
 	.description = "Print out all possible states."
 };
 
@@ -1426,7 +1394,7 @@ s_command OPTIONS = {
 	.com_type = PAYLOAD_COMMAND,
 	.opt_visible = ADVANCHED_COMMAND,
 	.opt_type = USES_OPT,
-	.u = { (void *) &cmd_options},
+	.u = {(void *)&cmd_options},
 	.description = "Print out option_db."
 };
 
@@ -1436,7 +1404,7 @@ s_command START = {
 	.com_type = PAYLOAD_COMMAND,
 	.opt_visible = STANDARD_COMMAND,
 	.opt_type = REQUIRES_OPT,
-	.u = { (void *) &cmd_start },
+	.u = {(void *)&cmd_start},
 	.description = "Start service."
 };
 
@@ -1446,10 +1414,9 @@ s_command STOP = {
 	.com_type = PAYLOAD_COMMAND,
 	.opt_visible = STANDARD_COMMAND,
 	.opt_type = REQUIRES_OPT,
-	.u = { (void *) &cmd_stop },
+	.u = {(void *)&cmd_stop},
 	.description = "Stop service."
 };
-
 
 int module_init(int api_version)
 {
@@ -1499,7 +1466,6 @@ int module_init(int api_version)
 	D_("ngc2.so.0.0 loaded!\n");
 	return TRUE;
 }
-
 
 void module_unload(void)
 {

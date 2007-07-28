@@ -36,12 +36,13 @@ int dostat(char *path, struct stat *st, int do_lstat, int quiet)
 	else
 		n = stat(path, st);
 
-	if (n != 0)
-	{
+	if (n != 0) {
 		if (!quiet)
-			fprintf(stderr, "mountpoint: %s: %s\n", path, strerror(errno));
+			fprintf(stderr, "mountpoint: %s: %s\n", path,
+				strerror(errno));
 		return -1;
 	}
+
 	return 0;
 }
 
@@ -61,22 +62,23 @@ int main(int argc, char **argv)
 	int xdev = 0;
 	int c, r;
 
-	while ((c = getopt(argc, argv, "dqx")) != EOF)
-		switch (c)
-		{
-			case 'd':
-				showdev = 1;
-				break;
-			case 'q':
-				quiet = 1;
-				break;
-			case 'x':
-				xdev = 1;
-				break;
-			default:
-				usage();
-				break;
+	while ((c = getopt(argc, argv, "dqx")) != EOF) {
+		switch (c) {
+		case 'd':
+			showdev = 1;
+			break;
+		case 'q':
+			quiet = 1;
+			break;
+		case 'x':
+			xdev = 1;
+			break;
+		default:
+			usage();
+			break;
 		}
+	}
+
 	if (optind != argc - 1)
 		usage();
 	path = argv[optind];
@@ -84,28 +86,28 @@ int main(int argc, char **argv)
 	if (dostat(path, &st, !xdev, quiet) < 0)
 		return 1;
 
-	if (xdev)
-	{
+	if (xdev) {
 #ifdef __linux__
-		if (!S_ISBLK(st.st_mode))
+		if (!S_ISBLK(st.st_mode)) {
 #else
-		if (!S_ISBLK(st.st_mode) && !S_ISCHR(st.st_mode))
+		if (!S_ISBLK(st.st_mode) && !S_ISCHR(st.st_mode)) {
 #endif
-		{
 			if (quiet)
 				printf("\n");
 			else
-				fprintf(stderr, "mountpoint: %s: not a block device\n", path);
+				fprintf(stderr, "mountpoint: %s: not a block "
+					"device\n", path);
 			return 1;
 		}
+
 		printf("%u:%u\n", major(st.st_rdev), minor(st.st_rdev));
 		return 0;
 	}
 
-	if (!S_ISDIR(st.st_mode))
-	{
+	if (!S_ISDIR(st.st_mode)) {
 		if (!quiet)
-			fprintf(stderr, "mountpoint: %s: not a directory\n", path);
+			fprintf(stderr, "mountpoint: %s: not a directory\n",
+				path);
 		return 1;
 	}
 
@@ -115,11 +117,12 @@ int main(int argc, char **argv)
 	if (dostat(buf, &st2, 0, quiet) < 0)
 		return 1;
 
-	r = (st.st_dev != st2.st_dev) || (st.st_dev == st2.st_dev
-									  && st.st_ino == st2.st_ino);
+	r = (st.st_dev != st2.st_dev) || (st.st_dev == st2.st_dev &&
+					  st.st_ino == st2.st_ino);
 
 	if (!quiet && !showdev)
 		printf("%s is %sa mountpoint\n", path, r ? "" : "not ");
+
 	if (showdev)
 		printf("%u:%u\n", major(st.st_dev), minor(st.st_dev));
 

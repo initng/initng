@@ -19,15 +19,15 @@
 
 #include <initng.h>
 
-#include <time.h>				/* time() */
-#include <fcntl.h>				/* fcntl() */
-#include <unistd.h>				/* execv() pipe() usleep() */
+#include <time.h>		/* time() */
+#include <fcntl.h>		/* fcntl() */
+#include <unistd.h>		/* execv() pipe() usleep() */
 						/* pause() chown() pid_t   */
 #include <sys/types.h>
-#include <sys/wait.h>				/* waitpid() sa */
-#include <sys/ioctl.h>				/* ioctl() */
-#include <sys/socket.h>				/* socketpair() */
-#include <stdlib.h>				/* free() exit() */
+#include <sys/wait.h>		/* waitpid() sa */
+#include <sys/ioctl.h>		/* ioctl() */
+#include <sys/socket.h>		/* socketpair() */
+#include <stdlib.h>		/* free() exit() */
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
@@ -35,13 +35,12 @@
 #include <sys/stat.h>
 #include <errno.h>
 
-
 pid_t initng_fork(active_db_h * service, process_h * process)
 {
 	/* This is the real service kicker */
-	pid_t pid_fork;				/* pid got from fork() */
-	int try_count = 0;			/* Count tryings */
-	pipe_h *current_pipe = NULL;		/* used while walking */
+	pid_t pid_fork;		/* pid got from fork() */
+	int try_count = 0;	/* Count tryings */
+	pipe_h *current_pipe = NULL;	/* used while walking */
 
 	assert(service);
 	assert(process);
@@ -52,8 +51,9 @@ pid_t initng_fork(active_db_h * service, process_h * process)
 			/*printf("calling socketpair:\n"); */
 			/* create an two directional pipe with socketpair */
 			if (socketpair(AF_UNIX, SOCK_STREAM, 0,
-			               current_pipe->pipe) < 0) {
-				F_("Fail call socketpair: \"%s\"\n", strerror(errno));
+				       current_pipe->pipe) < 0) {
+				F_("Fail call socketpair: \"%s\"\n",
+				   strerror(errno));
 				return -1;
 			}
 			/* printf("parent: fd%i fork: fd%i\n", current_pipe->pipe[1], current_pipe->pipe[0]); */
@@ -73,11 +73,12 @@ pid_t initng_fork(active_db_h * service, process_h * process)
 
 	/* Try to fork 30 times */
 	while ((pid_fork = fork()) == -1) {
-		if (try_count > 30) {									/* Already tried 30 times = no more try */
+		if (try_count > 30) {	/* Already tried 30 times = no more try */
 			F_("GIVING UP TRY TO FORK, FATAL for service.\n");
 			return pid_fork;
 		}
-		F_("FAILED TO FORK! try no# %i, this can be FATAL!\n", try_count);
+		F_("FAILED TO FORK! try no# %i, this can be FATAL!\n",
+		   try_count);
 		usleep(++try_count * 2000);	/* Sleep a while before trying
 						 * again */
 	}
@@ -115,12 +116,13 @@ pid_t initng_fork(active_db_h * service, process_h * process)
 
 				/* for every target */
 				for (i = 0; current_pipe->targets[i] > 0 &&
-				            i < MAX_TARGETS; i++) {
+				     i < MAX_TARGETS; i++) {
 					/* close any conflicting one */
 					close(current_pipe->targets[i]);
 
 					if (current_pipe->dir == OUT_PIPE ||
-					    current_pipe->dir == BUFFERED_OUT_PIPE) {
+					    current_pipe->dir ==
+					    BUFFERED_OUT_PIPE) {
 						/* duplicate the new target right */
 						dup2(current_pipe->pipe[1],
 						     current_pipe->targets[i]);
@@ -129,7 +131,8 @@ pid_t initng_fork(active_db_h * service, process_h * process)
 						 * instead */
 						dup2(current_pipe->pipe[0],
 						     current_pipe->targets[i]);
-					} else if (current_pipe->dir == IN_AND_OUT_PIPE) {
+					} else if (current_pipe->dir ==
+						   IN_AND_OUT_PIPE) {
 						/* in a unidirectional socket,
 						 * there is pipe[0] that is
 						 * used in the child */

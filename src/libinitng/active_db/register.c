@@ -29,7 +29,6 @@
 
 #include <initng.h>
 
-
 /* add active to data structure */
 /* remember to free service, if this fails */
 int initng_active_db_register(active_db_h * add_this)

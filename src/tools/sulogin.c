@@ -52,7 +52,6 @@ char *getpasswd(char *);
 void sushell(struct passwd *);
 void usage(void);
 
-
 #if 0
 /*
  *      Fix the tty modes and set reasonable defaults.
@@ -91,7 +90,6 @@ void fixtty(void)
 }
 #endif
 
-
 /*
  *      Called at timeout.
  */
@@ -118,10 +116,8 @@ int valid(char *pass)
 	 *      $
 	 *      the MD5 hash (128 bits or 16 bytes) encoded in base64 = 22 bytes
 	 */
-	if (strncmp(pass, "$1$", 3) == 0)
-	{
-		for (s = pass + 3; *s && *s != '$'; s++)
-			;
+	if (strncmp(pass, "$1$", 3) == 0) {
+		for (s = pass + 3; *s && *s != '$'; s++) ;
 		if (*s++ != '$')
 			return 0;
 		len = strlen(s);
@@ -134,11 +130,10 @@ int valid(char *pass)
 #if CHECK_DES
 	if (strlen(pass) != 13)
 		return 0;
-	for (s = pass; *s; s++)
-	{
+	for (s = pass; *s; s++) {
 		if ((*s < '0' || *s > '9') &&
-			(*s < 'a' || *s > 'z') &&
-			(*s < 'A' || *s > 'Z') && *s != '.' && *s != '/')
+		    (*s < 'a' || *s > 'z') &&
+		    (*s < 'A' || *s > 'Z') && *s != '.' && *s != '/')
 			return 0;
 	}
 #endif
@@ -172,7 +167,7 @@ struct passwd *getrootpwent(int try_manually)
 	 *      way using normal library calls.
 	 */
 	if ((pw = getpwnam("root")) &&
-		!strcmp(pw->pw_passwd, "x") && (spw = getspnam("root")))
+	    !strcmp(pw->pw_passwd, "x") && (spw = getspnam("root")))
 		pw->pw_passwd = spw->sp_pwdp;
 	if (pw || !try_manually)
 		return pw;
@@ -190,8 +185,7 @@ struct passwd *getrootpwent(int try_manually)
 	pwd.pw_uid = 0;
 	pwd.pw_gid = 0;
 
-	if ((fp = fopen(F_PASSWD, "r")) == NULL)
-	{
+	if ((fp = fopen(F_PASSWD, "r")) == NULL) {
 		perror(F_PASSWD);
 		return &pwd;
 	}
@@ -199,14 +193,13 @@ struct passwd *getrootpwent(int try_manually)
 	/*
 	 *      Find root in the password file.
 	 */
-	while ((p = fgets(line, 256, fp)) != NULL)
-	{
+	while ((p = fgets(line, 256, fp)) != NULL) {
 		if (strncmp(line, "root:", 5) != 0)
 			continue;
 		p += 5;
 		set(&pwd.pw_passwd, strsep(&p, ":"));
-		(void) strsep(&p, ":");
-		(void) strsep(&p, ":");
+		(void)strsep(&p, ":");
+		(void)strsep(&p, ":");
 		set(&pwd.pw_gecos, strsep(&p, ":"));
 		set(&pwd.pw_dir, strsep(&p, ":"));
 		set(&pwd.pw_shell, strsep(&p, "\n"));
@@ -219,8 +212,7 @@ struct passwd *getrootpwent(int try_manually)
 	 *      If the encrypted password is valid
 	 *      or not found, return.
 	 */
-	if (p == NULL)
-	{
+	if (p == NULL) {
 		fprintf(stderr, "%s: no entry for root\n", F_PASSWD);
 		return &pwd;
 	}
@@ -232,13 +224,11 @@ struct passwd *getrootpwent(int try_manually)
 	 *      shadow password, try it.
 	 */
 	strcpy(pwd.pw_passwd, "");
-	if ((fp = fopen(F_SHADOW, "r")) == NULL)
-	{
+	if ((fp = fopen(F_SHADOW, "r")) == NULL) {
 		fprintf(stderr, "%s: root password garbled\n", F_PASSWD);
 		return &pwd;
 	}
-	while ((p = fgets(sline, 256, fp)) != NULL)
-	{
+	while ((p = fgets(sline, 256, fp)) != NULL) {
 		if (strncmp(sline, "root:", 5) != 0)
 			continue;
 		p += 5;
@@ -251,13 +241,11 @@ struct passwd *getrootpwent(int try_manually)
 	 *      If the password is still invalid,
 	 *      NULL it, and return.
 	 */
-	if (p == NULL)
-	{
+	if (p == NULL) {
 		fprintf(stderr, "%s: no entry for root\n", F_SHADOW);
 		strcpy(pwd.pw_passwd, "");
 	}
-	if (!valid(pwd.pw_passwd))
-	{
+	if (!valid(pwd.pw_passwd)) {
 		fprintf(stderr, "%s: root password garbled\n", F_SHADOW);
 		strcpy(pwd.pw_passwd, "");
 	}
@@ -299,11 +287,9 @@ char *getpasswd(char *crypted)
 
 	if (read(0, pass, sizeof(pass) - 1) <= 0)
 		ret = NULL;
-	else
-	{
+	else {
 		for (i = 0; i < sizeof(pass) && pass[i]; i++)
-			if (pass[i] == '\r' || pass[i] == '\n')
-			{
+			if (pass[i] == '\r' || pass[i] == '\n') {
 				pass[i] = 0;
 				break;
 			}
@@ -328,13 +314,12 @@ void sushell(struct passwd *pwd)
 	/*
 	 *      Set directory and shell.
 	 */
-	(void) chdir(pwd->pw_dir);
+	(void)chdir(pwd->pw_dir);
 	if ((p = getenv("SUSHELL")) != NULL)
 		sushell = p;
 	else if ((p = getenv("sushell")) != NULL)
 		sushell = p;
-	else
-	{
+	else {
 		if (pwd->pw_shell[0])
 			sushell = pwd->pw_shell;
 		else
@@ -390,25 +375,23 @@ int main(int argc, char **argv)
 	 */
 	opterr = 0;
 	while ((c = getopt(argc, argv, "ept:")) != EOF)
-		switch (c)
-		{
-			case 't':
-				timeout = atoi(optarg);
-				break;
-			case 'p':
-				profile = 1;
-				break;
-			case 'e':
-				opt_e = 1;
-				break;
-			default:
-				usage();
-				/* Do not exit! */
-				break;
+		switch (c) {
+		case 't':
+			timeout = atoi(optarg);
+			break;
+		case 'p':
+			profile = 1;
+			break;
+		case 'e':
+			opt_e = 1;
+			break;
+		default:
+			usage();
+			/* Do not exit! */
+			break;
 		}
 
-	if (geteuid() != 0)
-	{
+	if (geteuid() != 0) {
 		fprintf(stderr, "sulogin: only root can run sulogin.\n");
 		exit(1);
 	}
@@ -421,19 +404,13 @@ int main(int argc, char **argv)
 	signal(SIGTSTP, SIG_IGN);
 	if (optind < argc)
 		tty = argv[optind];
-	if (tty)
-	{
-		if ((fd = open(tty, O_RDWR)) < 0)
-		{
+	if (tty) {
+		if ((fd = open(tty, O_RDWR)) < 0) {
 			perror(tty);
-		}
-		else if (!isatty(fd))
-		{
+		} else if (!isatty(fd)) {
 			fprintf(stderr, "%s: not a tty\n", tty);
 			close(fd);
-		}
-		else
-		{
+		} else {
 
 			/*
 			 *      Only go through this trouble if the new
@@ -444,28 +421,25 @@ int main(int argc, char **argv)
 			ppgrp = getpgid(getppid());
 			ioctl(fd, TIOCGPGRP, &ttypgrp);
 
-			if (pgrp != ttypgrp && ppgrp != ttypgrp)
-			{
-				if (pid != getsid(0))
-				{
+			if (pgrp != ttypgrp && ppgrp != ttypgrp) {
+				if (pid != getsid(0)) {
 					if (pid == getpgid(0))
 						setpgid(0, getpgid(getppid()));
 					setsid();
 				}
 
 				signal(SIGHUP, SIG_IGN);
-				ioctl(0, TIOCNOTTY, (char *) 1);
+				ioctl(0, TIOCNOTTY, (char *)1);
 				signal(SIGHUP, SIG_DFL);
 				close(0);
 				close(1);
 				close(2);
 				close(fd);
 				fd = open(tty, O_RDWR);
-				ioctl(0, TIOCSCTTY, (char *) 1);
+				ioctl(0, TIOCSCTTY, (char *)1);
 				dup(fd);
 				dup(fd);
-			}
-			else
+			} else
 				close(fd);
 		}
 	}
@@ -473,8 +447,7 @@ int main(int argc, char **argv)
 	/*
 	 *      Get the root password.
 	 */
-	if ((pwd = getrootpwent(opt_e)) == NULL)
-	{
+	if ((pwd = getrootpwent(opt_e)) == NULL) {
 		fprintf(stderr, "sulogin: cannot open password database!\n");
 		sleep(2);
 	}
@@ -482,12 +455,11 @@ int main(int argc, char **argv)
 	/*
 	 *      Ask for the password.
 	 */
-	while (pwd)
-	{
+	while (pwd) {
 		if ((p = getpasswd(pwd->pw_passwd)) == NULL)
 			break;
 		if (pwd->pw_passwd[0] == 0 ||
-			strcmp(crypt(p, pwd->pw_passwd), pwd->pw_passwd) == 0)
+		    strcmp(crypt(p, pwd->pw_passwd), pwd->pw_passwd) == 0)
 			sushell(pwd);
 		printf("Login incorrect.\n");
 	}

@@ -20,12 +20,11 @@
 #include <initng.h>
 
 #define _GNU_SOURCE
-#include <stdlib.h>				/* free() exit() */
+#include <stdlib.h>		/* free() exit() */
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
-#include <stdarg.h>				/* vastart() vaend() */
-
+#include <stdarg.h>		/* vastart() vaend() */
 
 /* stolen from sysvinit */
 
@@ -55,7 +54,7 @@ int initng_toolbox_set_proc_title(const char *fmt, ...)
 	/* we can only set our name as big as the space available */
 	if (g.maxproclen > len) {
 		memset(g.Argv0, 0, g.maxproclen);	/* clear */
-		strcpy(g.Argv0, buf);			/* copy */
+		strcpy(g.Argv0, buf);	/* copy */
 		D_("g.Argv0: %s\n", g.Argv0);
 	} else {
 		len = 0;

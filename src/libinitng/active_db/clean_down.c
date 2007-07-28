@@ -17,7 +17,6 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-
 #include <sys/types.h>
 #include <string.h>
 #include <stdio.h>
@@ -29,7 +28,6 @@
 #include <time.h>
 
 #include <initng.h>
-
 
 /*
  * Walk the active db, searching for services that are down, and been so for a minute.
@@ -44,7 +42,8 @@ void initng_active_db_clean_down(void)
 	while_active_db_safe(current, safe) {
 		assert(current->name);
 		assert(current->current_state);
-		if (g.now.tv_sec > current->time_current_state.tv_sec + CLEAN_DELAY) {
+		if (g.now.tv_sec >
+		    current->time_current_state.tv_sec + CLEAN_DELAY) {
 			initng_process_db_clear_freed(current);
 
 			/* count stopped services */

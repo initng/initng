@@ -20,19 +20,18 @@
 #include <initng.h>
 
 #include <sys/time.h>
-#include <time.h>				/* time() */
-#include <fcntl.h>				/* fcntl() */
-#include <sys/un.h>				/* memmove() strcmp() */
-#include <sys/wait.h>				/* waitpid() sa */
-#include <linux/kd.h>				/* KDSIGACCEPT */
-#include <sys/ioctl.h>				/* ioctl() */
-#include <stdio.h>				/* printf() */
-#include <stdlib.h>				/* free() exit() */
-#include <sys/reboot.h>				/* reboot() RB_DISABLE_CAD */
+#include <time.h>		/* time() */
+#include <fcntl.h>		/* fcntl() */
+#include <sys/un.h>		/* memmove() strcmp() */
+#include <sys/wait.h>		/* waitpid() sa */
+#include <linux/kd.h>		/* KDSIGACCEPT */
+#include <sys/ioctl.h>		/* ioctl() */
+#include <stdio.h>		/* printf() */
+#include <stdlib.h>		/* free() exit() */
+#include <sys/reboot.h>		/* reboot() RB_DISABLE_CAD */
 #include <assert.h>
 
 #include "local.h"
-
 
 void handle(active_db_h * service)
 {
@@ -97,10 +96,9 @@ void handle(active_db_h * service)
 		 */
 	}
 
-
 	/* Run state init hook if present */
 	if (service->current_state->init)
-		(*service->current_state->init)(service);
+		(*service->current_state->init) (service);
 
 	D_("service %s is now %s.\n", service->name,
 	   service->current_state->name);

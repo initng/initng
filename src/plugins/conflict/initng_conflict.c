@@ -20,25 +20,24 @@
 #include <initng.h>
 
 #include <stdio.h>
-#include <string.h>							/* strstr() */
-#include <stdlib.h>							/* free() exit() */
+#include <string.h>		/* strstr() */
+#include <stdlib.h>		/* free() exit() */
 #include <assert.h>
-
 
 INITNG_PLUGIN_MACRO;
 
-s_entry CONFLICT = { 
+s_entry CONFLICT = {
 	.name = "conflict",
 	.description = "If service put here is starting or running, bail "
-	               "out.",
+	    "out.",
 	.type = STRINGS,
 	.ot = NULL,
 };
 
 a_state_h CONFLICTING = {
-	.name = "FAILED_BY_CONFLICT", 
+	.name = "FAILED_BY_CONFLICT",
 	.description = "There is a running service that is conflicting with "
-	               "this service, initng cannot launch this service.",
+	    "this service, initng cannot launch this service.",
 	.is = IS_FAILED,
 	.interrupt = NULL,
 	.init = NULL,
@@ -47,7 +46,7 @@ a_state_h CONFLICTING = {
 
 static void check_conflict(s_event * event)
 {
-	active_db_h * service;
+	active_db_h *service;
 	const char *conflict_entry = NULL;
 	s_data *itt = NULL;
 

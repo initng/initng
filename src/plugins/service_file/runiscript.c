@@ -56,7 +56,6 @@ static void print_usage(char *me)
 	printf("\n");
 }
 
-
 /* here is main */
 int main(int argc, char *argv[])
 {
@@ -73,7 +72,7 @@ int main(int argc, char *argv[])
 		int i;
 		printf("Bad command:");
 
-		for(i = 1; i < argc; i++)
+		for (i = 1; i < argc; i++)
 			printf(" %s", argv[i]);
 
 		printf("\n");
@@ -81,7 +80,7 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
-	{	
+	{
 		char *tmp;
 
 		/* set the wrapper */
@@ -89,7 +88,7 @@ int main(int argc, char *argv[])
 		if ((tmp && tmp != argv[1]))
 			wrapper = ++tmp;
 	}
-	
+
 	if (argv[1][0] == '/') {
 		/* a full path, this is really good */
 		strncpy(path, argv[1], 1024);
@@ -116,7 +115,7 @@ int main(int argc, char *argv[])
 
 	servname = getenv("SERVICE");
 	if (!servname) {
-		servname = (char *) initng_string_basename(path);
+		servname = (char *)initng_string_basename(path);
 		setenv("SERVICE", servname, 1);
 	}
 
@@ -131,9 +130,11 @@ int main(int argc, char *argv[])
 			/* check if these are direct commands, then use ngc */
 			if (strcmp(argv[2], ngc_args[i]) == 0) {
 				/* set up an arg like "/sbin/ngc --start service" */
-				new_argv[0] = (char *) "/sbin/ngc";
+				new_argv[0] = (char *)"/sbin/ngc";
 				/* put new_argv = "--start" */
-				new_argv[1] = calloc(strlen(ngc_args[i] + 4), sizeof(char));
+				new_argv[1] =
+				    calloc(strlen(ngc_args[i] + 4),
+					   sizeof(char));
 				new_argv[1][0] = '-';
 				new_argv[1][1] = '-';
 				strcat(new_argv[1], ngc_args[i]);
@@ -156,7 +157,7 @@ int main(int argc, char *argv[])
 
 		printf("Bad command: ");
 
-		for(i = 0; argv[i]; i++)
+		for (i = 0; argv[i]; i++)
 			printf(" %s", argv[i]);
 
 		printf("\n");

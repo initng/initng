@@ -39,7 +39,6 @@
 #include <errno.h>
 #include <ctype.h>
 
-
 #include <initng.h>
 #include <initng-paths.h>
 
@@ -77,12 +76,11 @@ static int ngcclient_open_socket(const char *path)
 	/* calculate length of sockname */
 	len = strlen(sockname.sun_path) + sizeof(sockname.sun_family);
 
-	if (connect(sock, (struct sockaddr *) &sockname, len) < 0) {
+	if (connect(sock, (struct sockaddr *)&sockname, len) < 0) {
 		close(sock);
 		ngcclient_error = "Error connecting to initng socket";
 		return FALSE;
 	}
-
 
 	/* Put it not to block, waiting for more data on rscv */
 	/*{
@@ -90,12 +88,10 @@ static int ngcclient_open_socket(const char *path)
 	   fcntl(sock, F_SETFL, cur | O_NONBLOCK);
 	   } */
 
-
 	/* return happily */
 	ngcclient_error = NULL;
 	return sock;
 }
-
 
 /* close pipes */
 static void ngcclient_close_socket(int sock)
@@ -148,14 +144,14 @@ reply *ngcclient_send_command(const char *path, const char c, const char *l,
 
 	/* send the header */
 	if (send(sock, &header, sizeof(read_header), 0) <
-	    (signed) sizeof(read_header)) {
+	    (signed)sizeof(read_header)) {
 		ngcclient_error = "Could not send header!";
 		return NULL;
 	}
 
 	/* Also send the content of body (usually a string) */
 	if (header.body_len &&
-	    send(sock, o, header.body_len, 0) < (signed) header.body_len) {
+	    send(sock, o, header.body_len, 0) < (signed)header.body_len) {
 		ngcclient_error = "Could not send body!";
 		return NULL;
 	}
@@ -178,11 +174,11 @@ reply *ngcclient_send_command(const char *path, const char c, const char *l,
 		rep->result.t = STRING_COMMAND;
 		strcpy(rep->result.version, "Fake reply, not from initng\n");
 		rep->result.p_ver = PROTOCOL_4_VERSION;
-		rep->payload = (char *) strdup("On ngc -c, initng reloads "
-					       "itself. By that it closes "
-					       "the connection to ngc and so "
-					       "can not return if this "
-					       "command succeds or not.");
+		rep->payload = (char *)strdup("On ngc -c, initng reloads "
+					      "itself. By that it closes "
+					      "the connection to ngc and so "
+					      "can not return if this "
+					      "command succeds or not.");
 		rep->result.payload = strlen(rep->payload);
 		return rep;
 	}
@@ -194,17 +190,15 @@ reply *ngcclient_send_command(const char *path, const char c, const char *l,
 	/* read header data */
 	res = TEMP_FAILURE_RETRY(recv(sock, &rep->result, sizeof(result_desc),
 				      0));
-	if (res < (signed) sizeof(result_desc)) {
+	if (res < (signed)sizeof(result_desc)) {
 		ngcclient_error = "failed to fetch the result.";
 		return NULL;
 	}
-
 
 	/*printf("Res: %i should be %i # errno:%i\n", res, sizeof(result_desc), errno);
 	   printf("result: s: %i, c: '%c', t: %i, version: \"%.10s...\", p_ver: %i, payload: %i\n",
 	   rep->result.s, rep->result.c, rep->result.t, rep->result.version,
 	   rep->result.p_ver, rep->result.payload); */
-
 
 	/* check that protocol matches */
 	if (rep->result.p_ver != PROTOCOL_4_VERSION) {
@@ -217,39 +211,40 @@ reply *ngcclient_send_command(const char *path, const char c, const char *l,
 
 	/* ok, parse how inting thinks this request succeds */
 	switch (rep->result.s) {
-		case S_FALSE:
-			ngcclient_error = "Request returns negative.";
-			free(rep);
-			return NULL;
+	case S_FALSE:
+		ngcclient_error = "Request returns negative.";
+		free(rep);
+		return NULL;
 
-		case S_REQUIRES_OPT:
-			ngcclient_error = "The command requires an option!";
-			free(rep);
-			return NULL;
+	case S_REQUIRES_OPT:
+		ngcclient_error = "The command requires an option!";
+		free(rep);
+		return NULL;
 
-		case S_NOT_REQUIRES_OPT:
-			ngcclient_error = "The command cant have an option!";
-			free(rep);
-			return NULL;
+	case S_NOT_REQUIRES_OPT:
+		ngcclient_error = "The command cant have an option!";
+		free(rep);
+		return NULL;
 
-		case S_INVALID_TYPE:
-			ngcclient_error = "The data returning of this command is an unknown type.";
-			free(rep);
-			return NULL;
+	case S_INVALID_TYPE:
+		ngcclient_error =
+		    "The data returning of this command is an unknown type.";
+		free(rep);
+		return NULL;
 
-		case S_COMMAND_NOT_FOUND:
-			ngcclient_error = "Command not found.";
-			free(rep);
-			return NULL;
+	case S_COMMAND_NOT_FOUND:
+		ngcclient_error = "Command not found.";
+		free(rep);
+		return NULL;
 
-			/* This is a good one */
-		case S_TRUE:
-			break;
+		/* This is a good one */
+	case S_TRUE:
+		break;
 
-		default:
-			ngcclient_error = "Unknown error.";
-			free(rep);
-			return NULL;
+	default:
+		ngcclient_error = "Unknown error.";
+		free(rep);
+		return NULL;
 	}
 
 	/* if there was a payload, download that too */
@@ -262,7 +257,7 @@ reply *ngcclient_send_command(const char *path, const char c, const char *l,
 		rep->payload = calloc(1, rep->result.payload + 1);
 		if (!rep->payload) {
 			ngcclient_error = "Unable to allocate space for "
-					  "payload.";
+			    "payload.";
 			return NULL;
 		}
 
@@ -272,9 +267,8 @@ reply *ngcclient_send_command(const char *path, const char c, const char *l,
 		got = TEMP_FAILURE_RETRY(recv(sock, rep->payload,
 					      rep->result.payload, 0));
 		/* printf("got an payload of: %i bytes, suposed to be %i. "
-			  "#errno %i\n", got, rep->result.payload, errno); */
+		   "#errno %i\n", got, rep->result.payload, errno); */
 	}
-
 
 	/* close the socket */
 	ngcclient_close_socket(sock);
@@ -283,7 +277,7 @@ reply *ngcclient_send_command(const char *path, const char c, const char *l,
 }
 
 /* little tool for sending command, and get a nice string return */
-char *ngcclient_reply_to_string(reply *rep, int ansi)
+char *ngcclient_reply_to_string(reply * rep, int ansi)
 {
 	char *string = NULL;
 
@@ -304,98 +298,96 @@ char *ngcclient_reply_to_string(reply *rep, int ansi)
 
 	/* Have a look what the result is */
 	switch (rep->result.t) {
-			/* if it returned a string, print it */
-		case STRING_COMMAND:
-			if (!rep->payload || rep->result.payload == 0) {
-				string = strdup("No payload.\n");
-				return string;
-			}
-			string = (char *) rep->payload;
-			break;
-			/* if it returned some data, call data handlers */
-		case PAYLOAD_COMMAND:
-			if (!rep->payload || rep->result.payload == 0) {
-				string = strdup("No payload.\n");
-				return string;
-			}
+		/* if it returned a string, print it */
+	case STRING_COMMAND:
+		if (!rep->payload || rep->result.payload == 0) {
+			string = strdup("No payload.\n");
+			return string;
+		}
+		string = (char *)rep->payload;
+		break;
 
-			/* look att the data type, first char */
-			switch ((data_type) ((int *) rep->payload)[0]) {
-				case HELP_ROW:
-					string = ngc_hlp(rep, ansi);
-					break;
+		/* if it returned some data, call data handlers */
+	case PAYLOAD_COMMAND:
+		if (!rep->payload || rep->result.payload == 0) {
+			string = strdup("No payload.\n");
+			return string;
+		}
 
-				case ACTIVE_ROW:
-					string = ngc_active_db(rep, ansi);
-					break;
-
-				case OPTION_ROW:
-					string = ngc_option_db(rep, ansi);
-					break;
-
-				case STATE_ROW:
-					string = ngc_state_entry(rep, ansi);
-					break;
-
-				default:
-					printf("UNKWNOWN PAYLOAD: %i\n",
-					       (int)((int *)rep->payload)[0]);
-					break;
-			}
+		/* look att the data type, first char */
+		switch ((data_type) ((int *)rep->payload)[0]) {
+		case HELP_ROW:
+			string = ngc_hlp(rep, ansi);
 			break;
 
-		case INT_COMMAND:
-			if (!rep->payload || rep->result.payload == 0) {
-				string = strdup("No payload.\n");
-				return string;
-			}
-			{
-				/* simplest create an int pointer */
-				int *p = rep->payload;
+		case ACTIVE_ROW:
+			string = ngc_active_db(rep, ansi);
+			break;
 
-				string = malloc(20);
+		case OPTION_ROW:
+			string = ngc_option_db(rep, ansi);
+			break;
 
-				sprintf(string, "%i", *p);
+		case STATE_ROW:
+			string = ngc_state_entry(rep, ansi);
+			break;
+
+		default:
+			printf("UNKWNOWN PAYLOAD: %i\n",
+			       (int)((int *)rep->payload)[0]);
+			break;
+		}
+		break;
+
+	case INT_COMMAND:
+		if (!rep->payload || rep->result.payload == 0) {
+			string = strdup("No payload.\n");
+			return string;
+		}
+		{
+			/* simplest create an int pointer */
+			int *p = rep->payload;
+
+			string = malloc(20);
+
+			sprintf(string, "%i", *p);
+		}
+		break;
+
+	case VOID_COMMAND:
+		string = strdup("Command succeded without reply.");
+		break;
+
+	case COMMAND_FAIL:
+		string = strdup("Command replied a failure.");
+		break;
+
+	case TRUE_OR_FALSE_COMMAND:
+		if (!rep->payload || rep->result.payload == 0) {
+			string = strdup("No payload.\n");
+			return (string);
+		}
+		{
+			int *p = rep->payload;
+
+			if (*p > 0) {
+				string = strdup("Command POSITIVE.");
 				break;
 			}
 
-		case VOID_COMMAND:
-			string = strdup("Command succeded without reply.");
+			string = strdup("Command NEGATIVE.");
 			break;
-
-		case COMMAND_FAIL:
-			string = strdup("Command replied a failure.");
-			break;
-
-		case TRUE_OR_FALSE_COMMAND:
-			if (!rep->payload || rep->result.payload == 0) {
-				string = strdup("No payload.\n");
-				return (string);
-			}
-			{
-				int *p = rep->payload;
-
-				if (*p > 0) {
-					string = strdup("Command POSITIVE.");
-					break;
-				}
-
-				string = strdup("Command NEGATIVE.");
-				break;
-			}
+		}
 	}
 
 	/* free */
 	return string;
 }
 
-
 /* This are utilities to nice out data structures */
 
-
-
 /* get help */
-char *ngc_hlp(reply *rep, int ansi)
+char *ngc_hlp(reply * rep, int ansi)
 {
 	char *string = NULL;
 
@@ -406,9 +398,9 @@ char *ngc_hlp(reply *rep, int ansi)
 	/* print head */
 	mprintf(&string, " ngc understand this commands:\n");
 	mprintf(&string, " short Option                          : "
-			 "description\n");
+		"description\n");
 	mprintf(&string, " ----------------------------------------"
-			 "------------------\n");
+		"------------------\n");
 
 	while (row->dt == HELP_ROW) {
 		char lname[256];
@@ -418,31 +410,30 @@ char *ngc_hlp(reply *rep, int ansi)
 
 		if (ansi) {
 			switch (row->o) {
-				case USES_OPT:
-					strcat(lname, C_FG_YELLOW " <opt>"
-						      C_OFF);
-					break;
+			case USES_OPT:
+				strcat(lname, C_FG_YELLOW " <opt>" C_OFF);
+				break;
 
-				case REQUIRES_OPT:
-					strcat(lname, C_FG_CYAN " opt" C_OFF);
-					break;
+			case REQUIRES_OPT:
+				strcat(lname, C_FG_CYAN " opt" C_OFF);
+				break;
 
-				default:
-					strcat(lname, C_FG_CYAN C_OFF);
-					break;
+			default:
+				strcat(lname, C_FG_CYAN C_OFF);
+				break;
 			}
 		} else {
 			switch (row->o) {
-				case USES_OPT:
-					strcat(lname, " <opt>");
-					break;
+			case USES_OPT:
+				strcat(lname, " <opt>");
+				break;
 
-				case REQUIRES_OPT:
-					strcat(lname, " opt");
-					break;
+			case REQUIRES_OPT:
+				strcat(lname, " opt");
+				break;
 
-				default:
-					break;
+			default:
+				break;
 			}
 		}
 
@@ -459,8 +450,7 @@ char *ngc_hlp(reply *rep, int ansi)
 					row->c, lname, row->d);
 			}
 		} else {
-			mprintf(&string, "       --%-40s: %s\n", lname,
-				row->d);
+			mprintf(&string, "       --%-40s: %s\n", lname, row->d);
 		}
 
 		row++;
@@ -469,15 +459,15 @@ char *ngc_hlp(reply *rep, int ansi)
 	return string;
 }
 
-char *ngc_state_entry(reply *rep, int ansi)
+char *ngc_state_entry(reply * rep, int ansi)
 {
 	state_row *row = rep->payload;
 	char *string = NULL;
 
 	mprintf(&string, " I State    State name                    "
-			 "Description\n");
+		"Description\n");
 	mprintf(&string, " -----------------------------------------"
-			 "-----------------\n");
+		"-----------------\n");
 
 	while (row->dt == STATE_ROW) {
 		if (ansi) {
@@ -488,14 +478,14 @@ char *ngc_state_entry(reply *rep, int ansi)
 			mprintf(&string, " %i %-8s %-29s %s\n", row->is,
 				is_to_string(row->is), row->name, row->desc);
 		}
-		
+
 		row++;
 	}
 
 	return string;
 }
 
-char *ngc_active_db(reply *rep, int ansi)
+char *ngc_active_db(reply * rep, int ansi)
 {
 	active_row *row = rep->payload;
 	char *string = NULL;
@@ -508,17 +498,17 @@ char *ngc_active_db(reply *rep, int ansi)
 	/* print head */
 	if (ansi) {
 		mprintf(&string, C_FG_LIGHT_RED " hh:mm:ss" C_OFF
-				 C_FG_CYAN " T " C_OFF
-				 "service                             : "
-				 C_FG_NEON_GREEN "status\n" C_OFF);
+			C_FG_CYAN " T " C_OFF
+			"service                             : "
+			C_FG_NEON_GREEN "status\n" C_OFF);
 	} else {
 		mprintf(&string, " hh:mm:ss T service                   "
-				 "          : status\n");
+			"          : status\n");
 	}
 
 	/* don't make it weighter! only 80chars, not weighter. */
 	mprintf(&string, " ---------------------------------------------"
-			 "-------------------\n");
+		"-------------------\n");
 
 	while (row->dt == ACTIVE_ROW) {
 		struct tm *ts = localtime(&row->time_set.tv_sec);
@@ -528,13 +518,17 @@ char *ngc_active_db(reply *rep, int ansi)
 			mprintf(&string, " " C_FG_LIGHT_RED "%.2i:%.2i:%.2i"
 				C_OFF C_FG_CYAN " %c" C_OFF " %-35s : ",
 				ts->tm_hour, ts->tm_min, ts->tm_sec,
-				row->type[0] ? (char) toupper((int)
-				row->type[0]) : ' ', row->name);
+				row->type[0] ? (char)toupper((int)
+							     row->
+							     type[0]) : ' ',
+				row->name);
 		} else {
 			mprintf(&string, " %.2i:%.2i:%.2i %c %-35s : ",
 				ts->tm_hour, ts->tm_min, ts->tm_sec,
-				row->type[0] ? (char) toupper((int)
-				row->type[0]) : ' ', row->name);
+				row->type[0] ? (char)toupper((int)
+							     row->
+							     type[0]) : ' ',
+				row->name);
 		}
 
 		if (ansi) {
@@ -553,53 +547,53 @@ char *ngc_active_db(reply *rep, int ansi)
 const char *is_to_ansi(e_is is)
 {
 	switch (is) {
-		case IS_UP:
-			return (C_FG_NEON_GREEN);
+	case IS_UP:
+		return (C_FG_NEON_GREEN);
 
-		case IS_DOWN:
-			return (C_FG_LIGHT_BLUE);
+	case IS_DOWN:
+		return (C_FG_LIGHT_BLUE);
 
-		case IS_FAILED:
-			return (C_FG_LIGHT_RED);
+	case IS_FAILED:
+		return (C_FG_LIGHT_RED);
 
-		case IS_STARTING:
-			return (C_FG_YELLOW);
+	case IS_STARTING:
+		return (C_FG_YELLOW);
 
-		case IS_STOPPING:
-			return (C_FG_CYAN);
+	case IS_STOPPING:
+		return (C_FG_CYAN);
 
-		default:
-			return (C_FG_MAGENTA);
+	default:
+		return (C_FG_MAGENTA);
 	}
 }
 
 const char *is_to_string(e_is is)
 {
 	switch (is) {
-		case IS_UP:
-			return ("UP");
+	case IS_UP:
+		return "UP";
 
-		case IS_DOWN:
-			return ("DOWN");
+	case IS_DOWN:
+		return "DOWN";
 
-		case IS_FAILED:
-			return ("FAILED");
+	case IS_FAILED:
+		return "FAILED";
 
-		case IS_STARTING:
-			return ("STARTING");
+	case IS_STARTING:
+		return "STARTING";
 
-		case IS_STOPPING:
-			return ("STOPPING");
+	case IS_STOPPING:
+		return "STOPPING";
 
-		case IS_WAITING:
-			return ("WAITING");
+	case IS_WAITING:
+		return "WAITING";
 
-		default:
-			return ("UNKNOWN");
+	default:
+		return "UNKNOWN";
 	}
 }
 
-char *ngc_option_db(reply *rep, int ansi)
+char *ngc_option_db(reply * rep, int ansi)
 {
 	char *string = NULL;
 
@@ -618,57 +612,57 @@ char *ngc_option_db(reply *rep, int ansi)
 	}
 
 	mprintf(&string, " ----------------------------------------------"
-			 "------------------\n");
+		"------------------\n");
 
 	while (row->dt == OPTION_ROW) {
 		switch (row->t) {
-			case STRING:
-				strcpy(ct, "STRING");
-				break;
+		case STRING:
+			strcpy(ct, "STRING");
+			break;
 
-			case VARIABLE_STRING:
-				strcpy(ct, "V_STRING");
-				break;
+		case VARIABLE_STRING:
+			strcpy(ct, "V_STRING");
+			break;
 
-			case STRINGS:
-				strcpy(ct, "STRINGS");
-				break;
+		case STRINGS:
+			strcpy(ct, "STRINGS");
+			break;
 
-			case VARIABLE_STRINGS:
-				strcpy(ct, "V_STRINGS");
-				break;
+		case VARIABLE_STRINGS:
+			strcpy(ct, "V_STRINGS");
+			break;
 
-			case SET:
-				strcpy(ct, "SET");
-				break;
+		case SET:
+			strcpy(ct, "SET");
+			break;
 
-			case VARIABLE_SET:
-				strcpy(ct, "V_SET");
-				break;
+		case VARIABLE_SET:
+			strcpy(ct, "V_SET");
+			break;
 
-			case INT:
-				strcpy(ct, "INT");
-				break;
+		case INT:
+			strcpy(ct, "INT");
+			break;
 
-			case VARIABLE_INT:
-				strcpy(ct, "V_INT");
-				break;
+		case VARIABLE_INT:
+			strcpy(ct, "V_INT");
+			break;
 
-			case ALIAS:
-				strcpy(ct, "ALIAS");
-				break;
+		case ALIAS:
+			strcpy(ct, "ALIAS");
+			break;
 
-			case U_D_T:
-				strcpy(ct, "U_D_T");
-				break;
+		case U_D_T:
+			strcpy(ct, "U_D_T");
+			break;
 
-			case TIME_T:
-				strcpy(ct, "TIME_T");
-				break;
+		case TIME_T:
+			strcpy(ct, "TIME_T");
+			break;
 
-			case VARIABLE_TIME_T:
-				strcpy(ct, "V_TIME_T");
-				break;
+		case VARIABLE_TIME_T:
+			strcpy(ct, "V_TIME_T");
+			break;
 		}
 
 		if (ansi) {

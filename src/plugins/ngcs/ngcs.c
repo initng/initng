@@ -36,7 +36,6 @@
 #define maybe_printf(...) { if(quiet==FALSE) printf(__VA_ARGS__ ); }
 #define maybe_grab_out(me) ( quiet ? 0 : grab_out(me))
 
-
 typedef enum {
 	WATCH_NORMAL = 0,
 	WATCH_START = 1,
@@ -63,10 +62,10 @@ ngcs_cli_conn *cconn;
 int debug = 0;
 int failed = 0;
 
-void resp_handler(ngcs_cli_conn *cconn, void *userdata, ngcs_data *ret);
+void resp_handler(ngcs_cli_conn * cconn, void *userdata, ngcs_data * ret);
 void docmd(char *cmd, char *arg);
-void svc_watch_cb(ngcs_svc_evt_hook *hook, void *userdata,
-		  ngcs_svc_evt *event);
+void svc_watch_cb(ngcs_svc_evt_hook * hook, void *userdata,
+		  ngcs_svc_evt * event);
 const char *state_color(int rough_state);
 int grab_out(void *me);
 
@@ -90,31 +89,31 @@ int grab_out(void *me)
 const char *state_color(int rough_state)
 {
 	switch (rough_state) {
-		case IS_UP:
-			return C_FG_NEON_GREEN;
+	case IS_UP:
+		return C_FG_NEON_GREEN;
 
-		case IS_DOWN:
-			return C_FG_LIGHT_BLUE;
+	case IS_DOWN:
+		return C_FG_LIGHT_BLUE;
 
-		case IS_FAILED:
-			return C_FG_LIGHT_RED;
+	case IS_FAILED:
+		return C_FG_LIGHT_RED;
 
-		case IS_STARTING:
-			return C_FG_YELLOW;
+	case IS_STARTING:
+		return C_FG_YELLOW;
 
-		case IS_STOPPING:
-			return C_FG_CYAN;
+	case IS_STOPPING:
+		return C_FG_CYAN;
 
-		case IS_WAITING:
-			return C_FG_MAGENTA;
+	case IS_WAITING:
+		return C_FG_MAGENTA;
 
-		default:
-			return C_FG_DEFAULT;
+	default:
+		return C_FG_DEFAULT;
 	}
 }
 
-void svc_watch_cb(ngcs_svc_evt_hook *hook, void *userdata,
-		  ngcs_svc_evt *event)
+void svc_watch_cb(ngcs_svc_evt_hook * hook, void *userdata,
+		  ngcs_svc_evt * event)
 {
 	cmd_res *res = userdata;
 
@@ -122,159 +121,162 @@ void svc_watch_cb(ngcs_svc_evt_hook *hook, void *userdata,
 	assert(res);
 
 	switch (event->type) {
-		case NGCS_SVC_EVT_BEGIN:
-			if (res->d.svc_watch.mode == WATCH_STATUS) {
-				grab_out(NULL);
-				printf(C_FG_LIGHT_RED "hh:mm:ss" C_OFF
-				       C_FG_CYAN " T " C_OFF "service                             : "
-				       C_FG_NEON_GREEN "status\n" C_OFF);
-				printf("------------------------------------"
-				       "----------------------------\n");
-			}
+	case NGCS_SVC_EVT_BEGIN:
+		if (res->d.svc_watch.mode == WATCH_STATUS) {
+			grab_out(NULL);
+			printf(C_FG_LIGHT_RED "hh:mm:ss" C_OFF
+			       C_FG_CYAN " T " C_OFF
+			       "service                             : "
+			       C_FG_NEON_GREEN "status\n" C_OFF);
+			printf("------------------------------------"
+			       "----------------------------\n");
+		}
+		break;
+
+	case NGCS_SVC_EVT_NOW:
+		res->d.svc_watch.in_present = 1;
+		if (res->d.svc_watch.mode == WATCH_STATUS) {
+			ngcs_client_free_svc_watch(hook);
+			return;
+		}
+		break;
+
+	case NGCS_SVC_EVT_OUTPUT:
+		if (res->d.svc_watch.mode == WATCH_STATUS)
 			break;
 
-		case NGCS_SVC_EVT_NOW:
-			res->d.svc_watch.in_present = 1;
-			if (res->d.svc_watch.mode == WATCH_STATUS) {
+		if (maybe_grab_out(res)) {
+			maybe_printf(C_FG_BLUE "\n%s output:" C_OFF
+				     "\n", event->svc_name);
+			need_nl = 1;
+		}
+
+		maybe_printf("%s", event->r.output);
+		break;
+
+	case NGCS_SVC_EVT_STATE:
+		res->d.svc_watch.got_svcs = 1;
+
+		switch (res->d.svc_watch.mode) {
+		case WATCH_START:
+			if (event->r.adb.current_state->is == IS_UP) {
+				grab_out(NULL);
+				printf("Service \"%s\" is "
+				       "started (%s%s" C_OFF
+				       ")\n", event->svc_name,
+				       state_color(event->r.adb.current_state->
+						   is),
+				       event->r.adb.current_state->name);
+				ngcs_client_free_svc_watch(hook);
+				return;
+			}
+			/* FIXME - below possibly incorrect if it was stopping */
+			else if ((res->d.svc_watch.in_present ||
+				  event->r.adb.current_state->is !=
+				  IS_DOWN) &&
+				 event->r.adb.current_state->is !=
+				 IS_STARTING) {
+				grab_out(NULL);
+				printf("%s " C_FG_LIGHT_RED
+				       "failed to start" C_OFF
+				       " (%s%s" C_OFF ")\n",
+				       event->svc_name,
+				       state_color(event->r.adb.current_state->
+						   is),
+				       event->r.adb.current_state->name);
+				failed = 1;
 				ngcs_client_free_svc_watch(hook);
 				return;
 			}
 			break;
 
-		case NGCS_SVC_EVT_OUTPUT:
-			if (res->d.svc_watch.mode == WATCH_STATUS)
-				break;
-
-			if (maybe_grab_out(res)) {
-				maybe_printf(C_FG_BLUE "\n%s output:" C_OFF
-					     "\n", event->svc_name);
-				need_nl = 1;
+		case WATCH_STOP:
+			if (event->r.adb.current_state->is == IS_DOWN) {
+				grab_out(NULL);
+				printf("Service \"%s\" is "
+				       "stopped (%s%s" C_OFF
+				       ")\n", event->svc_name,
+				       state_color(event->r.adb.current_state->
+						   is),
+				       event->r.adb.current_state->name);
+				ngcs_client_free_svc_watch(hook);
+				return;
 			}
-
-			maybe_printf("%s", event->r.output);
-			break;
-
-		case NGCS_SVC_EVT_STATE:
-			res->d.svc_watch.got_svcs = 1;
-
-			switch (res->d.svc_watch.mode) {
-				case WATCH_START:
-					if (event->r.adb.current_state->is ==
-					    IS_UP) {
-						grab_out(NULL);
-						printf("Service \"%s\" is "
-						       "started (%s%s" C_OFF
-						       ")\n", event->svc_name,
-						       state_color(event->r.adb.current_state->is),
-						       event->r.adb.current_state->name);
-						ngcs_client_free_svc_watch(hook);
-						return;
-					}
-					/* FIXME - below possibly incorrect if it was stopping */
-					else
-					if ((res->d.svc_watch.in_present ||
-					     event->r.adb.current_state->is !=
-					     IS_DOWN) &&
-					     event->r.adb.current_state->is !=
-					     IS_STARTING) {
-						grab_out(NULL);
-						printf("%s " C_FG_LIGHT_RED
-						       "failed to start" C_OFF
-						       " (%s%s" C_OFF ")\n",
-						       event->svc_name,
-						       state_color(event->r.adb.current_state->is),
-						       event->r.adb.current_state->name);
-						failed = 1;
-						ngcs_client_free_svc_watch(hook);
-						return;
-					}
-					break;
-
-				case WATCH_STOP:
-					if (event->r.adb.current_state->is ==
-					    IS_DOWN) {
-						grab_out(NULL);
-						printf("Service \"%s\" is "
-						       "stopped (%s%s" C_OFF
-						       ")\n", event->svc_name,
-						       state_color(event->r.adb.current_state->is),
-						       event->r.adb.current_state->name);
-						ngcs_client_free_svc_watch(hook);
-						return;
-					}
-					/* FIXME - below possibly incorrect if it was starting */
-					else
-					if ((res->d.svc_watch.in_present ||
-					     event->r.adb.current_state->is !=
-					     IS_UP) &&
-					     event->r.adb.current_state->is !=
-					     IS_STOPPING) {
-						grab_out(NULL);
-						printf("Service \"%s\" "
-						       C_FG_LIGHT_RED
-						       "failed to stop" C_OFF
-						       " (%s%s" C_OFF ")\n",
-						       event->svc_name,
-						       state_color(event->r.adb.current_state->is),
-						       event->r.adb.current_state->name);
-						failed = 1;
-						ngcs_client_free_svc_watch(hook);
-						return;
-					}
-					break;
-
-				case WATCH_STATUS:
-					{
-						struct tm *ts =
-							localtime(&event->r.adb.time_current_state.tv_sec);
-						grab_out(NULL);
-						printf(C_FG_LIGHT_RED
-						       "%.2i:%.2i:%.2i" C_OFF
-						       C_FG_CYAN " %c" C_OFF
-						       " %-35s : %s%s" C_OFF
-						       "\n", ts->tm_hour,
-						       ts->tm_min, ts->tm_sec,
-						       (char) toupper((int) event->r.adb.type.name[0]),
-						       event->svc_name,
-						       state_color(event->r.adb.current_state->is),
-						       event->r.adb.current_state->name);
-						return;
-					}
-
-				default:
-					break;
-			}
-
-			if (res->d.svc_watch.in_present &&
-			    (res->d.svc_watch.mode == WATCH_NORMAL ||
-			     !quiet)) {
-				maybe_grab_out(NULL);
-				maybe_printf("Service \"%s\" is now in state "
-				             "%s%s" C_OFF "\n",
-				             event->svc_name,
-					     state_color(event->r.adb.current_state->is),
-					     event->r.adb.current_state->name);
-			}
-			break;
-
-		case NGCS_SVC_EVT_END:
-			/* FIXME - need to detect failure here */
-			if (!res->d.svc_watch.got_svcs && (
-			    res->d.svc_watch.mode == WATCH_START ||
-			    res->d.svc_watch.mode == WATCH_STOP)) {
-				printf("Service \"%s\" " C_FG_RED "couldn't "
-				       "be started" C_OFF "\n", res->arg);
+			/* FIXME - below possibly incorrect if it was starting */
+			else if ((res->d.svc_watch.in_present ||
+				  event->r.adb.current_state->is !=
+				  IS_UP) &&
+				 event->r.adb.current_state->is !=
+				 IS_STOPPING) {
+				grab_out(NULL);
+				printf("Service \"%s\" "
+				       C_FG_LIGHT_RED
+				       "failed to stop" C_OFF
+				       " (%s%s" C_OFF ")\n",
+				       event->svc_name,
+				       state_color(event->r.adb.current_state->
+						   is),
+				       event->r.adb.current_state->name);
 				failed = 1;
+				ngcs_client_free_svc_watch(hook);
+				return;
 			}
+			break;
 
-			if (last_out == res)
-				last_out = NULL;
-
-			list_del(&res->list);
-			free(res);
+		case WATCH_STATUS:
+			{
+				struct tm *ts =
+				    localtime(&event->r.adb.time_current_state.
+					      tv_sec);
+				grab_out(NULL);
+				printf(C_FG_LIGHT_RED
+				       "%.2i:%.2i:%.2i" C_OFF
+				       C_FG_CYAN " %c" C_OFF
+				       " %-35s : %s%s" C_OFF
+				       "\n", ts->tm_hour,
+				       ts->tm_min, ts->tm_sec,
+				       (char)toupper((int)event->r.adb.type.
+						     name[0]), event->svc_name,
+				       state_color(event->r.adb.current_state->
+						   is),
+				       event->r.adb.current_state->name);
+				return;
+			}
 
 		default:
 			break;
+		}
+
+		if (res->d.svc_watch.in_present &&
+		    (res->d.svc_watch.mode == WATCH_NORMAL || !quiet)) {
+			maybe_grab_out(NULL);
+			maybe_printf("Service \"%s\" is now in state "
+				     "%s%s" C_OFF "\n",
+				     event->svc_name,
+				     state_color(event->r.adb.current_state->
+						 is),
+				     event->r.adb.current_state->name);
+		}
+		break;
+
+	case NGCS_SVC_EVT_END:
+		/* FIXME - need to detect failure here */
+		if (!res->d.svc_watch.got_svcs
+		    && (res->d.svc_watch.mode == WATCH_START
+			|| res->d.svc_watch.mode == WATCH_STOP)) {
+			printf("Service \"%s\" " C_FG_RED "couldn't "
+			       "be started" C_OFF "\n", res->arg);
+			failed = 1;
+		}
+
+		if (last_out == res)
+			last_out = NULL;
+
+		list_del(&res->list);
+		free(res);
+
+	default:
+		break;
 	}
 }
 
@@ -381,7 +383,7 @@ void docmd(char *cmd, char *arg)
 	list_add(&res->list, &pending.list);
 }
 
-void resp_handler(ngcs_cli_conn *cconn, void *userdata, ngcs_data *ret)
+void resp_handler(ngcs_cli_conn * cconn, void *userdata, ngcs_data * ret)
 {
 
 	cmd_res *res = userdata;
@@ -395,54 +397,53 @@ void resp_handler(ngcs_cli_conn *cconn, void *userdata, ngcs_data *ret)
 		failed = 1;
 	} else {
 		switch (ret->type) {
-			case NGCS_TYPE_NULL:
-				maybe_grab_out(NULL);
-				maybe_printf("%s %s returned " C_FG_BLUE
-					     "nothing" C_OFF "\n", res->cmd,
-					     (res->arg == NULL ? "" :
-					     res->arg));
-				break;
+		case NGCS_TYPE_NULL:
+			maybe_grab_out(NULL);
+			maybe_printf("%s %s returned " C_FG_BLUE
+				     "nothing" C_OFF "\n", res->cmd,
+				     (res->arg == NULL ? "" : res->arg));
+			break;
 
-			case NGCS_TYPE_INT:
-				maybe_grab_out(NULL);
-				maybe_printf("%s %s returned %i\n", res->cmd,
-					     (res->arg == NULL ? "" :
-					     res->arg), ret->d.i);
-				break;
+		case NGCS_TYPE_INT:
+			maybe_grab_out(NULL);
+			maybe_printf("%s %s returned %i\n", res->cmd,
+				     (res->arg == NULL ? "" :
+				      res->arg), ret->d.i);
+			break;
 
-			case NGCS_TYPE_LONG:
-				maybe_grab_out(NULL);
-				maybe_printf("%s %s returned %li\n", res->cmd,
-					     (res->arg == NULL ? "" :
-					     res->arg), ret->d.l);
-				break;
+		case NGCS_TYPE_LONG:
+			maybe_grab_out(NULL);
+			maybe_printf("%s %s returned %li\n", res->cmd,
+				     (res->arg == NULL ? "" :
+				      res->arg), ret->d.l);
+			break;
 
-			case NGCS_TYPE_BOOL:
-				maybe_grab_out(NULL);
-				maybe_printf("%s %s returned %s\n", res->cmd,
-					     (res->arg == NULL ? "" :
-					     res->arg), (ret->d.i ? "TRUE" :
-					     "FALSE"));
+		case NGCS_TYPE_BOOL:
+			maybe_grab_out(NULL);
+			maybe_printf("%s %s returned %s\n", res->cmd,
+				     (res->arg == NULL ? "" :
+				      res->arg), (ret->d.i ? "TRUE" : "FALSE"));
 
-				if (!ret->d.i)
-					failed = 1;
-				break;
-
-			case NGCS_TYPE_ERROR:
-				grab_out(NULL);
-				printf(C_ERROR "%s %s failed: %s\n" C_OFF,
-				       res->cmd, (res->arg == NULL ? "" :
-				       res->arg), ret->d.s);
-					failed = 1;
-					break;
-
-			default:
-				grab_out(NULL);
-				printf(C_ERROR "%s %s returned unknown type "
-				       "%i\n" C_OFF, res->cmd, (res->arg ==
-				       NULL ? "" : res->arg), ret->type);
+			if (!ret->d.i)
 				failed = 1;
-				break;
+			break;
+
+		case NGCS_TYPE_ERROR:
+			grab_out(NULL);
+			printf(C_ERROR "%s %s failed: %s\n" C_OFF,
+			       res->cmd, (res->arg == NULL ? "" :
+					  res->arg), ret->d.s);
+			failed = 1;
+			break;
+
+		default:
+			grab_out(NULL);
+			printf(C_ERROR "%s %s returned unknown type "
+			       "%i\n" C_OFF, res->cmd, (res->arg ==
+							NULL ? "" : res->arg),
+			       ret->type);
+			failed = 1;
+			break;
 		}
 	}
 
@@ -536,9 +537,7 @@ int main(int argc, char *argv[])
 	if (last_sw >= 0 && last_sw == cc - 1)
 		docmd(argv[last_sw], NULL);
 
-
-	while (!list_empty(&pending.list) &&
-	       !ngcs_client_conn_is_closed(cconn)){
+	while (!list_empty(&pending.list) && !ngcs_client_conn_is_closed(cconn)) {
 		fd_set readset, writeset;
 		int fd = ngcs_client_get_fd(cconn);
 		int retval;

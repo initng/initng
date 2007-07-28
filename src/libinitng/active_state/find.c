@@ -23,7 +23,6 @@
 
 #include <initng.h>
 
-
 a_state_h *initng_active_state_find(const char *state_name)
 {
 	a_state_h *current = NULL;

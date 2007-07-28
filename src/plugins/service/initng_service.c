@@ -20,13 +20,12 @@
 #include <initng.h>
 
 #include <stdio.h>
-#include <stdlib.h>					/* free() exit() */
+#include <stdlib.h>		/* free() exit() */
 #include <string.h>
 #include <assert.h>
 #include <sys/types.h>
 #include <signal.h>
 #include <errno.h>
-
 
 INITNG_PLUGIN_MACRO;
 
@@ -35,37 +34,36 @@ INITNG_PLUGIN_MACRO;
  * #                         STYPE HANDLERS FUNCTION DEFINES                  #
  * ############################################################################
  */
-static int start_SERVICE(active_db_h *service_to_start);
-static int stop_SERVICE(active_db_h *service);
+static int start_SERVICE(active_db_h * service_to_start);
+static int stop_SERVICE(active_db_h * service);
 
 /*
  * ############################################################################
  * #                        STATE HANDLERS FUNCTION DEFINES                   #
  * ############################################################################
  */
-static void handle_SERVICE_WAITING_FOR_START_DEP(active_db_h *service);
-static void handle_SERVICE_WAITING_FOR_STOP_DEP(active_db_h *service);
+static void handle_SERVICE_WAITING_FOR_START_DEP(active_db_h * service);
+static void handle_SERVICE_WAITING_FOR_STOP_DEP(active_db_h * service);
 
-static void init_SERVICE_START_DEPS_MET(active_db_h *service);
-static void init_SERVICE_STOP_DEPS_MET(active_db_h *service);
-static void init_SERVICE_START_MARKED(active_db_h *service);
-static void init_SERVICE_STOP_MARKED(active_db_h *service);
+static void init_SERVICE_START_DEPS_MET(active_db_h * service);
+static void init_SERVICE_STOP_DEPS_MET(active_db_h * service);
+static void init_SERVICE_START_MARKED(active_db_h * service);
+static void init_SERVICE_STOP_MARKED(active_db_h * service);
 
-static void timeout_SERVICE_START_RUN(active_db_h *service);
-static void init_SERVICE_START_RUN(active_db_h *service);
-static void timeout_SERVICE_STOP_RUN(active_db_h *service);
-static void init_SERVICE_STOP_RUN(active_db_h *service);
+static void timeout_SERVICE_START_RUN(active_db_h * service);
+static void init_SERVICE_START_RUN(active_db_h * service);
+static void timeout_SERVICE_STOP_RUN(active_db_h * service);
+static void init_SERVICE_STOP_RUN(active_db_h * service);
 
 /*
  * ############################################################################
  * #                        PROCESS TYPE FUNCTION DEFINES                     #
  * ############################################################################
  */
-static void handle_killed_start(active_db_h *killed_service,
-                                process_h *process);
-static void handle_killed_stop(active_db_h *killed_service,
-                               process_h *process);
-
+static void handle_killed_start(active_db_h * killed_service,
+				process_h * process);
+static void handle_killed_stop(active_db_h * killed_service,
+			       process_h * process);
 
 /*
  * ############################################################################
@@ -75,7 +73,7 @@ static void handle_killed_stop(active_db_h *killed_service,
 stype_h TYPE_SERVICE = {
 	.name = "service",
 	.description = "The start code will run on start, and stop code when "
-	               "stopping.",
+	    "stopping.",
 	.hidden = FALSE,
 	.start = &start_SERVICE,
 	.stop = &stop_SERVICE,
@@ -122,7 +120,7 @@ s_entry STOP_TIMEOUT = {
 s_entry NEVER_KILL = {
 	.name = "never_kill",
 	.description = "This service is to important to be killed by any "
-	               "timeout!",
+	    "timeout!",
 	.type = SET,
 	.ot = &TYPE_SERVICE,
 };
@@ -130,7 +128,7 @@ s_entry NEVER_KILL = {
 s_entry START_FAIL_OK = {
 	.name = "start_fail_ok",
 	.description = "Set this service to a succes, even if it returns bad "
-	               "on start service.",
+	    "on start service.",
 	.type = SET,
 	.ot = &TYPE_SERVICE,
 };
@@ -138,7 +136,7 @@ s_entry START_FAIL_OK = {
 s_entry STOP_FAIL_OK = {
 	.name = "stop_fail_ok",
 	.description = "Set this service to stopped even if it returns bad "
-	               "on stop service.",
+	    "on stop service.",
 	.type = SET,
 	.ot = &TYPE_SERVICE,
 };
@@ -179,7 +177,7 @@ a_state_h SERVICE_STOP_MARKED = {
 a_state_h SERVICE_DONE = {
 	.name = "SERVICE_DONE",
 	.description = "The start code has successfully returned, the "
-	               "service is marked as UP.",
+	    "service is marked as UP.",
 	.is = IS_UP,
 	.interrupt = NULL,
 	.init = NULL,
@@ -192,7 +190,7 @@ a_state_h SERVICE_DONE = {
 a_state_h SERVICE_WAITING_FOR_START_DEP = {
 	.name = "SERVICE_WAITING_FOR_START_DEP",
 	.description = "This service is waiting for all its depdencencies to "
-	               "be met.",
+	    "be met.",
 	.is = IS_STARTING,
 	.interrupt = &handle_SERVICE_WAITING_FOR_START_DEP,
 	.init = NULL,
@@ -205,7 +203,7 @@ a_state_h SERVICE_WAITING_FOR_START_DEP = {
 a_state_h SERVICE_WAITING_FOR_STOP_DEP = {
 	.name = "SERVICE_WAITING_FOR_STOP_DEP",
 	.description = "This service is wating for all services depending it "
-	               "to stop, before stopping.",
+	    "to stop, before stopping.",
 	.is = IS_STOPPING,
 	.interrupt = &handle_SERVICE_WAITING_FOR_STOP_DEP,
 	.init = NULL,
@@ -242,7 +240,7 @@ a_state_h SERVICE_STOP_DEPS_MET = {
 a_state_h SERVICE_STOPPED = {
 	.name = "SERVICE_STOPPED",
 	.description = "The stop code has been returned, service is marked "
-	               "as DOWN.",
+	    "as DOWN.",
 	.is = IS_DOWN,
 	.interrupt = NULL,
 	.init = NULL,
@@ -280,7 +278,7 @@ a_state_h SERVICE_STOP_RUN = {
 a_state_h SERVICE_START_DEPS_FAILED = {
 	.name = "SERVICE_START_DEPS_FAILED",
 	.description = "One of the depdencencies this service requires has "
-	               "failed, this service cant start.",
+	    "failed, this service cant start.",
 	.is = IS_FAILED,
 	.interrupt = NULL,
 	.init = NULL,
@@ -308,7 +306,7 @@ a_state_h SERVICE_FAIL_START_NONEXIST = {
 a_state_h SERVICE_FAIL_START_RCODE = {
 	.name = "SERVICE_FAIL_START_RCODE",
 	.description = "The start code returned a non-zero value, this "
-	               "usually meens that the service failed",
+	    "usually meens that the service failed",
 	.is = IS_FAILED,
 	.interrupt = NULL,
 	.init = NULL,
@@ -336,7 +334,7 @@ a_state_h SERVICE_START_FAILED_TIMEOUT = {
 a_state_h SERVICE_STOP_DEPS_FAILED = {
 	.name = "SERVICE_STOP_DEPS_FAILED",
 	.description = "Failed to stop one of the services depending on this "
-	               "service, cannot stop this service",
+	    "service, cannot stop this service",
 	.is = IS_FAILED,
 	.interrupt = NULL,
 	.init = NULL,
@@ -355,7 +353,7 @@ a_state_h SERVICE_FAIL_STOP_NONEXIST = {
 a_state_h SERVICE_FAIL_STOP_RCODE = {
 	.name = "SERVICE_FAIL_STOP_RCODE",
 	.description = "The stop exec returned a non-zero code, this usually "
-	               "means a failure.",
+	    "means a failure.",
 	.is = IS_FAILED,
 	.interrupt = NULL,
 	.init = NULL,
@@ -383,20 +381,18 @@ a_state_h SERVICE_STOP_FAILED_TIMEOUT = {
 a_state_h SERVICE_UP_CHECK_FAILED = {
 	.name = "SERVICE_UP_CHECK_FAILED",
 	.description = "The checks that are done before the service can be "
-	               "set to UP failed",
+	    "set to UP failed",
 	.is = IS_FAILED,
 	.interrupt = NULL,
 	.init = NULL,
 	.alarm = NULL
 };
 
-
 /*
  * ############################################################################
  * #                         STYPE HANDLERS FUNCTIONS                         #
  * ############################################################################
  */
-
 
 /* This are run, when initng wants to start a service */
 static int start_SERVICE(active_db_h * service)
@@ -417,7 +413,6 @@ static int start_SERVICE(active_db_h * service)
 	/* return happily */
 	return TRUE;
 }
-
 
 /* This are run, when initng wants to stop a service */
 static int stop_SERVICE(active_db_h * service)
@@ -504,7 +499,6 @@ void module_unload(void)
 	initng_process_db_ptype_unregister(&T_START);
 	initng_process_db_ptype_unregister(&T_STOP);
 
-
 	initng_active_state_unregister(&SERVICE_START_MARKED);
 	initng_active_state_unregister(&SERVICE_STOP_MARKED);
 	initng_active_state_unregister(&SERVICE_DONE);
@@ -543,7 +537,6 @@ void module_unload(void)
  * #                         STATE_FUNCTIONS                                  #
  * ############################################################################
  */
-
 
 /*
  * Everything SERVICE_START_MARKED are gonna do, is to set it SERVICE_WAITING_FOR_START_DEP
@@ -586,18 +579,17 @@ static void handle_SERVICE_WAITING_FOR_START_DEP(active_db_h * service)
 	 * FAIL (dep is failed)
 	 */
 	switch (initng_depend_start_dep_met(service, FALSE)) {
-		case TRUE:
-			break;
+	case TRUE:
+		break;
 
-		case FAIL:
-			initng_common_mark_service(service,
-				&SERVICE_START_DEPS_FAILED);
-			return;
+	case FAIL:
+		initng_common_mark_service(service, &SERVICE_START_DEPS_FAILED);
+		return;
 
-		default:
-			/* return and hope that this handler will be called
-		 	* again. */
-			return;
+	default:
+		/* return and hope that this handler will be called
+		 * again. */
+		return;
 	}
 
 	/* if system is shutting down, don't start anything */
@@ -631,22 +623,20 @@ static void init_SERVICE_START_DEPS_MET(active_db_h * service)
 
 	/* F I N A L L Y   S T A R T */
 	switch (initng_execute_launch(service, &T_START, NULL)) {
-		case FALSE:
-			F_("Did not find a start entry to run!\n",
-			   service->name);
-			initng_common_mark_service(service,
-				&SERVICE_FAIL_START_NONEXIST);
-			return;
+	case FALSE:
+		F_("Did not find a start entry to run!\n", service->name);
+		initng_common_mark_service(service,
+					   &SERVICE_FAIL_START_NONEXIST);
+		return;
 
-		case FAIL:
-			F_("Service %s, could not launch start, did not find "
-			   "any to launch!\n", service->name);
-			initng_common_mark_service(service,
-				&SERVICE_FAIL_START_LAUNCH);
-			return;
+	case FAIL:
+		F_("Service %s, could not launch start, did not find "
+		   "any to launch!\n", service->name);
+		initng_common_mark_service(service, &SERVICE_FAIL_START_LAUNCH);
+		return;
 
-		default:
-			return;
+	default:
+		return;
 	}
 }
 
@@ -658,19 +648,19 @@ static void init_SERVICE_STOP_DEPS_MET(active_db_h * service)
 
 	/* launch stop service */
 	switch (initng_execute_launch(service, &T_STOP, NULL)) {
-		case FAIL:
-			F_("  --  (%s): fail launch stop!\n", service->name);
-			initng_common_mark_service(service,
-				&SERVICE_FAIL_STOP_NONEXIST);
-			return;
+	case FAIL:
+		F_("  --  (%s): fail launch stop!\n", service->name);
+		initng_common_mark_service(service,
+					   &SERVICE_FAIL_STOP_NONEXIST);
+		return;
 
-		case FALSE:
-			/* there exists no stop process */
-			initng_common_mark_service(service, &SERVICE_STOPPED);
-			return;
+	case FALSE:
+		/* there exists no stop process */
+		initng_common_mark_service(service, &SERVICE_STOPPED);
+		return;
 
-		default:
-			return;
+	default:
+		return;
 	}
 
 }
@@ -726,7 +716,6 @@ static void init_SERVICE_STOP_RUN(active_db_h * service)
 	/* set state alarm */
 	initng_handler_set_alarm(service, timeout);
 }
-
 
 static void timeout_SERVICE_START_RUN(active_db_h * service)
 {
@@ -794,9 +783,6 @@ static void timeout_SERVICE_STOP_RUN(active_db_h * service)
 	initng_common_mark_service(service, &SERVICE_STOP_FAILED_TIMEOUT);
 }
 
-
-
-
 /*
  * ############################################################################
  * #                         KILL HANDLER FUNCTIONS                            #
@@ -824,7 +810,7 @@ static void handle_killed_start(active_db_h * service, process_h * process)
 	   service->name, service->current_state->name);
 
 	/* free this process what ever happends */
-	rcode = process->r_code;			/* save rcode */
+	rcode = process->r_code;	/* save rcode */
 	initng_process_db_free(process);
 
 	/*
@@ -846,8 +832,7 @@ static void handle_killed_start(active_db_h * service, process_h * process)
 
 	if (WTERMSIG(process->r_code) == 11) {
 		F_("Service %s process start SETGFAUTED!\n");
-		initng_common_mark_service(service,
-		                           &SERVICE_FAIL_START_SIGNAL);
+		initng_common_mark_service(service, &SERVICE_FAIL_START_SIGNAL);
 		return;
 	}
 
@@ -875,9 +860,8 @@ static void handle_killed_start(active_db_h * service, process_h * process)
 	initng_common_mark_service(service, &SERVICE_DONE);
 }
 
-
 /* to do when a stop action dies */
-static void handle_killed_stop(active_db_h *service, process_h *process)
+static void handle_killed_stop(active_db_h * service, process_h * process)
 {
 	assert(service);
 	assert(service->name);
@@ -912,7 +896,6 @@ static void handle_killed_stop(active_db_h *service, process_h *process)
 		initng_common_mark_service(service, &SERVICE_FAIL_STOP_SIGNAL);
 		return;
 	}
-
 
 	/*
 	 * If the return code (for example "exit 1", in a bash script)

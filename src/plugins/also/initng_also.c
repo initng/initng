@@ -20,14 +20,13 @@
 #include <initng.h>
 
 #include <stdio.h>
-#include <stdlib.h>							/* free() exit() */
+#include <stdlib.h>		/* free() exit() */
 #include <string.h>
 #include <assert.h>
 
-
 INITNG_PLUGIN_MACRO;
 
-s_entry ALSO_START = { 
+s_entry ALSO_START = {
 	.name = "also_start",
 	.description = "When this service is starting, also start this.",
 	.type = STRINGS,
@@ -64,7 +63,8 @@ static void service_state(s_event * event)
 					F_("Failed to also_start %s.\n", tmp);
 					continue;
 				}
-				D_("Service also_start %s already running.\n", tmp);
+				D_("Service also_start %s already running.\n",
+				   tmp);
 				continue;
 			}
 
@@ -99,7 +99,6 @@ static void service_state(s_event * event)
 		}
 	}
 }
-
 
 int module_init(int api_version)
 {

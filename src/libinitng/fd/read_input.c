@@ -24,7 +24,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <string.h>
-#include <fcntl.h>							/* fcntl() */
+#include <fcntl.h>		/* fcntl() */
 
 #include <initng.h>
 #include "local.h"
@@ -34,7 +34,7 @@
  * or when a process is freed ( with flush_buffer set)
  */
 void initng_fd_process_read_input(active_db_h * service, process_h * p,
-                                  pipe_h * pi)
+				  pipe_h * pi)
 {
 	int old_content_offset = pi->buffer_len;
 	int read_ret = 0;
@@ -75,10 +75,11 @@ void initng_fd_process_read_input(active_db_h * service, process_h * p,
 			/* do a realloc */
 			D_("Changing size of buffer %p from %i to: %i "
 			   "bytes.\n", pi->buffer, pi->buffer_allocated,
-			   pi->buffer_allocated + 100 + 1 );
+			   pi->buffer_allocated + 100 + 1);
 
 			tmp = initng_toolbox_realloc(pi->buffer,
-				(pi->buffer_allocated + 100 + 1));
+						     (pi->buffer_allocated +
+						      100 + 1));
 
 			/* make sure realloc suceeded */
 			if (tmp) {
@@ -128,7 +129,7 @@ void initng_fd_process_read_input(active_db_h * service, process_h * p,
 		D_("Calling plugins for new buffer content...");
 		/* let all plugin take part of data */
 		initng_fd_plugin_readpipe(service, p, pi, pi->buffer +
-		                                          old_content_offset);
+					  old_content_offset);
 	}
 
 	/*if empty, dont waist memory */
@@ -139,7 +140,6 @@ void initng_fd_process_read_input(active_db_h * service, process_h * p,
 		pi->buffer_allocated = 0;
 		pi->buffer_len = 0;
 	}
-
 
 	/*
 	 * if EOF close pipes.
@@ -157,7 +157,8 @@ void initng_fd_process_read_input(active_db_h * service, process_h * p,
 		/* else, realloc to exact size */
 		if (pi->buffer && pi->buffer_allocated > (pi->buffer_len + 1)) {
 			tmp = initng_toolbox_realloc(pi->buffer,
-					(pi->buffer_len + 1) * sizeof(char));
+						     (pi->buffer_len +
+						      1) * sizeof(char));
 			if (tmp) {
 				pi->buffer = tmp;
 				pi->buffer_allocated = pi->buffer_len;
@@ -184,7 +185,7 @@ void initng_fd_process_read_input(active_db_h * service, process_h * p,
 
 		/* Even if realloc failed, the buffer is still valid
 		   and we've still reduced the length of its contents */
-		pi->buffer_len = 9000;		/* shortened by 1000 chars */
+		pi->buffer_len = 9000;	/* shortened by 1000 chars */
 		pi->buffer[9000] = '\0';	/* shortened by 1000 chars */
 	}
 

@@ -17,8 +17,8 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <stdlib.h>				/* free() exit() */
-#include <stdio.h>				/* printf() */
+#include <stdlib.h>		/* free() exit() */
+#include <stdio.h>		/* printf() */
 #include <errno.h>
 #include <string.h>
 #include <assert.h>
@@ -29,7 +29,6 @@
 #include <initng.h>
 
 #include "local.h"
-
 
 volatile int signals_got[SIGNAL_STACK];
 
@@ -102,13 +101,13 @@ void initng_signal_enable(void)
 	}
 
 	sa.sa_handler = set_signal;
-	sigaction(SIGCHLD, &sa, 0);		/* Dead children */
-	sigaction(SIGINT, &sa, 0);		/* ctrl-alt-del */
-	sigaction(SIGWINCH, &sa, 0);		/* keyboard request */
-	sigaction(SIGALRM, &sa, 0);		/* alarm, something has to */
-						/* be checked */
-	sigaction(SIGHUP, &sa, 0);		/* sighup, plugin actions */
-	sigaction(SIGPIPE, &sa, 0);		/* sigpipe, plugin actions */
+	sigaction(SIGCHLD, &sa, 0);	/* Dead children */
+	sigaction(SIGINT, &sa, 0);	/* ctrl-alt-del */
+	sigaction(SIGWINCH, &sa, 0);	/* keyboard request */
+	sigaction(SIGALRM, &sa, 0);	/* alarm, something has to */
+	/* be checked */
+	sigaction(SIGHUP, &sa, 0);	/* sighup, plugin actions */
+	sigaction(SIGPIPE, &sa, 0);	/* sigpipe, plugin actions */
 }
 
 /* 
@@ -129,10 +128,10 @@ void initng_signal_disable(void)
 	sa.sa_handler = SIG_DFL;
 	sigaction(SIGSEGV, &sa, 0);
 	sigaction(SIGABRT, &sa, 0);
-	sigaction(SIGCHLD, &sa, 0);		/* Dead children */
-	sigaction(SIGINT, &sa, 0);		/* ctrl-alt-del */
-	sigaction(SIGWINCH, &sa, 0);		/* keyboard request */
-	sigaction(SIGALRM, &sa, 0);		/* alarm, something has to */
-						/* be checked */
-	sigaction(SIGHUP, &sa, 0);		/* sighup, plugin actions */
+	sigaction(SIGCHLD, &sa, 0);	/* Dead children */
+	sigaction(SIGINT, &sa, 0);	/* ctrl-alt-del */
+	sigaction(SIGWINCH, &sa, 0);	/* keyboard request */
+	sigaction(SIGALRM, &sa, 0);	/* alarm, something has to */
+	/* be checked */
+	sigaction(SIGHUP, &sa, 0);	/* sighup, plugin actions */
 }

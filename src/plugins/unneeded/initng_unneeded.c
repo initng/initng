@@ -33,7 +33,6 @@
 #include <sys/un.h>
 #include <assert.h>
 
-
 INITNG_PLUGIN_MACRO;
 
 const char *module_needs[] = {
@@ -49,7 +48,7 @@ s_command STOP_UNNEEDED = {
 	.com_type = TRUE_OR_FALSE_COMMAND,
 	.opt_visible = STANDARD_COMMAND,
 	.opt_type = NO_OPT,
-	.u = { (void *) &cmd_stop_unneeded },
+	.u = {(void *)&cmd_stop_unneeded},
 	.description = "Stop all services, not in runlevel"
 };
 

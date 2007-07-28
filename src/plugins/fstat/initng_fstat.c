@@ -20,13 +20,12 @@
 #include <initng.h>
 
 #include <stdio.h>
-#include <stdlib.h>							/* free() exit() */
+#include <stdlib.h>		/* free() exit() */
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <assert.h>
-
 
 INITNG_PLUGIN_MACRO;
 
@@ -40,7 +39,7 @@ s_entry WAIT_FOR_FILE = {
 s_entry REQUIRE_FILE = {
 	.name = "require_file",
 	.description = "If this file dont exist, this service will FAIL "
-	               "directly.",
+	    "directly.",
 	.type = STRINGS,
 	.ot = NULL,
 };
@@ -48,7 +47,7 @@ s_entry REQUIRE_FILE = {
 s_entry WAIT_FOR_FILE_AFTER = {
 	.name = "wait_for_file_after",
 	.description = "Make sure this files exits before a service can be "
-	               "marked as up.",
+	    "marked as up.",
 	.type = STRINGS,
 	.ot = NULL,
 };
@@ -56,7 +55,7 @@ s_entry WAIT_FOR_FILE_AFTER = {
 s_entry REQUIRE_FILE_AFTER = {
 	.name = "require_file_after",
 	.description = "If this file dont exist after, the service will be "
-	               "marked FAIL.",
+	    "marked FAIL.",
 	.type = STRINGS,
 	.ot = NULL,
 };
@@ -64,7 +63,7 @@ s_entry REQUIRE_FILE_AFTER = {
 a_state_h REQUIRE_FILE_FAILED = {
 	.name = "REQUIRE_FILE_FAILED",
 	.description = "A file that is required to exist before this service "
-	               "can start was not found.",
+	    "can start was not found.",
 	.is = IS_FAILED,
 	.interrupt = NULL,
 	.init = NULL,
@@ -74,18 +73,17 @@ a_state_h REQUIRE_FILE_FAILED = {
 a_state_h REQUIRE_FILE_AFTER_FAILED = {
 	.name = "REQUIRE_FILE_AFTER_FAILED",
 	.description = "A file that is required to exist after this service "
-	               "is started was not found.",
+	    "is started was not found.",
 	.is = IS_FAILED,
 	.interrupt = NULL,
 	.init = NULL,
 	.alarm = NULL
 };
 
-
 /*
  * Do this check before START_DEP_MET can be set.
  */
-static void check_files_to_exist(s_event *event)
+static void check_files_to_exist(s_event * event)
 {
 	active_db_h *service;
 	const char *file = NULL;
@@ -117,7 +115,8 @@ static void check_files_to_exist(s_event *event)
 	while ((file = get_next_string(&REQUIRE_FILE, service, &itt))) {
 		D_("Service %s need file %s to exist\n", service->name, file);
 		if (stat(file, &file_stat) != 0) {
-			initng_common_mark_service(service, &REQUIRE_FILE_FAILED);
+			initng_common_mark_service(service,
+						   &REQUIRE_FILE_FAILED);
 			event->status = FAILED;
 			return;
 		}
@@ -127,9 +126,9 @@ static void check_files_to_exist(s_event *event)
 /*
  * Do this test before status RUNNING can be set.
  */
-static void check_files_to_exist_after(s_event *event)
+static void check_files_to_exist_after(s_event * event)
 {
-	active_db_h * service;
+	active_db_h *service;
 	const char *file = NULL;
 	s_data *itt = NULL;
 
@@ -161,7 +160,7 @@ static void check_files_to_exist_after(s_event *event)
 	while ((file = get_next_string(&WAIT_FOR_FILE_AFTER, service, &itt))) {
 		if (stat(file, &file_stat) != 0) {
 			initng_common_mark_service(service,
-			                           &REQUIRE_FILE_AFTER_FAILED);
+						   &REQUIRE_FILE_AFTER_FAILED);
 			event->status = FAILED;
 			return;
 		}
@@ -186,10 +185,8 @@ int module_init(int api_version)
 	initng_active_state_register(&REQUIRE_FILE_FAILED);
 	initng_active_state_register(&REQUIRE_FILE_AFTER_FAILED);
 
-	initng_event_hook_register(&EVENT_START_DEP_MET,
-	                           &check_files_to_exist);
-	initng_event_hook_register(&EVENT_UP_MET,
-	                           &check_files_to_exist_after);
+	initng_event_hook_register(&EVENT_START_DEP_MET, &check_files_to_exist);
+	initng_event_hook_register(&EVENT_UP_MET, &check_files_to_exist_after);
 	return TRUE;
 }
 
@@ -205,7 +202,7 @@ void module_unload(void)
 	initng_active_state_unregister(&REQUIRE_FILE_AFTER_FAILED);
 
 	initng_event_hook_unregister(&EVENT_START_DEP_MET,
-	                             &check_files_to_exist);
+				     &check_files_to_exist);
 	initng_event_hook_unregister(&EVENT_UP_MET,
-	                             &check_files_to_exist_after);
+				     &check_files_to_exist_after);
 }

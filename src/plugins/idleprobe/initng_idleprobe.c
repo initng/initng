@@ -21,7 +21,7 @@
 #include <initng.h>
 
 #include <stdio.h>
-#include <stdlib.h>				/* free() exit() */
+#include <stdlib.h>		/* free() exit() */
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -32,7 +32,6 @@
 #include <sys/ioctl.h>
 #include <errno.h>
 #include <time.h>
-
 
 INITNG_PLUGIN_MACRO;
 
@@ -49,7 +48,7 @@ static int is_cpu_idle(int wait);
 s_entry WAIT_FOR_CPU_IDLE = {
 	.name = "wait_for_cpu_idle",
 	.description = "If this is set, initng will wait until CPU has been "
-	                "idling for 10 seconds before starting.",
+	    "idling for 10 seconds before starting.",
 	.type = SET,
 	.ot = NULL,
 };
@@ -58,7 +57,7 @@ s_entry WAIT_FOR_CPU_IDLE = {
 s_entry WAIT_FOR_CPU_COUNT = {
 	.name = "wait_for_cpu_below",
 	.description = "Sets the seconds system have to idle, before this "
-	               "service is started.",
+	    "service is started.",
 	.type = INT,
 	.ot = NULL,
 };
@@ -88,8 +87,7 @@ static int is_cpu_idle(int wait)
 	D_("is_cpu_idle(%i);\n", wait);
 	/* check so that wait value is correct */
 	if (wait < 0) {
-		F_("Wrong value for parameter wait_for_cpu_idle (%i)!\n",
-		   wait);
+		F_("Wrong value for parameter wait_for_cpu_idle (%i)!\n", wait);
 		return FALSE;
 	}
 
@@ -124,8 +122,8 @@ static int is_cpu_idle(int wait)
 
 	/* okay, lets start parse /proc/stat */
 	if (sscanf(buf, "cpu %Lu %Lu %Lu %Lu %Lu %Lu %Lu", &cpu_user,
-	           &cpu_nice, &cpu_system, &cpu_idle, &cpu_dummy1,
-	           &cpu_dummy2, &cpu_dummy3) < 4) {
+		   &cpu_nice, &cpu_system, &cpu_idle, &cpu_dummy1,
+		   &cpu_dummy2, &cpu_dummy3) < 4) {
 		F_("Failed to read from /proc/stat!\n");
 		return FALSE;
 	}
@@ -143,13 +141,12 @@ static int is_cpu_idle(int wait)
 		cpu_idle_frm = cpu_idle - old_cpu_idle;
 	else
 		cpu_idle_frm = 0;
-	
+
 	cpu_dummy1_frm = cpu_dummy1 - old_cpu_dummy1;
 	cpu_dummy2_frm = cpu_dummy2 - old_cpu_dummy2;
 	cpu_dummy3_frm = cpu_dummy3 - old_cpu_dummy3;
 	cpu_tot_frm = cpu_user_frm + cpu_nice_frm + cpu_system_frm +
-	              cpu_idle_frm + cpu_dummy1_frm + cpu_dummy2_frm +
-	              cpu_dummy3_frm;
+	    cpu_idle_frm + cpu_dummy1_frm + cpu_dummy2_frm + cpu_dummy3_frm;
 
 	if (cpu_tot_frm < 1)
 		cpu_tot_frm = 1;
@@ -180,7 +177,7 @@ static int is_cpu_idle(int wait)
 	return FALSE;
 }
 
-static void check_cpu_idle(s_event *event)
+static void check_cpu_idle(s_event * event)
 {
 	S_;
 	active_db_h *service;

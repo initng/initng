@@ -36,7 +36,6 @@
 
 #include "print_service.h"
 
-
 static char *cmd_print_fds(char *arg);
 static int cmd_initng_quit(char *arg);
 
@@ -52,7 +51,7 @@ s_command LIST_FDS = {
 	.com_type = STRING_COMMAND,
 	.opt_visible = ADVANCHED_COMMAND,
 	.opt_type = USES_OPT,
-	.u = { (void *) &cmd_print_fds },
+	.u = {(void *)&cmd_print_fds},
 	.description = "Print all open filedescriptors initng have."
 };
 
@@ -62,7 +61,7 @@ s_command QUIT_INITNG = {
 	.com_type = TRUE_OR_FALSE_COMMAND,
 	.opt_visible = ADVANCHED_COMMAND,
 	.opt_type = NO_OPT,
-	.u = { (void *) &cmd_initng_quit },
+	.u = {(void *)&cmd_initng_quit},
 	.description = "Quits initng"
 };
 
@@ -72,7 +71,7 @@ s_command PRINT_ACTIVE_DB = {
 	.com_type = STRING_COMMAND,
 	.opt_visible = ADVANCHED_COMMAND,
 	.opt_type = USES_OPT,
-	.u = { (void *) &active_db_print_all },
+	.u = {(void *)&active_db_print_all},
 	.description = "Print active_db"
 };
 
@@ -83,7 +82,7 @@ s_command TOGGLE_VERBOSE = {
 	.com_type = TRUE_OR_FALSE_COMMAND,
 	.opt_visible = ADVANCHED_COMMAND,
 	.opt_type = NO_OPT,
-	.u = { (void *) &cmd_toggle_verbose },
+	.u = {(void *)&cmd_toggle_verbose},
 	.description = "Toggle the verbose flag - ONLY FOR DEBUGGING"
 };
 
@@ -93,9 +92,9 @@ s_command ADD_VERBOSE = {
 	.com_type = TRUE_OR_FALSE_COMMAND,
 	.opt_visible = ADVANCHED_COMMAND,
 	.opt_type = REQUIRES_OPT,
-	.u = { (void *) &cmd_add_verbose },
+	.u = {(void *)&cmd_add_verbose},
 	.description = "Add string to watch for to make initng verbose - "
-		       "ONLY FOR DEBUGGING"
+	    "ONLY FOR DEBUGGING"
 };
 
 s_command DEL_VERBOSE = {
@@ -104,9 +103,9 @@ s_command DEL_VERBOSE = {
 	.com_type = TRUE_OR_FALSE_COMMAND,
 	.opt_visible = ADVANCHED_COMMAND,
 	.opt_type = REQUIRES_OPT,
-	.u = { (void *) &cmd_del_verbose },
+	.u = {(void *)&cmd_del_verbose},
 	.description = "Del string to watch for to make initng verbose - "
-		       "ONLY FOR DEBUGGING"
+	    "ONLY FOR DEBUGGING"
 };
 #endif
 
@@ -145,8 +144,9 @@ static char *cmd_print_fds(char *arg)
 					current_pipe = NULL;
 					while_pipes(current_pipe, currentP) {
 						/* if matching */
-						if (current_pipe->pipe[0] == i ||
-						    current_pipe->pipe[1] == i) {
+						if (current_pipe->pipe[0] == i
+						    || current_pipe->pipe[1] ==
+						    i) {
 							/* PRINT */
 							mprintf(&string,
 								" %i: Used "
@@ -154,7 +154,8 @@ static char *cmd_print_fds(char *arg)
 								"process: "
 								"%s\n", i,
 								currentA->name,
-								currentP->pt->name);
+								currentP->pt->
+								name);
 						}
 					}
 				}
@@ -169,40 +170,39 @@ static char *cmd_print_fds(char *arg)
 
 static int cmd_initng_quit(char *arg)
 {
-	(void) arg;
+	(void)arg;
 	g.when_out = THEN_QUIT;
 	initng_handler_stop_all();
 
 	return TRUE;
 }
 
-
 #ifdef DEBUG
 
 static int cmd_toggle_verbose(char *arg)
 {
-	(void) arg;
+	(void)arg;
 	switch (g.verbose) {
-		case 0:
-			g.verbose = 1;
-			break;
+	case 0:
+		g.verbose = 1;
+		break;
 
-		case 1:
-			g.verbose = 0;
-			break;
+	case 1:
+		g.verbose = 0;
+		break;
 
-		case 2:
-			g.verbose = 3;
-			break;
+	case 2:
+		g.verbose = 3;
+		break;
 
-		case 3:
-			g.verbose = 2;
-			break;
+	case 3:
+		g.verbose = 2;
+		break;
 
-		default:
-			g.verbose = 0;
-			W_("Unknown verbose id %i\n", g.verbose);
-			break;
+	default:
+		g.verbose = 0;
+		W_("Unknown verbose id %i\n", g.verbose);
+		break;
 	}
 
 	return (g.verbose);
@@ -250,7 +250,6 @@ int module_init(int api_version)
 	D_("libstcmd.so.0.0 loaded!\n");
 	return TRUE;
 }
-
 
 void module_unload(void)
 {

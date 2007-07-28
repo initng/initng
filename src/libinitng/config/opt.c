@@ -21,7 +21,7 @@
 #include <string.h>
 #include <initng.h>
 
-int initng_config_opt_get(opt_t *opts, char **rval, char *str)
+int initng_config_opt_get(opt_t * opts, char **rval, char *str)
 {
 	char *val;
 	int i;

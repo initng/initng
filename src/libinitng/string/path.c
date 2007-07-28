@@ -29,7 +29,6 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
-
 /* function strips "test/go/th" to "th" */
 const char *initng_string_basename(const char *string)
 {

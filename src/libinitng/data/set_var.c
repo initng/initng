@@ -26,7 +26,6 @@
 
 #include "local.h"
 
-
 void initng_data_set_var(s_entry * type, char *vn, data_head * d)
 {
 	s_data *current = NULL;

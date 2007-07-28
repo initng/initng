@@ -29,7 +29,6 @@
 
 #include <initng.h>
 
-
 /*
  * This is an exact search "net/eth0" must be "net/eth0"
  */
@@ -37,7 +36,7 @@ active_db_h *initng_active_db_find_by_exact_name(const char *service)
 {
 	active_db_h *current = NULL;
 
-	D_("(%s);\n", (char *) service);
+	D_("(%s);\n", (char *)service);
 
 	assert(service);
 
@@ -62,12 +61,11 @@ active_db_h *initng_active_db_find_by_name(const char *service)
 	assert(service);
 	active_db_h *current = NULL;
 
-	D_("(%s);\n", (char *) service);
+	D_("(%s);\n", (char *)service);
 
 	/* first give the exact find a shot */
 	if ((current = initng_active_db_find_by_exact_name(service)))
 		return (current);
-
 
 	/* did not find any */
 	return NULL;
@@ -95,7 +93,7 @@ active_db_h *initng_active_db_find_in_name(const char *service)
 
 	assert(service);
 
-	D_("(%s);\n", (char *) service);
+	D_("(%s);\n", (char *)service);
 
 	/* first search by name */
 	if ((current = initng_active_db_find_by_name(service)))

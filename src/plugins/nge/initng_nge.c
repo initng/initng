@@ -48,19 +48,18 @@ int listeners[MAX_LISTENERS + 1];
 
 int is_active = FALSE;
 
-void event_acceptor(f_module_h *from, e_fdw what);
+void event_acceptor(f_module_h * from, e_fdw what);
 static void close_all_listeners(void);
 static void close_initiator_socket(void);
 static int open_initiator_socket(void);
-static void check_socket(s_event *event);
+static void check_socket(s_event * event);
 void send_to_all(const void *buf, size_t len);
 
-
-static void astatus_change(s_event *event);
-static void system_state_change(s_event *event);
-static void system_pipe_watchers(s_event *event);
-static void print_error(s_event *event);
-static void fd_event_acceptor_handler(s_event *event);
+static void astatus_change(s_event * event);
+static void system_state_change(s_event * event);
+static void system_pipe_watchers(s_event * event);
+static void print_error(s_event * event);
+static void fd_event_acceptor_handler(s_event * event);
 
 /* todo, when last listener closed, del hooks to save cpu cykles */
 
@@ -70,8 +69,7 @@ f_module_h fd_event_acceptor = {
 	.fds = -1
 };
 
-
-static void fd_event_acceptor_handler(s_event *event)
+static void fd_event_acceptor_handler(s_event * event)
 {
 	s_event_fd_watcher_data *data;
 
@@ -81,45 +79,44 @@ static void fd_event_acceptor_handler(s_event *event)
 	data = event->data;
 
 	switch (data->action) {
-		case FDW_ACTION_CLOSE:
-			if (fd_event_acceptor.fds > 0)
-				close(fd_event_acceptor.fds);
+	case FDW_ACTION_CLOSE:
+		if (fd_event_acceptor.fds > 0)
+			close(fd_event_acceptor.fds);
+		break;
+
+	case FDW_ACTION_CHECK:
+		if (fd_event_acceptor.fds <= 2)
 			break;
 
-		case FDW_ACTION_CHECK:
-			if (fd_event_acceptor.fds <= 2)
-				break;
+		/* This is a expensive test, but better safe then sorry */
+		if (!STILL_OPEN(fd_event_acceptor.fds)) {
+			D_("%i is not open anymore.\n", fd_event_acceptor.fds);
+			fd_event_acceptor.fds = -1;
+			break;
+		}
 
-			/* This is a expensive test, but better safe then sorry */
-			if (!STILL_OPEN(fd_event_acceptor.fds)) {
-				D_("%i is not open anymore.\n", fd_event_acceptor.fds);
-				fd_event_acceptor.fds = -1;
-				break;
-			}
+		FD_SET(fd_event_acceptor.fds, data->readset);
+		data->added++;
+		break;
 
-			FD_SET(fd_event_acceptor.fds, data->readset);
-			data->added++;
+	case FDW_ACTION_CALL:
+		if (!data->added || fd_event_acceptor.fds <= 2)
 			break;
 
-		case FDW_ACTION_CALL:
-			if (!data->added || fd_event_acceptor.fds <= 2)
-				break;
-
-			if(!FD_ISSET(fd_event_acceptor.fds, data->readset))
-				break;
-
-			event_acceptor(&fd_event_acceptor, FDW_READ);
-			data->added--;
+		if (!FD_ISSET(fd_event_acceptor.fds, data->readset))
 			break;
 
-		case FDW_ACTION_DEBUG:
-			if (!data->debug_find_what ||
-			    strstr(__FILE__, data->debug_find_what)) {
-				mprintf(data->debug_out,
-					" %i: Used by plugin: %s\n",
-					fd_event_acceptor.fds, __FILE__);
-			}
-			break;
+		event_acceptor(&fd_event_acceptor, FDW_READ);
+		data->added--;
+		break;
+
+	case FDW_ACTION_DEBUG:
+		if (!data->debug_find_what ||
+		    strstr(__FILE__, data->debug_find_what)) {
+			mprintf(data->debug_out, " %i: Used by plugin: %s\n",
+				fd_event_acceptor.fds, __FILE__);
+		}
+		break;
 	}
 }
 
@@ -137,7 +134,7 @@ static void close_all_listeners(void)
 	}
 }
 
-static void handle_killed(s_event *event)
+static void handle_killed(s_event * event)
 {
 	s_event_handle_killed_data *data;
 	char *buffert = NULL;
@@ -149,8 +146,9 @@ static void handle_killed(s_event *event)
 	data = event->data;
 
 	buffert = initng_toolbox_calloc(180 + strlen(data->service->name) +
-		  strlen(data->service->current_state->name) +
-		  strlen(data->process->pt->name), 1);
+					strlen(data->service->current_state->
+					       name) +
+					strlen(data->process->pt->name), 1);
 
 	len = sprintf(buffert, "<event type=\"process_killed\" service=\"%s\""
 		      " is=\"%i\" state=\"%s\" process=\"%s\" "
@@ -204,7 +202,7 @@ static void close_initiator_socket(void)
 /* send to all listeners */
 void send_to_all(const void *buf, size_t len)
 {
-	D_("send_to_all(%s)\n", (char *) buf);
+	D_("send_to_all(%s)\n", (char *)buf);
 	int i;
 
 	/* walk all lissiners */
@@ -214,9 +212,9 @@ void send_to_all(const void *buf, size_t len)
 			continue;
 
 		D_("Sending to listeners[%i] fd %i : %s\n", i, listeners[i],
-		   (char *) buf);
+		   (char *)buf);
 		/* if not succed to send */
-		if (send(listeners[i], buf, len, 0) < (signed) len) {
+		if (send(listeners[i], buf, len, 0) < (signed)len) {
 			D_("Fd %i must have been closed.\n", listeners[i]);
 			/* close it */
 			close(listeners[i]);
@@ -226,7 +224,7 @@ void send_to_all(const void *buf, size_t len)
 }
 
 /* called by fd hook, when data is no socket */
-void event_acceptor(f_module_h *from, e_fdw what)
+void event_acceptor(f_module_h * from, e_fdw what)
 {
 	/* Temporary variables for sending data */
 	char *string = NULL;
@@ -259,8 +257,7 @@ void event_acceptor(f_module_h *from, e_fdw what)
 					   &system_state_change);
 		initng_event_hook_register(&EVENT_BUFFER_WATCHER,
 					   &system_pipe_watchers);
-		initng_event_hook_register(&EVENT_ERROR_MESSAGE,
-					   &print_error);
+		initng_event_hook_register(&EVENT_ERROR_MESSAGE, &print_error);
 		initng_event_hook_register(&EVENT_HANDLE_KILLED,
 					   &handle_killed);
 		is_active = TRUE;
@@ -281,8 +278,7 @@ void event_acceptor(f_module_h *from, e_fdw what)
 
 	/* Make a string ready for sending */
 	len = sprintf(string, "<connect protocol_version=\"%i\", "
-		      "initng_version=\"%s\"/>\n", NGE_VERSION,
-		      INITNG_VERSION);
+		      "initng_version=\"%s\"/>\n", NGE_VERSION, INITNG_VERSION);
 
 	/* send the init string to this socket */
 	send(listeners[lis], string, len, 0);
@@ -317,9 +313,13 @@ void event_acceptor(f_module_h *from, e_fdw what)
 
 		while_active_db(service) {
 			string = initng_toolbox_realloc(string,
-				(160 + strlen(service->name) +
-				strlen(service->current_state->name) +
-				strlen(service->type->name)));
+							(160 +
+							 strlen(service->name) +
+							 strlen(service->
+								current_state->
+								name) +
+							 strlen(service->type->
+								name)));
 
 			len = sprintf(string, "<event type=\""
 				      "initial_service_state\" service=\"%s\""
@@ -353,7 +353,6 @@ void event_acceptor(f_module_h *from, e_fdw what)
 	free(string);
 	string = NULL;
 }
-
 
 /* This will try to open a new socket, clients can iniziate to */
 static int open_initiator_socket(void)
@@ -406,9 +405,9 @@ static int open_initiator_socket(void)
 	unlink(serv_sockname.sun_path);
 
 	/* Try to bind */
-	if (bind(fd_event_acceptor.fds, (struct sockaddr *) &serv_sockname,
+	if (bind(fd_event_acceptor.fds, (struct sockaddr *)&serv_sockname,
 		 (strlen(serv_sockname.sun_path) +
-		 sizeof(serv_sockname.sun_family))) < 0) {
+		  sizeof(serv_sockname.sun_family))) < 0) {
 
 		F_("Error binding to socket (errno: %d str: '%s')\n", errno,
 		   strerror(errno));
@@ -453,7 +452,7 @@ static int open_initiator_socket(void)
 }
 
 /* this will check socket, and reopen on failure */
-static void check_socket(s_event *event)
+static void check_socket(s_event * event)
 {
 	int *signal;
 	struct stat st;
@@ -497,7 +496,7 @@ static void check_socket(s_event *event)
 	return;
 }
 
-static void astatus_change(s_event *event)
+static void astatus_change(s_event * event)
 {
 	active_db_h *service;
 	char *buffert = NULL;
@@ -509,8 +508,8 @@ static void astatus_change(s_event *event)
 	service = event->data;
 
 	buffert = initng_toolbox_calloc(180 + strlen(service->name) +
-				strlen(service->current_state->name) +
-				strlen(service->type->name), 1);
+					strlen(service->current_state->name) +
+					strlen(service->type->name), 1);
 
 	if (g.sys_state == STATE_STARTING) {
 		len = sprintf(buffert, "<event type=\"service_state_change\" "
@@ -552,7 +551,7 @@ static void astatus_change(s_event *event)
 
 static void system_state_change(s_event * event)
 {
-	e_is * state;
+	e_is *state;
 	char *buffert = initng_toolbox_calloc(90 + strlen(g.runlevel), 1);
 	int len;
 
@@ -571,7 +570,7 @@ static void system_state_change(s_event * event)
 	free(buffert);
 }
 
-static void system_pipe_watchers(s_event *event)
+static void system_pipe_watchers(s_event * event)
 {
 	s_event_buffer_watcher_data *data;
 	char *buffert = NULL;
@@ -597,7 +596,7 @@ static void system_pipe_watchers(s_event *event)
 	free(buffert);
 }
 
-static void print_error(s_event *event)
+static void print_error(s_event * event)
 {
 	s_event_error_message_data *data;
 	char *buffert = NULL;
@@ -635,7 +634,6 @@ static void print_error(s_event *event)
 	free(msg);
 	free(buffert);
 }
-
 
 int module_init(int api_version)
 {
@@ -683,7 +681,6 @@ int module_init(int api_version)
 	/* return happily */
 	return TRUE;
 }
-
 
 void module_unload(void)
 {

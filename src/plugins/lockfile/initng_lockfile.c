@@ -26,20 +26,19 @@
 #include <string.h>
 #include <assert.h>
 
-
 INITNG_PLUGIN_MACRO;
 
 s_entry LOCKFILE = {
 	.name = "lockfile",
 	.description = "If this option is set, plugin will create "
-		       "/var/lock/subsys/$NAME lockfile.",
+	    "/var/lock/subsys/$NAME lockfile.",
 	.type = SET,
 	.ot = NULL,
 };
 
 #define LOCKDIR "/var/lock/subsys/"
 
-static void status_change(s_event *event)
+static void status_change(s_event * event)
 {
 	active_db_h *service;
 

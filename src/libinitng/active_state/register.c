@@ -23,8 +23,7 @@
 
 #include <initng.h>
 
-
-int initng_active_state_register(a_state_h *state)
+int initng_active_state_register(a_state_h * state)
 {
 	assert(state);
 

@@ -24,7 +24,6 @@
 
 #include <initng.h>
 
-
 int initng_command_execute_arg(char cid, char *arg)
 {
 	/* use function about to search it */
@@ -52,7 +51,6 @@ int initng_command_execute_arg(char cid, char *arg)
 		return FALSE;
 	}
 
-
 	/* check with arguments */
 	if (!arg && cmd->opt_type == REQUIRES_OPT) {
 		F_("Command %c needs an opt!\n", cid);
@@ -67,16 +65,16 @@ int initng_command_execute_arg(char cid, char *arg)
 	    cmd->com_type == TRUE_OR_FALSE_COMMAND) {
 		/* execute the command */
 		if (arg)
-			return ((*cmd->u.int_command_call)(arg));
+			return ((*cmd->u.int_command_call) (arg));
 		/* else */
-		return ((*cmd->u.int_command_void_call)());
+		return ((*cmd->u.int_command_void_call) ());
 	}
 
 	/* else its a VOID command, that wont give us any to return. */
 	/* execute the command */
 	if (arg)
-		(*cmd->u.void_command_call)(arg);
+		(*cmd->u.void_command_call) (arg);
 	else
-		(*cmd->u.void_command_void_call)();
+		(*cmd->u.void_command_void_call) ();
 	return TRUE;
 }

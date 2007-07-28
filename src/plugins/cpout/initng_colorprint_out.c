@@ -29,7 +29,6 @@
 
 #include "initng_colorprint_out.h"
 
-
 INITNG_PLUGIN_MACRO;
 
 #define CPE C_RED	" %3i%% " C_OFF C_BLUE "%s" C_OFF MOVE_TO_R
@@ -57,7 +56,6 @@ static void clear_lastserv(void)
 	last_ptype = NULL;
 }
 
-
 static void out_service_done(active_db_h * s)
 {
 	int t;
@@ -72,39 +70,38 @@ static void out_service_done(active_db_h * s)
 		if (g.sys_state == STATE_STARTING) {
 			if (color) {
 				cprintf(CPE "\t[" C_GREEN "done" C_OFF
-				        "]  \t( done in %ims )\n",
-				        initng_active_db_percent_started(),
-				        s->name, t);
+					"]  \t( done in %ims )\n",
+					initng_active_db_percent_started(),
+					s->name, t);
 			} else {
 				cprintf(PE "\t[done]  \t( done in %ims )\n",
-				        initng_active_db_percent_started(),
-				        s->name, t);
+					initng_active_db_percent_started(),
+					s->name, t);
 			}
 		} else {
 			if (color) {
 				cprintf(CP "\t[" C_GREEN "done" C_OFF
-				        "]  \t( done in %ims )\n", s->name,
-				        t);
+					"]  \t( done in %ims )\n", s->name, t);
 			} else {
 				cprintf(P "\t[done]  \t( done in %ims )\n",
-				        s->name, t);
+					s->name, t);
 			}
 		}
 	} else {
 		if (g.sys_state == STATE_STARTING) {
 			if (color) {
 				cprintf(CPE "\t[" C_GREEN "done" C_OFF "]\n",
-				        initng_active_db_percent_started(),
-				        s->name);
+					initng_active_db_percent_started(),
+					s->name);
 			} else {
 				cprintf(PE "\t[done]\n",
-				        initng_active_db_percent_started(),
-				        s->name);
+					initng_active_db_percent_started(),
+					s->name);
 			}
 		} else {
 			if (color) {
 				cprintf(CP "\t[" C_GREEN "done" C_OFF "]\n",
-				        s->name);
+					s->name);
 			} else {
 				cprintf(P "\t[done]\n", s->name);
 			}
@@ -129,39 +126,39 @@ static void opt_service_stop_p(active_db_h * s, const char *is)
 		if (g.sys_state == STATE_STOPPING) {
 			if (color) {
 				cprintf(CPE "\t[" C_GREEN "%s" C_OFF
-				        "]\t( %s in %ims )\n",
-				        initng_active_db_percent_stopped(),
-				        s->name, is, is, t);
+					"]\t( %s in %ims )\n",
+					initng_active_db_percent_stopped(),
+					s->name, is, is, t);
 			} else {
 				cprintf(PE "\t[%s]\t( %s in %ims )\n",
-				        initng_active_db_percent_stopped(),
-				        s->name, is, is, t);
+					initng_active_db_percent_stopped(),
+					s->name, is, is, t);
 			}
 		} else {
 			if (color) {
 				cprintf(CP "\t[" C_GREEN "%s" C_OFF
-				        "]\t( %s in %ims )\n", s->name, is,
-				        is, t);
+					"]\t( %s in %ims )\n", s->name, is,
+					is, t);
 			} else {
 				cprintf(P "\t[%s]\t( %s in %ims )\n", s->name,
-				        is, is, t);
+					is, is, t);
 			}
 		}
 	} else {
 		if (g.sys_state == STATE_STOPPING) {
 			if (color) {
 				cprintf(CPE "\t[" C_GREEN "%s" C_OFF "]\n",
-				        initng_active_db_percent_stopped(),
-				        s->name, is);
+					initng_active_db_percent_stopped(),
+					s->name, is);
 			} else {
 				cprintf(PE "\t[%s]\n",
-				        initng_active_db_percent_stopped(),
-				        s->name, is);
+					initng_active_db_percent_stopped(),
+					s->name, is);
 			}
 		} else {
 			if (color) {
 				cprintf(CP "\t[" C_GREEN "%s" C_OFF "]\n",
-				        s->name, is);
+					s->name, is);
 			} else {
 				cprintf(P "\t[%s]\n", s->name, is);
 			}
@@ -172,10 +169,9 @@ static void opt_service_stop_p(active_db_h * s, const char *is)
 	fflush(output);
 }
 
-
 static void print_output(s_event * event)
 {
-	active_db_h * service;
+	active_db_h *service;
 
 	assert(event->event_type == &EVENT_IS_CHANGE);
 	assert(event->data);
@@ -200,11 +196,11 @@ static void print_output(s_event * event)
 	if (IS_STARTING(service)) {
 		/* if we print this on boot, we clutter up the screen too much */
 		/* if (g.sys_state == STATE_STARTING)
-		 	return (TRUE); */
+		   return (TRUE); */
 		clear_lastserv();
 		if (color) {
 			cprintf(CP "\t[" C_GREEN "starting" C_OFF "]\n",
-			        service->name);
+				service->name);
 		} else {
 			cprintf(P "\t[starting]\n", service->name);
 		}
@@ -214,7 +210,8 @@ static void print_output(s_event * event)
 
 	if (IS_UP(service)) {
 		int t;
-		process_h *process = initng_process_db_get_by_name("daemon", service);
+		process_h *process =
+		    initng_process_db_get_by_name("daemon", service);
 
 		if (!process) {
 			out_service_done(service);
@@ -227,20 +224,20 @@ static void print_output(s_event * event)
 		if (t > 1 && g.sys_state == STATE_STARTING) {
 			if (color) {
 				cprintf(CPE "\t[" C_GREEN "started" C_OFF
-				        "]\t( pid: %i )\n", t, service->name,
-				        process->pid);
+					"]\t( pid: %i )\n", t, service->name,
+					process->pid);
 			} else {
 				cprintf(PE "\t[started]\t( pid: %i )\n",
-				        t, service->name, process->pid);
+					t, service->name, process->pid);
 			}
 		} else {
 			if (color) {
 				cprintf(CP "\t[" C_GREEN "started" C_OFF
-				        "]\t( pid: %i )\n", service->name,
-				        process->pid);
+					"]\t( pid: %i )\n", service->name,
+					process->pid);
 			} else {
 				cprintf(P "\t[started]\t( pid: %i )\n",
-				        service->name, process->pid);
+					service->name, process->pid);
 			}
 		}
 
@@ -259,7 +256,7 @@ static void print_output(s_event * event)
 		clear_lastserv();
 		if (color) {
 			cprintf(CP "\t[" C_GREEN "stopping" C_OFF "]\n",
-			        service->name);
+				service->name);
 		} else {
 			cprintf(P "\t[stopping]\n", service->name);
 		}
@@ -273,11 +270,10 @@ static void print_output(s_event * event)
 		clear_lastserv();
 		if (color) {
 			cprintf(CP "\t[" C_RED "%s" C_OFF "]\n",
-			        service->name,
-			        service->current_state->name);
+				service->name, service->current_state->name);
 		} else {
 			cprintf(P "\t[%s]\n", service->name,
-			        service->current_state->name);
+				service->current_state->name);
 		}
 	}
 
@@ -286,7 +282,7 @@ static void print_output(s_event * event)
 
 static void print_system_state(s_event * event)
 {
-	h_sys_state * state;
+	h_sys_state *state;
 
 	assert(event->event_type == &EVENT_SYSTEM_CHANGE);
 	assert(event->data);
@@ -294,47 +290,47 @@ static void print_system_state(s_event * event)
 	state = event->data;
 
 	switch (*state) {
-		case STATE_STARTING:
-			clear_lastserv();
-			cprintf("\tSystem is starting up!\n\n");
-			break;
+	case STATE_STARTING:
+		clear_lastserv();
+		cprintf("\tSystem is starting up!\n\n");
+		break;
 
-		case STATE_STOPPING:
-			clear_lastserv();
-			cprintf("\tSystem is going down!\n\n");
-			break;
+	case STATE_STOPPING:
+		clear_lastserv();
+		cprintf("\tSystem is going down!\n\n");
+		break;
 
-		case STATE_ASE:
-			clear_lastserv();
-			cprintf("\tLast process exited!\n\n");
-			break;
+	case STATE_ASE:
+		clear_lastserv();
+		cprintf("\tLast process exited!\n\n");
+		break;
 
-		case STATE_EXIT:
-			clear_lastserv();
-			cprintf("\tInitng exiting!\n\n");
-			break;
+	case STATE_EXIT:
+		clear_lastserv();
+		cprintf("\tInitng exiting!\n\n");
+		break;
 
-		case STATE_RESTART:
-			clear_lastserv();
-			cprintf("\tInitng restarting!\n\n");
-			break;
+	case STATE_RESTART:
+		clear_lastserv();
+		cprintf("\tInitng restarting!\n\n");
+		break;
 
-		case STATE_REBOOT:
-			clear_lastserv();
-			cprintf("\n\tYour system will now REBOOT!\n");
-			break;
+	case STATE_REBOOT:
+		clear_lastserv();
+		cprintf("\n\tYour system will now REBOOT!\n");
+		break;
 
-		case STATE_HALT:
-			clear_lastserv();
-			cprintf("\n\tYour system will now HALT!\n");
-			break;
+	case STATE_HALT:
+		clear_lastserv();
+		cprintf("\n\tYour system will now HALT!\n");
+		break;
 
-		case STATE_POWEROFF:
-			clear_lastserv();
-			cprintf("\n\tYour system will now POWER_OFF!\n");
-			break;
+	case STATE_POWEROFF:
+		clear_lastserv();
+		cprintf("\n\tYour system will now POWER_OFF!\n");
+		break;
 
-		case STATE_UP: {
+	case STATE_UP:{
 			struct timeval now;
 
 			/* Dont print this */
@@ -342,8 +338,8 @@ static void print_system_state(s_event * event)
 				return;
 
 			/* get runlevel */
-			active_db_h *runl = 
-				initng_active_db_find_by_name(g.runlevel);
+			active_db_h *runl =
+			    initng_active_db_find_by_name(g.runlevel);
 
 			/* this is not critical, its youst fr runlevel up in info */
 			if (!runl) {
@@ -355,21 +351,21 @@ static void print_system_state(s_event * event)
 
 			clear_lastserv();
 			cprintf("\n\n\trunlevel \"%s\" up in, %ims.\n\n",
-			        g.runlevel,
-			        MS_DIFF(now, runl->last_rought_time));
-
+				g.runlevel, MS_DIFF(now,
+						    runl->last_rought_time));
 
 			/* at the end, print a list of all failing services */
 			{
 				/* remember if we need to print first line */
 				int f = 0;
-				active_db_h * cur = NULL;
+				active_db_h *cur = NULL;
 
 				/* walk thru all services */
 				while_active_db(cur) {
-					if(IS_FAILED(cur)) {
-						if(f == 0) {
-							cprintf(" Failing services:");
+					if (IS_FAILED(cur)) {
+						if (f == 0) {
+							cprintf
+							    (" Failing services:");
 							f = 1;
 						}
 
@@ -378,14 +374,14 @@ static void print_system_state(s_event * event)
 					}
 				}
 
-				if(f == 1)
+				if (f == 1)
 					cprintf("\n\n");
 			}
 
 			break;
 		}
-		default:
-			break;
+	default:
+		break;
 	}
 
 	fflush(output);
@@ -404,8 +400,8 @@ static void print_program_output(s_event * event)
 	   This way fsck will look nice, along with an "internal" database of
 	   write positions we can cache data so we print every 5 seconds or
 	   on int forceflush.
-	*/
-	s_event_buffer_watcher_data * data;
+	 */
+	s_event_buffer_watcher_data *data;
 	int i = 0;
 
 	assert(event->event_type == &EVENT_BUFFER_WATCHER);
@@ -461,11 +457,11 @@ static void print_program_output(s_event * event)
 		clear_lastserv();
 		if (color) {
 			cprintf("\n" C_CYAN " %s %s:" C_OFF,
-			        data->service->name, data->process->pt->name);
+				data->service->name, data->process->pt->name);
 		} else {
 			cprintf("\n %s %s:", data->service->name,
-			        data->process->pt->name);
-		}	
+				data->process->pt->name);
+		}
 
 		/* print our special indented newline */
 		putc('\n', output);
@@ -496,7 +492,8 @@ static void print_program_output(s_event * event)
 			i++;
 			/* skip spaces, on newline. */
 			while (data->buffer_pos[i]
-				   && (data->buffer_pos[i] == ' ' || data->buffer_pos[i] == '\t'))
+			       && (data->buffer_pos[i] == ' '
+				   || data->buffer_pos[i] == '\t'))
 				i++;
 			continue;
 		}
@@ -510,10 +507,9 @@ static void print_program_output(s_event * event)
 	fflush(stdout);
 }
 
-
 static void cp_print_error(s_event * event)
 {
-	s_event_error_message_data * data;
+	s_event_error_message_data *data;
 	struct tm *ts;
 	time_t t;
 
@@ -523,24 +519,24 @@ static void cp_print_error(s_event * event)
 	data = event->data;
 
 	switch (data->mt) {
-		case MSG_FAIL:
-		case MSG_WARN:
-			t = time(0);
-			ts = localtime(&t);
+	case MSG_FAIL:
+	case MSG_WARN:
+		t = time(0);
+		ts = localtime(&t);
 #ifdef DEBUG
-			fprintf(output, "\n\n ** \"%s\", %s()  line:%i:\n",
-			        data->file, data->func, data->line);
+		fprintf(output, "\n\n ** \"%s\", %s()  line:%i:\n",
+			data->file, data->func, data->line);
 #endif
-			fprintf(output, " %.2i:%.2i:%.2i -- %s:\t",
-			        ts->tm_hour, ts->tm_min, ts->tm_sec,
-			        data->mt == MSG_FAIL ? "FAIL" : "WARN");
+		fprintf(output, " %.2i:%.2i:%.2i -- %s:\t", ts->tm_hour,
+			ts->tm_min, ts->tm_sec,
+			data->mt == MSG_FAIL ? "FAIL" : "WARN");
 
-			vfprintf(output, data->format, data->arg);
-			break;
+		vfprintf(output, data->format, data->arg);
+		break;
 
-		default:
-			vfprintf(output, data->format, data->arg);
-			break;
+	default:
+		vfprintf(output, data->format, data->arg);
+		break;
 	}
 
 	/* make sure it reach screen */
@@ -595,23 +591,25 @@ int module_init(int api_version)
 #ifndef FORCE_NOCOLOR
 	/* enable color only on terminals */
 	if (isatty(fileno(output)))
-		color += 1;		/* if this is -1 from abow, this will
-		                         * be zero now */
+		color += 1;	/* if this is -1 from abow, this will
+				 * be zero now */
 	else
 #endif
 		color = 0;
 
 	if (color) {
 		cprintf("\n" C_BLUE "\tNext Generation Init version ( %s )"
-		        C_OFF, INITNG_VERSION);
+			C_OFF, INITNG_VERSION);
 		cprintf("\n" C_GREEN "\thttp://www.initng.org\n" C_OFF);
 	} else {
-		cprintf("\n\tNext Generation Init version ( %s )", INITNG_VERSION);
+		cprintf("\n\tNext Generation Init version ( %s )",
+			INITNG_VERSION);
 		cprintf("\n\thttp://www.initng.org\n");
 	}
 
 	cprintf("\tAuthor: Jimmy Wennlund <jimmy.wennlund@gmail.com>\n");
-	cprintf("\tIf you find initng useful, please consider a small donation.\n\n");
+	cprintf
+	    ("\tIf you find initng useful, please consider a small donation.\n\n");
 	fflush(output);
 
 	D_("module_init();\n");
@@ -620,7 +618,8 @@ int module_init(int api_version)
 	initng_event_hook_register(&EVENT_ERROR_MESSAGE, &cp_print_error);
 	initng_event_hook_register(&EVENT_IS_CHANGE, &print_output);
 	initng_event_hook_register(&EVENT_SYSTEM_CHANGE, &print_system_state);
-	initng_event_hook_register(&EVENT_BUFFER_WATCHER, &print_program_output);
+	initng_event_hook_register(&EVENT_BUFFER_WATCHER,
+				   &print_program_output);
 
 	return TRUE;
 }
@@ -632,10 +631,9 @@ void module_unload(void)
 		return;
 
 	initng_event_hook_unregister(&EVENT_IS_CHANGE, &print_output);
-	initng_event_hook_unregister(&EVENT_SYSTEM_CHANGE,
-	                             &print_system_state);
+	initng_event_hook_unregister(&EVENT_SYSTEM_CHANGE, &print_system_state);
 	initng_event_hook_unregister(&EVENT_BUFFER_WATCHER,
-	                             &print_program_output);
+				     &print_program_output);
 	initng_event_hook_unregister(&EVENT_ERROR_MESSAGE, &cp_print_error);
 	cprintf("  Goodbye\n");
 	fflush(output);

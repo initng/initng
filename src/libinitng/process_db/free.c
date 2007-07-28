@@ -28,7 +28,6 @@
 #include <alloca.h>
 #include <assert.h>
 
-
 void initng_process_db_clear_freed(active_db_h * service)
 {
 	process_h *current, *safe = NULL;

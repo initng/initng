@@ -28,7 +28,6 @@
 #include <alloca.h>
 #include <assert.h>
 
-
 /* creates a process_h struct with defaults */
 process_h *initng_process_db_new(ptype_h * type)
 {

@@ -20,10 +20,9 @@
 #include <initng.h>
 
 #include <stdio.h>
-#include <stdlib.h>					/* free() exit() */
+#include <stdlib.h>		/* free() exit() */
 #include <string.h>
 #include <assert.h>
-
 
 /*
  * This is a final check, before a daemon or service can be marked as UP.

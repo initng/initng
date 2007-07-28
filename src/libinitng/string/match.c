@@ -29,7 +29,6 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
-
 /*
  * a simple strncasecmp, which only returns TRUE or FALSE
  * it will also add the pointer of string, the value, to forward the
@@ -89,7 +88,6 @@ int initng_string_match(const char *string, const char *pattern)
 		   string);
 		return FALSE;
 	}
-
 #ifdef FNM_CASEFOLD
 	/* check if its a match */
 	if (fnmatch(pattern, string, FNM_CASEFOLD) != 0)
@@ -114,7 +112,6 @@ int initng_string_match(const char *string, const char *pattern)
 	/* use fnmatch that shud serve us well as these matches looks like filename matching */
 	return (stringslash == patternslash);
 }
-
 
 /*
  * This match is simply dont that we take pattern, removes any leading

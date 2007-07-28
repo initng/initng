@@ -43,17 +43,15 @@ void initng_config_global_new(int argc, char *argv[], char *env[])
 	/* zero the complete s_global */
 	memset(&g, 0, sizeof(s_global));
 
-	/* Set the i_am, default to fake-init, preinit will take care of
-	 * passing "i_am_init" to initng.
-	 */
-	g.i_am = I_AM_FAKE_INIT;
+	/* Set i_am, default to real-init mode */
+	g.i_am = I_AM_INIT;
 
 	/* we want to keep a copy of the arguments passed to us, this will be
 	 * overwritten by set_title()
 	 */
 	g.Argc = argc;
 	g.Argv0 = argv[0];
-	g.Argv = (char **) initng_toolbox_calloc(argc + 1, sizeof(char *));
+	g.Argv = (char **)initng_toolbox_calloc(argc + 1, sizeof(char *));
 	assert(g.Argv);
 
 	for (i = 0; i < argc; i++) {
@@ -137,10 +135,10 @@ void initng_config_global_free(void)
 	int i;
 
 	/* free all databases */
-	initng_active_db_free_all();			/* clean process_db */
+	initng_active_db_free_all();	/* clean process_db */
 	initng_service_data_type_unregister_all();	/* clean option_db */
-	initng_event_type_unregister_all();		/* clean event_db */
-	initng_command_unregister_all();		/* clean command_db */
+	initng_event_type_unregister_all();	/* clean event_db */
+	initng_command_unregister_all();	/* clean command_db */
 
 	/* free dynamic global variables */
 	remove_all(&g);

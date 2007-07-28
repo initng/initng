@@ -29,7 +29,6 @@
 
 #include "print_service.h"
 
-
 INITNG_PLUGIN_MACRO;
 
 #define IS_PRINTABLE(x) (x >= 32 || x == '\n' || x == '\t' || x == '\r')
@@ -59,69 +58,65 @@ static void print_sdata(s_data * tmp, char **string)
 		return;
 
 	switch (tmp->type->type) {
-		case STRING:
-		case STRINGS:
-			if (!tmp->t.s) {
-				F_("empty value!\n");
-				return;
-			}
-			mprintf(string, "\t %10s            = \"",
-			        tmp->type->name);
-
-			print_string_value(tmp->t.s, string);
-			mprintf(string, "\"\n");
+	case STRING:
+	case STRINGS:
+		if (!tmp->t.s) {
+			F_("empty value!\n");
 			return;
+		}
+		mprintf(string, "\t %10s            = \"", tmp->type->name);
 
-		case VARIABLE_STRING:
-		case VARIABLE_STRINGS:
-			if (!tmp->t.s) {
-				F_("empty value!\n");
-				return;
-			}
-			
-			if (tmp->vn) {
-				mprintf(string, "\t %10s %-10s = \"",
-				        tmp->type->name, tmp->vn);
-			} else {
-				mprintf(string, "\t %10s %-10s = \"",
-				        tmp->type->name, "ERROR");
-			}
-			
-			print_string_value(tmp->t.s, string);
-			mprintf(string, "\"\n");
+		print_string_value(tmp->t.s, string);
+		mprintf(string, "\"\n");
+		return;
+
+	case VARIABLE_STRING:
+	case VARIABLE_STRINGS:
+		if (!tmp->t.s) {
+			F_("empty value!\n");
 			return;
+		}
 
-		case INT:
-			mprintf(string, "\t %10s            = \"%i\"\n",
-			        tmp->type->name, tmp->t.i);
-			return;
+		if (tmp->vn) {
+			mprintf(string, "\t %10s %-10s = \"", tmp->type->name,
+				tmp->vn);
+		} else {
+			mprintf(string, "\t %10s %-10s = \"", tmp->type->name,
+				"ERROR");
+		}
 
-		case VARIABLE_INT:
-			mprintf(string, "\t %10s %-10s = \"%i\"\n",
-			        tmp->type->name, tmp->vn, tmp->t.i);
-			return;
+		print_string_value(tmp->t.s, string);
+		mprintf(string, "\"\n");
+		return;
 
-		case SET:
-			mprintf(string, "\t %10s            = TRUE\n",
-			        tmp->type->name);
-			return;
+	case INT:
+		mprintf(string, "\t %10s            = \"%i\"\n",
+			tmp->type->name, tmp->t.i);
+		return;
 
-		case VARIABLE_SET:
-			mprintf(string, "\t %10s %-10s = TRUE\n",
-			        tmp->type->name, tmp->vn);
-			return;
+	case VARIABLE_INT:
+		mprintf(string, "\t %10s %-10s = \"%i\"\n", tmp->type->name,
+			tmp->vn, tmp->t.i);
+		return;
 
-		case ALIAS:
-			mprintf(string, "\t ALIAS %10s\n",
-			        tmp->type->name);
+	case SET:
+		mprintf(string, "\t %10s            = TRUE\n", tmp->type->name);
+		return;
 
-		default:
-			return;
+	case VARIABLE_SET:
+		mprintf(string, "\t %10s %-10s = TRUE\n", tmp->type->name,
+			tmp->vn);
+		return;
+
+	case ALIAS:
+		mprintf(string, "\t ALIAS %10s\n", tmp->type->name);
+
+	default:
+		return;
 	}
-
 }
 
-static void active_db_print_process(process_h *p, char **string)
+static void active_db_print_process(process_h * p, char **string)
 {
 	pipe_h *current_pipe = NULL;
 
@@ -136,22 +131,22 @@ static void active_db_print_process(process_h *p, char **string)
 
 	if (p->r_code > 0)
 		mprintf(string, "\t\tSIGNALS:\n"
-				"\t\tWEXITSTATUS %i\n"
-				"\t\tWIFEXITED %i\n"
-				"\t\tWIFSIGNALED %i\n" "\t\tWTERMSIG %i\n"
+			"\t\tWEXITSTATUS %i\n"
+			"\t\tWIFEXITED %i\n"
+			"\t\tWIFSIGNALED %i\n" "\t\tWTERMSIG %i\n"
 #ifdef WCOREDUMP
-				"\t\tWCOREDUMP %i\n"
+			"\t\tWCOREDUMP %i\n"
 #endif
-				"\t\tWIFSTOPPED %i\n"
-				"\t\tWSTOPSIG %i\n"
-				"\n",
-				WEXITSTATUS(p->r_code),
-				WIFEXITED(p->r_code),
-				WIFSIGNALED(p->r_code), WTERMSIG(p->r_code),
+			"\t\tWIFSTOPPED %i\n"
+			"\t\tWSTOPSIG %i\n"
+			"\n",
+			WEXITSTATUS(p->r_code),
+			WIFEXITED(p->r_code),
+			WIFSIGNALED(p->r_code), WTERMSIG(p->r_code),
 #ifdef WCOREDUMP
-				WCOREDUMP(p->r_code),
+			WCOREDUMP(p->r_code),
 #endif
-				WIFSTOPPED(p->r_code), WSTOPSIG(p->r_code));
+			WIFSTOPPED(p->r_code), WSTOPSIG(p->r_code));
 
 	if (!list_empty(&p->pipes.list)) {
 		mprintf(string, "\t\tPIPES:\n");
@@ -159,55 +154,53 @@ static void active_db_print_process(process_h *p, char **string)
 			int i;
 
 			switch (current_pipe->dir) {
-				case IN_PIPE:
-					mprintf(string, "\t\t INPUT_PIPE "
-					        "read: %i, write: %i remote:",
-					        current_pipe->pipe[0],
-					        current_pipe->pipe[1]);
-					break;
+			case IN_PIPE:
+				mprintf(string, "\t\t INPUT_PIPE "
+					"read: %i, write: %i remote:",
+					current_pipe->pipe[0],
+					current_pipe->pipe[1]);
+				break;
 
-				case OUT_PIPE:
-					mprintf(string, "\t\t OUTPUT_PIPE "
-					        "read: %i, write: %i remote:",
-						current_pipe->pipe[1],
-						current_pipe->pipe[0]);
-					break;
+			case OUT_PIPE:
+				mprintf(string, "\t\t OUTPUT_PIPE "
+					"read: %i, write: %i remote:",
+					current_pipe->pipe[1],
+					current_pipe->pipe[0]);
+				break;
 
-				case BUFFERED_OUT_PIPE:
-					mprintf(string, "\t\t "
-					        "BUFFERED_OUTPUT_PIPE read: "
-					        "%i, write: %i remote:",
-						current_pipe->pipe[1],
-						current_pipe->pipe[0]);
-					break;
+			case BUFFERED_OUT_PIPE:
+				mprintf(string, "\t\t "
+					"BUFFERED_OUTPUT_PIPE read: "
+					"%i, write: %i remote:",
+					current_pipe->pipe[1],
+					current_pipe->pipe[0]);
+				break;
 
-				default:
-					continue;
+			default:
+				continue;
 			}
 
 			for (i = 0; current_pipe->targets[i] > 0 &&
-			            i < MAX_TARGETS; i++) {
+			     i < MAX_TARGETS; i++) {
 				mprintf(string, " %i",
-				        current_pipe->targets[i]);
+					current_pipe->targets[i]);
 			}
 
 			mprintf(string, "\n");
 			if (current_pipe->buffer &&
 			    current_pipe->buffer_allocated > 0) {
 				mprintf(string, "\t\tBuffer (%i): \n"
-				        "##########  BUFFER  ##########\n%s\n"
-				        "##############################\n",
-				        current_pipe->buffer_allocated,
-				        current_pipe->buffer);
+					"##########  BUFFER  ##########\n%s\n"
+					"##############################\n",
+					current_pipe->buffer_allocated,
+					current_pipe->buffer);
 			}
 		}
 	}
 
 }
 
-
-
-static void active_db_print_u(active_db_h *s, char **string)
+static void active_db_print_u(active_db_h * s, char **string)
 {
 	/* data path */
 	s_data *tmp = NULL;
@@ -229,10 +222,10 @@ static void active_db_print_u(active_db_h *s, char **string)
 	gettimeofday(&now, NULL);
 
 	mprintf(string, "\tTIMES:\n\t last_rought: %ims\n"
-	        "\t last_state: %ims\n\t current_state: %ims\n",
-	        MS_DIFF(now, s->last_rought_time),
-	        MS_DIFF(now, s->time_last_state),
-	        MS_DIFF(now, s->time_current_state));
+		"\t last_state: %ims\n\t current_state: %ims\n",
+		MS_DIFF(now, s->last_rought_time),
+		MS_DIFF(now, s->time_last_state),
+		MS_DIFF(now, s->time_current_state));
 
 	/* print processes if any */
 

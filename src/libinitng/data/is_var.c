@@ -26,7 +26,6 @@
 
 #include "local.h"
 
-
 /*
  * initng_data_is_var can be used to check any type, if its in the db,
  * or just to check unset and set types.

@@ -20,15 +20,13 @@
 #include <initng.h>
 
 #include <stdio.h>
-#include <stdlib.h>				/* free() exit() */
+#include <stdlib.h>		/* free() exit() */
 #include <string.h>
 #include <sys/types.h>
 #include <signal.h>
 #include <errno.h>
 
-
 INITNG_PLUGIN_MACRO;
-
 
 /*
  * ############################################################################
@@ -36,18 +34,17 @@ INITNG_PLUGIN_MACRO;
  * ############################################################################
  */
 
-static void task_deps_met(active_db_h *task);
-static void handle_deps(active_db_h *task);
-static void task_run_marked(active_db_h *task);
-static int start_task(active_db_h *task);
+static void task_deps_met(active_db_h * task);
+static void handle_deps(active_db_h * task);
+static void task_run_marked(active_db_h * task);
+static int start_task(active_db_h * task);
 
 /*
  * ############################################################################
  * #                        PROCESS TYPE FUNCTION DEFINES                     #
  * ############################################################################
  */
-static void handle_task_leave(active_db_h *killed_task, process_h *process);
-
+static void handle_task_leave(active_db_h * killed_task, process_h * process);
 
 /*
  * ############################################################################
@@ -55,9 +52,9 @@ static void handle_task_leave(active_db_h *killed_task, process_h *process);
  * ############################################################################
  */
 stype_h TYPE_TASK = {
-	.name =  "task",
+	.name = "task",
 	.description = "This is a task, when active it will lissen on "
-	               "trigger requirement.",
+	    "trigger requirement.",
 	.hidden = FALSE,
 	.start = &start_task,
 	.stop = NULL,
@@ -153,7 +150,7 @@ a_state_h TASK_RUN_MARKED = {
 a_state_h TASK_DEPS_FAILED = {
 	.name = "TASK_DEPS_FAILED",
 	.description = "One of the depdencencies this task requires has "
-	               "failed, this task can't start.",
+	    "failed, this task can't start.",
 	.is = IS_FAILED,
 	.interrupt = NULL,
 	.init = NULL,
@@ -163,7 +160,7 @@ a_state_h TASK_DEPS_FAILED = {
 a_state_h TASK_WAITING_FOR_DEPS = {
 	.name = "TASK_WAITING_FOR_DEPS",
 	.description = "This service is waiting for all its depdencencies to "
-	               "be met.",
+	    "be met.",
 	.is = IS_STARTING,
 	.interrupt = &handle_deps,
 	.init = NULL,
@@ -185,20 +182,17 @@ a_state_h TASK_DEPS_MET = {
  * ############################################################################
  */
 
-
 /*
  * ############################################################################
  * #                         STYPE HANDLERS FUNCTIONS                         #
  * ############################################################################
  */
 
-
 /*
  * ############################################################################
  * #                         PLUGIN INITIATORS                               #
  * ############################################################################
  */
-
 
 int module_init(int api_version)
 {
@@ -265,7 +259,7 @@ static void handle_task_leave(active_db_h * killed_task, process_h * process)
 	}
 }
 
-static int start_task(active_db_h *task)
+static int start_task(active_db_h * task)
 {
 	/* Only mark it if it's waiting */
 	if (IS_MARK(task, &TASK_WAITING))
@@ -274,7 +268,7 @@ static int start_task(active_db_h *task)
 	return TRUE;
 }
 
-static void task_run_marked(active_db_h *task)
+static void task_run_marked(active_db_h * task)
 {
 	/* Start our dependencies */
 	if (initng_depend_start_deps(task) != TRUE) {
@@ -286,36 +280,35 @@ static void task_run_marked(active_db_h *task)
 	initng_common_mark_service(task, &TASK_WAITING_FOR_DEPS);
 }
 
-
-static void handle_deps(active_db_h *task)
+static void handle_deps(active_db_h * task)
 {
 	switch (initng_depend_start_dep_met(task, FALSE)) {
-		case TRUE:
-			break;
+	case TRUE:
+		break;
 
-		case FAIL:
-			initng_common_mark_service(task, &TASK_DEPS_FAILED);
+	case FAIL:
+		initng_common_mark_service(task, &TASK_DEPS_FAILED);
 
-		default:
-			return;
+	default:
+		return;
 	}
 
 	initng_common_mark_service(task, &TASK_DEPS_MET);
 }
 
-static void task_deps_met(active_db_h *task)
+static void task_deps_met(active_db_h * task)
 {
 	initng_common_mark_service(task, &TASK_RUNNING);
 
 	switch (initng_execute_launch(task, &RUN_TASK, NULL)) {
-		case FALSE:
-			F_("Did not find a task entry to run\n");
-			initng_common_mark_service(task, &TASK_FAILED);
-			break;
+	case FALSE:
+		F_("Did not find a task entry to run\n");
+		initng_common_mark_service(task, &TASK_FAILED);
+		break;
 
-		case FAIL:
-			F_("Could not launch task\n");
-			initng_common_mark_service(task, &TASK_FAILED);
-			break;
+	case FAIL:
+		F_("Could not launch task\n");
+		initng_common_mark_service(task, &TASK_FAILED);
+		break;
 	}
 }

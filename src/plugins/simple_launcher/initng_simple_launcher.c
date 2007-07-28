@@ -19,12 +19,12 @@
 
 #include <initng.h>
 
-#include <time.h>			/* time() */
-#include <fcntl.h>			/* fcntl() */
-#include <unistd.h>			/* execv() usleep() pause() chown() */
-#include <sys/wait.h>			/* waitpid() sa */
-#include <sys/ioctl.h>			/* ioctl() */
-#include <stdlib.h>			/* free() exit() */
+#include <time.h>		/* time() */
+#include <fcntl.h>		/* fcntl() */
+#include <unistd.h>		/* execv() usleep() pause() chown() */
+#include <sys/wait.h>		/* waitpid() sa */
+#include <sys/ioctl.h>		/* ioctl() */
+#include <stdlib.h>		/* free() exit() */
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
@@ -32,7 +32,6 @@
 #include <sys/stat.h>
 #include <assert.h>
 #include <errno.h>
-
 
 INITNG_PLUGIN_MACRO;
 
@@ -77,7 +76,6 @@ static char *expand_exec(char *exec)
 	char **path_argv = NULL;
 	struct stat test;
 
-
 	if (!exec)
 		return NULL;
 
@@ -101,7 +99,9 @@ static char *expand_exec(char *exec)
 	/* Make sure we got a path */
 	if (!PATH) {
 		D_("No $PATH found, using default path\n");
-		PATH = initng_toolbox_strdup("/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin");
+		PATH =
+		    initng_toolbox_strdup
+		    ("/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin");
 	} else {
 		/* PATH will later be changed, so we have to use a duplicate */
 		PATH = initng_toolbox_strdup(PATH);
@@ -118,8 +118,7 @@ static char *expand_exec(char *exec)
 		len = strlen(path_argv[i]);
 
 		/* what does this do? */
-		filename = (char *)initng_toolbox_calloc(exec_len + len + 2,
-		                                         1);
+		filename = (char *)initng_toolbox_calloc(exec_len + len + 2, 1);
 		strcpy(filename, path_argv[i]);
 		if (filename[len - 1] != '/')
 			strcat(filename, "/");
@@ -129,7 +128,7 @@ static char *expand_exec(char *exec)
 		/* check so that file exits, if exists leave this loop */
 		if ((stat(filename, &test) != -1) &&
 		    (test.st_mode & (S_IXOTH | S_IXGRP | S_IXUSR | S_ISVTX |
-		                     S_ISGID | S_ISUID | S_IFREG)))
+				     S_ISGID | S_ISUID | S_IFREG)))
 			break;
 
 		/* cleanup */
@@ -159,11 +158,11 @@ static char *expand_exec(char *exec)
 #endif
 }
 
-static int simple_exec_fork(process_h *process_to_exec, active_db_h *s,
-                            size_t argc, char **argv)
+static int simple_exec_fork(process_h * process_to_exec, active_db_h * s,
+			    size_t argc, char **argv)
 {
 	/* This is the real service kicker */
-	pid_t pid_fork;				/* pid got from fork() */
+	pid_t pid_fork;		/* pid got from fork() */
 
 	if ((pid_fork = initng_fork(s, process_to_exec)) == 0) {
 		/* run g.AFTER_FORK from other plugins */
@@ -196,8 +195,8 @@ static int simple_exec_fork(process_h *process_to_exec, active_db_h *s,
 	 * waitpid(pid_fork,0,0); */
 }
 
-static int simple_exec_try(const char *exec, active_db_h *service,
-                           process_h *process)
+static int simple_exec_try(const char *exec, active_db_h * service,
+			   process_h * process)
 {
 	char *exec_args = NULL;
 	char **argv = NULL;
@@ -209,12 +208,13 @@ static int simple_exec_try(const char *exec, active_db_h *service,
 
 	/* exec_args should be parsed at the moment, too */
 	exec_args = (char *)get_string_var(&EXEC_ARGS, process->pt->name,
-	                                   service);
+					   service);
 	if (exec_args) {
 		initng_string_fix_escapes(exec_args);
 
 		/* split the string, with entries to an array of strings */
-		argv = initng_string_split_delim(exec_args, WHITESPACE, &argc, 1);
+		argv =
+		    initng_string_split_delim(exec_args, WHITESPACE, &argc, 1);
 
 		/* make sure it succeeded */
 		if (!argv || !argv[0]) {
@@ -235,13 +235,13 @@ static int simple_exec_try(const char *exec, active_db_h *service,
 
 	ret = simple_exec_fork(process, service, argc, argv);
 
-	if(argv)
+	if (argv)
 		initng_string_split_delim_free(argv);
 
 	return ret;
 }
 
-static int simple_exec(active_db_h *service, process_h *process)
+static int simple_exec(active_db_h * service, process_h * process)
 {
 	const char *exec = NULL;
 	struct stat stat_struct;
@@ -250,7 +250,7 @@ static int simple_exec(active_db_h *service, process_h *process)
 	D_("service: %s, process: %s\n", service->name, process->pt->name);
 
 	while ((exec = get_next_string_var(&EXECS, process->pt->name, service,
-	                                   &itt))) {
+					   &itt))) {
 		int res = FALSE;
 
 		/* check if the file exist */
@@ -270,7 +270,7 @@ static int simple_exec(active_db_h *service, process_h *process)
 	return FALSE;
 }
 
-static int simple_run(active_db_h *service, process_h *process)
+static int simple_run(active_db_h * service, process_h * process)
 {
 	char *exec = NULL;
 	char **argv = NULL;
@@ -280,7 +280,7 @@ static int simple_run(active_db_h *service, process_h *process)
 
 	D_("service: %s process: %s.\n", service->name, process->pt->name);
 
-	exec = (char *) get_string_var(&EXEC, process->pt->name, service);
+	exec = (char *)get_string_var(&EXEC, process->pt->name, service);
 	if (!exec)
 		return FALSE;
 
@@ -312,7 +312,7 @@ static int simple_run(active_db_h *service, process_h *process)
 		}
 
 		free(argv[0]);
-		argv[0] = argv0; /* Check this before freeing! */
+		argv[0] = argv0;	/* Check this before freeing! */
 	}
 
 	/* try to execute, remember the result */
@@ -339,7 +339,7 @@ static int simple_run(active_db_h *service, process_h *process)
 
 static void initng_s_launch(s_event * event)
 {
-	s_event_launch_data * data;
+	s_event_launch_data *data;
 
 	assert(event->event_type == &EVENT_LAUNCH);
 	assert(event->data);
@@ -366,7 +366,6 @@ static void initng_s_launch(s_event * event)
 			event->status = HANDLED;
 	}
 }
-
 
 int module_init(int api_version)
 {

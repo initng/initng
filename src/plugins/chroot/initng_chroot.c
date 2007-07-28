@@ -25,7 +25,6 @@
 #include <stdlib.h>
 #include <assert.h>
 
-
 INITNG_PLUGIN_MACRO;
 
 s_entry CHROOT = {
@@ -37,7 +36,7 @@ s_entry CHROOT = {
 
 static void do_chroot(s_event * event)
 {
-	s_event_after_fork_data * data;
+	s_event_after_fork_data *data;
 
 	const char *tmp = NULL;
 
@@ -61,7 +60,7 @@ static void do_chroot(s_event * event)
 		event->status = FAILED;
 		return;
 	}
-	
+
 	if (chroot(tmp) == -1) {
 		F_("Chroot %s failed with %s\n", tmp, strerror(errno));
 		event->status = FAILED;

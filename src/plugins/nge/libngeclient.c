@@ -77,13 +77,12 @@ nge_connection *ngeclient_connect(const char *path)
 	strcpy(sockname.sun_path, path);
 	len = strlen(path) + sizeof(sockname.sun_family);
 
-	if (connect(c->sock, (struct sockaddr *) &sockname, len) < 0) {
+	if (connect(c->sock, (struct sockaddr *)&sockname, len) < 0) {
 		close(c->sock);
 		ngeclient_error = "Error connecting to socket";
 		free(c);
 		return NULL;
 	}
-
 
 	/* Put it not to block, waiting for more data on rscv */
 	{
@@ -113,7 +112,6 @@ void ngeclient_close(nge_connection * c)
 	free(c);
 }
 
-
 /*
  * read_and_fill_buffer()
  * This function fetches data on the input fd sock (globally defined)
@@ -122,7 +120,7 @@ void ngeclient_close(nge_connection * c)
 static int ngeclient_read_and_fill_buffer(nge_connection * c)
 {
 	int totally_got = 0;
-	int chars_recv = 1; /* must be one so the while loop will be run */
+	int chars_recv = 1;	/* must be one so the while loop will be run */
 
 	assert(c);
 	assert(c->sock > 0);
@@ -141,8 +139,7 @@ static int ngeclient_read_and_fill_buffer(nge_connection * c)
 
 		/* get 100 chars */
 		chars_recv = recv(c->sock,
-				  &c->read_buffer[c->read_buffer_len], 100,
-				  0);
+				  &c->read_buffer[c->read_buffer_len], 100, 0);
 
 		/* null the end */
 		if (chars_recv > 0) {
@@ -161,7 +158,7 @@ static int ngeclient_read_and_fill_buffer(nge_connection * c)
  * Will wait for (seconds) and if there is data incoming.
  * event->read_buffer is filled, and this will return the chars read.
  */
-int ngeclient_poll_for_input(nge_connection *c, int seconds)
+int ngeclient_poll_for_input(nge_connection * c, int seconds)
 {
 	int ret_poll;
 	struct pollfd fds[1];
@@ -214,7 +211,6 @@ static void ngeclient_cut_buffert(nge_connection * c, int chars)
 	c->read_buffer[c->read_buffer_len] = '\0';
 }
 
-
 /*
  * ngeclient_get_content(tag)
  * If tag is "<specialtag>This is some data.</specialtag>"
@@ -224,7 +220,7 @@ static void ngeclient_cut_buffert(nge_connection * c, int chars)
 static char *ngeclient_get_content(const char *tag)
 {
 	int len = 0;
-	char *point = (char *) tag;
+	char *point = (char *)tag;
 
 	assert(tag);
 
@@ -286,7 +282,7 @@ static char *ngeclient_get_option(const char *tag, const char *name)
 {
 	assert(tag);
 	assert(name);
-	char *point = (char *) tag;
+	char *point = (char *)tag;
 	int name_len = strlen(name);
 
 	/* search for the name in tag */
@@ -346,7 +342,7 @@ static char *ngeclient_get_option(const char *tag, const char *name)
 	}
 
 	sprintf(err_msg_buffer, "Could not find option \"%s\" in tag", name);
-	ngeclient_error = (const char *) err_msg_buffer;
+	ngeclient_error = (const char *)err_msg_buffer;
 	return NULL;
 }
 
@@ -370,28 +366,27 @@ static int ngeclient_get_int(const char *tag, const char *name)
 	return value;
 }
 
-
 /* called on a <event type="service_state_change"  */
-static void ngeclient_handle_service_state_change(nge_event *event,
+static void ngeclient_handle_service_state_change(nge_event * event,
 						  char *tag, int chars)
 {
 	assert(event);
 	assert(tag);
 	event->state_type = SERVICE_STATE_CHANGE;
 	event->payload.service_state_change.service =
-		ngeclient_get_option(tag, "service");
+	    ngeclient_get_option(tag, "service");
 	event->payload.service_state_change.is =
-		(e_is) ngeclient_get_int(tag, "is");
+	    (e_is) ngeclient_get_int(tag, "is");
 	event->payload.service_state_change.state_name =
-		ngeclient_get_option(tag, "state");
+	    ngeclient_get_option(tag, "state");
 	event->payload.service_state_change.percent_started =
-		ngeclient_get_int(tag, "percent_started");
+	    ngeclient_get_int(tag, "percent_started");
 	event->payload.service_state_change.percent_stopped =
-		ngeclient_get_int(tag, "percent_stopped");
+	    ngeclient_get_int(tag, "percent_stopped");
 	event->payload.service_state_change.service_type =
-		ngeclient_get_option(tag, "service_type");
+	    ngeclient_get_option(tag, "service_type");
 	event->payload.service_state_change.hidden =
-		ngeclient_get_int(tag, "hidden");
+	    ngeclient_get_int(tag, "hidden");
 }
 
 /* called on a <event type="system_state_change"  */
@@ -402,9 +397,9 @@ static void ngeclient_handle_system_state_change(nge_event * event, char *tag,
 	assert(tag);
 	event->state_type = SYSTEM_STATE_CHANGE;
 	event->payload.system_state_change.system_state =
-		(h_sys_state) ngeclient_get_int(tag, "system_state");
+	    (h_sys_state) ngeclient_get_int(tag, "system_state");
 	event->payload.system_state_change.runlevel =
-		ngeclient_get_option(tag, "runlevel");
+	    ngeclient_get_option(tag, "runlevel");
 }
 
 /* called on a <event type="initial_service_state"  */
@@ -415,53 +410,52 @@ static void ngeclient_handle_initial_service_state(nge_event * event,
 	assert(tag);
 	event->state_type = INITIAL_SERVICE_STATE_CHANGE;
 	event->payload.service_state_change.service =
-		ngeclient_get_option(tag, "service");
+	    ngeclient_get_option(tag, "service");
 	event->payload.service_state_change.is =
-		(e_is) ngeclient_get_int(tag, "is");
+	    (e_is) ngeclient_get_int(tag, "is");
 	event->payload.service_state_change.state_name =
-		ngeclient_get_option(tag, "state");
+	    ngeclient_get_option(tag, "state");
 	event->payload.service_state_change.service_type =
-		ngeclient_get_option(tag, "service_type");
+	    ngeclient_get_option(tag, "service_type");
 	event->payload.service_state_change.hidden =
-		ngeclient_get_int(tag, "hidden");
+	    ngeclient_get_int(tag, "hidden");
 }
 
 /* called on a <event type="process_killed"  */
-static void ngeclient_handle_process_killed(nge_event *event, char *tag,
+static void ngeclient_handle_process_killed(nge_event * event, char *tag,
 					    int chars)
 {
 	assert(event);
 	assert(tag);
 	event->state_type = PROCESS_KILLED;
 	event->payload.process_killed.service =
-		ngeclient_get_option(tag, "service");
-	event->payload.process_killed.is =
-		(e_is) ngeclient_get_int(tag, "is");
+	    ngeclient_get_option(tag, "service");
+	event->payload.process_killed.is = (e_is) ngeclient_get_int(tag, "is");
 	event->payload.process_killed.state_name =
-		ngeclient_get_option(tag, "state");
+	    ngeclient_get_option(tag, "state");
 	event->payload.process_killed.process =
-		ngeclient_get_option(tag, "process");
+	    ngeclient_get_option(tag, "process");
 	event->payload.process_killed.exit_status =
-		ngeclient_get_int(tag, "exit_status");
+	    ngeclient_get_int(tag, "exit_status");
 	event->payload.process_killed.term_sig =
-		ngeclient_get_int(tag, "term_sig");
+	    ngeclient_get_int(tag, "term_sig");
 }
 
 /* called on a <event type="initial_system_state"  */
-static void ngeclient_handle_initial_system_state(nge_event *event,
+static void ngeclient_handle_initial_system_state(nge_event * event,
 						  char *tag, int chars)
 {
 	assert(event);
 	assert(tag);
 	event->state_type = INITIAL_SYSTEM_STATE_CHANGE;
 	event->payload.system_state_change.system_state =
-		(h_sys_state) ngeclient_get_int(tag, "system_state");
+	    (h_sys_state) ngeclient_get_int(tag, "system_state");
 	event->payload.system_state_change.runlevel =
-		ngeclient_get_option(tag, "runlevel");
+	    ngeclient_get_option(tag, "runlevel");
 }
 
 /* called on a <event type="initial_state_finished"  */
-static void ngeclient_handle_initial_state_finished(nge_event *event,
+static void ngeclient_handle_initial_state_finished(nge_event * event,
 						    char *tag, int chars)
 {
 	assert(event);
@@ -477,9 +471,9 @@ static void ngeclient_handle_service_output(nge_event * event, char *tag,
 	event->state_type = SERVICE_OUTPUT;
 
 	event->payload.service_output.service =
-		ngeclient_get_option(tag, "service");
+	    ngeclient_get_option(tag, "service");
 	event->payload.service_output.process =
-		ngeclient_get_option(tag, "process");
+	    ngeclient_get_option(tag, "process");
 	event->payload.service_output.output = ngeclient_get_content(tag);
 }
 
@@ -546,21 +540,20 @@ static void ngeclient_handle_connect(nge_event * event, char *tag, int chars)
 	event->state_type = CONNECT;
 
 	event->payload.connect.initng_version =
-		ngeclient_get_option(tag, "initng_version");
+	    ngeclient_get_option(tag, "initng_version");
 	event->payload.connect.pver =
-		ngeclient_get_int(tag, "protocol_version");
+	    ngeclient_get_int(tag, "protocol_version");
 
 	if (event->payload.connect.pver != NGE_VERSION) {
 		sprintf(err_msg_buffer, "NGE protocol version missmatch!\n"
 			" LOCAL:%i\n REMOTE: %i", NGE_VERSION,
 			event->payload.connect.pver);
-		ngeclient_error = (const char *) err_msg_buffer;
+		ngeclient_error = (const char *)err_msg_buffer;
 	}
 }
 
 /* called when a <disconnect> hook apeares */
-static void ngeclient_handle_disconnect(nge_event *event, char *tag,
-					int chars)
+static void ngeclient_handle_disconnect(nge_event * event, char *tag, int chars)
 {
 	assert(event);
 	assert(tag);
@@ -568,7 +561,7 @@ static void ngeclient_handle_disconnect(nge_event *event, char *tag,
 }
 
 /* called for every tag nge fetches */
-static void ngeclient_handle_tag(nge_event *event, char *tag, int chars)
+static void ngeclient_handle_tag(nge_event * event, char *tag, int chars)
 {
 	/* if this is a <? comment > tag */
 	if (tag[1] == '?')
@@ -594,14 +587,14 @@ static void ngeclient_handle_tag(nge_event *event, char *tag, int chars)
 
 	ngeclient_error = "Unknown tag to handle.";
 	/*fprintf(stderr, "Dont know how to handle tag \"%s\", %i chars.\n",
-		  tag, chars); */
+	   tag, chars); */
 }
 
 /*
  * get_next_event, returns an nge_event when got from initng.
  * block is the seconds that may be left.
  */
-nge_event *get_next_event(nge_connection *c, int block)
+nge_event *get_next_event(nge_connection * c, int block)
 {
 	assert(c);
 
@@ -618,7 +611,6 @@ nge_event *get_next_event(nge_connection *c, int block)
 	if (c->read_buffer == NULL || c->read_buffer_len < 1) {
 		return NULL;
 	}
-
 
 	/* while there is data to read */
 	while (c->read_buffer && c->read_buffer[0] != '\0' &&
@@ -644,10 +636,9 @@ nge_event *get_next_event(nge_connection *c, int block)
 		if (c->read_buffer[0] != '<') {
 			printf("buffer: %s\n", c->read_buffer);
 			ngeclient_error = "Expected an < char, as the first "
-					  "char in an xml protocol.";
+			    "char in an xml protocol.";
 			return NULL;
 		}
-
 
 		/* count the lengt of this tag */
 		int chars = 0;
@@ -666,7 +657,7 @@ nge_event *get_next_event(nge_connection *c, int block)
 			if (c->read_buffer[chars] == '<' &&
 			    c->read_buffer[chars + 1] == '/') {
 				/*printf("tag_stop: %s\n",
-				         &c->read_buffer[chars]); */
+				   &c->read_buffer[chars]); */
 				chars += 2;
 
 				/* skip to the end char of tag */
@@ -732,69 +723,69 @@ nge_event *get_next_event(nge_connection *c, int block)
 	return NULL;
 }
 
-void ngeclient_event_free(nge_event *e)
+void ngeclient_event_free(nge_event * e)
 {
 	switch (e->state_type) {
-		case PING:
-		case DISCONNECT:
-		case INITIAL_STATE_FINISHED:
-			break;
+	case PING:
+	case DISCONNECT:
+	case INITIAL_STATE_FINISHED:
+		break;
 
-		case SYSTEM_STATE_CHANGE:
-		case INITIAL_SYSTEM_STATE_CHANGE:
-			if (e->payload.system_state_change.runlevel)
-				free(e->payload.system_state_change.runlevel);
-			break;
+	case SYSTEM_STATE_CHANGE:
+	case INITIAL_SYSTEM_STATE_CHANGE:
+		if (e->payload.system_state_change.runlevel)
+			free(e->payload.system_state_change.runlevel);
+		break;
 
-		case SERVICE_STATE_CHANGE:
-		case INITIAL_SERVICE_STATE_CHANGE:
-			if (e->payload.service_state_change.service)
-				free(e->payload.service_state_change.service);
+	case SERVICE_STATE_CHANGE:
+	case INITIAL_SERVICE_STATE_CHANGE:
+		if (e->payload.service_state_change.service)
+			free(e->payload.service_state_change.service);
 
-			if (e->payload.service_state_change.state_name)
-				free(e->payload.service_state_change.state_name);
+		if (e->payload.service_state_change.state_name)
+			free(e->payload.service_state_change.state_name);
 
-			if (e->payload.service_state_change.service_type)
-				free(e->payload.service_state_change.service_type);
-			break;
+		if (e->payload.service_state_change.service_type)
+			free(e->payload.service_state_change.service_type);
+		break;
 
-		case ERR_MSG:
-			if (e->payload.err_msg.file)
-				free(e->payload.err_msg.file);
+	case ERR_MSG:
+		if (e->payload.err_msg.file)
+			free(e->payload.err_msg.file);
 
-			if (e->payload.err_msg.func)
-				free(e->payload.err_msg.func);
+		if (e->payload.err_msg.func)
+			free(e->payload.err_msg.func);
 
-			if (e->payload.err_msg.message)
-				free(e->payload.err_msg.message);
-			break;
+		if (e->payload.err_msg.message)
+			free(e->payload.err_msg.message);
+		break;
 
-		case CONNECT:
-			if (e->payload.connect.initng_version)
-				free(e->payload.connect.initng_version);
-			break;
+	case CONNECT:
+		if (e->payload.connect.initng_version)
+			free(e->payload.connect.initng_version);
+		break;
 
-		case SERVICE_OUTPUT:
-			if (e->payload.service_output.service)
-				free(e->payload.service_output.service);
+	case SERVICE_OUTPUT:
+		if (e->payload.service_output.service)
+			free(e->payload.service_output.service);
 
-			if (e->payload.service_output.service)
-				free(e->payload.service_output.process);
+		if (e->payload.service_output.service)
+			free(e->payload.service_output.process);
 
-			if (e->payload.service_output.service)
-				free(e->payload.service_output.output);
-			break;
+		if (e->payload.service_output.service)
+			free(e->payload.service_output.output);
+		break;
 
-		case PROCESS_KILLED:
-			if (e->payload.process_killed.service)
-				free(e->payload.process_killed.service);
+	case PROCESS_KILLED:
+		if (e->payload.process_killed.service)
+			free(e->payload.process_killed.service);
 
-			if (e->payload.process_killed.state_name)
-				free(e->payload.process_killed.state_name);
+		if (e->payload.process_killed.state_name)
+			free(e->payload.process_killed.state_name);
 
-			if (e->payload.process_killed.process)
-				free(e->payload.process_killed.process);
-			break;
+		if (e->payload.process_killed.process)
+			free(e->payload.process_killed.process);
+		break;
 	}
 	free(e);
 }

@@ -24,7 +24,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <string.h>
-#include <fcntl.h>							/* fcntl() */
+#include <fcntl.h>		/* fcntl() */
 
 #include <initng.h>
 #include "local.h"
@@ -67,11 +67,9 @@ void initng_fd_plugin_poll(int timeout)
 	tv.tv_sec = timeout;
 	tv.tv_usec = 0;
 
-
 	/*
 	 * STEP 1:  Scan for fds to add
 	 */
-
 
 	/* scan through active plug-ins that have listening file descriptors, and add them */
 	{
@@ -110,8 +108,7 @@ void initng_fd_plugin_poll(int timeout)
 						continue;
 					}
 
-					FD_SET(current_pipe->pipe[0],
-					       &readset);
+					FD_SET(current_pipe->pipe[0], &readset);
 					added++;
 				}
 
@@ -141,7 +138,8 @@ void initng_fd_plugin_poll(int timeout)
 						continue;
 					}
 
-					FD_SET(current_pipe->pipe[1], &writeset);
+					FD_SET(current_pipe->pipe[1],
+					       &writeset);
 					added++;
 				}
 			}
@@ -179,7 +177,6 @@ void initng_fd_plugin_poll(int timeout)
 
 	/* If a fsck is running select will always return one file handler active, we give it 0.1 seconds to get some more data into the buffer. */
 	sleep(0.1);
-
 
 	/*
 	 * STEP 3:  Find the plug-ins/processes that handles the fd input, and call them
@@ -228,7 +225,8 @@ void initng_fd_plugin_poll(int timeout)
 
 					/* Do the actual read from pipe */
 					initng_fd_process_read_input(currentA,
-						currentP, current_pipe);
+								     currentP,
+								     current_pipe);
 
 					/* Found match, that means we need to
 					 * look for one less, if we've found
@@ -240,7 +238,8 @@ void initng_fd_plugin_poll(int timeout)
 				if (current_pipe->dir == OUT_PIPE &&
 				    current_pipe->pipe[0] > 2 &&
 				    FD_ISSET(current_pipe->pipe[0], &readset)) {
-					initng_fd_pipe(currentA, currentP, current_pipe);
+					initng_fd_pipe(currentA, currentP,
+						       current_pipe);
 
 					/* Found match, that means we need to
 					 * look for one less, if we've found
@@ -253,7 +252,7 @@ void initng_fd_plugin_poll(int timeout)
 				    current_pipe->pipe[1] > 2 &&
 				    FD_ISSET(current_pipe->pipe[1], &readset)) {
 					initng_fd_pipe(currentA, currentP,
-					               current_pipe);
+						       current_pipe);
 
 					/* Found match, that means we need to
 					 * look for one less, if we've found
@@ -264,9 +263,10 @@ void initng_fd_plugin_poll(int timeout)
 
 				if (current_pipe->dir == IN_PIPE &&
 				    current_pipe->pipe[1] > 2 &&
-				    FD_ISSET(current_pipe->pipe[1], &writeset)) {
+				    FD_ISSET(current_pipe->pipe[1],
+					     &writeset)) {
 					initng_fd_pipe(currentA, currentP,
-					               current_pipe);
+						       current_pipe);
 
 					/* Found match, that means we need to
 					 * look for one less, if we've found

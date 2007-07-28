@@ -26,7 +26,6 @@
 
 #include "local.h"
 
-
 /* this has to be only one of */
 void initng_data_set_int_var(s_entry * type, char *vn, data_head * d, int value)
 {
@@ -46,7 +45,6 @@ void initng_data_set_int_var(s_entry * type, char *vn, data_head * d, int value)
 		   type->type, type->name);
 		return;
 	}
-
 
 	if (!IT(INT)) {
 		F_(" \"%s\" is not an int type!\n", type->name);

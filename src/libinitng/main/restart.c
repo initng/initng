@@ -19,29 +19,28 @@
 
 #include <initng.h>
 
-#include <time.h>				/* time() */
-#include <fcntl.h>				/* fcntl() */
-#include <sys/un.h>				/* memmove() strcmp() */
-#include <sys/wait.h>				/* waitpid() sa */
-#include <linux/kd.h>				/* KDSIGACCEPT */
-#include <sys/ioctl.h>				/* ioctl() */
-#include <stdlib.h>				/* free() exit() */
-#include <sys/reboot.h>				/* reboot() RB_DISABLE_CAD */
+#include <time.h>		/* time() */
+#include <fcntl.h>		/* fcntl() */
+#include <sys/un.h>		/* memmove() strcmp() */
+#include <sys/wait.h>		/* waitpid() sa */
+#include <linux/kd.h>		/* KDSIGACCEPT */
+#include <sys/ioctl.h>		/* ioctl() */
+#include <stdlib.h>		/* free() exit() */
+#include <sys/reboot.h>		/* reboot() RB_DISABLE_CAD */
 #include <sys/mount.h>
 #include <termios.h>
 #include <stdio.h>
 #include <sys/klog.h>
 #include <errno.h>
 
-
 void initng_main_restart(void)
 {
 	char **argv = NULL;
 
 	initng_main_set_sys_state(STATE_RESTART);
-	argv = (char **) initng_toolbox_calloc(3, sizeof(char *));
+	argv = (char **)initng_toolbox_calloc(3, sizeof(char *));
 
-	argv[0] = (char *) initng_toolbox_calloc(strlen(g.runlevel) + 12, 1);
+	argv[0] = (char *)initng_toolbox_calloc(strlen(g.runlevel) + 12, 1);
 	strcpy(argv[0], "runlevel=");
 	strcat(argv[0], g.runlevel);
 	argv[1] = NULL;

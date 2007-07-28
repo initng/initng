@@ -19,18 +19,17 @@
 
 #include <initng.h>
 
-#include <time.h>			/* time() */
-#include <fcntl.h>			/* fcntl() */
-#include <unistd.h>			/* execv() usleep() pause() chown() */
-#include <sys/wait.h>			/* waitpid() sa */
-#include <sys/ioctl.h>			/* ioctl() */
-#include <stdlib.h>			/* free() exit() */
+#include <time.h>		/* time() */
+#include <fcntl.h>		/* fcntl() */
+#include <unistd.h>		/* execv() usleep() pause() chown() */
+#include <sys/wait.h>		/* waitpid() sa */
+#include <sys/ioctl.h>		/* ioctl() */
+#include <stdlib.h>		/* free() exit() */
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
 #include <pwd.h>
 #include <sys/stat.h>
-
 
 int initng_execute_launch(active_db_h * service, ptype_h * type,
 			  const char *exec_name)
@@ -90,8 +89,7 @@ int initng_execute_launch(active_db_h * service, ptype_h * type,
 		F_("initng_execute(%s): FAILED LAUNCHING, returned FAIL\n",
 		   service->name);
 	else
-		D_("initng_execute(%s): FAILED LAUNCHING, noting found to launch.\n",
-		   service->name);
+		D_("initng_execute(%s): FAILED LAUNCHING, noting found to launch.\n", service->name);
 
 	/* on failure remove the process from list, and free it */
 	initng_process_db_free(process);

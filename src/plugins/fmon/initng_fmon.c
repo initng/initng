@@ -40,7 +40,6 @@
 #include "inotify.h"
 #include "inotify-syscalls.h"
 
-
 INITNG_PLUGIN_MACRO;
 
 /* static functions */
@@ -59,8 +58,7 @@ int plugins_watch = -1;
 int initng_watch = -1;
 int i_watch = -1;
 
-
-static void fdh_handler(s_event *event)
+static void fdh_handler(s_event * event)
 {
 	s_event_fd_watcher_data *data;
 
@@ -70,44 +68,44 @@ static void fdh_handler(s_event *event)
 	data = event->data;
 
 	switch (data->action) {
-		case FDW_ACTION_CLOSE:
-			if (fdh.fds > 0)
-				close(fdh.fds);
+	case FDW_ACTION_CLOSE:
+		if (fdh.fds > 0)
+			close(fdh.fds);
+		break;
+
+	case FDW_ACTION_CHECK:
+		if (fdh.fds <= 2)
 			break;
 
-		case FDW_ACTION_CHECK:
-			if (fdh.fds <= 2)
-				break;
+		/* This is a expensive test, but better safe then sorry */
+		if (!STILL_OPEN(fdh.fds)) {
+			D_("%i is not open anymore.\n", fdh.fds);
+			fdh.fds = -1;
+			break;
+		}
 
-			/* This is a expensive test, but better safe then sorry */
-			if (!STILL_OPEN(fdh.fds)) {
-				D_("%i is not open anymore.\n", fdh.fds);
-				fdh.fds = -1;
-				break;
-			}
+		FD_SET(fdh.fds, data->readset);
+		data->added++;
+		break;
 
-			FD_SET(fdh.fds, data->readset);
-			data->added++;
+	case FDW_ACTION_CALL:
+		if (!data->added || fdh.fds <= 2)
 			break;
 
-		case FDW_ACTION_CALL:
-			if (!data->added || fdh.fds <= 2)
-				break;
-
-			if(!FD_ISSET(fdh.fds, data->readset))
-				break;
-
-			filemon_event(&fdh, FDW_READ);
-			data->added--;
+		if (!FD_ISSET(fdh.fds, data->readset))
 			break;
 
-		case FDW_ACTION_DEBUG:
-			if (!data->debug_find_what ||
-			    strstr(__FILE__, data->debug_find_what)) {
-				mprintf(data->debug_out, " %i: Used by plugin: %s\n",
-					fdh.fds, __FILE__);
-			}
-			break;
+		filemon_event(&fdh, FDW_READ);
+		data->added--;
+		break;
+
+	case FDW_ACTION_DEBUG:
+		if (!data->debug_find_what ||
+		    strstr(__FILE__, data->debug_find_what)) {
+			mprintf(data->debug_out, " %i: Used by plugin: %s\n",
+				fdh.fds, __FILE__);
+		}
+		break;
 	}
 }
 
@@ -124,9 +122,8 @@ static void initng_reload(void)
 	}
 }
 
-
 /* called by fd hook, when there is data */
-void filemon_event(f_module_h *from, e_fdw what)
+void filemon_event(f_module_h * from, e_fdw what)
 {
 	/* this is overkill, we wont get 1024 events */
 #define EVENT_SIZE (sizeof(struct inotify_event))
@@ -150,7 +147,7 @@ void filemon_event(f_module_h *from, e_fdw what)
 	while (i < len) {
 		struct inotify_event *event;
 
-		event = (struct inotify_event *) &buf[i];
+		event = (struct inotify_event *)&buf[i];
 
 		/*printf("wd=%d, mask=%u, cookie=%u, len=%u\n",
 		   event->wd, event->mask, event->cookie, event->len);
@@ -161,8 +158,7 @@ void filemon_event(f_module_h *from, e_fdw what)
 			/* check if its a plugin modified */
 			if (event->wd == plugins_watch && event->len &&
 			    strstr(event->name, ".so")) {
-				W_("Plugin %s/%s has been changed, reloading initng.\n",
-				   INITNG_PLUGIN_DIR, event->name);
+				W_("Plugin %s/%s has been changed, reloading initng.\n", INITNG_PLUGIN_DIR, event->name);
 
 				/* sleep 1 seconds, maby more files will be
 				 * modified in short */
@@ -192,7 +188,6 @@ void filemon_event(f_module_h *from, e_fdw what)
 		i += EVENT_SIZE + event->len;
 	}
 }
-
 
 static int mon_dir(const char *dir)
 {
@@ -242,7 +237,6 @@ static int mon_dir(const char *dir)
 	return FALSE;
 }
 
-
 int module_init(int api_version)
 {
 	if (api_version != API_VERSION) {
@@ -289,7 +283,6 @@ int module_init(int api_version)
 	/* printf("Now monitoring...\n"); */
 	return TRUE;
 }
-
 
 void module_unload(void)
 {

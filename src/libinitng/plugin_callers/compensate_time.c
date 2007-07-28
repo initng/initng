@@ -24,11 +24,10 @@
 #include <assert.h>
 #include <errno.h>
 #include <string.h>
-#include <fcntl.h>					/* fcntl() */
+#include <fcntl.h>		/* fcntl() */
 #include <time.h>
 
 #include <initng.h>
-
 
 void initng_plugin_callers_compensate_time(time_t t)
 {

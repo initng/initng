@@ -20,10 +20,9 @@
 #include <initng.h>
 
 #include <stdio.h>
-#include <stdlib.h>					/* free() exit() */
+#include <stdlib.h>		/* free() exit() */
 #include <string.h>
 #include <assert.h>
-
 
 /*
  * A deeper deep-find.
@@ -34,7 +33,7 @@
  * Summary, does service depends on check?
  */
 static int initng_depend_deep2(active_db_h * service, active_db_h * check,
-                               int *stack);
+			       int *stack);
 
 int initng_depend_deep(active_db_h * service, active_db_h * check)
 {
@@ -44,7 +43,7 @@ int initng_depend_deep(active_db_h * service, active_db_h * check)
 }
 
 static int initng_depend_deep2(active_db_h * service, active_db_h * check,
-                               int *stack)
+			       int *stack)
 {
 	active_db_h *current = NULL;
 	int result = FALSE;
@@ -67,7 +66,8 @@ static int initng_depend_deep2(active_db_h * service, active_db_h * check,
 	 * check if current may depend (deep) on check */
 	while_active_db(current) {
 		if (initng_depend(service, current)) {
-			if ((result = initng_depend_deep2(current, check, stack)))
+			if ((result =
+			     initng_depend_deep2(current, check, stack)))
 				break;
 		}
 	}

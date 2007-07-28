@@ -22,11 +22,10 @@
 #include <assert.h>
 #include <initng.h>
 
-
 /*
  * This function adds an event to event_db.
  */
-void initng_event_type_register(s_event_type *ent)
+void initng_event_type_register(s_event_type * ent)
 {
 	assert(ent);
 
@@ -51,7 +50,8 @@ void initng_event_type_register(s_event_type *ent)
 		while_service_event_types(current) {
 			if (current == ent) {
 				if (ent->name) {
-					F_("Option %s, already added!\n", ent->name);
+					F_("Option %s, already added!\n",
+					   ent->name);
 				} else {
 					F_("Option, already added!\n");
 				}
@@ -79,7 +79,7 @@ void initng_event_type_register(s_event_type *ent)
 /*
  * This safely deletes an event from event_db.
  */
-void initng_event_type_unregister(s_event_type *ent)
+void initng_event_type_unregister(s_event_type * ent)
 {
 	list_del(&ent->list);
 }

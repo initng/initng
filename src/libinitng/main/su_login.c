@@ -19,14 +19,14 @@
 
 #include <initng.h>
 
-#include <time.h>				/* time() */
-#include <fcntl.h>				/* fcntl() */
-#include <sys/un.h>				/* memmove() strcmp() */
-#include <sys/wait.h>				/* waitpid() sa */
-#include <linux/kd.h>				/* KDSIGACCEPT */
-#include <sys/ioctl.h>				/* ioctl() */
-#include <stdlib.h>				/* free() exit() */
-#include <sys/reboot.h>				/* reboot() RB_DISABLE_CAD */
+#include <time.h>		/* time() */
+#include <fcntl.h>		/* fcntl() */
+#include <sys/un.h>		/* memmove() strcmp() */
+#include <sys/wait.h>		/* waitpid() sa */
+#include <linux/kd.h>		/* KDSIGACCEPT */
+#include <sys/ioctl.h>		/* ioctl() */
+#include <stdlib.h>		/* free() exit() */
+#include <sys/reboot.h>		/* reboot() RB_DISABLE_CAD */
 #include <sys/mount.h>
 #include <termios.h>
 #include <stdio.h>
@@ -36,7 +36,6 @@
 #include <selinux/selinux.h>
 #include <selinux/get_context_list.h>
 #endif
-
 
 static int local_sulogin_count = 0;
 
@@ -75,8 +74,8 @@ void initng_main_su_login(void)
 			const char *sulogin_env[] = { NULL };
 
 			/* launch sulogin */
-			execve(sulogin_argv[0], (char **) sulogin_argv,
-			       (char **) sulogin_env);
+			execve(sulogin_argv[0], (char **)sulogin_argv,
+			       (char **)sulogin_env);
 
 			printf("Unable to execute /sbin/sulogin!\n");
 			_exit(1);
@@ -85,7 +84,7 @@ void initng_main_su_login(void)
 		if (sulogin_pid > 0) {
 			do {
 				sulogin_pid = waitpid(sulogin_pid, &status,
-				                      WUNTRACED);
+						      WUNTRACED);
 			} while (!WIFEXITED(status) && !WIFSIGNALED(status));
 
 			/* increase the sulogin_count */

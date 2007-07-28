@@ -29,19 +29,18 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
-
 /*
  * mprintf, a sprintf clone that automaticly mallocs the string
  * and new content to same string applys after that content.
  */
 int mprintf(char **p, const char *format, ...)
 {
-	va_list arg;				/* used for the variable
-						 * lists */
-	int len = 0;				/* will contain lent for
-						 * current string */
-	int add_len = 0;			/* This mutch more strings are
-						 * we gonna alloc for */
+	va_list arg;		/* used for the variable
+				 * lists */
+	int len = 0;		/* will contain lent for
+				 * current string */
+	int add_len = 0;	/* This mutch more strings are
+				 * we gonna alloc for */
 
 	/* printf("\n\nmprintf(%s);\n", format); */
 

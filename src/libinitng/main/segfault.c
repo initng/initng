@@ -19,14 +19,14 @@
 
 #include <initng.h>
 
-#include <time.h>				/* time() */
-#include <fcntl.h>				/* fcntl() */
-#include <sys/un.h>				/* memmove() strcmp() */
-#include <sys/wait.h>				/* waitpid() sa */
-#include <linux/kd.h>				/* KDSIGACCEPT */
-#include <sys/ioctl.h>				/* ioctl() */
-#include <stdlib.h>				/* free() exit() */
-#include <sys/reboot.h>				/* reboot() RB_DISABLE_CAD */
+#include <time.h>		/* time() */
+#include <fcntl.h>		/* fcntl() */
+#include <sys/un.h>		/* memmove() strcmp() */
+#include <sys/wait.h>		/* waitpid() sa */
+#include <linux/kd.h>		/* KDSIGACCEPT */
+#include <sys/ioctl.h>		/* ioctl() */
+#include <stdlib.h>		/* free() exit() */
+#include <sys/reboot.h>		/* reboot() RB_DISABLE_CAD */
 #include <sys/mount.h>
 #include <termios.h>
 #include <stdio.h>
@@ -35,7 +35,6 @@
 #ifdef HAVE_COREDUMPER
 #include <google/coredumper.h>
 #endif
-
 
 /*
  * This is called on segfault,
@@ -57,7 +56,6 @@ void initng_main_segfault(void)
 		/* just quit */
 		_exit(99);
 	}
-
 #ifdef DEBUG
 #define MESSAGE "Initng segfaulted, will wait in 20 seconds for you to start a gdb, before execve(/sbin/initng-segfault);\n"
 
@@ -69,12 +67,12 @@ void initng_main_segfault(void)
 		char buf[50];
 
 		sprintf(buf, "/dev/shm/initng-core-%i-%i", getpid(),
-		        (int) time(NULL));
+			(int)time(NULL));
 		if (WriteCoreDump(buf) == 0)
 			printf("Dumped core to %s\n", buf);
 	}
 #else
-#if 0	/* deadlocks sometimes due to libc locks; need to use direct syscalls */
+#if 0				/* deadlocks sometimes due to libc locks; need to use direct syscalls */
 	/* Fork a new process and dump core. Works reasonably well as we're
 	 * not using threads for anything. If we were, we'd need Google
 	 * Coredumper */
@@ -122,19 +120,19 @@ void initng_main_segfault(void)
 			printf("Failed to fork and dump core\n");
 		}
 	}
-#endif /* false */
-#endif /* !HAVE_COREDUMPER */
+#endif				/* false */
+#endif				/* !HAVE_COREDUMPER */
 
 	/* Try to launch a getty, that we may if lucky login to tty9 and run gdb there */
 #ifdef TRY_LAUCNH_GETTY_ON_SEGFAULT
 	if (fork() == 0) {
 		const char *getty_argv[] =
-			{ "/sbin/getty", "38400", "tty9", NULL };
+		    { "/sbin/getty", "38400", "tty9", NULL };
 		const char *getty_env[] = { NULL };
 
 		/* execve getty in the fork */
-		execve((char *) getty_argv[0], (char **) getty_argv,
-		       (char **) getty_env);
+		execve((char *)getty_argv[0], (char **)getty_argv,
+		       (char **)getty_env);
 		_exit(1);
 	}
 #endif
@@ -147,7 +145,7 @@ void initng_main_segfault(void)
 			write(emergency_output, MESSAGE, strlen(MESSAGE));
 			close(emergency_output);
 		}
-		sleep(4);			/*  5 times 4 is 20 seconds */
+		sleep(4);	/*  5 times 4 is 20 seconds */
 		i++;
 	}
 #endif
@@ -164,20 +162,20 @@ void initng_main_segfault(void)
 	{
 		const char *segfault_argv[] = { "/sbin/initng-segfault", NULL };
 		const char *segfault_argv_initng[] =
-			{ "/sbin/initng", "--hot_reload", NULL };
+		    { "/sbin/initng", "--hot_reload", NULL };
 		const char *segfault_env[] = { NULL };
 
 		/* first try /sbin/initng-segfault */
-		if (execve((char *) segfault_argv[0], (char **) segfault_argv,
-		           (char **) segfault_env) == -1) {
+		if (execve((char *)segfault_argv[0], (char **)segfault_argv,
+			   (char **)segfault_env) == -1) {
 			/* then try /sbin/initng --hot_reload */
-			if (execve((char *) segfault_argv_initng[0],
-			           (char **) segfault_argv,
-			           (char **) segfault_env) == -1) {
+			if (execve((char *)segfault_argv_initng[0],
+				   (char **)segfault_argv,
+				   (char **)segfault_env) == -1) {
 				/* else tell the user, it dont succeded to
 				 * start a replacement */
 				fprintf(stderr, "/sbin/initng-segfault did "
-				        "not exist, will die!\n");
+					"not exist, will die!\n");
 			}
 		}
 

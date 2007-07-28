@@ -40,7 +40,7 @@ s_entry SELINUX_CONTEXT = {
 
 static void set_selinux_context(s_event * event)
 {
-	s_event_after_fork_data * data;
+	s_event_after_fork_data *data;
 
 	static int have_selinux = -1;
 
@@ -60,7 +60,7 @@ static void set_selinux_context(s_event * event)
 		return;
 
 	const char *selinux_context = get_string(&SELINUX_CONTEXT,
-	                                         data->service);
+						 data->service);
 	char *sestr = NULL;
 	context_t seref = NULL;
 	int rc = 0;
@@ -68,10 +68,10 @@ static void set_selinux_context(s_event * event)
 	int enforce = -1;
 
 	if (selinux_context) {
-		sedomain = (char *) malloc((strlen(selinux_context) + 1));
+		sedomain = (char *)malloc((strlen(selinux_context) + 1));
 		strcpy(sedomain, selinux_context);
 	} else {
-		sedomain = (char *) malloc(9);
+		sedomain = (char *)malloc(9);
 		strcpy(sedomain, "initrc_t");
 	}
 
@@ -94,7 +94,7 @@ static void set_selinux_context(s_event * event)
 
 	return;
 
-  fail:
+      fail:
 	selinux_getenforcemode(&enforce);
 	if (enforce) {
 		F_("bash_this(): could not change selinux context!\n"
@@ -102,7 +102,6 @@ static void set_selinux_context(s_event * event)
 		event->status = FAILED;
 	}
 }
-
 
 int module_init(int api_version)
 {
@@ -114,11 +113,11 @@ int module_init(int api_version)
 		return FALSE;
 	}
 	/*
-	if(g.i_am != I_AM_INIT) {
-		F_("Selinx have no effect in fake mode\n");
-		return FALSE;
-	}
-	*/
+	   if(g.i_am != I_AM_INIT) {
+	   F_("Selinx have no effect in fake mode\n");
+	   return FALSE;
+	   }
+	 */
 	/* add hooks and malloc data here */
 
 	initng_service_data_type_register(&SELINUX_CONTEXT);
@@ -126,7 +125,6 @@ int module_init(int api_version)
 
 	return TRUE;
 }
-
 
 void module_unload(void)
 {

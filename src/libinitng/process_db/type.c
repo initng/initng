@@ -28,7 +28,6 @@
 #include <alloca.h>
 #include <assert.h>
 
-
 /*
  * Browse ptypes, search by name
  */

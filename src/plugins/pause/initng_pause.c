@@ -23,7 +23,6 @@
 #include <string.h>
 #include <assert.h>
 
-
 INITNG_PLUGIN_MACRO;
 
 s_entry S_DELAY = {
@@ -36,14 +35,14 @@ s_entry S_DELAY = {
 s_entry MS_DELAY = {
 	.name = "exec_m_delay",
 	.description = "Pause this much microseconds before service is "
-	               "launched.",
+	    "launched.",
 	.type = VARIABLE_INT,
 	.ot = NULL,
 };
 
 static void do_pause(s_event * event)
 {
-	s_event_after_fork_data * data;
+	s_event_after_fork_data *data;
 
 	int s_delay = 0;
 	int ms_delay = 0;
@@ -59,9 +58,7 @@ static void do_pause(s_event * event)
 
 	D_(" %s\n", data->service->name);
 
-
-	s_delay = get_int_var(&S_DELAY, data->process->pt->name,
-			      data->service);
+	s_delay = get_int_var(&S_DELAY, data->process->pt->name, data->service);
 	ms_delay = get_int_var(&MS_DELAY, data->process->pt->name,
 			       data->service);
 

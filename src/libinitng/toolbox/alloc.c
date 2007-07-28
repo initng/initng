@@ -20,12 +20,11 @@
 #include <initng.h>
 
 #define _GNU_SOURCE
-#include <stdlib.h>				/* free() exit() */
+#include <stdlib.h>		/* free() exit() */
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
-#include <stdarg.h>				/* vastart() vaend() */
-
+#include <stdarg.h>		/* vastart() vaend() */
 
 /* in init, a calloc must never fail! */
 /* void *initng_calloc2(size_t nmemb, size_t size, const char *func, int line) */
@@ -45,7 +44,7 @@ void *initng_toolbox_calloc(size_t nmemb, size_t size)
 
 /* in init, a realloc must never fail! */
 void *initng_toolbox_realloc2(void *ptr, size_t size, const char *func,
-                              int line)
+			      int line)
 {
 	void *alloced;
 
@@ -74,7 +73,7 @@ char *initng_toolbox_strdup2(const char *s, const char *func, int line)
 
 /* in init, a strndup must never fail! */
 char *initng_toolbox_strndup2(const char *s, size_t n, const char *func,
-                              int line)
+			      int line)
 {
 	char *alloced;
 
@@ -83,6 +82,6 @@ char *initng_toolbox_strndup2(const char *s, size_t n, const char *func,
 		   func, line);
 		sleep(1);
 	}
-	
+
 	return alloced;
 }

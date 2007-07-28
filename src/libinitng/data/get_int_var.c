@@ -26,7 +26,6 @@
 
 #include "local.h"
 
-
 /* returns an int */
 int initng_data_get_int_var(s_entry * type, const char *vn, data_head * d)
 {

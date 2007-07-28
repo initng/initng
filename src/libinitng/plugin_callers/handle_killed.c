@@ -28,7 +28,6 @@
 
 #include <initng.h>
 
-
 int initng_plugin_callers_handle_killed(active_db_h * s, process_h * p)
 {
 	s_event event;

@@ -26,7 +26,6 @@
 #include <pwd.h>
 #include <grp.h>
 
-
 INITNG_PLUGIN_MACRO;
 
 s_entry SUID = {
@@ -48,11 +47,11 @@ void adjust_env(active_db_h * service, const char *vn, const char *vv)
 {
 	/* add to service cache */
 	if (is_var(&ENV, vn, service)) {
-		return;			/* Assume they were set by .i file,
-					 * don't override */
+		return;		/* Assume they were set by .i file,
+				 * don't override */
 	} else {
 		set_string_var(&ENV, initng_toolbox_strdup(vn), service,
-		               initng_toolbox_strdup(vv));
+			       initng_toolbox_strdup(vv));
 	}
 }
 

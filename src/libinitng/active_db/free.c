@@ -29,7 +29,6 @@
 
 #include <initng.h>
 
-
 /* free some values in this one */
 void initng_active_db_free(active_db_h * pf)
 {
@@ -62,7 +61,6 @@ void initng_active_db_free(active_db_h * pf)
 	/* free service struct */
 	free(pf);
 }
-
 
 /* clear database */
 void initng_active_db_free_all(void)

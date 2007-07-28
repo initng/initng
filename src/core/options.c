@@ -17,7 +17,6 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-
 #include <string.h>
 #include <initng.h>
 
@@ -26,7 +25,7 @@
 #define OPT_HELP	0
 #define OPT_CONSOLE	1
 #define OPT_RUNLEVEL	2
-#define OPT_I_AM_INIT	3
+#define OPT_FAKE	3
 #define OPT_HOT_RELOAD	4
 #define OPT_NO_CIRCULAR	5
 #define OPT_VERBOSE_ADD	6
@@ -34,34 +33,40 @@
 #define OPT_VERSION	8
 
 opt_t opts[] = {
-	{ OPT_CONSOLE,		"console",
-		"Specify what dev to use as console."		},
-	{ OPT_RUNLEVEL,		"runlevel",
-		"Specify default runlevel."			},
-	{ OPT_I_AM_INIT,	"i_am_init",
-		"Start initng in real init mode, "
-		"instead of fake mode."				},
-	{ OPT_HOT_RELOAD,	"hot_reload",
-		NULL						},
-	{ OPT_NO_CIRCULAR,	"no_circular",
-		"Make extra checkings for cirular depencenis "
-		"in service, takes some extra cpu but might "
-		"work when initng won't."			},
+	{OPT_CONSOLE, "console",
+	 "Specify what dev to use as console."}
+	,
+	{OPT_RUNLEVEL, "runlevel",
+	 "Specify default runlevel."}
+	,
+	{OPT_FAKE, "fake",
+	 "Start initng in fake init mode."}
+	,
+	{OPT_HOT_RELOAD, "hot_reload",
+	 NULL}
+	,
+	{OPT_NO_CIRCULAR, "no_circular",
+	 "Make extra checkings for cirular depencenis "
+	 "in service, takes some extra cpu but might "
+	 "work when initng won't."}
+	,
 #ifdef DEBUG
-	{ OPT_VERBOSE_ADD,	"verbose_add",
-		"Add one function to the list of "
-		"debug-arguments that will be printed."		},
-	{ OPT_VERBOSE,		"verbose",
-		"Make initng be very verbose about "
-		"what's happening."				},
+	{OPT_VERBOSE_ADD, "verbose_add",
+	 "Add one function to the list of "
+	 "debug-arguments that will be printed."}
+	,
+	{OPT_VERBOSE, "verbose",
+	 "Make initng be very verbose about " "what's happening."}
+	,
 #endif
-	{ OPT_HELP,		"help",
-		"Show this help list."				},
-	{ OPT_VERSION,		"version",
-		"Show the version information."			},
-	{ 0,			NULL,		NULL		}
+	{OPT_HELP, "help",
+	 "Show this help list."}
+	,
+	{OPT_VERSION, "version",
+	 "Show the version information."}
+	,
+	{0, NULL, NULL}
 };
-
 
 static void handle_it(char *str)
 {
@@ -83,8 +88,8 @@ static void handle_it(char *str)
 		g.no_circular = TRUE;
 		break;
 
-	case OPT_I_AM_INIT:
-		g.i_am = I_AM_INIT;
+	case OPT_FAKE:
+		g.i_am = I_AM_FAKE_INIT;
 		break;
 
 	case OPT_HOT_RELOAD:
@@ -111,7 +116,7 @@ static void handle_it(char *str)
 
 		for (i = 0; opts[i].name; i++) {
 			if (opts[i].desc && (!val ||
-			    strcmp(opts[i].name, val) == 0)) {
+					     strcmp(opts[i].name, val) == 0)) {
 				printf(" %16s: %s\n", opts[i].name,
 				       opts[i].desc);
 			}
@@ -168,14 +173,14 @@ int options_parse_file(const char *file)
 
 	if ((f = fopen(file, "r")) == NULL) {
 		F_("Failed opening configuration file '%s'", file);
-		return (-1);
+		return -1;
 	}
-	
+
 	while (fgets(tmp, BUF_LEN, f)) {
 		tmp[BUF_LEN] = '\0';
 		handle_it(tmp);
 	}
 
 	fclose(f);
-	return (0);
+	return 0;
 }

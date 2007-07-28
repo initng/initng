@@ -34,7 +34,6 @@
 #include <sys/un.h>
 #include <assert.h>
 
-
 INITNG_PLUGIN_MACRO;
 
 static int cmd_get_pid_of(char *arg);
@@ -65,7 +64,7 @@ s_command GET_PID_OF = {
 	.com_type = INT_COMMAND,
 	.opt_visible = ADVANCHED_COMMAND,
 	.opt_type = REQUIRES_OPT,
-	.u = { (void *) &cmd_get_pid_of },
+	.u = {(void *)&cmd_get_pid_of},
 	.description = "Get pid of service"
 };
 
@@ -75,7 +74,7 @@ s_command START_ON_NEW = {
 	.com_type = TRUE_OR_FALSE_COMMAND,
 	.opt_visible = ADVANCHED_COMMAND,
 	.opt_type = REQUIRES_OPT,
-	.u = { (void *) &cmd_start_on_new },
+	.u = {(void *)&cmd_start_on_new},
 	.description = "Stop all services, and start from"
 };
 
@@ -85,7 +84,7 @@ s_command FREE_SERVICE = {
 	.com_type = TRUE_OR_FALSE_COMMAND,
 	.opt_visible = STANDARD_COMMAND,
 	.opt_type = USES_OPT,
-	.u = { (void *) &cmd_free_service },
+	.u = {(void *)&cmd_free_service},
 	.description = "Resets a failed service, so it can be restarted."
 };
 
@@ -95,7 +94,7 @@ s_command RESTART_SERVICE = {
 	.com_type = TRUE_OR_FALSE_COMMAND,
 	.opt_visible = STANDARD_COMMAND,
 	.opt_type = REQUIRES_OPT,
-	.u = { (void *) &cmd_restart },
+	.u = {(void *)&cmd_restart},
 	.description = "Restart service"
 };
 
@@ -105,7 +104,7 @@ s_command PRINT_UPTIME = {
 	.com_type = STRING_COMMAND,
 	.opt_visible = ADVANCHED_COMMAND,
 	.opt_type = REQUIRES_OPT,
-	.u = { (void *) &cmd_print_uptime },
+	.u = {(void *)&cmd_print_uptime},
 	.description = "Print uptime"
 };
 
@@ -115,7 +114,7 @@ s_command POWEROFF_INITNG = {
 	.com_type = TRUE_OR_FALSE_COMMAND,
 	.opt_visible = STANDARD_COMMAND,
 	.opt_type = NO_OPT,
-	.u = { (void *) &cmd_initng_poweroff },
+	.u = {(void *)&cmd_initng_poweroff},
 	.description = "Power off the computer"
 };
 
@@ -125,7 +124,7 @@ s_command HALT_INITNG = {
 	.com_type = TRUE_OR_FALSE_COMMAND,
 	.opt_visible = STANDARD_COMMAND,
 	.opt_type = NO_OPT,
-	.u = { (void *) &cmd_initng_halt },
+	.u = {(void *)&cmd_initng_halt},
 	.description = "Halt the computer"
 };
 
@@ -135,7 +134,7 @@ s_command REBOOT_INITNG = {
 	.com_type = TRUE_OR_FALSE_COMMAND,
 	.opt_visible = STANDARD_COMMAND,
 	.opt_type = NO_OPT,
-	.u = { (void *) &cmd_initng_reboot },
+	.u = {(void *)&cmd_initng_reboot},
 	.description = "Reboot the computer"
 };
 
@@ -145,7 +144,7 @@ s_command PRINT_MODULES = {
 	.com_type = STRING_COMMAND,
 	.opt_visible = ADVANCHED_COMMAND,
 	.opt_type = NO_OPT,
-	.u = { (void *) &cmd_print_modules },
+	.u = {(void *)&cmd_print_modules},
 	.description = "Print loaded plugins"
 };
 
@@ -155,21 +154,21 @@ s_command LOAD_MODULE = {
 	.com_type = TRUE_OR_FALSE_COMMAND,
 	.opt_visible = ADVANCHED_COMMAND,
 	.opt_type = REQUIRES_OPT,
-	.u = { (void *) &cmd_load_module },
+	.u = {(void *)&cmd_load_module},
 	.description = "Load Module"
 };
 
-#if 0 /* NOT_SAFE_YET TODO */
+#if 0				/* NOT_SAFE_YET TODO */
 s_command UNLOAD_MODULE = {
 	.id = 'w',
 	.long_id = "unload_module",
 	.com_type = TRUE_OR_FALSE_COMMAND,
 	.opt_visible = ADVANCHED_COMMAND,
 	.opt_type = REQUIRES_OPT,
-	.u = { (void *) &cmd_unload_module },
+	.u = {(void *)&cmd_unload_module},
 	.description = "UnLoad Module"
 };
-#endif   
+#endif
 
 s_command PERCENT_DONE = {
 	.id = 'n',
@@ -177,10 +176,9 @@ s_command PERCENT_DONE = {
 	.com_type = INT_COMMAND,
 	.opt_visible = ADVANCHED_COMMAND,
 	.opt_type = NO_OPT,
-	.u = { (void *) &cmd_percent_done },
+	.u = {(void *)&cmd_percent_done},
 	.description = "Prints percent of system up"
 };
-
 
 s_command DEPENDS_ON = {
 	.id = 'a',
@@ -188,7 +186,7 @@ s_command DEPENDS_ON = {
 	.com_type = STRING_COMMAND,
 	.opt_visible = ADVANCHED_COMMAND,
 	.opt_type = REQUIRES_OPT,
-	.u = { (void *) &cmd_get_depends_on },
+	.u = {(void *)&cmd_get_depends_on},
 	.description = "Print what services me depends on"
 };
 
@@ -198,7 +196,7 @@ s_command DEPENDS_ON_DEEP = {
 	.com_type = STRING_COMMAND,
 	.opt_visible = ADVANCHED_COMMAND,
 	.opt_type = REQUIRES_OPT,
-	.u = { (void *) &cmd_get_depends_on_deep },
+	.u = {(void *)&cmd_get_depends_on_deep},
 	.description = "Print what services me depends on deep"
 };
 
@@ -208,7 +206,7 @@ s_command DEPENDS_OFF = {
 	.com_type = STRING_COMMAND,
 	.opt_visible = ADVANCHED_COMMAND,
 	.opt_type = REQUIRES_OPT,
-	.u = { (void *) &cmd_get_depends_off },
+	.u = {(void *)&cmd_get_depends_off},
 	.description = "Print what dependencies that are depending on me"
 };
 
@@ -218,10 +216,9 @@ s_command DEPENDS_OFF_DEEP = {
 	.com_type = STRING_COMMAND,
 	.opt_visible = ADVANCHED_COMMAND,
 	.opt_type = REQUIRES_OPT,
-	.u = { (void *) &cmd_get_depends_off_deep },
+	.u = {(void *)&cmd_get_depends_off_deep},
 	.description = "Print what dependencies that are depending on me deep"
 };
-
 
 s_command NEW_INIT = {
 	.id = 'E',
@@ -229,9 +226,9 @@ s_command NEW_INIT = {
 	.com_type = TRUE_OR_FALSE_COMMAND,
 	.opt_visible = HIDDEN_COMMAND,
 	.opt_type = REQUIRES_OPT,
-	.u = { (void *) &cmd_new_init },
+	.u = {(void *)&cmd_new_init},
 	.description = "Stops all services, and when its done, launching a "
-		       "new init."
+	    "new init."
 };
 
 s_command RUN = {
@@ -240,9 +237,9 @@ s_command RUN = {
 	.com_type = TRUE_OR_FALSE_COMMAND,
 	.opt_visible = ADVANCHED_COMMAND,
 	.opt_type = REQUIRES_OPT,
-	.u = { (void *) &cmd_run },
+	.u = {(void *)&cmd_run},
 	.description = "Simply run an exec with specified name, example "
-		       "ngc --run service/test:start"
+	    "ngc --run service/test:start"
 };
 
 s_command SIGNAL = {
@@ -251,10 +248,9 @@ s_command SIGNAL = {
 	.com_type = TRUE_OR_FALSE_COMMAND,
 	.opt_visible = STANDARD_COMMAND,
 	.opt_type = REQUIRES_OPT,
-	.u = { (void *) &cmd_signal },
+	.u = {(void *)&cmd_signal},
 	.description = "Send a signal to the specified service."
 };
-
 
 static int cmd_signal(char *arg)
 {
@@ -280,7 +276,6 @@ static int cmd_get_pid_of(char *arg)
 
 	if (!arg)
 		return -2;
-
 
 	if (!(apt = initng_active_db_find_in_name(arg)))
 		return -1;
@@ -329,7 +324,6 @@ static int cmd_free_service(char *arg)
 	return ret;
 }
 
-
 static int cmd_restart(char *arg)
 {
 	active_db_h *apt = NULL;
@@ -352,7 +346,6 @@ static int cmd_restart(char *arg)
 	return (initng_handler_restart_service(apt));
 }
 
-
 static char *cmd_print_uptime(char *arg)
 {
 	active_db_h *apt = NULL;
@@ -361,7 +354,7 @@ static char *cmd_print_uptime(char *arg)
 
 	if (!arg) {
 		return initng_toolbox_strdup("Please tell me what service "
-		                              "to get up-time from.");
+					     "to get up-time from.");
 	}
 
 	apt = initng_active_db_find_in_name(arg);
@@ -383,7 +376,7 @@ static char *cmd_print_uptime(char *arg)
 
 static int cmd_initng_reboot(char *arg)
 {
-	(void) arg;
+	(void)arg;
 	g.when_out = THEN_REBOOT;
 	initng_handler_stop_all();
 	return TRUE;
@@ -391,7 +384,7 @@ static int cmd_initng_reboot(char *arg)
 
 static int cmd_initng_halt(char *arg)
 {
-	(void) arg;
+	(void)arg;
 	g.when_out = THEN_HALT;
 	initng_handler_stop_all();
 	return TRUE;
@@ -399,7 +392,7 @@ static int cmd_initng_halt(char *arg)
 
 static int cmd_initng_poweroff(char *arg)
 {
-	(void) arg;
+	(void)arg;
 	g.when_out = THEN_POWEROFF;
 	initng_handler_stop_all();
 	return TRUE;
@@ -411,14 +404,14 @@ static char *cmd_print_modules(char *arg)
 	size_t string_len = 20;
 	char *string = initng_toolbox_calloc(string_len, 1);
 
-	(void) arg;
+	(void)arg;
 
 	sprintf(string, "modules: \n");
 
 	while_module_db(mod) {
 		/* Increase buffer for adding */
 		string_len += (strlen(mod->module_name) +
-		               strlen(mod->module_filename) + 40);
+			       strlen(mod->module_filename) + 40);
 		string = initng_toolbox_realloc(string, string_len);
 		strcat(string, "  * ");
 		strcat(string, mod->module_name);
@@ -453,7 +446,7 @@ static int cmd_load_module(char *arg)
 	return TRUE;
 }
 
-#if 0 /* This one is not really safe yet */
+#if 0				/* This one is not really safe yet */
 static int cmd_unload_module(char *arg)
 {
 	if (!arg)
@@ -465,7 +458,7 @@ static int cmd_unload_module(char *arg)
 
 static int cmd_percent_done(char *arg)
 {
-	(void) arg;
+	(void)arg;
 
 	return initng_active_db_percent_started();
 }
@@ -487,12 +480,12 @@ static char *cmd_get_depends_on(char *arg)
 			if (current->current_state &&
 			    current->current_state->name) {
 				mprintf(&string, "  %s\t\t[%s]\n",
-				        current->name,
-				        current->current_state->name);
+					current->name,
+					current->current_state->name);
 			}
 		}
 	}
-	
+
 	return string;
 }
 
@@ -513,12 +506,12 @@ static char *cmd_get_depends_on_deep(char *arg)
 			if (current->current_state &&
 			    current->current_state->name) {
 				mprintf(&string, "  %s\t\t[%s]\n",
-				        current->name,
-				        current->current_state->name);
+					current->name,
+					current->current_state->name);
 			}
 		}
 	}
-	
+
 	return string;
 }
 
@@ -539,12 +532,12 @@ static char *cmd_get_depends_off(char *arg)
 			if (current->current_state &&
 			    current->current_state->name) {
 				mprintf(&string, "  %s\t\t[%s]\n",
-				        current->name,
-				        current->current_state->name);
+					current->name,
+					current->current_state->name);
 			}
 		}
 	}
-	
+
 	return string;
 }
 
@@ -558,7 +551,7 @@ static char *cmd_get_depends_off_deep(char *arg)
 		return (initng_toolbox_strdup("Did not find service."));
 
 	mprintf(&string, "The the services that depends on \"%s\":\n",
-	        on->name);
+		on->name);
 
 	while_active_db(current) {
 		/* if current need the one we are watching */
@@ -566,15 +559,14 @@ static char *cmd_get_depends_off_deep(char *arg)
 			if (current->current_state &&
 			    current->current_state->name) {
 				mprintf(&string, "  %s\t\t[%s]\n",
-				        current->name,
-				        current->current_state->name);
+					current->name,
+					current->current_state->name);
 			}
 		}
 	}
-	
+
 	return string;
 }
-
 
 static int cmd_new_init(char *arg)
 {
@@ -591,7 +583,6 @@ static int cmd_new_init(char *arg)
 	initng_handler_stop_all();
 	return TRUE;
 }
-
 
 ptype_h EXTERN_RUN = { "extern_arg", NULL };
 
@@ -622,8 +613,7 @@ static int cmd_run(char *arg)
 
 	service = initng_active_db_find_by_name(serv_name);
 	if (!service) {
-		F_("Service \"%s\" was not found, trying to run.\n",
-		   serv_name);
+		F_("Service \"%s\" was not found, trying to run.\n", serv_name);
 		free(serv_name);
 		return FALSE;
 	}
@@ -653,7 +643,7 @@ int module_init(int api_version)
 	initng_command_register(&FREE_SERVICE);
 	initng_command_register(&RESTART_SERVICE);
 	initng_command_register(&PRINT_UPTIME);
-	
+
 	if (g.i_am == I_AM_INIT) {
 		initng_command_register(&REBOOT_INITNG);
 		initng_command_register(&POWEROFF_INITNG);
@@ -674,7 +664,6 @@ int module_init(int api_version)
 	D_("libstcmd.so.0.0 loaded!\n");
 	return TRUE;
 }
-
 
 void module_unload(void)
 {

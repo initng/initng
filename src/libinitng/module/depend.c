@@ -31,7 +31,6 @@
 
 #include "local.h"
 
-
 /*
  * Some modules depend on other modules.
  *

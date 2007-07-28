@@ -21,19 +21,18 @@
 #include <initng.h>
 
 #include <stdio.h>
-#include <stdlib.h>					/* free() exit() */
+#include <stdlib.h>		/* free() exit() */
 #include <fcntl.h>
 #include <string.h>
 #include <errno.h>
 #include <assert.h>
-
 
 INITNG_PLUGIN_MACRO;
 
 s_entry STDOUT = {
 	.name = "stdout",
 	.description = "Open a file with this path, and direct service "
-	               "output here.",
+	    "output here.",
 	.type = STRING,
 	.ot = NULL,
 };
@@ -41,7 +40,7 @@ s_entry STDOUT = {
 s_entry STDERR = {
 	.name = "stderr",
 	.description = "Open a file with this path, and direct service error "
-	               "output here.",
+	    "output here.",
 	.type = STRING,
 	.ot = NULL,
 };
@@ -49,7 +48,7 @@ s_entry STDERR = {
 s_entry STDALL = {
 	.name = "stdall",
 	.description = "Open a file with this path, and direct service all "
-	               "output here.",
+	    "output here.",
 	.type = STRING,
 	.ot = NULL,
 };
@@ -57,15 +56,14 @@ s_entry STDALL = {
 s_entry STDIN = {
 	.name = "stdin",
 	.description = "Open a file with this path, and direct service input "
-	               "here.",
+	    "here.",
 	.type = STRING,
 	.ot = NULL,
 };
 
-
 static void setup_output(s_event * event)
 {
-	s_event_after_fork_data * data;
+	s_event_after_fork_data *data;
 
 	/* string containing the filename of output */
 	const char *s_stdout = NULL;
@@ -174,7 +172,6 @@ static void setup_output(s_event * event)
 		initng_fd_set_cloexec(fd_stdin);
 	}
 }
-
 
 int module_init(int api_version)
 {

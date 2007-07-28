@@ -31,7 +31,6 @@
 
 #include "local.h"
 
-
 /*
  * Invoke callback, clean up module.
  */
@@ -40,7 +39,7 @@ static void unload(m_h * module)
 	assert(module != NULL);
 
 	/* run the unload hook */
-	(*module->module_unload)();
+	(*module->module_unload) ();
 
 	/* close and free the module entry in db */
 	initng_module_close_and_free(module);
@@ -59,7 +58,6 @@ int initng_module_unload_named(const char *name)
 		F_("Not unloading module \"%s\", it is not loaded\n", name);
 		return FALSE;
 	}
-
 
 	/* find the named module in our linked list */
 	while_module_db(m) {
@@ -110,8 +108,7 @@ void initng_module_unload_marked(void)
 				m->marked_for_removal = FALSE;
 				continue;
 			}
-			D_("now unloading marked module %s.\n",
-			   m->module_name);
+			D_("now unloading marked module %s.\n", m->module_name);
 			unload(m);
 		}
 	}

@@ -19,22 +19,21 @@
 
 #include <initng.h>
 
-#include <time.h>				/* time() */
-#include <fcntl.h>				/* fcntl() */
-#include <unistd.h>				/* execv() pipe() usleep() */
+#include <time.h>		/* time() */
+#include <fcntl.h>		/* fcntl() */
+#include <unistd.h>		/* execv() pipe() usleep() */
 						/* pause() chown() pid_t   */
 #include <sys/types.h>
-#include <sys/wait.h>				/* waitpid() sa */
-#include <sys/ioctl.h>				/* ioctl() */
-#include <sys/socket.h>				/* socketpair() */
-#include <stdlib.h>				/* free() exit() */
+#include <sys/wait.h>		/* waitpid() sa */
+#include <sys/ioctl.h>		/* ioctl() */
+#include <sys/socket.h>		/* socketpair() */
+#include <stdlib.h>		/* free() exit() */
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
 #include <pwd.h>
 #include <sys/stat.h>
 #include <errno.h>
-
 
 void initng_fork_aforkhooks(active_db_h * service, process_h * process)
 {
@@ -53,4 +52,3 @@ void initng_fork_aforkhooks(active_db_h * service, process_h * process)
 		_exit(1);
 	}
 }
-

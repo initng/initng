@@ -58,20 +58,18 @@
 
 int main(int argc, char *argv[]);
 
-
 /*
  * mprintf, a sprintf clone that automaticly mallocs the string
  * and new content to same string applys after that content.
  */
 static int usplash(const char *format, ...)
 {
-	va_list arg;				/* used for the variable lists */
+	va_list arg;		/* used for the variable lists */
 
 	char *p = NULL;
-	int add_len = 0;			/* This mutch more strings are we gonna alloc for */
+	int add_len = 0;	/* This mutch more strings are we gonna alloc for */
 
 	/*printf("\n\nmprintf(%s);\n", format); */
-
 
 	/*
 	 * format contains the minimum needed chars that
@@ -92,8 +90,7 @@ static int usplash(const char *format, ...)
 		return (FALSE);
 
 	/* Ok, have a try until vsnprintf succeds */
-	while (1)
-	{
+	while (1) {
 		/* start filling the newly allocaded area */
 		va_start(arg, format);
 		int done = vsnprintf(p, add_len, format, arg);
@@ -101,14 +98,12 @@ static int usplash(const char *format, ...)
 		va_end(arg);
 
 		/* check if that was enouth */
-		if (done > -1 && done < add_len)
-		{
+		if (done > -1 && done < add_len) {
 			int pipe_fd;
 
 			pipe_fd = open(USPLASH_FIFO, O_WRONLY | O_NONBLOCK);
 
-			if (pipe_fd == -1)
-			{
+			if (pipe_fd == -1) {
 				/* We can't really do anything useful here */
 				return (FALSE);
 			}
@@ -134,8 +129,6 @@ static int usplash(const char *format, ...)
 	return (FALSE);
 }
 
-
-
 static void connected(int pver, char *initng_version)
 {
 	usplash("TEXT Initng %s", initng_version);
@@ -152,20 +145,15 @@ static void disconnected(void)
 int last_progress = 0;
 
 static void service_change(char *service, e_is is, char *state, int pstart,
-						   int pstop, char *service_type, int hidden)
+			   int pstop, char *service_type, int hidden)
 {
-	if (pstart)
-	{
-		if (last_progress != pstart)
-		{
+	if (pstart) {
+		if (last_progress != pstart) {
 			usplash("PROGRESS %i", pstart + 10);
 			last_progress = pstart;
 		}
-	}
-	else if (pstop)
-	{
-		if (last_progress != pstop)
-		{
+	} else if (pstop) {
+		if (last_progress != pstop) {
 			usplash("PROGRESS %i", pstop + 10);
 			last_progress = pstop;
 		}
@@ -175,22 +163,21 @@ static void service_change(char *service, e_is is, char *state, int pstart,
 	if (hidden)
 		return;
 
-	switch (is)
-	{
-		case IS_DOWN:
-			usplash("TEXT %s", service);
-			usplash("SUCCESS DOWN");
-			break;
-		case IS_UP:
-			usplash("TEXT %s", service);
-			usplash("SUCCESS UP");
-			break;
-		case IS_FAILED:
-			usplash("TEXT %s", service);
-			usplash("FAILURE FAIL", service);
-			break;
-		default:
-			break;
+	switch (is) {
+	case IS_DOWN:
+		usplash("TEXT %s", service);
+		usplash("SUCCESS DOWN");
+		break;
+	case IS_UP:
+		usplash("TEXT %s", service);
+		usplash("SUCCESS UP");
+		break;
+	case IS_FAILED:
+		usplash("TEXT %s", service);
+		usplash("FAILURE FAIL", service);
+		break;
+	default:
+		break;
 	}
 }
 
@@ -208,67 +195,65 @@ static void err_msg(e_mt mt, char *file, char *func, int line, char *message)
 
 static void sys_state(h_sys_state state, char *runlevel)
 {
-	switch (state)
-	{
-		case STATE_UP:
-			usplash("TEXT Runlevel %s.", runlevel);
-			usplash("SUCCESS UP");
-			usplash("QUIT");
-			exit(0);
-			break;
-		case STATE_STARTING:
-		case STATE_STOPPING:
-		case STATE_ASE:
-		case STATE_SERVICES_LOADED:
-		case STATE_EXIT:
-		case STATE_RESTART:
-		case STATE_SULOGIN:
-		case STATE_HALT:
-		case STATE_POWEROFF:
-		case STATE_REBOOT:
-		case STATE_EXECVE:
-		default:
-			break;
+	switch (state) {
+	case STATE_UP:
+		usplash("TEXT Runlevel %s.", runlevel);
+		usplash("SUCCESS UP");
+		usplash("QUIT");
+		exit(0);
+		break;
+	case STATE_STARTING:
+	case STATE_STOPPING:
+	case STATE_ASE:
+	case STATE_SERVICES_LOADED:
+	case STATE_EXIT:
+	case STATE_RESTART:
+	case STATE_SULOGIN:
+	case STATE_HALT:
+	case STATE_POWEROFF:
+	case STATE_REBOOT:
+	case STATE_EXECVE:
+	default:
+		break;
 	}
 }
 
 static void handle_event(nge_event * e)
 {
-	switch (e->state_type)
-	{
-		case SERVICE_STATE_CHANGE:
-			service_change(e->payload.service_state_change.service,
-						   e->payload.service_state_change.is,
-						   e->payload.service_state_change.state_name,
-						   e->payload.service_state_change.percent_started,
-						   e->payload.service_state_change.percent_stopped,
-						   e->payload.service_state_change.service_type,
-						   e->payload.service_state_change.hidden);
-			return;
-		case SYSTEM_STATE_CHANGE:
-			sys_state(e->payload.system_state_change.system_state,
-					  e->payload.system_state_change.runlevel);
-			return;
-		case ERR_MSG:
-			err_msg(e->payload.err_msg.mt,
-					e->payload.err_msg.file,
-					e->payload.err_msg.func,
-					e->payload.err_msg.line, e->payload.err_msg.message);
-			return;
-		case CONNECT:
-			connected(e->payload.connect.pver,
-					  e->payload.connect.initng_version);
-			return;
-		case DISCONNECT:
-			disconnected();
-			return;
-		case SERVICE_OUTPUT:
-			service_output(e->payload.service_output.service,
-						   e->payload.service_output.process,
-						   e->payload.service_output.output);
-			return;
-		default:
-			return;
+	switch (e->state_type) {
+	case SERVICE_STATE_CHANGE:
+		service_change(e->payload.service_state_change.service,
+			       e->payload.service_state_change.is,
+			       e->payload.service_state_change.state_name,
+			       e->payload.service_state_change.percent_started,
+			       e->payload.service_state_change.percent_stopped,
+			       e->payload.service_state_change.service_type,
+			       e->payload.service_state_change.hidden);
+		return;
+	case SYSTEM_STATE_CHANGE:
+		sys_state(e->payload.system_state_change.system_state,
+			  e->payload.system_state_change.runlevel);
+		return;
+	case ERR_MSG:
+		err_msg(e->payload.err_msg.mt,
+			e->payload.err_msg.file,
+			e->payload.err_msg.func,
+			e->payload.err_msg.line, e->payload.err_msg.message);
+		return;
+	case CONNECT:
+		connected(e->payload.connect.pver,
+			  e->payload.connect.initng_version);
+		return;
+	case DISCONNECT:
+		disconnected();
+		return;
+	case SERVICE_OUTPUT:
+		service_output(e->payload.service_output.service,
+			       e->payload.service_output.process,
+			       e->payload.service_output.output);
+		return;
+	default:
+		return;
 	}
 }
 
@@ -280,8 +265,7 @@ int main(int argc, char *argv[])
 	pid_t fork_pid;
 
 	/* open up for usplash */
-	if (chdir("/dev/.initramfs") != 0)
-	{
+	if (chdir("/dev/.initramfs") != 0) {
 		printf("Error chdir \"/dev/.initramfs\"\n");
 		exit(0);
 	}
@@ -295,13 +279,12 @@ int main(int argc, char *argv[])
 	fork_pid = fork();
 
 	/* make sure this is the fork */
-	if (fork_pid == 0)
-	{
+	if (fork_pid == 0) {
 		const char *usplash_argv[] = { "/sbin/usplash", "-c", NULL };
 		const char *usplash_env[] = { NULL };
 
-		execve((char *) usplash_argv[0], (char **) usplash_argv,
-			   (char **) usplash_env);
+		execve((char *)usplash_argv[0], (char **)usplash_argv,
+		       (char **)usplash_env);
 		_exit(0);
 	}
 
@@ -316,8 +299,7 @@ int main(int argc, char *argv[])
 	/* FROM HERE, IS run in a fork. */
 
 	/* open correct socket */
-	while (c == NULL)
-	{
+	while (c == NULL) {
 		/* reset error every time, or you get an can not connect to socket */
 		ngeclient_error = NULL;
 		c = ngeclient_connect(NGE_REAL);
@@ -325,16 +307,14 @@ int main(int argc, char *argv[])
 	}
 
 	/* if open_socket fails, ngeclient_error is set */
-	if (ngeclient_error)
-	{
+	if (ngeclient_error) {
 		usplash("QUIT");
 		fprintf(stderr, "NGECLIENT ERROR: %s\n", ngeclient_error);
 		exit(0);
 	}
 	assert(c);
 
-	while ((e = get_next_event(c, 200000)))
-	{
+	while ((e = get_next_event(c, 200000))) {
 		/*printf("Got an event: %i!\n", e->state_type); */
 		handle_event(e);
 
@@ -345,8 +325,7 @@ int main(int argc, char *argv[])
 	ngeclient_close(c);
 
 	/* check so there is no ngeclient_error set */
-	if (ngeclient_error)
-	{
+	if (ngeclient_error) {
 		usplash("QUIT");
 		fprintf(stderr, "NGECLIENT ERROR: %s\n", ngeclient_error);
 		exit(0);

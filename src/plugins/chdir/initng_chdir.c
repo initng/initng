@@ -25,7 +25,6 @@
 #include <stdlib.h>
 #include <assert.h>
 
-
 INITNG_PLUGIN_MACRO;
 
 s_entry CHDIR = {
@@ -37,7 +36,7 @@ s_entry CHDIR = {
 
 static void do_chdir(s_event * event)
 {
-	s_event_after_fork_data * data;
+	s_event_after_fork_data *data;
 
 	const char *tmp = NULL;
 
@@ -64,7 +63,6 @@ static void do_chdir(s_event * event)
 		event->status = FAILED;
 	}
 }
-
 
 int module_init(int api_version)
 {

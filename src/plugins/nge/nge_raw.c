@@ -45,7 +45,6 @@
 #include "libngeclient.h"
 int main(int argc, char *argv[]);
 
-
 /* THIS IS MAIN */
 int main(int argc, char *argv[])
 {
@@ -69,7 +68,6 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
-
 	/* poll_for_input will return -1 if socket closes */
 	while ((got = ngeclient_poll_for_input(c, 10000) >= 0)) {
 		if (ngeclient_error) {
@@ -90,7 +88,6 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "%s\n", ngeclient_error);
 		ngeclient_error = NULL;
 	}
-
 
 	/* clean up */
 	ngeclient_close(c);

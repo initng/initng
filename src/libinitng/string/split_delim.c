@@ -29,7 +29,6 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
-
 /** Re-links a string to a argv-like string-array.
  * Example: \t  /bin/executable --ham -flt   --moohoho  lalala
  *       => \t  /bin/executable\0--ham\0-flt\0  --moo\0hoho\0 lalala
@@ -46,7 +45,7 @@
  * @improved_it ismael
  */
 char **initng_string_split_delim(const char *string, const char *delim,
-                                 size_t * argc, int ofs)
+				 size_t * argc, int ofs)
 {
 	int len;
 	char **array;
@@ -62,7 +61,8 @@ char **initng_string_split_delim(const char *string, const char *delim,
 		if (len != 0) {
 			i++;
 			array = (char **)initng_toolbox_realloc(array,
-					sizeof(char *) * (i + 1));
+								sizeof(char *) *
+								(i + 1));
 			array[i - 1] = strndup(string + ofs, len);
 		} else {
 			len = 1;

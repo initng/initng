@@ -18,19 +18,18 @@
  */
 
 #include <sys/time.h>
-#include <time.h>				/* time() */
-#include <fcntl.h>				/* fcntl() */
-#include <sys/un.h>				/* memmove() strcmp() */
-#include <sys/wait.h>				/* waitpid() sa */
-#include <linux/kd.h>				/* KDSIGACCEPT */
-#include <sys/ioctl.h>				/* ioctl() */
-#include <stdio.h>				/* printf() */
-#include <stdlib.h>				/* free() exit() */
-#include <sys/reboot.h>				/* reboot() RB_DISABLE_CAD */
+#include <time.h>		/* time() */
+#include <fcntl.h>		/* fcntl() */
+#include <sys/un.h>		/* memmove() strcmp() */
+#include <sys/wait.h>		/* waitpid() sa */
+#include <linux/kd.h>		/* KDSIGACCEPT */
+#include <sys/ioctl.h>		/* ioctl() */
+#include <stdio.h>		/* printf() */
+#include <stdlib.h>		/* free() exit() */
+#include <sys/reboot.h>		/* reboot() RB_DISABLE_CAD */
 #include <assert.h>
 
 #include <initng.h>
-
 
 /*
  * Use this function to change the status of an service, this
@@ -93,7 +92,8 @@ int initng_common_state_unlock(active_db_h * service)
 	if (service->state_lock) {
 		/* Test if locked more than one time */
 		if (--service->state_lock) {
-			D_("State of %s is still locked (level: %d)\n", service->name, service->state_lock);
+			D_("State of %s is still locked (level: %d)\n",
+			   service->name, service->state_lock);
 			return FALSE;
 		}
 	}
@@ -103,8 +103,7 @@ int initng_common_state_unlock(active_db_h * service)
 		return FALSE;
 
 	D_(" %-20s : %10s -> %-10s\n", service->name,
-	   service->current_state->name,
-	   service->next_state->name);
+	   service->current_state->name, service->next_state->name);
 
 	/* Fill last entries */
 	service->last_state = service->current_state;
@@ -138,7 +137,7 @@ int initng_common_state_unlock(active_db_h * service)
 
 void initng_common_state_lock_all(void)
 {
-	active_db_h * current;
+	active_db_h *current;
 
 	while_active_db(current) {
 		initng_common_state_lock(current);
@@ -147,7 +146,7 @@ void initng_common_state_lock_all(void)
 
 int initng_common_state_unlock_all(void)
 {
-	active_db_h * current;
+	active_db_h *current;
 	int ret = 0;
 
 	while_active_db(current) {

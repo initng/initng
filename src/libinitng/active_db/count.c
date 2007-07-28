@@ -29,11 +29,10 @@
 
 #include <initng.h>
 
-
 /* active_db_count counts a type, if null, count all */
 int initng_active_db_count(a_state_h * current_state_to_count)
 {
-	int counter = 0;			/* actives counter */
+	int counter = 0;	/* actives counter */
 	active_db_h *current = NULL;
 
 	/* ok, go COUNT ALL */

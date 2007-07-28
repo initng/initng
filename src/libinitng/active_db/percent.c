@@ -29,7 +29,6 @@
 
 #include <initng.h>
 
-
 /* calculate percent of processes started */
 int initng_active_db_percent_started(void)
 {
@@ -60,18 +59,17 @@ int initng_active_db_percent_started(void)
 		/* count others */
 		other++;
 	}
-	D_("active_db_percent_started(): up: %i   starting: %i  other: %i\n", up,
-	   starting, other);
+	D_("active_db_percent_started(): up: %i   starting: %i  other: %i\n",
+	   up, starting, other);
 
 	/* if no one starting */
 	if (starting <= 0)
 		return (100);
 
 	if (up > 0) {
-		tmp = 100 * (float) up / (float) (starting + up);
-		D_("active_db_percent_started(): up/starting: %f percent: %i\n\n",
-		   (float) up / (float) starting, (int) tmp);
-		return ((int) tmp);
+		tmp = 100 * (float)up / (float)(starting + up);
+		D_("active_db_percent_started(): up/starting: %f percent: %i\n\n", (float)up / (float)starting, (int)tmp);
+		return ((int)tmp);
 	}
 	return 0;
 }
@@ -112,12 +110,10 @@ int initng_active_db_percent_stopped(void)
 	if (stopping <= 0)
 		return (100);
 
-	if (down > 0)
-	{
-		tmp = 100 * (float) down / (float) (stopping + down);
-		D_("active_db_percent_stopped(): down/stopping: %f percent: %i\n\n",
-		   (float) down / (float) stopping, (int) tmp);
-		return ((int) tmp);
+	if (down > 0) {
+		tmp = 100 * (float)down / (float)(stopping + down);
+		D_("active_db_percent_stopped(): down/stopping: %f percent: %i\n\n", (float)down / (float)stopping, (int)tmp);
+		return ((int)tmp);
 	}
 	return 0;
 }

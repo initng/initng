@@ -21,7 +21,6 @@
 
 #include <initng.h>
 
-
 stype_h *initng_service_type_get_by_name(const char *name)
 {
 	stype_h *current = NULL;

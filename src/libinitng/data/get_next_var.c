@@ -31,7 +31,7 @@
  * by the adress struct list.
  */
 s_data *initng_data_get_next_var(s_entry * type, const char *vn,
-                                 data_head * head, s_data * last)
+				 data_head * head, s_data * last)
 {
 	assert(head);
 	struct list_head *place = NULL;
@@ -90,15 +90,13 @@ s_data *initng_data_get_next_var(s_entry * type, const char *vn,
 
 		/* Make sure the string variable name matches if set */
 		if ((!type || current->type == type) &&
-		    (!current->vn || !vn ||
-		     strcasecmp(current->vn, vn) == 0)) {
+		    (!current->vn || !vn || strcasecmp(current->vn, vn) == 0)) {
 			return current;
 		}
 
 		/* try next */
 		place = place->prev;
 	}
-
 
 	/* This second hook might fill head->res */
 	if (head->res_request && (*head->res_request) (head) == FALSE)

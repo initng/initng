@@ -44,7 +44,6 @@
 #include <stdarg.h>
 #include <fcntl.h>
 
-
 static void bailout(int *, char **buffer);
 static int open_read_close(const char *filename, char **buffer);
 char *ignorelist = NULL;
@@ -54,32 +53,29 @@ const char *Version = "@(#)killall5 2.86 31-Jul-2004 miquels@cistron.nl";
 #define STATNAMELEN	15
 
 /* Info about a process. */
-typedef struct proc
-{
-	char *argv0;				/* Name as found out from argv[0] */
-	char *argv0base;			/* `basename argv[1]`             */
-	char *argv1;				/* Name as found out from argv[1] */
-	char *argv1base;			/* `basename argv[1]`             */
-	char *statname;				/* the statname without braces    */
-	ino_t ino;					/* Inode number                   */
-	dev_t dev;					/* Device it is on                */
-	pid_t pid;					/* Process ID.                    */
-	int sid;					/* Session ID.                    */
-	int kernel;					/* Kernel thread or zombie.       */
-	int mark;					/* Uset to mark some processes    */
-	struct proc *next;			/* Pointer to next struct.        */
+typedef struct proc {
+	char *argv0;		/* Name as found out from argv[0] */
+	char *argv0base;	/* `basename argv[1]`             */
+	char *argv1;		/* Name as found out from argv[1] */
+	char *argv1base;	/* `basename argv[1]`             */
+	char *statname;		/* the statname without braces    */
+	ino_t ino;		/* Inode number                   */
+	dev_t dev;		/* Device it is on                */
+	pid_t pid;		/* Process ID.                    */
+	int sid;		/* Session ID.                    */
+	int kernel;		/* Kernel thread or zombie.       */
+	int mark;		/* Uset to mark some processes    */
+	struct proc *next;	/* Pointer to next struct.        */
 } PROC;
 
 /* pid queue */
 
-typedef struct pidq
-{
+typedef struct pidq {
 	PROC *proc;
 	struct pidq *next;
 } PIDQ;
 
-typedef struct
-{
+typedef struct {
 	PIDQ *head;
 	PIDQ *tail;
 	PIDQ *next;
@@ -93,25 +89,23 @@ int sent_sigstop;
 
 int scripts_too = 0;
 
-char *progname;					/* the name of the running program */
+char *progname;			/* the name of the running program */
 
 #ifdef __GNUC__
 __attribute__ ((format(printf, 2, 3)))
 #endif
-	 static void nsyslog(int pri, const char *fmt, ...);
+static void nsyslog(int pri, const char *fmt, ...);
 
-
-	 pid_t getsid(pid_t pid);
+pid_t getsid(pid_t pid);
 
 /*
  *      Malloc space, barf if out of memory.
  */
-	 static void *xmalloc(int bytes)
+static void *xmalloc(int bytes)
 {
 	void *p;
 
-	if ((p = malloc(bytes)) == NULL)
-	{
+	if ((p = malloc(bytes)) == NULL) {
 		if (sent_sigstop)
 			kill(-1, SIGCONT);
 		nsyslog(LOG_ERR, "out of memory");
@@ -138,17 +132,14 @@ static int mount_proc(void)
 	args[4] = NULL;
 
 	/* Stat /proc/version to see if /proc is mounted. */
-	if (stat("/proc/version", &st) < 0 && errno == ENOENT)
-	{
+	if (stat("/proc/version", &st) < 0 && errno == ENOENT) {
 
 		/* It's not there, so mount it. */
-		if ((pid = fork()) < 0)
-		{
+		if ((pid = fork()) < 0) {
 			nsyslog(LOG_ERR, "cannot fork");
 			exit(1);
 		}
-		if (pid == 0)
-		{
+		if (pid == 0) {
 			/* Try a few mount binaries. */
 			execv("/sbin/mount", args);
 			execv("/bin/mount", args);
@@ -168,8 +159,7 @@ static int mount_proc(void)
 	}
 
 	/* See if mount succeeded. */
-	if (stat("/proc/version", &st) < 0)
-	{
+	if (stat("/proc/version", &st) < 0) {
 		if (errno == ENOENT)
 			nsyslog(LOG_ERR, "/proc not mounted, failed to mount.");
 		else
@@ -208,16 +198,14 @@ static int readproc(void)
 	int pid, f;
 
 	/* Open the /proc directory. */
-	if ((dir = opendir("/proc")) == NULL)
-	{
+	if ((dir = opendir("/proc")) == NULL) {
 		nsyslog(LOG_ERR, "cannot opendir(/proc)");
 		return -1;
 	}
 
 	/* Free the already existing process list. */
 	n = plist;
-	for (p = plist; n; p = n)
-	{
+	for (p = plist; n; p = n) {
 		n = p->next;
 		if (p->argv0)
 			free(p->argv0);
@@ -228,8 +216,7 @@ static int readproc(void)
 	plist = NULL;
 
 	/* Walk through the directory. */
-	while ((d = readdir(dir)) != NULL)
-	{
+	while ((d = readdir(dir)) != NULL) {
 
 		/* See if this is a process */
 		if ((pid = atoi(d->d_name)) == 0)
@@ -244,29 +231,25 @@ static int readproc(void)
 
 		/* Read SID & statname from it. */
 		if ((fp = fopen(path, "r")) != NULL &&
-			fgets(buf, sizeof buf, fp) != NULL)
-		{
+		    fgets(buf, sizeof buf, fp) != NULL) {
 			/* See if name starts with '(' */
 			s = buf;
 			while (*s != ' ')
 				s++;
 			s++;
-			if (*s == '(')
-			{
+			if (*s == '(') {
 				/* Read program name. */
 				q = strrchr(buf, ')');
-				if (q == NULL)
-				{
+				if (q == NULL) {
 					p->sid = 0;
 					nsyslog(LOG_ERR,
-							"can't get program name from %s\n", path);
+						"can't get program name from %s\n",
+						path);
 					free(p);
 					continue;
 				}
 				s++;
-			}
-			else
-			{
+			} else {
 				q = s;
 				while (*q != ' ')
 					q++;
@@ -274,27 +257,26 @@ static int readproc(void)
 			*q++ = 0;
 			while (*q == ' ')
 				q++;
-			p->statname = (char *) xmalloc(strlen(s) + 1);
+			p->statname = (char *)xmalloc(strlen(s) + 1);
 			strcpy(p->statname, s);
 
 			/* Get session, startcode, endcode. */
 			startcode = endcode = 0;
 			if (sscanf(q, "%*c %*d %*d %d %*d %*d %*u %*u "
-					   "%*u %*u %*u %*u %*u %*d %*d "
-					   "%*d %*d %*d %*d %*u %*u %*d "
-					   "%*u %lu %lu", &p->sid, &startcode, &endcode) != 3)
-			{
+				   "%*u %*u %*u %*u %*u %*d %*d "
+				   "%*d %*d %*d %*d %*u %*u %*d "
+				   "%*u %lu %lu", &p->sid, &startcode,
+				   &endcode) != 3) {
 				p->sid = 0;
-				nsyslog(LOG_ERR, "can't read sid from %s\n", path);
+				nsyslog(LOG_ERR, "can't read sid from %s\n",
+					path);
 				free(p);
 				continue;
 			}
 			if (startcode == 0 && endcode == 0)
 				p->kernel = 1;
 			fclose(fp);
-		}
-		else
-		{
+		} else {
 			if (fp != NULL)
 				fclose(fp);
 			/* Process disappeared.. */
@@ -303,17 +285,15 @@ static int readproc(void)
 		}
 
 		snprintf(path, sizeof(path), "/proc/%s/cmdline", d->d_name);
-		if ((fp = fopen(path, "r")) != NULL)
-		{
+		if ((fp = fopen(path, "r")) != NULL) {
 
 			/* Now read argv[0] */
 			f = readarg(fp, buf, sizeof(buf));
 
-			if (buf[0])
-			{
+			if (buf[0]) {
 
 				/* Store the name into malloced memory. */
-				p->argv0 = (char *) xmalloc(f + 1);
+				p->argv0 = (char *)xmalloc(f + 1);
 				strcpy(p->argv0, buf);
 
 				/* Get a pointer to the basename. */
@@ -329,10 +309,9 @@ static int readproc(void)
 				if (buf[0] != '-')
 					break;
 
-			if (buf[0])
-			{
+			if (buf[0]) {
 				/* Store the name into malloced memory. */
-				p->argv1 = (char *) xmalloc(f + 1);
+				p->argv1 = (char *)xmalloc(f + 1);
 				strcpy(p->argv1, buf);
 
 				/* Get a pointer to the basename. */
@@ -345,9 +324,7 @@ static int readproc(void)
 
 			fclose(fp);
 
-		}
-		else
-		{
+		} else {
 			/* Process disappeared.. */
 			free(p);
 			continue;
@@ -355,8 +332,7 @@ static int readproc(void)
 
 		/* Try to stat the executable. */
 		snprintf(path, sizeof(path), "/proc/%s/exe", d->d_name);
-		if (stat(path, &st) == 0)
-		{
+		if (stat(path, &st) == 0) {
 			p->dev = st.st_dev;
 			p->ino = st.st_ino;
 		}
@@ -392,13 +368,10 @@ static int add_pid_to_q(PIDQ_HEAD * q, PROC * p)
 	tmp->proc = p;
 	tmp->next = NULL;
 
-	if (empty_q(q))
-	{
+	if (empty_q(q)) {
 		q->head = tmp;
 		q->tail = tmp;
-	}
-	else
-	{
+	} else {
 		q->tail->next = tmp;
 		q->tail = tmp;
 	}
@@ -410,8 +383,7 @@ static PROC *get_next_from_pid_q(PIDQ_HEAD * q)
 	PROC *p;
 	PIDQ *tmp = q->head;
 
-	if (!empty_q(q))
-	{
+	if (!empty_q(q)) {
 		p = q->head->proc;
 		q->head = tmp->next;
 		free(tmp);
@@ -446,12 +418,9 @@ static PIDQ_HEAD *pidof(char *prog)
 	q = init_pid_q(q);
 
 	/* First try to find a match based on dev/ino pair. */
-	if (dostat)
-	{
-		for (p = plist; p; p = p->next)
-		{
-			if (p->dev == st.st_dev && p->ino == st.st_ino)
-			{
+	if (dostat) {
+		for (p = plist; p; p = p->next) {
+			if (p->dev == st.st_dev && p->ino == st.st_ino) {
 				add_pid_to_q(q, p);
 				foundone++;
 			}
@@ -460,8 +429,7 @@ static PIDQ_HEAD *pidof(char *prog)
 
 	/* If we didn't find a match based on dev/ino, try the name. */
 	if (!foundone)
-		for (p = plist; p; p = p->next)
-		{
+		for (p = plist; p; p = p->next) {
 			ok = 0;
 
 			/* Compare name (both basename and full path) */
@@ -470,8 +438,7 @@ static PIDQ_HEAD *pidof(char *prog)
 
 			/* For scripts, compare argv[1] as well. */
 			if (scripts_too && p->argv1 &&
-				!strncmp(p->statname, p->argv1base, STATNAMELEN))
-			{
+			    !strncmp(p->statname, p->argv1base, STATNAMELEN)) {
 				ok += (strcmp(p->argv1, prog) == 0);
 				ok += (strcmp(p->argv1base, s) == 0);
 			}
@@ -481,9 +448,8 @@ static PIDQ_HEAD *pidof(char *prog)
 			 *      used setproctitle so try statname.
 			 */
 			if (strlen(s) <= STATNAMELEN &&
-				(p->argv0 == NULL ||
-				 p->argv0[0] == 0 || strchr(p->argv0, ' ')))
-			{
+			    (p->argv0 == NULL ||
+			     p->argv0[0] == 0 || strchr(p->argv0, ' '))) {
 				ok += (strcmp(p->statname, s) == 0);
 			}
 			if (ok)
@@ -505,18 +471,15 @@ static void usage(void)
 #ifdef __GNUC__
 __attribute__ ((format(printf, 2, 3)))
 #endif
-	 static void nsyslog(int pri, const char *fmt, ...)
+static void nsyslog(int pri, const char *fmt, ...)
 {
 	va_list args;
 
 	va_start(args, fmt);
 
-	if (ttyname(0) == NULL)
-	{
+	if (ttyname(0) == NULL) {
 		vsyslog(pri, fmt, args);
-	}
-	else
-	{
+	} else {
 		fprintf(stderr, "%s: ", progname);
 		vfprintf(stderr, fmt, args);
 		fprintf(stderr, "\n");
@@ -547,56 +510,50 @@ static int main_pidof(int argc, char **argv)
 	opterr = 0;
 
 	while ((opt = getopt(argc, argv, "ho:sx")) != EOF)
-		switch (opt)
-		{
-			case '?':
-				nsyslog(LOG_ERR, "invalid options on command line!\n");
+		switch (opt) {
+		case '?':
+			nsyslog(LOG_ERR, "invalid options on command line!\n");
+			closelog();
+			exit(1);
+		case 'o':
+			if (oind >= PIDOF_OMITSZ - 1) {
+				nsyslog(LOG_ERR, "omit pid buffer size %d "
+					"exceeded!\n", PIDOF_OMITSZ);
 				closelog();
 				exit(1);
-			case 'o':
-				if (oind >= PIDOF_OMITSZ - 1)
-				{
-					nsyslog(LOG_ERR, "omit pid buffer size %d "
-							"exceeded!\n", PIDOF_OMITSZ);
-					closelog();
-					exit(1);
-				}
-				if (strcmp("%PPID", optarg) == 0)
-					opid[oind] = getppid();
-				else if ((opid[oind] = atoi(optarg)) < 1)
-				{
-					nsyslog(LOG_ERR,
-							"illegal omit pid value (%s)!\n", optarg);
-					closelog();
-					exit(1);
-				}
-				oind++;
-				flags |= PIDOF_OMIT;
-				break;
-			case 's':
-				flags |= PIDOF_SINGLE;
-				break;
-			case 'x':
-				scripts_too++;
-				break;
-			default:
-				/* Nothing */
-				break;
+			}
+			if (strcmp("%PPID", optarg) == 0)
+				opid[oind] = getppid();
+			else if ((opid[oind] = atoi(optarg)) < 1) {
+				nsyslog(LOG_ERR,
+					"illegal omit pid value (%s)!\n",
+					optarg);
+				closelog();
+				exit(1);
+			}
+			oind++;
+			flags |= PIDOF_OMIT;
+			break;
+		case 's':
+			flags |= PIDOF_SINGLE;
+			break;
+		case 'x':
+			scripts_too++;
+			break;
+		default:
+			/* Nothing */
+			break;
 		}
 	argc -= optind;
 	argv += optind;
 
 	/* Print out process-ID's one by one. */
 	readproc();
-	for (f = 0; f < argc; f++)
-	{
-		if ((q = pidof(argv[f])) != NULL)
-		{
+	for (f = 0; f < argc; f++) {
+		if ((q = pidof(argv[f])) != NULL) {
 			spid = 0;
-			while ((p = get_next_from_pid_q(q)))
-			{
-				if (flags & PIDOF_OMIT)
-				{
+			while ((p = get_next_from_pid_q(q))) {
+				if (flags & PIDOF_OMIT) {
 					for (i = 0; i < oind; i++)
 						if (opid[i] == p->pid)
 							break;
@@ -607,8 +564,7 @@ static int main_pidof(int argc, char **argv)
 					if (i < oind)
 						continue;
 				}
-				if (flags & PIDOF_SINGLE)
-				{
+				if (flags & PIDOF_SINGLE) {
 					if (spid)
 						continue;
 					else
@@ -626,15 +582,11 @@ static int main_pidof(int argc, char **argv)
 	return (first ? 1 : 0);
 }
 
-
-
-
-
 int open_read_close(const char *filename, char **buffer)
 {
-	int conf_file;				/* File descriptor for config file */
+	int conf_file;		/* File descriptor for config file */
 	struct stat stat_buf;
-	int res;					/* Result of read */
+	int res;		/* Result of read */
 
 	/* Mark *buffer and conf_file as not set, for cleanup if bailing out... */
 
@@ -645,34 +597,30 @@ int open_read_close(const char *filename, char **buffer)
 
 	conf_file = open(filename, O_RDONLY);	/* Open config file. */
 
-	if (conf_file == -1)
-	{
+	if (conf_file == -1) {
 		bailout(&conf_file, buffer);
 		return (0);
 	}
 
-	if (fstat(conf_file, &stat_buf) == -1)
-	{
+	if (fstat(conf_file, &stat_buf) == -1) {
 		bailout(&conf_file, buffer);
 		return (0);
 	}
 
 	/* Allocate a file buffer */
 
-	*buffer = (char *) calloc((stat_buf.st_size + 1), sizeof(char));
+	*buffer = (char *)calloc((stat_buf.st_size + 1), sizeof(char));
 
 	/* Read whole file */
 
 	res = read(conf_file, *buffer, stat_buf.st_size);
 
-	if (res == -1)
-	{
+	if (res == -1) {
 		bailout(&conf_file, buffer);
 		return (0);
 	}
 
-	if (res != stat_buf.st_size)
-	{
+	if (res != stat_buf.st_size) {
 		bailout(&conf_file, buffer);
 		return (0);
 	}
@@ -680,7 +628,7 @@ int open_read_close(const char *filename, char **buffer)
 	/* close file */
 	close(conf_file);
 
-	(*buffer)[stat_buf.st_size] = '\0';		/* Null terminate *buffer */
+	(*buffer)[stat_buf.st_size] = '\0';	/* Null terminate *buffer */
 
 	return (1);
 }
@@ -691,7 +639,7 @@ static void bailout(int *p_conf_file, char **buffer)
 	/* if conf_file != -1 it is open */
 
 	if (*p_conf_file != -1)
-		(void) close(*p_conf_file);			/* Ignore result this time */
+		(void)close(*p_conf_file);	/* Ignore result this time */
 
 	*p_conf_file = -1;
 
@@ -702,7 +650,6 @@ static void bailout(int *p_conf_file, char **buffer)
 
 	*buffer = NULL;
 }
-
 
 /* Main for either killall or pidof. */
 int main(int argc, char **argv)
@@ -725,8 +672,7 @@ int main(int argc, char **argv)
 		return main_pidof(argc, argv);
 
 	/* Right, so we are "killall". */
-	if (argc > 1)
-	{
+	if (argc > 1) {
 		if (argc != 2)
 			usage();
 		if (argv[1][0] == '-')
@@ -756,56 +702,48 @@ int main(int argc, char **argv)
 	sent_sigstop = 1;
 
 	/* Read /proc filesystem */
-	if (readproc() < 0)
-	{
+	if (readproc() < 0) {
 		kill(-1, SIGCONT);
 		exit(1);
 	}
 
 	/* Now kill all processes except our session. */
-	sid = (int) getsid(0);
-	pid = (int) getpid();
+	sid = (int)getsid(0);
+	pid = (int)getpid();
 
 	/* Mark processes not to kill */
-	for (p = plist; p; p = p->next)
-	{
-		if (p->pid == 1)
-		{
+	for (p = plist; p; p = p->next) {
+		if (p->pid == 1) {
 			/*printf(" Process 1-%i, is init.\n", p->sid); */
 			p->mark = 1;
 			continue;
 		}
 
-		if (p->pid == pid)
-		{
+		if (p->pid == pid) {
 			/*printf(" Process %i-%i, %s is me.\n", p->pid, p->sid, p->argv0); */
 			p->mark = 1;
 			continue;
 		}
 
-		if (p->sid == sid)
-		{
+		if (p->sid == sid) {
 			/*printf(" Process %i-%i, %s is my sessionid.\n", p->pid, p->sid, p->argv0); */
 			p->mark = 1;
 			continue;
 		}
 
-		if (p->kernel)
-		{
+		if (p->kernel) {
 			/*printf(" Process %i, is kernel or zombie.\n", p->pid); */
 			p->mark = 1;
 			continue;
 		}
 
-		if (strncmp(p->argv0, "bash_helper", 11) == 0)
-		{
+		if (strncmp(p->argv0, "bash_helper", 11) == 0) {
 			/*printf(" Process %i-%i, %s is an initng run script!\n", p->pid, p->sid, p->argv0); */
 			p->mark = 1;
 			continue;
 		}
 
-		if (ignorelist && strstr(ignorelist, p->argv0))
-		{
+		if (ignorelist && strstr(ignorelist, p->argv0)) {
 			/*printf(" Process %i-%i, %s is ignored from ignorelist.\n", p->pid, p->sid, p->argv0); */
 			p->mark = 1;
 			continue;
@@ -813,18 +751,14 @@ int main(int argc, char **argv)
 	}
 
 	/* now walk again, and mark processes with the same sid as anyone else marked */
-	for (p = plist; p; p = p->next)
-	{
+	for (p = plist; p; p = p->next) {
 		/* if this one is mark and wont be killed */
-		if (p->sid > 0 && p->mark == 1)
-		{
+		if (p->sid > 0 && p->mark == 1) {
 			PROC *q;
 
 			/* check for more that have the same sid, and mark that too */
-			for (q = plist; q; q = q->next)
-			{
-				if (q->mark == 0 && q->sid == p->sid)
-				{
+			for (q = plist; q; q = q->next) {
+				if (q->mark == 0 && q->sid == p->sid) {
 					/*printf(" Process %i-%i, %s won't be killed, because it has same sid as %i, %s.\n",
 					   q->pid, q->sid, q->argv0, p->pid, p->argv0); */
 					q->mark = 1;
@@ -834,8 +768,7 @@ int main(int argc, char **argv)
 	}
 
 	/* now walk last time stopping non marked onces */
-	for (p = plist; p; p = p->next)
-	{
+	for (p = plist; p; p = p->next) {
 		/* skip marked */
 		if (p->mark)
 			continue;

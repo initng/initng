@@ -20,18 +20,17 @@
 #include <initng.h>
 
 #include <sys/time.h>
-#include <time.h>				/* time() */
-#include <fcntl.h>				/* fcntl() */
-#include <sys/un.h>				/* memmove() strcmp() */
-#include <sys/wait.h>				/* waitpid() sa */
-#include <linux/kd.h>				/* KDSIGACCEPT */
-#include <sys/ioctl.h>				/* ioctl() */
-#include <stdio.h>				/* printf() */
-#include <stdlib.h>				/* free() exit() */
-#include <sys/reboot.h>				/* reboot() RB_DISABLE_CAD */
+#include <time.h>		/* time() */
+#include <fcntl.h>		/* fcntl() */
+#include <sys/un.h>		/* memmove() strcmp() */
+#include <sys/wait.h>		/* waitpid() sa */
+#include <linux/kd.h>		/* KDSIGACCEPT */
+#include <sys/ioctl.h>		/* ioctl() */
+#include <stdio.h>		/* printf() */
+#include <stdlib.h>		/* free() exit() */
+#include <sys/reboot.h>		/* reboot() RB_DISABLE_CAD */
 #include <assert.h>
 #include <errno.h>
-
 
 /* When this function is called, the service is marked for starting */
 int initng_handler_start_service(active_db_h * service_to_start)
@@ -62,8 +61,7 @@ int initng_handler_start_service(active_db_h * service_to_start)
 
 	/* it might already be starting */
 	if (IS_STARTING(service_to_start) || IS_WAITING(service_to_start)) {
-		D_("service %s is starting already.\n",
-		   service_to_start->name);
+		D_("service %s is starting already.\n", service_to_start->name);
 		return TRUE;
 	}
 
@@ -109,5 +107,5 @@ int initng_handler_start_service(active_db_h * service_to_start)
 		return FALSE;
 
 	/* execute it */
-	return ((*service_to_start->type->start)(service_to_start));
+	return ((*service_to_start->type->start) (service_to_start));
 }

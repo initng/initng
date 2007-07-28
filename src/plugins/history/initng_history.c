@@ -19,18 +19,16 @@
 
 #include <initng.h>
 
-#include <sys/types.h>					/* time_t */
+#include <sys/types.h>		/* time_t */
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <stdio.h>					/* printf() */
+#include <stdio.h>		/* printf() */
 #include <assert.h>
 #include <errno.h>
 
-
 #include "../ngc4/initng_ngc4.h"
 #include "initng_history.h"
-
 
 INITNG_PLUGIN_MACRO;
 
@@ -62,9 +60,13 @@ static void cmd_history(char *arg, s_payload * payload)
 			continue;
 
 		if (arg && strlen(arg) > 1 && !((current->name &&
-		    strcmp(current->name, arg) == 0) || (current->service &&
-		    current->service->name &&
-		    strcmp(current->service->name, arg) == 0))) {
+						 strcmp(current->name,
+							arg) == 0)
+						|| (current->service
+						    && current->service->name
+						    && strcmp(current->service->
+							      name,
+							      arg) == 0))) {
 			continue;
 		}
 
@@ -102,14 +104,13 @@ static void cmd_history(char *arg, s_payload * payload)
 	payload->s = i * sizeof(active_row);
 }
 
-
 s_command HISTORYS = {
 	.id = 'L',
 	.long_id = "show_history",
 	.com_type = PAYLOAD_COMMAND,
 	.opt_visible = STANDARD_COMMAND,
 	.opt_type = USES_OPT,
-	.u = { (void *) &cmd_history },
+	.u = {(void *)&cmd_history},
 	.description = "Print out history_db."
 };
 
@@ -128,7 +129,6 @@ static char *cmd_log(char *arg)
 	history_h *current = NULL;
 	time_t last = 0;
 
-
 	/* reset arg, if strlen is short */
 	if (arg) {
 		if (strlen(arg) < 1)
@@ -139,7 +139,7 @@ static char *cmd_log(char *arg)
 
 	mprintf(&string, " %" NAME_SPACER "s : STATUS\n", "SERVICE");
 	mprintf(&string, " ---------------------------------------"
-	        "---------------\n");
+		"---------------\n");
 
 	while_history_db_prev(current) {
 		/* if only_output is set, it have to be an output to
@@ -148,10 +148,10 @@ static char *cmd_log(char *arg)
 			continue;
 
 		/* if there is an argument, it have to match the service */
-		if (arg && !(
-			(current->name && strcmp(current->name, arg) == 0) ||
-			(current->service && current->service->name &&
-			 strcmp(current->service->name, arg) == 0))) {
+		if (arg && !((current->name && strcmp(current->name, arg) == 0)
+			     || (current->service && current->service->name
+				 && strcmp(current->service->name,
+					   arg) == 0))) {
 			continue;
 		}
 
@@ -169,12 +169,10 @@ static char *cmd_log(char *arg)
 
 			mprintf(&string, "\n %s", c);
 			mprintf(&string, " --------------------------------"
-			        "----------------------\n");
+				"----------------------\n");
 
 			last = current->time.tv_sec;
 		}
-
-
 
 		/* if the log entry contains output data ... */
 		if (current->data) {
@@ -213,7 +211,7 @@ static char *cmd_log(char *arg)
 
 				/* send that to client */
 				mprintf(&string, " %" NAME_SPACER "s : %s\n",
-				        name, buf);
+					name, buf);
 
 				/* where to start next */
 				tmp = &tmp[i];
@@ -228,14 +226,14 @@ static char *cmd_log(char *arg)
 				 * change, print that */
 				if (current->duration > 0) {
 					mprintf(&string, " %" NAME_SPACER
-					        "s | %s (after %i seconds)\n",
-					        name,
-					        current->action->name,
-					        (int)current->duration);
+						"s | %s (after %i seconds)\n",
+						name,
+						current->action->name,
+						(int)current->duration);
 				} else {
 					mprintf(&string, " %" NAME_SPACER
-					        "s | %s\n", name,
-					        current->action->name);
+						"s | %s\n", name,
+						current->action->name);
 				}
 			}
 		}
@@ -245,19 +243,17 @@ static char *cmd_log(char *arg)
 	return string;
 }
 
-
 s_command LOG = {
 	.id = 'l',
 	.long_id = "log",
 	.com_type = STRING_COMMAND,
 	.opt_visible = STANDARD_COMMAND,
 	.opt_type = USES_OPT,
-	.u = { (void *) &cmd_log },
+	.u = {(void *)&cmd_log},
 	.description = "Print out log."
 };
 
-
-static void history_db_compensate_time(s_event *event)
+static void history_db_compensate_time(s_event * event)
 {
 	time_t *skew;
 	history_h *current = NULL;
@@ -272,8 +268,6 @@ static void history_db_compensate_time(s_event *event)
 		current->time.tv_sec += *skew;
 	}
 }
-
-
 
 static void history_db_clear_service(active_db_h * service)
 {
@@ -358,7 +352,7 @@ static int add_hist(history_h * hist)
 }
 
 /* add values to history database */
-static void history_add_values(s_event *event)
+static void history_add_values(s_event * event)
 {
 	active_db_h *service;
 	history_h *tmp_e = NULL;	/* temporary pointer to insert data
@@ -391,15 +385,14 @@ static void history_add_values(s_event *event)
 	tmp_e->service = service;
 	tmp_e->name = NULL;
 	memcpy(&tmp_e->time, &service->time_current_state,
-		   sizeof(struct timeval));
+	       sizeof(struct timeval));
 	tmp_e->action = service->current_state;
 
 	/* set duration if possible */
 	if (service->last_state && service->time_last_state.tv_sec > 1) {
 		tmp_e->duration = difftime(service->time_current_state.tv_sec,
-		                           service->time_last_state.tv_sec);
+					   service->time_last_state.tv_sec);
 	}
-
 
 	/*D_("history_add_values() service : %s, name: %s, action: %s\n",
 	 *   service->name, NULL, service->current_state->state_name); */
@@ -414,7 +407,7 @@ static void history_add_values(s_event *event)
 	/* leave */
 }
 
-static void fetch_output(s_event *event)
+static void fetch_output(s_event * event)
 {
 	s_event_buffer_watcher_data *data;
 	history_h *tmp_e = NULL;
@@ -424,7 +417,7 @@ static void fetch_output(s_event *event)
 
 	data = event->data;
 	assert(data->buffer_pos);
-	
+
 	D_("fetch_output()\n");
 
 	/* allocate space for data */
@@ -445,8 +438,6 @@ static void fetch_output(s_event *event)
 	add_hist(tmp_e);
 }
 
-
-
 int module_init(int api_version)
 {
 	if (api_version != API_VERSION) {
@@ -462,21 +453,19 @@ int module_init(int api_version)
 	initng_command_register(&LOG);
 	initng_event_hook_register(&EVENT_STATE_CHANGE, &history_add_values);
 	initng_event_hook_register(&EVENT_COMPENSATE_TIME,
-	                           &history_db_compensate_time);
+				   &history_db_compensate_time);
 	initng_event_hook_register(&EVENT_BUFFER_WATCHER, &fetch_output);
 
 	return TRUE;
 }
-
 
 void module_unload(void)
 {
 	initng_command_unregister(&HISTORYS);
 	initng_command_unregister(&LOG);
 	history_free_all();
-	initng_event_hook_unregister(&EVENT_STATE_CHANGE,
-	                             &history_add_values);
+	initng_event_hook_unregister(&EVENT_STATE_CHANGE, &history_add_values);
 	initng_event_hook_unregister(&EVENT_COMPENSATE_TIME,
-	                             &history_db_compensate_time);
+				     &history_db_compensate_time);
 	initng_event_hook_unregister(&EVENT_BUFFER_WATCHER, &fetch_output);
 }

@@ -28,7 +28,6 @@
 
 #include <initng.h>
 
-
 void initng_plugin_callers_signal(int signal)
 {
 	s_event event;

@@ -26,7 +26,7 @@
 s_event_type EVENT_STATE_CHANGE = {
 	.name = "state_change",
 	.description = "When an active change it's status, this event will "
-	               "be triggered"
+	    "be triggered"
 };
 
 s_event_type EVENT_SYSTEM_CHANGE = {
@@ -42,7 +42,7 @@ s_event_type EVENT_IS_CHANGE = {
 s_event_type EVENT_UP_MET = {
 	.name = "up_met",
 	.description = "Triggered when a service is trying to set the "
-	               "RUNNING state, is a up test"
+	    "RUNNING state, is a up test"
 };
 
 s_event_type EVENT_MAIN = {
@@ -65,7 +65,7 @@ s_event_type EVENT_START_DEP_MET = {
 	.description = "Triggered when a service is about to start"
 };
 
-s_event_type EVENT_STOP_DEP_MET	= {
+s_event_type EVENT_STOP_DEP_MET = {
 	.name = "stop_dep_met",
 	.description = "Triggered when a service is about to stop"
 };
@@ -78,19 +78,19 @@ s_event_type EVENT_PIPE_WATCHER = {
 s_event_type EVENT_NEW_ACTIVE = {
 	.name = "new_active",
 	.description = "Triggered when initng tries to resolve a nonexistent "
-	               "service to start"
+	    "service to start"
 };
 
 s_event_type EVENT_DEP_ON = {
 	.name = "dep_on",
 	.description = "Triggered when a function tries to find out a "
-	               "service dependency"
+	    "service dependency"
 };
 
 s_event_type EVENT_RELOAD_ACTIVE_DB = {
 	.name = "reload_active_db",
 	.description = "Asks for a plugin willing to reload the active_db "
-	               "from a dump"
+	    "from a dump"
 };
 
 s_event_type EVENT_DUMP_ACTIVE_DB = {
@@ -101,7 +101,7 @@ s_event_type EVENT_DUMP_ACTIVE_DB = {
 s_event_type EVENT_ERROR_MESSAGE = {
 	.name = "error_message",
 	.description = "Triggered when an error message is sent, so all "
-	               "output plug-ins can show it"
+	    "output plug-ins can show it"
 };
 
 s_event_type EVENT_COMPENSATE_TIME = {
@@ -122,11 +122,12 @@ s_event_type EVENT_SIGNAL = {
 s_event_type EVENT_BUFFER_WATCHER = {
 	.name = "buffer_watcher",
 	.description = "Triggered when a service have outputed, and initng "
-	               "have filled its output buffer" };
+	    "have filled its output buffer"
+};
 s_event_type EVENT_FD_WATCHER = {
 	.name = "fd_watcher",
 	.description = "Triggered when initng open file descriptors receive "
-	               "data"
+	    "data"
 };
 
 s_event_type EVENT_INTERRUPT = {
@@ -144,30 +145,29 @@ s_event_type REBOOT = {
 	.description = "Initng got a request to reboot"
 };
 
-
 void initng_register_static_event_types(void)
 {
-    initng_event_type_register(&EVENT_STATE_CHANGE);
-    initng_event_type_register(&EVENT_SYSTEM_CHANGE);
-    initng_event_type_register(&EVENT_IS_CHANGE);
-    initng_event_type_register(&EVENT_UP_MET);
-    initng_event_type_register(&EVENT_MAIN);
-    initng_event_type_register(&EVENT_LAUNCH);
-    initng_event_type_register(&EVENT_AFTER_FORK);
-    initng_event_type_register(&EVENT_START_DEP_MET);
-    initng_event_type_register(&EVENT_STOP_DEP_MET);
-    initng_event_type_register(&EVENT_PIPE_WATCHER);
-    initng_event_type_register(&EVENT_NEW_ACTIVE);
-    initng_event_type_register(&EVENT_DEP_ON);
-    initng_event_type_register(&EVENT_RELOAD_ACTIVE_DB);
-    initng_event_type_register(&EVENT_DUMP_ACTIVE_DB);
-    initng_event_type_register(&EVENT_ERROR_MESSAGE);
-    initng_event_type_register(&EVENT_COMPENSATE_TIME);
-    initng_event_type_register(&EVENT_HANDLE_KILLED);
-    initng_event_type_register(&EVENT_SIGNAL);
-    initng_event_type_register(&EVENT_BUFFER_WATCHER);
-    initng_event_type_register(&EVENT_FD_WATCHER);
-    initng_event_type_register(&EVENT_INTERRUPT);
-    initng_event_type_register(&HALT);
-    initng_event_type_register(&REBOOT);
+	initng_event_type_register(&EVENT_STATE_CHANGE);
+	initng_event_type_register(&EVENT_SYSTEM_CHANGE);
+	initng_event_type_register(&EVENT_IS_CHANGE);
+	initng_event_type_register(&EVENT_UP_MET);
+	initng_event_type_register(&EVENT_MAIN);
+	initng_event_type_register(&EVENT_LAUNCH);
+	initng_event_type_register(&EVENT_AFTER_FORK);
+	initng_event_type_register(&EVENT_START_DEP_MET);
+	initng_event_type_register(&EVENT_STOP_DEP_MET);
+	initng_event_type_register(&EVENT_PIPE_WATCHER);
+	initng_event_type_register(&EVENT_NEW_ACTIVE);
+	initng_event_type_register(&EVENT_DEP_ON);
+	initng_event_type_register(&EVENT_RELOAD_ACTIVE_DB);
+	initng_event_type_register(&EVENT_DUMP_ACTIVE_DB);
+	initng_event_type_register(&EVENT_ERROR_MESSAGE);
+	initng_event_type_register(&EVENT_COMPENSATE_TIME);
+	initng_event_type_register(&EVENT_HANDLE_KILLED);
+	initng_event_type_register(&EVENT_SIGNAL);
+	initng_event_type_register(&EVENT_BUFFER_WATCHER);
+	initng_event_type_register(&EVENT_FD_WATCHER);
+	initng_event_type_register(&EVENT_INTERRUPT);
+	initng_event_type_register(&HALT);
+	initng_event_type_register(&REBOOT);
 }

@@ -25,7 +25,6 @@
 #include <initng.h>
 #include "local.h"
 
-
 /* Walk through and count */
 int initng_data_count_type(s_entry * type, data_head * d)
 {

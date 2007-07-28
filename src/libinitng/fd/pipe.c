@@ -35,7 +35,7 @@
  * be printed to screen anyway.
  */
 void initng_fd_plugin_readpipe(active_db_h * service, process_h * process,
-                               pipe_h * pi, char *buffer_pos)
+			       pipe_h * pi, char *buffer_pos)
 {
 	s_event event;
 	s_event_buffer_watcher_data data;

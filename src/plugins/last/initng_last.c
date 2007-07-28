@@ -20,28 +20,27 @@
 #include <initng.h>
 
 #include <stdio.h>
-#include <stdlib.h>				/* free() exit() */
+#include <stdlib.h>		/* free() exit() */
 #include <string.h>
 #include <assert.h>
-
 
 INITNG_PLUGIN_MACRO;
 
 s_entry LAST = {
 	.name = "last",
 	.description = "If this option is set, you will be sure this service "
-	               "is started last.",
+	    "is started last.",
 	.type = SET,
 	.ot = NULL,
 };
 
-stype_h * TYPE_PROVIDED;
+stype_h *TYPE_PROVIDED;
 
 /* returns TRUE if all use deps are started */
 static void check_last(s_event * event)
 {
-	active_db_h * service;
-	active_db_h * current = NULL;
+	active_db_h *service;
+	active_db_h *current = NULL;
 
 	assert(event->event_type == &EVENT_START_DEP_MET);
 	assert(event->data);

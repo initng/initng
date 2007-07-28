@@ -26,10 +26,9 @@
 
 #include "local.h"
 
-
 /* this is a function to add a string, that it can exist many of */
 void initng_data_set_another_string_var(s_entry * type, char *vn,
-                                        data_head * d, char *string)
+					data_head * d, char *string)
 {
 	s_data *current = NULL;
 
@@ -45,8 +44,7 @@ void initng_data_set_another_string_var(s_entry * type, char *vn,
 
 	if (!vn && type->type >= 50) {
 		F_("The vn variable is missing for a type %i %s, trying to "
-		   "set string: \"%s\"!\n", type->type, type->name,
-		   string);
+		   "set string: \"%s\"!\n", type->type, type->name, string);
 		return;
 	}
 

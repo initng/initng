@@ -27,7 +27,6 @@
 
 #include <initng.h>
 
-
 void initng_fd_close_all(void)
 {
 	s_event event;

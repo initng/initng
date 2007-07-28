@@ -28,7 +28,6 @@
 
 #include <initng.h>
 
-
 /* called when system state has changed. */
 void initng_plugin_callers_system_changed(h_sys_state state)
 {

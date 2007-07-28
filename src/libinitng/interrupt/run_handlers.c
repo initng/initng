@@ -20,19 +20,18 @@
 #include <initng.h>
 
 #include <sys/time.h>
-#include <time.h>							/* time() */
-#include <fcntl.h>							/* fcntl() */
-#include <sys/un.h>							/* memmove() strcmp() */
-#include <sys/wait.h>						/* waitpid() sa */
-#include <linux/kd.h>						/* KDSIGACCEPT */
-#include <sys/ioctl.h>						/* ioctl() */
-#include <stdio.h>							/* printf() */
-#include <stdlib.h>							/* free() exit() */
-#include <sys/reboot.h>						/* reboot() RB_DISABLE_CAD */
+#include <time.h>		/* time() */
+#include <fcntl.h>		/* fcntl() */
+#include <sys/un.h>		/* memmove() strcmp() */
+#include <sys/wait.h>		/* waitpid() sa */
+#include <linux/kd.h>		/* KDSIGACCEPT */
+#include <sys/ioctl.h>		/* ioctl() */
+#include <stdio.h>		/* printf() */
+#include <stdlib.h>		/* free() exit() */
+#include <sys/reboot.h>		/* reboot() RB_DISABLE_CAD */
 #include <assert.h>
 
 #include "local.h"
-
 
 /*
  * This function is run from main when g.interrupt is set.
@@ -51,6 +50,6 @@ void run_interrupt_handlers(void)
 
 		/* call state handler, now when we got an g.interrupt */
 		if (current->current_state->interrupt)
-			(*current->current_state->interrupt)(current);
+			(*current->current_state->interrupt) (current);
 	}
 }
