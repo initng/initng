@@ -1436,12 +1436,15 @@ int module_init(int api_version)
 	memset(&sock_stat, 0, sizeof(sock_stat));
 
 	/* decide which socket to use */
-	if (g.i_am == I_AM_INIT)
+	if (g.i_am == I_AM_INIT) {
 		socket_filename = SOCKET_4_FILENAME_REAL;
-	else if (g.i_am == I_AM_FAKE_INIT)
-		socket_filename = SOCKET_4_FILENAME_TEST;
-	else
-		return (TRUE);
+	} else if (g.i_am == I_AM_FAKE_INIT) {
+		char *home = getenv("HOME");
+		socket_filename = initng_toolbox_calloc(1, strlen(home) + 10);
+		strcat(socket_filename, "/initng-4");
+	} else {
+		return TRUE;
+	}
 
 	D_("Socket is: %s\n", socket_filename);
 

@@ -49,6 +49,8 @@
 #include <libngeclient.h>
 #endif
 
+char *socket_filename = SOCKET_4_FILENAME_REAL;
+
 int debug = FALSE;
 
 int header_printed = FALSE;
@@ -215,11 +217,7 @@ static int send_and_handle(const char c, const char *l, const char *opt,
 
 	/*printf("send_and_handle(%c, %s, %s);\n", c, l, opt); */
 
-	if (debug == TRUE) {
-		rep = ngcclient_send_command(SOCKET_4_FILENAME_TEST, c, l, opt);
-	} else {
-		rep = ngcclient_send_command(SOCKET_4_FILENAME_REAL, c, l, opt);
-	}
+	rep = ngcclient_send_command(socket_filename, c, l, opt);
 
 	if (ngcclient_error) {
 		print_out("%s\n", ngcclient_error);
@@ -247,7 +245,7 @@ static int send_and_handle(const char c, const char *l, const char *opt,
 #ifdef HAVE_NGE
 	if (instant == FALSE && quiet == FALSE) {
 		/*
-		 * there are special commands, where we wanna 
+		 * there are special commands, where we wanna
 		 * initziate nge, and follow the service.
 		 */
 		if (rep->result.c == 'u' || rep->result.c == 'd') {
@@ -280,7 +278,7 @@ int main(int argc, char *argv[])
 
 	/*
 	 * Only on first input from initng, we will print a
-	 * initng header with version info, after then 
+	 * initng header with version info, after then
 	 * header_printed is true, and probits this.
 	 */
 	header_printed = FALSE;
@@ -339,11 +337,19 @@ int main(int argc, char *argv[])
 
 	if (debug == FALSE && getuid() != 0) {
 		if (ansi) {
-			print_out(C_ERROR "You need root access to "
-				  "communicate with initng." C_OFF "\n");
+			print_out(C_FG_YELLOW "You need root access to "
+				  "communicate with initng. Using ngdc mode."
+				  C_OFF "\n");
 		}
-		exit(2);
+		debug = TRUE;
 	}
+
+	if (debug) {
+		char *home = getenv("HOME");
+		socket_filename = initng_toolbox_calloc(1, strlen(home) + 10);
+		strcat(socket_filename, "/initng-4");
+	}
+
 
 	/* check that Argc string is not ngc, NGC, ngdc, NGDC */
 	if (strcasecmp(Argv, "ngc") != 0 && strcasecmp(Argv, "ngdc") != 0 &&

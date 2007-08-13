@@ -257,7 +257,7 @@ reply *ngcclient_send_command(const char *path, const char c, const char *l,
 		rep->payload = calloc(1, rep->result.payload + 1);
 		if (!rep->payload) {
 			ngcclient_error = "Unable to allocate space for "
-			    "payload.";
+					  "payload.";
 			return NULL;
 		}
 
@@ -349,7 +349,6 @@ char *ngcclient_reply_to_string(reply * rep, int ansi)
 			int *p = rep->payload;
 
 			string = malloc(20);
-
 			sprintf(string, "%i", *p);
 		}
 		break;
