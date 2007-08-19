@@ -49,7 +49,7 @@
 #include <libngeclient.h>
 #endif
 
-char *socket_filename = SOCKET_4_FILENAME_REAL;
+char *socket_filename = (char *) SOCKET_4_FILENAME_REAL;
 
 int debug = FALSE;
 

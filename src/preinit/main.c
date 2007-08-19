@@ -173,7 +173,7 @@ int main(int argc, char *argv[], char *env[])
 
 	setup_console(console);
 
-	argv[0] = INITNG_BIN;
+	argv[0] = (char *) INITNG_BIN;
 	execv(argv[0], argv);
 	return 1;
 }

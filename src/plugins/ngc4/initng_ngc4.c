@@ -67,7 +67,7 @@ const char *module_needs[] = {
 
 /* globals */
 struct stat sock_stat;
-const char *socket_filename;
+char *socket_filename;
 
 f_module_h fdh = {
 	.call_module = &accepted_client,
@@ -1437,7 +1437,7 @@ int module_init(int api_version)
 
 	/* decide which socket to use */
 	if (g.i_am == I_AM_INIT) {
-		socket_filename = SOCKET_4_FILENAME_REAL;
+		socket_filename = (char *) SOCKET_4_FILENAME_REAL;
 	} else if (g.i_am == I_AM_FAKE_INIT) {
 		char *home = getenv("HOME");
 		socket_filename = initng_toolbox_calloc(1, strlen(home) + 10);
