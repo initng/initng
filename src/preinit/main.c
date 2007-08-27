@@ -17,31 +17,20 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <unistd.h>
-#include <time.h>		/* time() */
-#include <fcntl.h>		/* fcntl() */
-#include <linux/kd.h>		/* KDSIGACCEPT */
-#include <stdlib.h>		/* free() exit() */
 #include <termios.h>
-#include <stdio.h>
-#include <dirent.h>
-#include <fnmatch.h>
-#include <errno.h>
-#include <ctype.h>
-
+#include <unistd.h>
+#include <sys/reboot.h>
+#include <linux/kd.h>
+#include <string.h>
+#include <sys/types.h>
 #include <sys/stat.h>
+#include <fcntl.h>
+#include <sys/ioctl.h>
 #include <sys/klog.h>
-#include <sys/reboot.h>		/* reboot() RB_DISABLE_CAD */
-#include <sys/ioctl.h>		/* ioctl() */
 #include <sys/time.h>
 #include <sys/resource.h>
-#include <sys/mman.h>
-#include <sys/types.h>
-#include <sys/un.h>		/* memmove() strcmp() */
-#include <sys/wait.h>		/* waitpid() sa */
-#include <sys/mount.h>
-#include <initng-paths.h>
 
+#include <initng-paths.h>
 #include <initng.h>
 
 #ifdef SELINUX
@@ -99,34 +88,6 @@ static void setup_console(const char *console)
 	close(fd);
 }
 
-#ifdef SELINUX
-static void setup_selinux(void)
-{
-	/* load selinux policy */
-	FILE *tmp_f;
-
-	if ((tmp_f = fopen("/selinux/enforce", "r")) == NULL &&
-	    getenv("SELINUX_INIT") == NULL) {
-		int enforce = -1;
-		putenv("SELINUX_INIT=YES");
-#ifdef OLDSELINX
-		if (load_policy(&enforce) == 0) {
-#else
-		if (selinux_init_load_policy(&enforce) != 0 && enforce > 0) {
-#endif
-			/* SELinux in enforcing mode but load_policy
-			 * failed. At this point, we probably can't
-			 * open /dev/console, so log() won't work
-			 */
-			fprintf(stderr, "Enforcing mode requested but"
-				" no policy loaded. Halting now.\n");
-			exit(1);
-		}
-	} else {
-		fclose(tmp_f);
-	}
-}
-#endif				/* SELINUX */
 
 /*
  * %%%%%%%%%%%%%%%%%%%%   main ()   %%%%%%%%%%%%%%%%%%%%
@@ -137,8 +98,8 @@ int init_main(int argc, char *argv[], char *env[])
 int main(int argc, char *argv[], char *env[])
 #endif
 {
+	char **new_argv;
 	const char *console = INITNG_CONSOLE;
-	int i;
 
 #ifdef SELINUX
 	setup_selinux();
@@ -162,18 +123,37 @@ int main(int argc, char *argv[], char *env[])
 	/* Disable Ctrl + Alt + Delete */
 	reboot(RB_DISABLE_CAD);
 
-	/* Copy argv into new_argv */
-	for (i = 1; i < argc; i++) {
-		/* look for "console" option, if it's there, set
-		 * console to it, so we will open the desired console
-		 */
-		if (strncmp(argv[i], "console:", 8) == 0)
-			console = &argv[i][8];
+	{
+		int i;
+
+ 		new_argv = initng_toolbox_calloc(argc + 2, sizeof (char *));
+
+		/* Copy argv into new_argv */
+		for (i = 1; i < argc; i++) {
+			new_argv[i] = argv[i];
+
+			/* look for "console" option, if it's there, set
+		 	* console to it, so we will open the desired console
+		 	*/
+			if (strncmp(argv[i], "console:", 8) == 0)
+				console = &argv[i][8];
+		}
+		new_argv[0] = INITNG_CORE_BIN;
 	}
 
 	setup_console(console);
 
-	argv[0] = (char *) INITNG_BIN;
-	execv(argv[0], argv);
+	if (getpid() != 1) {
+		if (getuid() != 0) {
+			W_("Initng is designed to run as root user, a lot of "
+			   "functionality will not work correctly.\n");
+		}
+		new_argv[argc] = "--fake";
+		argc++;
+	}
+
+	new_argv[argc] = NULL;
+
+	execv(new_argv[0], new_argv);
 	return 1;
 }

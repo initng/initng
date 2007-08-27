@@ -1,11 +1,11 @@
 INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/src/include ${CMAKE_BINARY_DIR} )
 
-SET(initng_bin_srcs
+SET(core_bin_srcs
 	main.c
 	options.c
 )
 
-ADD_EXECUTABLE(initng_bin ${initng_bin_srcs})
-TARGET_LINK_LIBRARIES(initng_bin initng)
-SET_TARGET_PROPERTIES(initng_bin PROPERTIES OUTPUT_NAME initng)
-INSTALL_TARGETS(${SBIN_INSTALL_DIR} initng_bin)
+ADD_EXECUTABLE(core_bin ${core_bin_srcs})
+TARGET_LINK_LIBRARIES(core_bin initng)
+SET_TARGET_PROPERTIES(core_bin PROPERTIES OUTPUT_NAME initng-core)
+INSTALL_TARGETS(${SBIN_INSTALL_DIR} core_bin)

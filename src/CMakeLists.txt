@@ -1,1 +1,1 @@
-SUBDIRS(core include libinitng plugins preinit tools)
+SUBDIRS(core include libinitng plugins launcher tools)

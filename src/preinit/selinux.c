@@ -17,19 +17,36 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef __SELINUX_H
-#define __SELINUX_H
-
+#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <selinux/selinux.h>
-#include <selinux/context.h>
-#include <sepol/sepol.h>
+#include <unistd.h>
 
-#ifdef OLDSELINUX
-int load_policy(int *enforce);
+#inlcude "selinux.h"
+
+
+void setup_selinux(void)
+{
+	/* load selinux policy */
+	FILE *tmp_f;
+
+	if ((tmp_f = fopen("/selinux/enforce", "r")) == NULL &&
+	    getenv("SELINUX_INIT") == NULL) {
+		int enforce = -1;
+		putenv("SELINUX_INIT=YES");
+#ifdef OLDSELINX
+		if (load_policy(&enforce) == 0) {
+#else
+		if (selinux_init_load_policy(&enforce) != 0 && enforce > 0) {
 #endif
-
-void setup_selinux(void);
-
-#endif /* __SELINUX_H */
+			/* SELinux in enforcing mode but load_policy
+			 * failed. At this point, we probably can't
+			 * open /dev/console, so log() won't work
+			 */
+			fprintf(stderr, "Enforcing mode requested but"
+				" no policy loaded. Halting now.\n");
+			exit(1);
+		}
+	} else {
+		fclose(tmp_f);
+	}
+}

@@ -70,12 +70,6 @@ int main(int argc, char *argv[], char *env[])
 	/* Parse options given on argv. */
 	options_parse_args(argv);
 
-	if (getuid() != 0) {
-		W_("Initng is designed to run as root user, a lot of "
-		   "functionality will not work correctly.\n");
-		g.i_am = I_AM_FAKE_INIT;
-	}
-
 	/* if this is real init */
 	if (g.i_am == I_AM_INIT) {
 		/* when last service stopped, offer a sulogin */
@@ -85,7 +79,7 @@ int main(int argc, char *argv[], char *env[])
 	} else if (g.i_am == I_AM_FAKE_INIT) {
 		/* when last service stopped, quit initng */
 		W_("Starting initng in fake mode, running fake-default "
-		   "runlevel as default.", getpid());
+		   "runlevel as default.");
 		g.when_out = THEN_QUIT;
 		initng_main_set_runlevel(RUNLEVEL_FAKE);
 	}
