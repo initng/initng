@@ -24,9 +24,7 @@
 #include <config.h>
 #endif
 
-#define _GNU_SOURCE
-#include <stdio.h>							/* printf */
-
+#include <stdio.h>
 #include <error.h>
 
 /* Undef TRUE FALSE FAIL, so not compiler complains about redefining */

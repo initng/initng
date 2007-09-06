@@ -30,7 +30,6 @@
 #include <sys/time.h>
 #include <sys/resource.h>
 
-#include <initng-paths.h>
 #include <initng.h>
 
 #ifdef SELINUX
@@ -135,10 +134,11 @@ int main(int argc, char *argv[], char *env[])
 			/* look for "console" option, if it's there, set
 		 	* console to it, so we will open the desired console
 		 	*/
-			if (strncmp(argv[i], "console:", 8) == 0)
+			if (strncmp(argv[i], "console", 7) == 0 &&
+			    (argv[i][7] == ':' || argv[i][7] == '='))
 				console = &argv[i][8];
 		}
-		new_argv[0] = INITNG_CORE_BIN;
+		new_argv[0] = (char *) INITNG_CORE_BIN;
 	}
 
 	setup_console(console);
@@ -148,7 +148,7 @@ int main(int argc, char *argv[], char *env[])
 			W_("Initng is designed to run as root user, a lot of "
 			   "functionality will not work correctly.\n");
 		}
-		new_argv[argc] = "--fake";
+		new_argv[argc] = (char *) "--fake";
 		argc++;
 	}
 

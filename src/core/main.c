@@ -40,7 +40,6 @@
 #include <sys/un.h>		/* memmove() strcmp() */
 #include <sys/wait.h>		/* waitpid() sa */
 #include <sys/mount.h>
-#include <initng-paths.h>
 
 #include <initng.h>
 #include "options.h"

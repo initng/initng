@@ -1,6 +1,6 @@
 /*
  * Initng, a next generation sysvinit replacement.
- * Copyright (C) 2006 Jimmy Wennlund <initng/jimmy.wennlund@gmail.com>
+ * Copyright (C) 2006 Jimmy Wennlund <jimmy.wennlund@gmail.com>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -52,5 +52,6 @@
 #include <initng/config/all.h>
 #include <initng/service/all.h>
 #include <initng/static/all.h>
+#include <initng/paths.h>
 
 #endif /* INITNG_H */

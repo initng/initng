@@ -11,12 +11,17 @@ SET(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 INCLUDE(CheckIncludeFiles)
 INCLUDE(CheckLibraryExists)
 INCLUDE(UsePkgConfig)
+INCLUDE(CheckSymbolExists)
 
 ADD_DEFINITIONS(-DHAVE_CONFIG_H)
 # Turn on warnings
 SET(CMAKE_C_FLAGS "-Wall -O3 ${CMAKE_C_FLAGS}")
 
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
+INCLUDE_DIRECTORIES(
+	${CMAKE_SOURCE_DIR}/src/include
+	${CMAKE_BINARY_DIR}/src/include
+	${CMAKE_BINARY_DIR}
+)
 
 # Colorize output, needs CMake > 2.3.4
 OPTION(CMAKE_COLOR_MAKEFILE "Generate Makefiles with colored output" ON)
@@ -49,7 +54,7 @@ FIND_LIBRARY(DBUS_LIBS NAMES dbus-1 PATHS ${DBUS_LINK_DIR} /usr/lib /usr/local/l
 
 SUBDIRS(src doc extras)
 
-INSTALL_FILES(${INCLUDE_INSTALL_DIR}/initng FILES initng-paths.h)
+INSTALL_FILES(${INCLUDE_INSTALL_DIR}/initng FILES src/include/initng/paths.h)
 
 OPTION(BUILD_ALSO "Build also plugin" ON)
 OPTION(BUILD_SERVICE_FILE "Build service_file plugin" ON )
@@ -100,6 +105,10 @@ OPTION(FORCE_POSIX_IFILES "Force POSIX compliance on ifiles" OFF)
 OPTION(WITH_BUSYBOX "Hacks to make initng work nice with busybox distros" OFF)
 OPTION(COUNT_ME "Send a simple http reqest to initng server, with initng version data to count initng users out there" OFF)
 
+ADD_DEFINITIONS(-D_GNU_SOURCE)
+
+SET(CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
+CHECK_SYMBOL_EXISTS(asprintf stdio.h HAVE_ASPRINTF)
 
 IF(BUILD_SELINUX)
 	CHECK_INCLUDE_FILES(selinux/selinux.h HAVE_SELINUX_H)
@@ -133,8 +142,10 @@ IF(COUNT_ME)
 	EXEC_PROGRAM(${CMAKE_CURRENT_SOURCE_DIR}/count_me.sh)
 ENDIF(COUNT_ME)
 
-CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/initng-paths.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/initng-paths.h)
-CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)
+CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/src/include/initng/paths.h.cmake
+	       ${CMAKE_CURRENT_BINARY_DIR}/src/include/initng/paths.h)
+CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake
+               ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 CONFIGURE_FILE(
 	"${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
 	"${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
@@ -142,4 +153,3 @@ CONFIGURE_FILE(
 
 ADD_CUSTOM_TARGET(uninstall
 	"${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
-

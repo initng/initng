@@ -96,8 +96,6 @@ __attribute__ ((format(printf, 2, 3)))
 #endif
 static void nsyslog(int pri, const char *fmt, ...);
 
-pid_t getsid(pid_t pid);
-
 /*
  *      Malloc space, barf if out of memory.
  */

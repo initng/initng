@@ -472,14 +472,14 @@ static char *cmd_get_depends_on(char *arg)
 	if (!(on = initng_active_db_find_in_name(arg)))
 		return initng_toolbox_strdup("Did not find service.");
 
-	mprintf(&string, "The \"%s\" depends on:\n", on->name);
+	asprintf(&string, "The \"%s\" depends on:\n", on->name);
 
 	while_active_db(current) {
 		/* if that we are watching needs current */
 		if (initng_depend(on, current) == TRUE) {
 			if (current->current_state &&
 			    current->current_state->name) {
-				mprintf(&string, "  %s\t\t[%s]\n",
+				asprintf(&string, "  %s\t\t[%s]\n",
 					current->name,
 					current->current_state->name);
 			}
@@ -498,14 +498,14 @@ static char *cmd_get_depends_on_deep(char *arg)
 	if (!(on = initng_active_db_find_in_name(arg)))
 		return initng_toolbox_strdup("Did not find service.");
 
-	mprintf(&string, "The \"%s\" depends on:\n", on->name);
+	asprintf(&string, "The \"%s\" depends on:\n", on->name);
 
 	while_active_db(current) {
 		/* if that we are watching needs current */
 		if (initng_depend_deep(on, current) == TRUE) {
 			if (current->current_state &&
 			    current->current_state->name) {
-				mprintf(&string, "  %s\t\t[%s]\n",
+				asprintf(&string, "  %s\t\t[%s]\n",
 					current->name,
 					current->current_state->name);
 			}
@@ -524,14 +524,14 @@ static char *cmd_get_depends_off(char *arg)
 	if (!(on = initng_active_db_find_in_name(arg)))
 		return initng_toolbox_strdup("Did not find service.");
 
-	mprintf(&string, "The services that depends on \"%s\":\n", on->name);
+	asprintf(&string, "The services that depends on \"%s\":\n", on->name);
 
 	while_active_db(current) {
 		/* if current need the one we are watching */
 		if (initng_depend(current, on) == TRUE) {
 			if (current->current_state &&
 			    current->current_state->name) {
-				mprintf(&string, "  %s\t\t[%s]\n",
+				asprintf(&string, "  %s\t\t[%s]\n",
 					current->name,
 					current->current_state->name);
 			}
@@ -550,7 +550,7 @@ static char *cmd_get_depends_off_deep(char *arg)
 	if (!(on = initng_active_db_find_in_name(arg)))
 		return (initng_toolbox_strdup("Did not find service."));
 
-	mprintf(&string, "The the services that depends on \"%s\":\n",
+	asprintf(&string, "The the services that depends on \"%s\":\n",
 		on->name);
 
 	while_active_db(current) {
@@ -558,7 +558,7 @@ static char *cmd_get_depends_off_deep(char *arg)
 		if (initng_depend_deep(current, on) == TRUE) {
 			if (current->current_state &&
 			    current->current_state->name) {
-				mprintf(&string, "  %s\t\t[%s]\n",
+				asprintf(&string, "  %s\t\t[%s]\n",
 					current->name,
 					current->current_state->name);
 			}

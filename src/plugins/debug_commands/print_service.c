@@ -19,7 +19,6 @@
 
 #include <initng.h>
 
-#define _GNU_SOURCE
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
@@ -46,9 +45,9 @@ static void print_string_value(char *string, char **to)
 
 	for (i = 0; string[i] != 0; i++) {
 		if (IS_PRINTABLE(string[i]))
-			mprintf(to, "%c", string[i]);
+			asprintf(to, "%c", string[i]);
 		else
-			mprintf(to, "^%c", string[i] ^ 0x40);
+			asprintf(to, "^%c", string[i] ^ 0x40);
 	}
 }
 
@@ -64,10 +63,10 @@ static void print_sdata(s_data * tmp, char **string)
 			F_("empty value!\n");
 			return;
 		}
-		mprintf(string, "\t %10s            = \"", tmp->type->name);
+		asprintf(string, "\t %10s            = \"", tmp->type->name);
 
 		print_string_value(tmp->t.s, string);
-		mprintf(string, "\"\n");
+		asprintf(string, "\"\n");
 		return;
 
 	case VARIABLE_STRING:
@@ -78,38 +77,38 @@ static void print_sdata(s_data * tmp, char **string)
 		}
 
 		if (tmp->vn) {
-			mprintf(string, "\t %10s %-10s = \"", tmp->type->name,
+			asprintf(string, "\t %10s %-10s = \"", tmp->type->name,
 				tmp->vn);
 		} else {
-			mprintf(string, "\t %10s %-10s = \"", tmp->type->name,
+			asprintf(string, "\t %10s %-10s = \"", tmp->type->name,
 				"ERROR");
 		}
 
 		print_string_value(tmp->t.s, string);
-		mprintf(string, "\"\n");
+		asprintf(string, "\"\n");
 		return;
 
 	case INT:
-		mprintf(string, "\t %10s            = \"%i\"\n",
+		asprintf(string, "\t %10s            = \"%i\"\n",
 			tmp->type->name, tmp->t.i);
 		return;
 
 	case VARIABLE_INT:
-		mprintf(string, "\t %10s %-10s = \"%i\"\n", tmp->type->name,
+		asprintf(string, "\t %10s %-10s = \"%i\"\n", tmp->type->name,
 			tmp->vn, tmp->t.i);
 		return;
 
 	case SET:
-		mprintf(string, "\t %10s            = TRUE\n", tmp->type->name);
+		asprintf(string, "\t %10s            = TRUE\n", tmp->type->name);
 		return;
 
 	case VARIABLE_SET:
-		mprintf(string, "\t %10s %-10s = TRUE\n", tmp->type->name,
+		asprintf(string, "\t %10s %-10s = TRUE\n", tmp->type->name,
 			tmp->vn);
 		return;
 
 	case ALIAS:
-		mprintf(string, "\t ALIAS %10s\n", tmp->type->name);
+		asprintf(string, "\t ALIAS %10s\n", tmp->type->name);
 
 	default:
 		return;
@@ -122,15 +121,15 @@ static void active_db_print_process(process_h * p, char **string)
 
 	assert(p);
 	if (p->pst == P_FREE)
-		mprintf(string, "\t DEAD Process: type %s\n", p->pt->name);
+		asprintf(string, "\t DEAD Process: type %s\n", p->pt->name);
 	else if (p->pst == P_ACTIVE)
-		mprintf(string, "\t Process: type %s\n", p->pt->name);
+		asprintf(string, "\t Process: type %s\n", p->pt->name);
 
 	if (p->pid > 0)
-		mprintf(string, "\t\tPid: %i\n", p->pid);
+		asprintf(string, "\t\tPid: %i\n", p->pid);
 
 	if (p->r_code > 0)
-		mprintf(string, "\t\tSIGNALS:\n"
+		asprintf(string, "\t\tSIGNALS:\n"
 			"\t\tWEXITSTATUS %i\n"
 			"\t\tWIFEXITED %i\n"
 			"\t\tWIFSIGNALED %i\n" "\t\tWTERMSIG %i\n"
@@ -149,27 +148,27 @@ static void active_db_print_process(process_h * p, char **string)
 			WIFSTOPPED(p->r_code), WSTOPSIG(p->r_code));
 
 	if (!list_empty(&p->pipes.list)) {
-		mprintf(string, "\t\tPIPES:\n");
+		asprintf(string, "\t\tPIPES:\n");
 		while_pipes(current_pipe, p) {
 			int i;
 
 			switch (current_pipe->dir) {
 			case IN_PIPE:
-				mprintf(string, "\t\t INPUT_PIPE "
+				asprintf(string, "\t\t INPUT_PIPE "
 					"read: %i, write: %i remote:",
 					current_pipe->pipe[0],
 					current_pipe->pipe[1]);
 				break;
 
 			case OUT_PIPE:
-				mprintf(string, "\t\t OUTPUT_PIPE "
+				asprintf(string, "\t\t OUTPUT_PIPE "
 					"read: %i, write: %i remote:",
 					current_pipe->pipe[1],
 					current_pipe->pipe[0]);
 				break;
 
 			case BUFFERED_OUT_PIPE:
-				mprintf(string, "\t\t "
+				asprintf(string, "\t\t "
 					"BUFFERED_OUTPUT_PIPE read: "
 					"%i, write: %i remote:",
 					current_pipe->pipe[1],
@@ -182,14 +181,14 @@ static void active_db_print_process(process_h * p, char **string)
 
 			for (i = 0; current_pipe->targets[i] > 0 &&
 			     i < MAX_TARGETS; i++) {
-				mprintf(string, " %i",
+				asprintf(string, " %i",
 					current_pipe->targets[i]);
 			}
 
-			mprintf(string, "\n");
+			asprintf(string, "\n");
 			if (current_pipe->buffer &&
 			    current_pipe->buffer_allocated > 0) {
-				mprintf(string, "\t\tBuffer (%i): \n"
+				asprintf(string, "\t\tBuffer (%i): \n"
 					"##########  BUFFER  ##########\n%s\n"
 					"##############################\n",
 					current_pipe->buffer_allocated,
@@ -211,17 +210,17 @@ static void active_db_print_u(active_db_h * s, char **string)
 
 	struct timeval now;
 
-	mprintf(string, "\n %s  \"%s", s->type->name, s->name);
+	asprintf(string, "\n %s  \"%s", s->type->name, s->name);
 
 	if (s->current_state && s->current_state->name) {
-		mprintf(string, "\"  status  \"%s\"\n", s->current_state->name);
+		asprintf(string, "\"  status  \"%s\"\n", s->current_state->name);
 	} else {
-		mprintf(string, "\"\n");
+		asprintf(string, "\"\n");
 	}
 
 	gettimeofday(&now, NULL);
 
-	mprintf(string, "\tTIMES:\n\t last_rought: %ims\n"
+	asprintf(string, "\tTIMES:\n\t last_rought: %ims\n"
 		"\t last_state: %ims\n\t current_state: %ims\n",
 		MS_DIFF(now, s->last_rought_time),
 		MS_DIFF(now, s->time_last_state),
@@ -230,14 +229,14 @@ static void active_db_print_u(active_db_h * s, char **string)
 	/* print processes if any */
 
 	if (!list_empty(&s->processes.list)) {
-		mprintf(string, "\tPROCCESSES:\n");
+		asprintf(string, "\tPROCCESSES:\n");
 		while_processes(process, s) {
 			active_db_print_process(process, string);
 		}
 	}
 
 	if (!list_empty(&s->data.head.list)) {
-		mprintf(string, "\tVARIABLES:\n");
+		asprintf(string, "\tVARIABLES:\n");
 		list_for_each_entry(tmp, &(s->data.head.list), list) {
 			print_sdata(tmp, string);
 		}

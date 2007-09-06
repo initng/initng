@@ -1,5 +1,3 @@
-INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/src/include ${CMAKE_BINARY_DIR} )
-
 SET(launcher_bin_srcs
 	main.c
 )

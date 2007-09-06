@@ -1,5 +1,3 @@
-INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/src/include ${CMAKE_BINARY_DIR} )
-
 ADD_LIBRARY(unneeded MODULE initng_unneeded.c)
 TARGET_LINK_LIBRARIES(unneeded initng)
 INSTALL_TARGETS(${LIB_INSTALL_DIR}/initng unneeded)

@@ -33,7 +33,6 @@
 #include <sys/un.h>
 #include <assert.h>
 
-#include <initng-paths.h>
 
 #include "initng_nge.h"
 
@@ -113,7 +112,7 @@ static void fd_event_acceptor_handler(s_event * event)
 	case FDW_ACTION_DEBUG:
 		if (!data->debug_find_what ||
 		    strstr(__FILE__, data->debug_find_what)) {
-			mprintf(data->debug_out, " %i: Used by plugin: %s\n",
+			asprintf(data->debug_out, " %i: Used by plugin: %s\n",
 				fd_event_acceptor.fds, __FILE__);
 		}
 		break;

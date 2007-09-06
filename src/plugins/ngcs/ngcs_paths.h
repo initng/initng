@@ -20,7 +20,6 @@
 
 #ifndef NGCS_PATHS_H
 #define NGCS_PATHS_H
-#include <initng-paths.h>
 
 #define SOCKET_ROOTPATH      DEVDIR "/initng/"
 #define SOCKET_FILENAME_REAL SOCKET_ROOTPATH "initng.ngcs"

@@ -36,7 +36,6 @@
 #include <sys/un.h>
 #include <assert.h>
 
-#include <initng-paths.h>
 
 #include "initng_ngcs.h"
 
@@ -136,7 +135,7 @@ static void fdh_handler(s_event * event)
 	case FDW_ACTION_DEBUG:
 		if (!data->debug_find_what ||
 		    strstr(__FILE__, data->debug_find_what)) {
-			mprintf(data->debug_out, " %i: Used by plugin: %s\n",
+			asprintf(data->debug_out, " %i: Used by plugin: %s\n",
 				fdh.fds, __FILE__);
 		}
 		break;
@@ -191,7 +190,7 @@ static void conn_fdw_handler(s_event * event)
 		case FDW_ACTION_DEBUG:
 			if (!data->debug_find_what ||
 			    strstr(__FILE__, data->debug_find_what)) {
-				mprintf(data->debug_out,
+				asprintf(data->debug_out,
 					" %i: Used by plugin: %s\n",
 					current->fdw.fds, __FILE__);
 			}

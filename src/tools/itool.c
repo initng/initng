@@ -41,7 +41,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include <initng-paths.h>
 
 /* include some soruce files directly, remember this is only a test */
 #include "../plugins/debug_commands/print_service.c"

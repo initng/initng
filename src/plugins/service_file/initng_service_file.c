@@ -33,7 +33,6 @@
 #include <sys/un.h>
 #include <assert.h>
 
-#include <initng-paths.h>
 
 #include "initng_service_file.h"
 
@@ -187,7 +186,7 @@ static int bpf_handler(s_event * event)
 	case FDW_ACTION_DEBUG:
 		if (!data->debug_find_what ||
 		    strstr(__FILE__, data->debug_find_what)) {
-			mprintf(data->debug_out, " %i: Used by plugin: %s\n",
+			asprintf(data->debug_out, " %i: Used by plugin: %s\n",
 				bpf.fds, __FILE__);
 		}
 		break;

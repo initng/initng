@@ -19,9 +19,7 @@
 
 #include <initng.h>
 
-#define _GNU_SOURCE
 #include <fnmatch.h>
-
 #include <string.h>
 #include <stdio.h>
 #include <ctype.h>

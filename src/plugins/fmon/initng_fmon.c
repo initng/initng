@@ -34,7 +34,6 @@
 #include <assert.h>
 #include <dirent.h>
 
-#include <initng-paths.h>
 
 /* the standard intotify headers */
 #include "inotify.h"
@@ -102,7 +101,7 @@ static void fdh_handler(s_event * event)
 	case FDW_ACTION_DEBUG:
 		if (!data->debug_find_what ||
 		    strstr(__FILE__, data->debug_find_what)) {
-			mprintf(data->debug_out, " %i: Used by plugin: %s\n",
+			asprintf(data->debug_out, " %i: Used by plugin: %s\n",
 				fdh.fds, __FILE__);
 		}
 		break;

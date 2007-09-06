@@ -39,7 +39,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-char *environ[] = { NULL };
+char **environ = { NULL };
 
 #define MAX_PATH_LEN 40
 

@@ -34,7 +34,6 @@
 #include <sys/un.h>
 #include <assert.h>
 
-#include <initng-paths.h>
 #include "initng_ngcs.h"
 #include "ngcs_marshal.h"
 #include "initng_ngcs_cmds.h"

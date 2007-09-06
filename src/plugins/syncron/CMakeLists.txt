@@ -1,5 +1,3 @@
-INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/src/include ${CMAKE_BINARY_DIR} )
-
 ADD_LIBRARY(syncron MODULE initng_syncron.c)
 TARGET_LINK_LIBRARIES(syncron initng)
 INSTALL_TARGETS(${LIB_INSTALL_DIR}/initng syncron)

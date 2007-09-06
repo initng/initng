@@ -1,5 +1,3 @@
-INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/src ${CMAKE_BINARY_DIR} )
-
 ADD_EXECUTABLE(killalli5 killalli5.c)
 
 ADD_EXECUTABLE(itype itype.c)

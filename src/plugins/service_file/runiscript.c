@@ -25,11 +25,8 @@
 #include <stdio.h>
 
 #include <initng.h>
-#include <initng-paths.h>
 
 #define WRAPPER_PATH INITNG_PLUGIN_DIR "/wrappers/"
-
-extern char **environ;
 
 const char *wrapper = "default";
 

@@ -19,7 +19,6 @@
 
 #include <initng.h>
 
-#define _GNU_SOURCE
 #include <fnmatch.h>
 
 #include <string.h>
@@ -29,11 +28,8 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
-/*
- * mprintf, a sprintf clone that automaticly mallocs the string
- * and new content to same string applys after that content.
- */
-int mprintf(char **p, const char *format, ...)
+
+int asprintf(char **p, const char *format, ...)
 {
 	va_list arg;		/* used for the variable
 				 * lists */
@@ -42,7 +38,7 @@ int mprintf(char **p, const char *format, ...)
 	int add_len = 0;	/* This mutch more strings are
 				 * we gonna alloc for */
 
-	/* printf("\n\nmprintf(%s);\n", format); */
+	/* printf("\n\nasprintf(%s);\n", format); */
 
 	/* count old chars */
 	if (*p)

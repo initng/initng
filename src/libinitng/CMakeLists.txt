@@ -1,5 +1,3 @@
-INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/src/include ${CMAKE_BINARY_DIR} )
-
 AUX_SOURCE_DIRECTORY(active_db		active_db_srcs)
 AUX_SOURCE_DIRECTORY(module		module_srcs)
 AUX_SOURCE_DIRECTORY(event		event_srcs)
@@ -55,6 +53,10 @@ SET(libinitng_srcs
 	${data_srcs}
 	${config_srcs}
 )
+
+IF(NOT HAVE_ASPRINTF)
+	SET(libinitng_srcs ${libinitng_srcs} compat/asprintf.c)
+ENDIF(NOT HAVE_ASPRINTF)
 
 ADD_LIBRARY(initng SHARED ${libinitng_srcs})
 TARGET_LINK_LIBRARIES(initng dl ${COREDUMPER_LIBS} ${SELINUX_LIBS})

@@ -148,7 +148,7 @@ static char *cmd_print_fds(char *arg)
 						    || current_pipe->pipe[1] ==
 						    i) {
 							/* PRINT */
-							mprintf(&string,
+							asprintf(&string,
 								" %i: Used "
 								"service: %s, "
 								"process: "
@@ -162,7 +162,7 @@ static char *cmd_print_fds(char *arg)
 			}
 		}
 
-		/*mprintf(&string, " %i:\n", i); */
+		/*asprintf(&string, " %i:\n", i); */
 	}
 
 	return string;

@@ -21,7 +21,6 @@
 #include <config.h>
 #endif
 
-#define _GNU_SOURCE
 #include <fcntl.h>
 #include <sys/file.h>
 #include <sys/types.h>
@@ -52,7 +51,6 @@
 #include "usplash.h"
 
 #include <initng.h>
-#include <initng-paths.h>
 
 #include "libngeclient.h"
 

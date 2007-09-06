@@ -19,7 +19,6 @@
 
 #include <initng.h>
 
-#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>		/* free() exit() */
 #include <string.h>

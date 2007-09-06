@@ -34,7 +34,6 @@
 #include <ctype.h>
 #include <assert.h>
 
-#include <initng-paths.h>
 
 #include <utmp.h>
 #include "initreq.h"
@@ -105,7 +104,7 @@ static void pipe_fd_handler(s_event * event)
 	case FDW_ACTION_DEBUG:
 		if (!data->debug_find_what ||
 		    strstr(__FILE__, data->debug_find_what)) {
-			mprintf(data->debug_out,
+			asprintf(data->debug_out,
 				" %i: Used by plugin: %s\n",
 				pipe_fd.fds, __FILE__);
 		}

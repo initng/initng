@@ -1,4 +1,4 @@
-INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src/include ${CMAKE_SOURCE_DIR}/src/plugins/nge ${CMAKE_BINARY_DIR})
+INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src/plugins/nge)
 
 ADD_EXECUTABLE(initng-usplash initng-usplash.c)
 TARGET_LINK_LIBRARIES(initng-usplash ngeclient)

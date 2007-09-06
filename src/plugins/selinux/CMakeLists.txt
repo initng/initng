@@ -1,5 +1,3 @@
-INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/src/include ${CMAKE_BINARY_DIR} )
-
 ADD_LIBRARY(selinux_lib MODULE initng_selinux.c)
 TARGET_LINK_LIBRARIES(selinux_lib initng ${SELINUX_LIBS})
 SET_TARGET_PROPERTIES(selinux_lib PROPERTIES OUTPUT_NAME selinux)

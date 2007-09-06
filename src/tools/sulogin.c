@@ -17,7 +17,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+
+#ifndef __USE_XOPEN_EXTENDED
 #define __USE_XOPEN_EXTENDED
+#endif
+
 #include <unistd.h>
 #include <fcntl.h>
 #include <signal.h>

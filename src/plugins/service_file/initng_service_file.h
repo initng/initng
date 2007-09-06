@@ -20,7 +20,6 @@
 #ifndef SERVICE_FILE_H
 #define SERVICE_FILE_H
 
-#include <initng-paths.h>
 
 #define SERVICE_FILE_VERSION 1
 #define SOCKET_PATH DEVDIR "/initng/bp"

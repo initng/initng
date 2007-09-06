@@ -82,12 +82,10 @@ void initng_string_split_delim_free(char **strs);
 int initng_string_match(const char *string, const char *pattern);
 int initng_string_match_in_service(const char *string, const char *pattern);
 
-/*
- * mprintf, a sprintf clone that automaticly mallocs the string
- * and new content to same string applys after that content.
- */
-int mprintf(char **p, const char *format, ...);
+#ifndef HAVE_ASPRINTF /* FIX: this is a bit weird... */
+int asprintf(char **p, const char *format, ...);
+#endif
 
-void initng_string_fix_escapes(char * str);
+void initng_string_fix_escapes(char *str);
 
 #endif /* INITNG_STRING_H */

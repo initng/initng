@@ -31,7 +31,6 @@
 #include <assert.h>
 #include <ctype.h>		/* isgraph */
 
-#include <initng-paths.h>
 
 const char *initng_environ[] = {
 	"INITNG=" INITNG_VERSION,

@@ -31,7 +31,6 @@
 #include <assert.h>
 #include <ctype.h>		/* isgraph */
 
-#include <initng-paths.h>
 
 /* this frees an environment variable - not to be used on the output of
  * new_environ!

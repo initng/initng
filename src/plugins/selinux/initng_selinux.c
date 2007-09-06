@@ -21,7 +21,6 @@
 
 #include <assert.h>
 
-#include <initng-paths.h>
 
 #include <stdlib.h>
 #include <string.h>
