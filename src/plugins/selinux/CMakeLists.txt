@@ -1,5 +1,0 @@
-ADD_LIBRARY(selinux_lib MODULE initng_selinux.c)
-TARGET_LINK_LIBRARIES(selinux_lib initng ${SELINUX_LIBS})
-SET_TARGET_PROPERTIES(selinux_lib PROPERTIES OUTPUT_NAME selinux)
-INSTALL_TARGETS(${LIB_INSTALL_DIR}/initng selinux_lib)
-
