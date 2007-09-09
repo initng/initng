@@ -4,7 +4,7 @@
 #
 # Small script to branch and release a package
 
-PACKAGE=ifiles
+PACKAGE=initng
 INITNG_REPO=https://svn.initng.org/${PACKAGE}
 
 # Allow replacing svn by ENV for testing
@@ -77,14 +77,6 @@ case "$1" in
 
 			REV=`svn info . | grep '^Revision' | sed 's/^Revision: //' 2> /dev/null`
 
-			# Run some distcheck before we branch
-			autoreconf -vfi || die "Failed to run autoreconf! BAD BAD BAD"
-
-			./configure || die "Failed to run ./configure"
-
-			echo "Checking for common packaging errors..."
-			make distcheck || die "Failed to run make distcheck"
-			
 			confirm "Ready for branching ${PACKAGE} to version '${VERSION}'?" || exit 1
 
 			echo "Creating branch (of revision ${REV}) on SVN server..."
@@ -95,48 +87,25 @@ case "$1" in
 			${SVN} switch "${INITNG_REPO}/branches/${VERSION}" .
 
 			echo "Updating version numbers..."
-			sed -i "s/AC_INIT(\[${PACKAGE}\],\[.*\])/AC_INIT(\[${PACKAGE}\],\[${VERSION}_pre\])/" configure.ac
+			sed -i "s/^SET(VERSION \".*\"/SET(VERSION \"${VERSION}\"" configure.ac
 			${SVN} commit -m 'Updating version numbers' configure.ac
-
-			if confirm "Do you want pre-release tag '${VERSION}_pre' to be created?" "no"; then
-				# Optional: tag the pre-release
-				${SVN} cp -m "Tagging pre-release of ${PACKAGE}-${VERSION}" -r "${REV}" \
-					"${INITNG_REPO}/branches/${VERSION}" "${INITNG_REPO}/tags/${VERSION}_pre"
-			fi
-
-			echo "Generating pre-release tarball..."
-			
-			make dist-gzip || die "Failed to create distribution archive! BAD BAD BAD"
-			make dist-bzip2 || die "Failed to create distribution archive! BAD BAD BAD"
-			echo
-			echo "Done, please upload tarball '${PACKAGE}-${VERSION}_pre.tar.bz2' to finaly pre-release."
 		else
-			echo "Sorry, can't branch for pre-release, you're not in trunk"
+			echo "Sorry, can't branch for release, you're not in trunk"
 		fi
 		;;
 	release)
 		VERSION=`basename ${URL}`
-		if [[ "`basename $(dirname ${URL})`" == "branches" ]]; then
+		if [ "`basename $(dirname ${URL})`" = "branches" ]; then
 			svnexists "${INITNG_REPO}/tags/${VERSION}" && die "Release tag for version '${VERSION}' already exist"
 
 			echo "Preparing for releasing ${PACKAGE}-${VERSION}"
 			nopending || die "Can't continue because you have uncommited local changes"
 
-			# Run some distcheck before we release
-			autoreconf -vfi || die "Failed to run autoreconf! BAD BAD BAD"
-
-			./configure || die "Failed to run ./configure"
-
-			echo "Checking for common packaging errors..."
-			make distcheck || die "Failed to run make distcheck"
-			
 			confirm "Ready for releasing ${PACKAGE} as version '${VERSION}'?" || exit 1
 
-			echo "Updating version numbers..."
-			sed -i "s/AC_INIT(\[${PACKAGE}\],\[.*\])/AC_INIT(\[${PACKAGE}\],\[${VERSION}\])/" configure.ac
 			[ -x "${EDITOR}" ] || die "Failed to find ${EDITOR} to update NEWS"
 			${EDITOR} NEWS
-			${SVN} commit -m 'Updating version numbers' configure.ac NEWS
+			${SVN} commit -m 'Updating NEWS'  NEWS
 
 			echo "Tagging the release..."
 			${SVN} cp -m "Tagging release of ${PACKAGE}-${VERSION}" -r "${REV}" \
@@ -144,36 +113,21 @@ case "$1" in
 
 			echo "Generating release tarball..."
 			
-			make dist-gzip || die "Failed to create distribution archive! BAD BAD BAD"
-			make dist-bzip2 || die "Failed to create distribution archive! BAD BAD BAD"
+			TMPDIR="${PACKAGE}-${VERSION}"
+			svn export . "${TMPDIR}"
+			tar -jcf "${TMPDIR}.tar.bz2" "${TMPDIR}"
+			tar -zcf "${TMPDIR}.tar.gz" "${TMPDIR}"
+			rm -rf "${TMPDIR}"
+
 			echo
-			echo "Done, please upload tarball '${PACKAGE}-${VERSION}_pre.tar.bz2' to finaly pre-release."
+			echo "Done, please upload tarball '${PACKAGE}-${VERSION}.tar.bz2' to finaly release."
 			echo
-			echo "You should merge back to trunk all fixes that happened since branching for pre-release." \
+			echo "You should merge back to trunk all fixes that happened since branching for release." \
 				"After that you may either drop this working copy or switch over to trunk:"
 			echo "  svn switch ${INITNG_REPO}/trunk ."
 		else
 			echo "Sorry, can't release, you're not in a release branch"
 		fi
-		;;
-	test)
-		echo "Running autoreconf..."
-		autoreconf -vfi || die "Failed to run autoreconf! BAD BAD BAD"
-
-		./configure || die "Failed to run ./configure"
-
-		echo "Compiling ${PACKAGE}..."
-		make || die "Failed to compile ${PACKAGE}"
-
-		echo "Generating distribution tarball..."
-		make dist-gzip || die "Failed to create distribution archive! BAD BAD BAD"
-		make dist-bzip2 || die "Failed to create distribution archive! BAD BAD BAD"
-
-		echo "Cleaning generated files..."
-		make distclean || die "Failed to clean generated files"
-
-		echo
-		echo "Test run successfully :)"
 		;;
 	mdiff)
 		${SVN} diff --old="${INITNG_REPO}/trunk" --new=.
