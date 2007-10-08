@@ -697,7 +697,7 @@ static void reload_state(s_event * event)
 
 	/* check that file exits */
 	if (stat(file, &st) == 0) {
-		if (read_file(file) != TRUE)
+		if (!read_file(file))
 			event->status = FAILED;
 		return;
 	}
@@ -710,7 +710,7 @@ static void reload_state(s_event * event)
 
 	/* check that file exits */
 	if (stat(file, &st) == 0) {
-		if (read_file_v13(file))
+		if (!read_file_v13(file))
 			event->status = FAILED;
 		return;
 	}
