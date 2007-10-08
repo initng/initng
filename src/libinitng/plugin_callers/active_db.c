@@ -36,7 +36,7 @@ int initng_plugin_callers_active_db_dump(void)
 	event.event_type = &EVENT_DUMP_ACTIVE_DB;
 
 	initng_event_send(&event);
-	return (event.status == OK);
+	return (event.status != FAILED);
 }
 
 /* called to reload dump of active_db */
@@ -47,5 +47,5 @@ int initng_plugin_callers_active_db_reload(void)
 	event.event_type = &EVENT_RELOAD_ACTIVE_DB;
 
 	initng_event_send(&event);
-	return (event.status == OK);
+	return (event.status != FAILED);
 }
