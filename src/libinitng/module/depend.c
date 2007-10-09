@@ -114,14 +114,17 @@ int module_needs_are_loaded(const m_h * m)
 	/* otherwise check each one */
 	needs = m->module_needs;
 	retval = TRUE;
-	while (*needs != NULL) {
-		if (!module_is_loaded(*needs)) {
-			F_("Plugin \"%s\" (%s) requires plugin \"%s\" to "
-			   "work, unlodading %s.\n", m->module_name,
-			   m->module_filename, *needs, m->module_name);
-			retval = FALSE;
+	
+	if (needs != NULL) {
+		while (*needs != NULL) {
+			if (!module_is_loaded(*needs)) {
+				F_("Plugin \"%s\" (%s) requires plugin \"%s\" to "
+				   "work, unlodading %s.\n", m->module_name,
+				   m->module_filename, *needs, m->module_name);
+				retval = FALSE;
+			}
+			needs++;
 		}
-		needs++;
 	}
 
 	return retval;
