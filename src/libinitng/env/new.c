@@ -85,26 +85,19 @@ char **initng_env_new(active_db_h * s)
 
 	if (s && (nr + 4) < allocate) {
 		env[nr] = (char *)initng_toolbox_calloc(1,
-							sizeof(char) * (9 +
-									strlen
-									(s->
-									 name)));
+							(9 + strlen(s->name)));
 		strcpy(env[nr], "SERVICE=");
 		strcat(env[nr], s->name);
 		nr++;
 
 		env[nr] = (char *)initng_toolbox_calloc(1,
-							sizeof(char) * (6 +
-									strlen
-									(s->
-									 name)));
+							(6 + strlen(s->name)));
 		strcpy(env[nr], "NAME=");
 		strcat(env[nr], initng_string_basename(s->name));
 		nr++;
 
 		if (g.dev_console) {
 			env[nr] = (char *)initng_toolbox_calloc(1,
-								sizeof(char) *
 								(9 +
 								 strlen(g.
 									dev_console)));
@@ -112,7 +105,6 @@ char **initng_env_new(active_db_h * s)
 			strcat(env[nr], g.dev_console);
 		} else {
 			env[nr] = (char *)initng_toolbox_calloc(1,
-								sizeof(char) *
 								(9 +
 								 strlen
 								 (INITNG_CONSOLE)));
@@ -123,7 +115,6 @@ char **initng_env_new(active_db_h * s)
 
 		if (g.runlevel && (nr + 1) < allocate) {
 			env[nr] = (char *)initng_toolbox_calloc(1,
-								sizeof(char) *
 								(10 +
 								 strlen(g.
 									runlevel)));
@@ -134,7 +125,6 @@ char **initng_env_new(active_db_h * s)
 
 		if (g.old_runlevel && (nr + 1) < allocate) {
 			env[nr] = (char *)initng_toolbox_calloc(1,
-								sizeof(char) *
 								(14 +
 								 strlen(g.
 									old_runlevel)));
