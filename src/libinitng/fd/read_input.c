@@ -157,8 +157,7 @@ void initng_fd_process_read_input(active_db_h * service, process_h * p,
 		/* else, realloc to exact size */
 		if (pi->buffer && pi->buffer_allocated > (pi->buffer_len + 1)) {
 			tmp = initng_toolbox_realloc(pi->buffer,
-						     (pi->buffer_len +
-						      1) * sizeof(char));
+						     pi->buffer_len + 1);
 			if (tmp) {
 				pi->buffer = tmp;
 				pi->buffer_allocated = pi->buffer_len;
