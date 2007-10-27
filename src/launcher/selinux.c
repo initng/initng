@@ -26,6 +26,9 @@
 
 void setup_selinux(void)
 {
+	/* we have nothing to do when selinux is disabled */
+	if(is_selinux_enabled() != 1) return;
+
 	/* load selinux policy */
 	FILE *tmp_f;
 
