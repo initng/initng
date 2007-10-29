@@ -31,7 +31,7 @@ typedef struct ngcs_incoming_s {
 	int type;
 	int len;
 	char *data;
-	struct list_head list;
+	list_t list;
 } ngcs_incoming;
 
 static void ngcs_chan_closed(ngcs_chan * chan);
@@ -327,8 +327,8 @@ ngcs_conn *ngcs_conn_from_fd(int fd, void *userdata,
 		return NULL;
 	}
 
-	INIT_LIST_HEAD(&conn->chans.list);
-	INIT_LIST_HEAD(&conn->inqueue);
+	initng_list_init(&conn->chans.list);
+	initng_list_init(&conn->inqueue);
 
 	conn->fd = fd;
 	conn->userdata = userdata;
@@ -415,7 +415,7 @@ ngcs_chan *ngcs_chan_reg(ngcs_conn * conn, int chanid,
 	chan->is_freeing = 0;
 	chan->list.next = 0;
 	chan->list.prev = 0;
-	list_add(&chan->list, &conn->chans.list);
+	initng_list_add(&chan->list, &conn->chans.list);
 
 	return chan;
 }
@@ -447,7 +447,7 @@ static void ngcs_chan_closed(ngcs_chan * chan)
 	/* chan->onclose may free the channel. It should be NULL anyway if
 	   chan->is_freed is true, but best to be safe */
 	if (chan->is_freed) {
-		list_del(&chan->list);
+		initng_list_del(&chan->list);
 		free(chan);
 		return;
 	}
@@ -488,7 +488,7 @@ void ngcs_chan_del(ngcs_chan * chan)
 	}
 
 	if (chan->close_state == NGCS_CHAN_CLOSED) {
-		list_del(&chan->list);
+		initng_list_del(&chan->list);
 		free(chan);
 
 		return;
@@ -529,13 +529,13 @@ void ngcs_conn_dispatch(ngcs_conn * conn)
 {
 	ngcs_incoming *it, *next;
 
-	list_for_each_entry_prev_safe(it, next, &conn->inqueue, list) {
+	initng_list_foreach_rev_safe(it, next, &conn->inqueue, list) {
 		ngcs_conn_dispatch_one(conn, it);
 
 		if (it->len >= 0)
 			free(it->data);
 
-		list_del(&it->list);
+		initng_list_del(&it->list);
 		free(it);
 	}
 }
@@ -676,11 +676,11 @@ void ngcs_conn_close(ngcs_conn * conn)
 		ngcs_chan_close(chan);
 	}
 
-	list_for_each_entry_prev_safe(it, next, &conn->inqueue, list) {
+	initng_list_foreach_rev_safe(it, next, &conn->inqueue, list) {
 		if (it->len >= 0)
 			free(it->data);
 
-		list_del(&it->list);
+		initng_list_del(&it->list);
 		free(it);
 	}
 
@@ -695,7 +695,7 @@ void ngcs_conn_free(ngcs_conn * conn)
 	ngcs_conn_close(conn);
 
 	while_ngcs_chans_safe(chan, tmp, conn) {
-		list_del(&chan->list);
+		initng_list_del(&chan->list);
 		free(chan);
 	}
 

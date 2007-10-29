@@ -67,7 +67,7 @@ void initng_service_data_type_register(s_entry * ent)
 #endif
 
 	/* add the option to the option_db list */
-	list_add(&ent->list, &g.option_db.list);
+	initng_list_add(&ent->list, &g.option_db.list);
 #ifdef DEBUG
 	if (ent->name)
 		D_(" \"%s\" added to option_db!\n", ent->name);
@@ -92,7 +92,7 @@ void initng_service_data_type_unregister(s_entry * ent)
 	}
 
 	/* remove it from the list */
-	list_del(&ent->list);
+	initng_list_del(&ent->list);
 }
 
 /*
@@ -109,7 +109,7 @@ void initng_service_data_type_unregister_all(void)
 	}
 
 	/* make sure the list is cleared! */
-	INIT_LIST_HEAD(&g.option_db.list);
+	initng_list_init(&g.option_db.list);
 }
 
 /*

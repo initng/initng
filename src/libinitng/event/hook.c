@@ -43,7 +43,7 @@ int initng_event_hook_register_real(const char *from_file, s_event_type * t,
 	new_call->from_file = initng_toolbox_strdup(from_file);
 	new_call->c.pointer = hook;
 
-	list_add(&new_call->list, &t->hooks.list);
+	initng_list_add(&new_call->list, &t->hooks.list);
 
 	return TRUE;
 }
@@ -66,7 +66,7 @@ void initng_event_hook_unregister_real(const char *from_file,
 		if (current->c.pointer != hook)
 			continue;
 
-		list_del(&current->list);
+		initng_list_del(&current->list);
 
 		if (current->from_file)
 			free(current->from_file);

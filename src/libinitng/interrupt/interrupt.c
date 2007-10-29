@@ -46,7 +46,7 @@ int initng_interrupt(void)
 		interrupt = TRUE;
 
 		/* remove from interrupt list */
-		list_del(&service->interrupt);
+		initng_list_del(&service->interrupt);
 
 		/* handle this one. */
 		handle(service);

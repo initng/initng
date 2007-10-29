@@ -26,13 +26,13 @@
 #include "local.h"
 
 /* Walk through and count */
-int initng_data_count_type(s_entry * type, data_head * d)
+int initng_data_count_type(s_entry *type, data_head *d)
 {
 	s_data *current = NULL;
 	int count = 0;
 
 	/* walk through all entries on address */
-	list_for_each_entry(current, &d->head.list, list) {
+	initng_list_foreach(current, &d->head.list, list) {
 		if (!type || current->type == type)
 			count++;
 	}

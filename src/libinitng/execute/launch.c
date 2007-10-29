@@ -59,7 +59,7 @@ int initng_execute_launch(active_db_h * service, ptype_h * type,
 	}
 
 	/* add the process to our service */
-	list_add(&process->list, &service->processes.list);
+	initng_list_add(&process->list, &service->processes.list);
 
 	/* make sure we have a exec_name */
 	if (!exec_name)

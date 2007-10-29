@@ -42,12 +42,12 @@ typedef struct ngcs_watch_s {
 	ngcs_chan *chan;
 	char *name;
 	int flags;
-	struct list_head list;
+	list_t list;
 } ngcs_watch;
 
 typedef struct ngcs_genwatch_s {
 	ngcs_chan *chan;
-	struct list_head list;
+	list_t list;
 } ngcs_genwatch;
 
 void register_ngcs_cmds(void);
@@ -134,7 +134,7 @@ static void system_state_watch(s_event * event)
 	assert(event->event_type == &EVENT_SYSTEM_CHANGE);
 	assert(event->data);
 
-	list_for_each_entry_prev_safe(watch, nextwatch, &swatches.list, list) {
+	initng_list_foreach_rev_safe(watch, nextwatch, &swatches.list, list) {
 		ngcs_chan_send(watch->chan, NGCS_TYPE_INT, sizeof(int),
 			       (char *)event->data);
 	}
@@ -155,7 +155,7 @@ static void error_watch(s_event * event)
 
 	/* Don't do the processing if we're just going to throw away the
 	 * result */
-	if (list_empty(&ewatches.list))
+	if (initng_list_isempty(&ewatches.list))
 		return;
 
 	dat[0].type = NGCS_TYPE_INT;
@@ -197,7 +197,7 @@ static void error_watch(s_event * event)
 	len = ngcs_pack(dat, 5, buf);
 	assert(len >= 0);
 
-	list_for_each_entry_prev_safe(watch, nextwatch, &ewatches.list, list) {
+	initng_list_foreach_rev_safe(watch, nextwatch, &ewatches.list, list) {
 		ngcs_chan_send(watch->chan, NGCS_TYPE_STRUCT, len, buf);
 	}
 
@@ -218,7 +218,7 @@ static void service_status_watch(s_event * event)
 	service = event->data;
 
 	len = ngcs_marshal_active_db_h(service, NULL);
-	list_for_each_entry_prev_safe(watch, nextwatch, &watches.list, list) {
+	initng_list_foreach_rev_safe(watch, nextwatch, &watches.list, list) {
 		if ((watch->flags & NGCS_WATCH_STATUS) &&
 		    (watch->name == NULL ||
 		     strcmp(watch->name, service->name) == 0)) {
@@ -300,7 +300,7 @@ static void service_output_watch(s_event * event)
 	dat[1].len = -1;
 	dat[1].d.s = data->buffer_pos;
 
-	list_for_each_entry_prev_safe(watch, nextwatch, &watches.list, list) {
+	initng_list_foreach_rev_safe(watch, nextwatch, &watches.list, list) {
 		if ((watch->flags & NGCS_WATCH_OUTPUT) &&
 		    (watch->name == NULL ||
 		     strcmp(watch->name, data->service->name) == 0)) {
@@ -431,7 +431,7 @@ ngcs_watch *ngcs_add_watch(ngcs_conn * conn, char *svcname, int flags)
 	watch->chan = chan;
 	watch->list.prev = 0;
 	watch->list.next = 0;
-	list_add(&watch->list, &watches.list);
+	initng_list_add(&watch->list, &watches.list);
 	chan->userdata = watch;
 
 	return watch;
@@ -455,7 +455,7 @@ static void ngcs_cmd_swatch(ngcs_request * req)
 	watch->chan = chan;
 	watch->list.prev = 0;
 	watch->list.next = 0;
-	list_add(&watch->list, &swatches.list);
+	initng_list_add(&watch->list, &swatches.list);
 
 	i = chan->id;
 	ngcs_send_response(req, NGCS_TYPE_INT, sizeof(int), (char *)&i);
@@ -479,7 +479,7 @@ static void ngcs_cmd_ewatch(ngcs_request * req)
 	watch->chan = chan;
 	watch->list.prev = 0;
 	watch->list.next = 0;
-	list_add(&watch->list, &ewatches.list);
+	initng_list_add(&watch->list, &ewatches.list);
 
 	i = chan->id;
 	ngcs_send_response(req, NGCS_TYPE_INT, sizeof(int), (char *)&i);
@@ -520,7 +520,7 @@ static void ngcs_free_watch(ngcs_chan * chan)
 	if (!watch)
 		return;
 
-	list_del(&watch->list);
+	initng_list_del(&watch->list);
 	if (watch->name)
 		free(watch->name);
 
@@ -535,7 +535,7 @@ static void ngcs_free_genwatch(ngcs_chan * chan)
 	if (!watch)
 		return;
 
-	list_del(&watch->list);
+	initng_list_del(&watch->list);
 	free(watch);
 	chan->userdata = 0;
 }
@@ -556,9 +556,9 @@ void register_ngcs_cmds(void)
 				   &service_output_watch);
 	initng_event_hook_register(&EVENT_SYSTEM_CHANGE, &system_state_watch);
 	initng_event_hook_register(&EVENT_ERROR_MESSAGE, &error_watch);
-	INIT_LIST_HEAD(&watches.list);
-	INIT_LIST_HEAD(&swatches.list);
-	INIT_LIST_HEAD(&ewatches.list);
+	initng_list_init(&watches.list);
+	initng_list_init(&swatches.list);
+	initng_list_init(&ewatches.list);
 }
 
 void unregister_ngcs_cmds(void)

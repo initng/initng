@@ -47,16 +47,28 @@ typedef struct {
 	int name_len;
 
 	/* list of stypes */
-	struct list_head list;
+	list_t list;
 } stype_h;
 
 /* make sure name_len is set */
-#define initng_service_type_register(st) { if((st)->name) { (st)->name_len=strlen((st)->name); } else { (st)->name_len=0; } list_add(&(st)->list, &g.stypes.list); }
+#define initng_service_type_register(st) {		\
+	if ((st)->name) {				\
+		(st)->name_len = strlen((st)->name);	\
+	} else {					\
+		(st)->name_len=0;			\
+	} 						\
+	initng_list_add(&(st)->list, &g.stypes.list);	\
+}
 
-#define initng_service_type_unregister(st) list_del(&(st)->list)
+#define initng_service_type_unregister(st) \
+	initng_list_del(&(st)->list)
+
 /* service_db walker */
-#define while_service_types(current) list_for_each_entry_prev(current, &g.stypes.list, list)
-#define while_service_types_safe(current, safe) list_for_each_entry_prev_safe(current, safe, &g.stypes.list, list)
+#define while_service_types(current) \
+	initng_list_foreach_rev(current, &g.stypes.list, list)
+
+#define while_service_types_safe(current, safe) \
+	initng_list_foreach_rev_safe(current, safe, &g.stypes.list, list)
 
 stype_h *initng_service_type_get_by_name(const char *name);
 

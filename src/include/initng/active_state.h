@@ -37,7 +37,8 @@ struct a_state_t {
 	e_is is;
 
 	/*
-	 * This function will be run on service with this state set, if g.interrupt is set.
+	 * This function will be run on service with this state set,
+	 * if g.interrupt is set.
 	 */
 	void (*interrupt) (active_db_h *service);
 
@@ -52,21 +53,29 @@ struct a_state_t {
 	void (*alarm) (active_db_h *service);
 
 	/* The list this struct is in */
-	struct list_head list;
+	list_t list;
 };
 
 /* register */
 int initng_active_state_register(a_state_h *state);
 
-#define initng_active_state_unregister(st) list_del(&(st)->list)
+#define initng_active_state_unregister(st) \
+	initng_list_del(&(st)->list)
 
 /* searching */
 a_state_h *initng_active_state_find(const char *state_name);
 
 /* walking */
-#define while_active_states(current) list_for_each_entry_prev(current, &g.states.list, list)
-#define while_active_states_safe(current) list_for_each_entry_prev_safe(current, safe, &g.states.list, list)
-#define while_active_state_hooks(current, state) list_for_each_entry_prev(current, &state->test.list, list)
-#define while_active_state_hooks_safe(current, safe, state) list_for_each_entry_prev_safe(current, safe, &state->test.list, list)
+#define while_active_states(current) \
+	initng_list_foreach_rev(current, &g.states.list, list)
+
+#define while_active_states_safe(current) \
+	initng_list_foreach_rev_safe(current, safe, &g.states.list, list)
+
+#define while_active_state_hooks(current, state) \
+	initng_list_foreach_rev(current, &state->test.list, list)
+
+#define while_active_state_hooks_safe(current, safe, state) \
+	initng_list_foreach_rev_safe(current, safe, &state->test.list, list)
 
 #endif /* INITNG_ACTIVE_STATE_H */

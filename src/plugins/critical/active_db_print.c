@@ -142,7 +142,7 @@ static void active_db_print_process(process_h * p)
 #endif
 		       WIFSTOPPED(p->r_code), WSTOPSIG(p->r_code));
 
-	if (!list_empty(&p->pipes.list)) {
+	if (!initng_list_isempty(&p->pipes.list)) {
 		printf("\t\tPIPES:\n#");
 		while_pipes(current_pipe, p) {
 			int i;
@@ -221,15 +221,15 @@ void active_db_print(active_db_h * s)
 
 	/* print processes if any */
 	printf(" \tPROCCESSES:\n#");
-	if (!list_empty(&s->processes.list)) {
+	if (!initng_list_isempty(&s->processes.list)) {
 		while_processes(process, s) {
 			active_db_print_process(process);
 		}
 	}
 
 	printf(" \tVARIABLES:\n#");
-	if (!list_empty(&s->data.head.list)) {
-		list_for_each_entry(tmp, &(s->data.head.list), list) {
+	if (!initng_list_isempty(&s->data.head.list)) {
+		initng_list_foreach(tmp, &(s->data.head.list), list) {
 			print_sdata(tmp);
 		}
 	}

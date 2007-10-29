@@ -86,15 +86,15 @@ void initng_config_global_new(int argc, char *argv[], char *env[])
 	/*
 	 * initialize all databases, next and prev have to point to own struct
 	 */
-	INIT_LIST_HEAD(&g.active_database.list);
-	INIT_LIST_HEAD(&g.active_database.interrupt);
-	INIT_LIST_HEAD(&g.states.list);
-	INIT_LIST_HEAD(&g.ptypes.list);
-	INIT_LIST_HEAD(&g.module_db.list);
-	INIT_LIST_HEAD(&g.option_db.list);
-	INIT_LIST_HEAD(&g.event_db.list);
-	INIT_LIST_HEAD(&g.command_db.list);
-	INIT_LIST_HEAD(&g.stypes.list);
+	initng_list_init(&g.active_database.list);
+	initng_list_init(&g.active_database.interrupt);
+	initng_list_init(&g.states.list);
+	initng_list_init(&g.ptypes.list);
+	initng_list_init(&g.module_db.list);
+	initng_list_init(&g.option_db.list);
+	initng_list_init(&g.event_db.list);
+	initng_list_init(&g.command_db.list);
+	initng_list_init(&g.stypes.list);
 
 	/*
 	 * default global variables - cleared by memset above

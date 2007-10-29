@@ -32,10 +32,13 @@ typedef struct module_struct {
 	void (*module_unload) (void);
 	char **module_needs;
 
-	struct list_head list;
+	list_t list;
 } m_h;
 
-#define while_module_db(current) list_for_each_entry_prev(current, &g.module_db.list, list)
-#define while_module_db_safe(current, safe) list_for_each_entry_prev_safe(current, safe, &g.module_db.list, list)
+#define while_module_db(current) \
+	initng_list_foreach_rev(current, &g.module_db.list, list)
+
+#define while_module_db_safe(current, safe) \
+	initng_list_foreach_rev_safe(current, safe, &g.module_db.list, list)
 
 #endif /* INITNG_MODULE_H */

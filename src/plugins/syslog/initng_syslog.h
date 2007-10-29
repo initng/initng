@@ -26,10 +26,10 @@ typedef struct {
 	int prio;
 	char *owner;
 	char *buffert;
-	struct list_head list;
+	list_t list;
 } log_ent;
 
 #define while_log_list_safe(current, safe) \
-	list_for_each_entry_prev_safe(current, safe, &log_list.list, list)
+	initng_list_foreach_rev_safe(current, safe, &log_list.list, list)
 
-#endif
+#endif /* ! INITNG_SYSLOG_H */

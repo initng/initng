@@ -51,39 +51,39 @@ void initng_register_static_event_types(void);
 /* Event data types */
 
 typedef struct {
-	active_db_h * service;
-	process_h * process;
-	const char * exec_name;
+	active_db_h *service;
+	process_h *process;
+	const char *exec_name;
 } s_event_launch_data;
 
 typedef struct {
-	active_db_h * service;
-	process_h * process;
+	active_db_h *service;
+	process_h *process;
 } s_event_after_fork_data, s_event_handle_killed_data;
 
 typedef struct {
-	active_db_h * service;
-	process_h * process;
-	pipe_h * pipe;
+	active_db_h *service;
+	process_h *process;
+	pipe_h *pipe;
 } s_event_pipe_watcher_data;
 
 typedef struct {
-	active_db_h * service, * check;
+	active_db_h *service, *check;
 } s_event_dep_on_data;
 
 typedef struct {
 	e_mt mt;
-	const char * file, * func;
+	const char *file, *func;
 	int line;
-	const char * format;
+	const char *format;
 	va_list arg;
 } s_event_error_message_data;
 
 typedef struct {
-	active_db_h * service;
-	process_h * process;
-	pipe_h * pipe;
-	char * buffer_pos;
+	active_db_h *service;
+	process_h *process;
+	pipe_h *pipe;
+	char *buffer_pos;
 } s_event_buffer_watcher_data;
 
 /* EVENT_FD_WATCHER actions */
@@ -95,9 +95,9 @@ typedef struct {
 typedef struct {
 	int action;
 	int added;
-	fd_set * readset, * writeset, * errset;
-	char * debug_find_what;
-	char ** debug_out;
+	fd_set *readset, *writeset, *errset;
+	char *debug_find_what;
+	char **debug_out;
 } s_event_fd_watcher_data;
 
 #endif /* INITNG_STATIC_EVENT_TYPES_H */

@@ -52,7 +52,7 @@ static void check_syslog(void)
 		syslog_running = 1;
 
 		/* print out the buffers if any now */
-		if (!list_empty(&log_list.list)) {
+		if (!initng_list_isempty(&log_list.list)) {
 			log_ent *current, *safe = NULL;
 
 			while_log_list_safe(current, safe) {
@@ -61,10 +61,10 @@ static void check_syslog(void)
 				free(current->buffert);
 				if (current->owner)
 					free(current->owner);
-				list_del(&current->list);
+				initng_list_del(&current->list);
 				free(current);
 			}
-			INIT_LIST_HEAD(&log_list.list);
+			initng_list_init(&log_list.list);
 		}
 	} else {
 		syslog_running = 0;
@@ -83,10 +83,10 @@ static void free_buffert(void)
 		if (current->owner)
 			free(current->owner);
 
-		list_del(&current->list);
+		initng_list_del(&current->list);
 		free(current);
 	}
-	INIT_LIST_HEAD(&log_list.list);
+	initng_list_init(&log_list.list);
 
 	/* log directly to syslog from now, even if it might not exist */
 	syslog_running = 1;
@@ -130,7 +130,7 @@ static void initng_log(int prio, const char *owner, const char *format, ...)
 		else
 			tmp->owner = NULL;
 
-		list_add(&tmp->list, &log_list.list);
+		initng_list_add(&tmp->list, &log_list.list);
 	}
 
 	va_end(ap);
@@ -333,7 +333,7 @@ int module_init(int api_version)
 	}
 	D_("Initializing syslog plugin\n");
 
-	INIT_LIST_HEAD(&log_list.list);
+	initng_list_init(&log_list.list);
 	check_syslog();
 
 	setlogmask(LOG_UPTO(LOG_NOTICE));

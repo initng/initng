@@ -53,7 +53,7 @@ process_h *initng_process_db_new(ptype_h * type)
 	new_p->pst = P_ACTIVE;
 
 	/* initziate list of pipes, so we can run add_pipe below without segfault */
-	INIT_LIST_HEAD(&new_p->pipes.list);
+	initng_list_init(&new_p->pipes.list);
 
 	/* create the output pipe */
 	current_pipe = initng_process_db_pipe_new(BUFFERED_OUT_PIPE);

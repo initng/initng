@@ -35,7 +35,7 @@ static void dfree(s_data * current)
 	assert(current->type);
 
 	/* Unlink this entry from any list */
-	list_del(&current->list);
+	initng_list_del(&current->list);
 
 	/* free variable data */
 	switch (current->type->type) {
@@ -70,7 +70,7 @@ void initng_data_remove_all(data_head * d)
 	assert(d);
 
 	/* walk through all entries on address */
-	list_for_each_entry_safe(current, s, &d->head.list, list) {
+	initng_list_foreach_safe(current, s, &d->head.list, list) {
 		/* walk, and remove all */
 		dfree(current);
 		current = NULL;

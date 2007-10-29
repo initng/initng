@@ -42,19 +42,19 @@ typedef enum {
  * for the external user.
  */
 typedef enum {
-	STANDARD_COMMAND = 0,		/* shown by ngc -h */
-	ADVANCHED_COMMAND = 1,					/* shown by ngc -H */
-	HIDDEN_COMMAND = 2,						/* not shown by ngc -h/-H but still usable */
-	INTERNAL_COMMAND = 3					/* not shown or usable externaly */
+	STANDARD_COMMAND = 0,	/* shown by ngc -h */
+	ADVANCHED_COMMAND = 1,	/* shown by ngc -H */
+	HIDDEN_COMMAND = 2,	/* not shown by ngc -h/-H but still usable */
+	INTERNAL_COMMAND = 3	/* not shown or usable externaly */
 } e_opt_vissible;
 
 /*
  * Defines if command requires an option or not 
  */
 typedef enum {
-	NO_OPT = 0,					/* Command uses no option ever */
-	USES_OPT = 1,							/* Command uses an option if sent */
-	REQUIRES_OPT = 2						/* Command requires an option set */
+	NO_OPT = 0,		/* Command uses no option ever */
+	USES_OPT = 1,		/* Command uses an option if sent */
+	REQUIRES_OPT = 2	/* Command requires an option set */
 } e_opt_type;
 
 
@@ -106,13 +106,15 @@ typedef struct {
 	const char *description;
 
 	/* Reserved for initng */
-	struct list_head list;
+	list_t list;
 } s_command;
 
 /* register */
 int initng_command_register(s_command * cmd);
 
-#define initng_command_unregister(cmd) list_del(&(cmd)->list)
+#define initng_command_unregister(cmd) \
+	initng_list_del(&(cmd)->list)
+
 void initng_command_unregister_all(void);
 
 /* find */
@@ -120,8 +122,11 @@ s_command *initng_command_find_by_command_id(char cid);
 s_command *initng_command_find_by_command_string(char *name);
 
 /* walk */
-#define while_command_db(current) list_for_each_entry_prev(current, &g.command_db.list, list)
-#define while_command_db_safe(current, safe) list_for_each_entry_prev_safe(current, safe, &g.command_db.list, list)
+#define while_command_db(current) \
+	initng_list_foreach_rev(current, &g.command_db.list, list)
+	
+#define while_command_db_safe(current, safe) \
+	initng_list_foreach_rev_safe(current, safe, &g.command_db.list, list)
 
 /* global functions */
 int initng_command_execute_arg(char cid, char *arg);

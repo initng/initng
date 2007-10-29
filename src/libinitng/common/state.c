@@ -125,7 +125,7 @@ int initng_common_state_unlock(active_db_h * service)
 	/* Set INTERRUPT, the interrupt is set only when a service
 	 * changes state, and all state handlers will be called
 	 */
-	list_add(&service->interrupt, &g.active_database.interrupt);
+	initng_list_add(&service->interrupt, &g.active_database.interrupt);
 
 	/* clear next_state */
 	service->next_state = NULL;

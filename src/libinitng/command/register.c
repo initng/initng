@@ -40,7 +40,7 @@ int initng_command_register(s_command * cmd)
 	}
 
 	/* add this command to list */
-	list_add(&cmd->list, &g.command_db.list);
+	initng_list_add(&cmd->list, &g.command_db.list);
 	return TRUE;
 }
 

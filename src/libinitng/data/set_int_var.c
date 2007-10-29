@@ -64,5 +64,5 @@ void initng_data_set_int_var(s_entry * type, char *vn, data_head * d, int value)
 	current->vn = vn;
 
 	/* add this one */
-	list_add(&(current->list), &d->head.list);
+	initng_list_add(&(current->list), &d->head.list);
 }

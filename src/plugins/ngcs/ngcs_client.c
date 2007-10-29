@@ -37,7 +37,7 @@ typedef struct ngcs_cli_req_s {
 	void *cookie;
 	void (*handler) (ngcs_cli_conn * conn, void *cookie, ngcs_data * ret);
 	ngcs_data resp;
-	struct list_head list;
+	list_t list;
 } ngcs_cli_req;
 
 struct ngcs_cli_conn_s {
@@ -205,8 +205,8 @@ ngcs_cli_conn *ngcs_client_connect(e_ngcs_cli_connflags flags, void *userdata,
 		return NULL;
 	}
 
-	INIT_LIST_HEAD(&cconn->pending_reqs.list);
-	INIT_LIST_HEAD(&cconn->resps.list);
+	initng_list_init(&cconn->pending_reqs.list);
+	initng_list_init(&cconn->resps.list);
 	cconn->onclose = NULL;
 	cconn->pollmode_hook = NULL;
 	cconn->userdata = userdata;
@@ -281,13 +281,13 @@ static void chan0_gotdata(ngcs_chan * chan, int type, int len, char *data)
 	ngcs_cli_conn *cconn = chan->conn->userdata;
 	ngcs_cli_req *req;
 
-	if (list_empty(&cconn->pending_reqs.list)) {
+	if (initng_list_isempty(&cconn->pending_reqs.list)) {
 		/* FIXME - should display some sort of error */
 		ngcs_chan_close(chan);
 		return;
 	}
 
-	req = list_entry(cconn->pending_reqs.list.next, ngcs_cli_req, list);
+	req = initng_list_entry(cconn->pending_reqs.list.next, ngcs_cli_req, list);
 
 	if (ngcs_unpack_one(type, len, data, &req->resp)) {
 		/* FIXME - should also display an error */
@@ -305,7 +305,7 @@ static void chan0_close(ngcs_chan * chan)
 	ngcs_cli_conn *cconn = chan->conn->userdata;
 	ngcs_cli_req *req, *next;
 
-	list_for_each_entry_safe(req, next, &cconn->pending_reqs.list, list) {
+	initng_list_foreach_safe(req, next, &cconn->pending_reqs.list, list) {
 		req->resp.type = NGCS_TYPE_NULL;
 		req->resp.len = -1;
 		req->resp.d.p = NULL;
@@ -322,11 +322,11 @@ void ngcs_client_dispatch(ngcs_cli_conn * cconn)
 	if (cconn->conn != NULL)
 		ngcs_conn_dispatch(cconn->conn);
 
-	list_for_each_entry_safe(req, next, &cconn->resps.list, list) {
+	initng_list_foreach_safe(req, next, &cconn->resps.list, list) {
 		if (req->handler)
 			req->handler(cconn, req->cookie, &req->resp);
 
-		list_del(&req->list);
+		initng_list_del(&req->list);
 		ngcs_free_unpack_one(&req->resp);
 		free(req);
 	}
@@ -398,7 +398,7 @@ int ngcs_cmd_async(ngcs_cli_conn * cconn, int argc, ngcs_data * argv,
 	req->list.prev = 0;
 	req->list.next = 0;
 
-	list_add_tail(&req->list, &cconn->pending_reqs.list);
+	initng_list_add_tail(&req->list, &cconn->pending_reqs.list);
 	return 0;
 }
 

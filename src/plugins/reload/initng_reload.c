@@ -239,8 +239,8 @@ static int read_file(const char *filename)
 				process->r_code = entry.process[pnr].rcode;
 
 				/* add this process to the list */
-				list_add(&process->list,
-					 &new_entry->processes.list);
+				initng_list_add(&process->list,
+						&new_entry->processes.list);
 
 				D_("Added process type %i to %s\n",
 				   process->pt, new_entry->name);
@@ -291,11 +291,11 @@ static int read_file(const char *filename)
 
 				/* copy variable name if present */
 				if (d->type->type > 50)
-					d->vn =
-					    initng_toolbox_strdup(entry.data[i].
-								  vn);
+					d->vn = initng_toolbox_strdup(
+							entry.data[i].vn);
 
-				list_add(&d->list, &new_entry->data.head.list);
+				initng_list_add(&d->list,
+						&new_entry->data.head.list);
 				i++;
 			}
 		}
@@ -433,8 +433,8 @@ static int read_file_v13(const char *filename)
 				process->r_code = entry.process[pnr].rcode;
 
 				/* add this process to the list */
-				list_add(&process->list,
-					 &new_entry->processes.list);
+				initng_list_add(&process->list,
+						&new_entry->processes.list);
 
 				D_("Added process type %i to %s\n",
 				   process->pt, new_entry->name);
@@ -483,7 +483,8 @@ static int read_file_v13(const char *filename)
 
 				d->vn = NULL;
 
-				list_add(&d->list, &new_entry->data.head.list);
+				initng_list_add(&d->list,
+						&new_entry->data.head.list);
 				i++;
 			}
 		}
@@ -598,7 +599,7 @@ static int write_file(const char *filename)
 		}
 
 		i = 0;
-		list_for_each_entry(c_d, &current->data.head.list, list) {
+		initng_list_foreach(c_d, &current->data.head.list, list) {
 			if (!c_d->type)
 				continue;
 

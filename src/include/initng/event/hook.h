@@ -28,10 +28,11 @@ void initng_event_hook_unregister_real(const char *from_file,
 					s_event_type * t,
 					void (*hook) (s_event * event));
 int initng_event_hook_register_real(const char *from_file, s_event_type * t,
-					void (*hook) (s_event * event));
+				    void (*hook) (s_event * event));
 
 #define initng_event_hook_register(t,h) \
 	initng_event_hook_register_real(__FILE__, t, h)
+
 #define initng_event_hook_unregister(t,h) \
 	initng_event_hook_unregister_real(__FILE__, \
 	(const char*)__PRETTY_FUNCTION__, __LINE__, t, h)

@@ -36,19 +36,22 @@ struct history_s {
 	char *data;
 	a_state_h *action;
 
-	struct list_head list;
+	list_t list;
 };
 
 
 extern history_h history_db;
 
 #define while_history_db(current) \
-	list_for_each_entry(current, &history_db.list, list)
-#define while_history_db_prev(current) \
-	list_for_each_entry_prev(current, &history_db.list, list)
-#define while_history_db_safe(current, safe) \
-	list_for_each_entry_safe(current, safe, &history_db.list, list)
-#define while_history_db_safe_prev(current, safe) \
-	list_for_each_entry_prev_safe(current, safe, &history_db.list, list)
+	initng_list_foreach(current, &history_db.list, list)
 
-#endif
+#define while_history_db_prev(current) \
+	initng_list_foreach_rev(current, &history_db.list, list)
+	
+#define while_history_db_safe(current, safe) \
+	initng_list_foreach_safe(current, safe, &history_db.list, list)
+	
+#define while_history_db_safe_prev(current, safe) \
+	initng_list_foreach_rev_safe(current, safe, &history_db.list, list)
+
+#endif /* ! INITNG_HISTORY_H */

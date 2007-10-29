@@ -64,7 +64,7 @@ DBusConnection *conn;
 typedef struct {
 	f_module_h fdw;
 	DBusWatch *dbus;
-	list_h list;
+	list_t list;
 } initng_dbus_watch;
 
 initng_dbus_watch dbus_watches;
@@ -79,7 +79,7 @@ static void w_handler(s_event * event)
 
 	data = event->data;
 
-	list_for_each_entry(current, &dbus_watches.list, list) {
+	initng_list_foreach(current, &dbus_watches.list, list) {
 		switch (data->action) {
 		case FDW_ACTION_CLOSE:
 			if (current->fdw.fds > 0)
@@ -151,7 +151,7 @@ static dbus_bool_t add_dbus_watch(DBusWatch * watch, void *data)
 	dbus_watch_set_data(watch, w, free_dbus_watch_data);
 	toggled_dbus_watch(watch, data);	/* to set initial state */
 
-	list_add(&w->list, &dbus_watches.list);
+	initng_list_add(&w->list, &dbus_watches.list);
 
 	return TRUE;
 }
@@ -485,7 +485,7 @@ int module_init(int api_version)
 
 	connect_to_dbus();
 
-	INIT_LIST_HEAD(&dbus_watches.list);
+	initng_list_init(&dbus_watches.list);
 
 	/* add the hooks we are monitoring */
 	initng_event_hook_register(&EVENT_SIGNAL, &check_socket);

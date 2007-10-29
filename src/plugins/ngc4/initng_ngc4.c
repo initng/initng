@@ -129,7 +129,7 @@ static s_command *lfbc(char cid)
 {
 	s_command *current = NULL;
 
-	list_for_each_entry_prev(current, &local_commands_db.list, list) {
+	initng_list_foreach_rev(current, &local_commands_db.list, list) {
 		if (current->id == cid)
 			return current;
 	}
@@ -141,7 +141,7 @@ static s_command *lfbs(char *name)
 {
 	s_command *current = NULL;
 
-	list_for_each_entry_prev(current, &local_commands_db.list, list) {
+	initng_list_foreach_rev(current, &local_commands_db.list, list) {
 		if (current->long_id && strcmp(current->long_id, name) == 0)
 			return current;
 	}
@@ -793,7 +793,7 @@ static void cmd_help(char *arg, s_payload * payload)
 	payload->p = (help_row *) initng_toolbox_calloc(101, sizeof(help_row));
 	memset(payload->p, 0, sizeof(help_row) * 100);
 
-	list_for_each_entry_prev(current, &local_commands_db.list, list) {
+	initng_list_foreach_rev(current, &local_commands_db.list, list) {
 		help_row *row = payload->p + (i * sizeof(help_row));
 
 		if (current->opt_visible != STANDARD_COMMAND)
@@ -874,7 +874,7 @@ static void cmd_help_all(char *arg, s_payload * payload)
 	payload->p = (help_row *) initng_toolbox_calloc(101, sizeof(help_row));
 	memset(payload->p, 0, sizeof(help_row) * 100);
 
-	list_for_each_entry_prev(current, &local_commands_db.list, list) {
+	initng_list_foreach_rev(current, &local_commands_db.list, list) {
 		help_row *row = payload->p + (i * sizeof(help_row));
 
 		if (current->opt_visible != STANDARD_COMMAND &&
@@ -1427,7 +1427,7 @@ int module_init(int api_version)
 	}
 
 	/* initziate the local commands db */
-	INIT_LIST_HEAD(&local_commands_db.list);
+	initng_list_init(&local_commands_db.list);
 
 	/* zero globals */
 	fdh.fds = -1;
@@ -1452,14 +1452,14 @@ int module_init(int api_version)
 	initng_event_hook_register(&EVENT_SIGNAL, &check_socket);
 
 	/* add the help command, that list commands to the client */
-	list_add(&HELP.list, &local_commands_db.list);
-	list_add(&HELP_ALL.list, &local_commands_db.list);
-	list_add(&SERVICES.list, &local_commands_db.list);
-	list_add(&ALL_SERVICES.list, &local_commands_db.list);
-	list_add(&OPTIONS.list, &local_commands_db.list);
-	list_add(&START.list, &local_commands_db.list);
-	list_add(&STOP.list, &local_commands_db.list);
-	list_add(&STATES.list, &local_commands_db.list);
+	initng_list_add(&HELP.list, &local_commands_db.list);
+	initng_list_add(&HELP_ALL.list, &local_commands_db.list);
+	initng_list_add(&SERVICES.list, &local_commands_db.list);
+	initng_list_add(&ALL_SERVICES.list, &local_commands_db.list);
+	initng_list_add(&OPTIONS.list, &local_commands_db.list);
+	initng_list_add(&START.list, &local_commands_db.list);
+	initng_list_add(&STOP.list, &local_commands_db.list);
+	initng_list_add(&STATES.list, &local_commands_db.list);
 
 	/* do the first socket directly */
 	open_socket();

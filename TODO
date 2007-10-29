@@ -1,6 +1,23 @@
-- Provide replacements for telinit, shutdown and the like, so we can remove
-  the initctl plugin. Is better to do this stuff outside of initng.
-  (the replacements can be scripts :D)
+High priority:
+
+- Implement a hash-based search method.
+- Implement a hierarchical memory manager.
+- Implement an event-based logging facility.
+
+Medium priority:
+
+- Implement external events.
+- Reimplement sfiles stuff in an event-driven way.
+
+Low priority:
+
+- Provide replacements for telinit, shutdown and the like, so we can
+  completely replace sysvinit when INSTALL_AS_INIT.
+
+  Is better to do this stuff outside of initng, and do not depend on
+  initctl.
+
+  The replacements can be scripts.
 
 - Make reload plugin, save sys_state, and current runlevel and more static
   global stuff. Maby we can call ngc -c, when system is stopping or starting

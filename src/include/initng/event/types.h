@@ -31,7 +31,7 @@ typedef struct s_event_type_s {
 	s_call hooks;
 
 	int name_len;
-	struct list_head list;
+	list_t list;
 } s_event_type;
 
 void initng_event_type_register(s_event_type *ent);
@@ -39,7 +39,10 @@ void initng_event_type_unregister(s_event_type *ent);
 void initng_event_type_unregister_all(void);
 s_event_type *initng_event_type_find(const char *string);
 
-#define while_event_types(current) list_for_each_entry_prev(current, &g.event_db.list, list)
-#define while_event_types_safe(current, safe) list_for_each_entry_prev_safe(current, safe, &g.event_db.list, list)
+#define while_event_types(current) \
+	initng_list_foreach_rev(current, &g.event_db.list, list)
+
+#define while_event_types_safe(current, safe) \
+	initng_list_foreach_rev_safe(current, safe, &g.event_db.list, list)
 
 #endif /* INITNG_EVENT_TYPES_H */

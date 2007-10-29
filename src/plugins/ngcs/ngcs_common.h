@@ -114,7 +114,7 @@ struct ngcs_chan_s {
 	int is_freed;
 	int is_freeing;
 
-	struct list_head list;
+	list_t list;
 };
 
 
@@ -161,7 +161,7 @@ struct ngcs_conn_s {
 	int wrbuflen;				/* write buffer length */
 	int towrite;				/* length of data in write buffer */
 
-	struct list_head inqueue;
+	list_t inqueue;
 };
 
 int ngcs_sendall(int sock, const void *buf, int len);
@@ -373,8 +373,9 @@ int ngcs_chan_read_msg(ngcs_chan *chan, int *type, int *len, char **data);
 void ngcs_conn_dispatch(ngcs_conn *conn);
 
 #define while_ngcs_chans(current, conn) \
-	list_for_each_entry_prev(current, &(conn)->chans.list, list)
+	initng_list_foreach_rev(current, &(conn)->chans.list, list)
+	
 #define while_ngcs_chans_safe(current, safe, conn) \
-	list_for_each_entry_prev_safe(current, safe, &(conn)->chans.list, list)
+	initng_list_foreach_rev_safe(current, safe, &(conn)->chans.list, list)
 
 #endif

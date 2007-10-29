@@ -118,7 +118,7 @@ struct ngcs_cmd_s {
 	void (*func)(ngcs_request *req);
 
 	/* \brief List head - internal use */
-	struct list_head list;
+	list_t list;
 };
 
 struct ngcs_request_s {
@@ -133,7 +133,7 @@ struct ngcs_svr_conn_s {
 	f_module_h fdw;
 	int nextid;
 	ngcs_conn *conn;
-	struct list_head list;
+	list_t list;
 };
 
 extern ngcs_svr_conn ngcs_conns;
@@ -141,19 +141,22 @@ extern ngcs_svr_conn ngcs_dead_conns;
 extern ngcs_cmd ngcs_cmds;
 
 #define while_ngcs_conns(current) \
-	list_for_each_entry_prev(current, &ngcs_conns.list, list)
+	initng_list_foreach_rev(current, &ngcs_conns.list, list)
+
 #define while_ngcs_conns_safe(current, safe) \
-	list_for_each_entry_prev_safe(current, safe, &ngcs_conns.list, list)
+	initng_list_foreach_rev_safe(current, safe, &ngcs_conns.list, list)
 
 #define while_ngcs_dead_conns(current) \
-	list_for_each_entry_prev(current, &ngcs_dead_conns.list, list)
+	initng_list_foreach_rev(current, &ngcs_dead_conns.list, list)
+
 #define while_ngcs_dead_conns_safe(current, safe) \
-	list_for_each_entry_prev_safe(current, safe, &ngcs_dead_conns.list, \
-	                              list)
+	initng_list_foreach_rev_safe(current, safe, &ngcs_dead_conns.list, \
+				     list)
 
 #define while_ngcs_cmds(current) \
-	list_for_each_entry_prev(current, &ngcs_cmds.list, list)
+	initng_list_foreach_rev(current, &ngcs_cmds.list, list)
+
 #define while_ngcs_cmds_safe(current, safe) \
-	list_for_each_entry_prev_safe(current, safe, &ngcs_cmds.list, list)
+	initng_list_foreach_rev_safe(current, safe, &ngcs_cmds.list, list)
 
 #endif /* !INITNG_NGCS_H */

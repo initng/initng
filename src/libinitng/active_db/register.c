@@ -43,10 +43,10 @@ int initng_active_db_register(active_db_h * add_this)
 	if ((current = initng_active_db_find_by_name(add_this->name))) {
 		/* TODO, should add_this bee freed? */
 		W_("active_db_add(%s): duplicate here\n", add_this->name);
-		return (FALSE);
+		return FALSE;
 	}
 
-	list_add(&add_this->list, &g.active_database.list);
+	initng_list_add(&add_this->list, &g.active_database.list);
 
-	return (TRUE);
+	return TRUE;
 }

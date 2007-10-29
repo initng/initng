@@ -300,7 +300,7 @@ static void history_free_all(void)
 			free(current->data);
 
 		/* remove from history_db list */
-		list_del(&current->list);
+		initng_list_del(&current->list);
 
 		/* free history entry */
 		free(current);
@@ -311,15 +311,15 @@ static void history_free_all(void)
 static int add_hist(history_h * hist)
 {
 	/* add struct */
-	list_add(&hist->list, &history_db.list);
+	initng_list_add(&hist->list, &history_db.list);
 
 	/* check length of history_db, and purge it on the end! */
 	history_records++;
 
 	/* If maximum entrys are reached */
 	if (history_records > HISTORY) {
-		struct list_head *last = history_db.list.prev;
-		history_h *entry = list_entry(last, history_h, list);
+		list_t *last = history_db.list.prev;
+		history_h *entry = initng_list_entry(last, history_h, list);
 
 		/* if we got anything */
 		if (!entry) {
@@ -337,7 +337,7 @@ static int add_hist(history_h * hist)
 			free(entry->data);
 
 		/* delete this from the historylist */
-		list_del(last);
+		initng_list_del(last);
 
 		/* free the struct */
 		free(entry);
@@ -447,7 +447,7 @@ int module_init(int api_version)
 		return FALSE;
 	}
 
-	INIT_LIST_HEAD(&history_db.list);
+	initng_list_init(&history_db.list);
 
 	initng_command_register(&HISTORYS);
 	initng_command_register(&LOG);

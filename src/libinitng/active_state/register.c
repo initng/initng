@@ -36,7 +36,7 @@ int initng_active_state_register(a_state_h * state)
 
 	D_("adding %s.\n", state->name);
 	/* add this state, to the big list of states */
-	list_add(&(state->list), &(g.states.list));
+	initng_list_add(&(state->list), &(g.states.list));
 
 	/* return happily */
 	return TRUE;

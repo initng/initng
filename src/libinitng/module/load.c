@@ -157,7 +157,7 @@ void initng_module_close_and_free(m_h * m)
 		dlclose(m->module_dlhandle);
 
 	/* remove from list if added */
-	list_del(&m->list);
+	initng_list_del(&m->list);
 
 	/* free struct */
 	free(m);
@@ -290,7 +290,7 @@ m_h *initng_module_load(const char *module)
 	}
 
 	assert(new_m->module_name);
-	list_add(&new_m->list, &g.module_db.list);
+	initng_list_add(&new_m->list, &g.module_db.list);
 	/* and we're done */
 	return new_m;
 }
@@ -353,7 +353,7 @@ int initng_module_load_all(const char *plugin_path)
 
 			/* add to list and continue */
 			assert(current->module_name);
-			list_add(&current->list, &g.module_db.list);
+			initng_list_add(&current->list, &g.module_db.list);
 
 			/* This is true until any plugin loads sucessfully */
 			success = TRUE;

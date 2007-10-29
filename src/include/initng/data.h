@@ -49,8 +49,7 @@ struct ss_data {
 	/* if it is a dynamic variable name, put name here */
 	char *vn;
 
-
-	struct list_head list;
+	list_t list;
 };
 
 typedef struct s_data_head data_head;
@@ -67,9 +66,19 @@ struct s_data_head {
 	int (*res_request) (data_head * data_head);
 };
 
-#define DATA_HEAD_INIT(point) { INIT_LIST_HEAD(&(point)->head.list); (point)->res=NULL; (point)->data_request = NULL; (point)->res_request = NULL; }
-#define DATA_HEAD_INIT_REQUEST(point, request_data, request_res) { INIT_LIST_HEAD(&(point)->head.list); (point)->res=NULL; (point)->data_request = request_data; (point)->res_request = request_res; }
+#define DATA_HEAD_INIT(point) { \
+	initng_list_init(&(point)->head.list); \
+	(point)->res=NULL; \
+	(point)->data_request = NULL; \
+	(point)->res_request = NULL; \
+}
 
+#define DATA_HEAD_INIT_REQUEST(point, request_data, request_res) { \
+	initng_list_init(&(point)->head.list); \
+	(point)->res=NULL; \
+	(point)->data_request = request_data; \
+	(point)->res_request = request_res; \
+}
 
 /* data walkers */
 s_data *initng_data_get_next_var(s_entry * type, const char *vn, data_head * head,

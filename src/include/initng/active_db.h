@@ -107,8 +107,8 @@ struct active_type {
 	/******* LIST_HEADS *************/
 
 	/* the list */
-	struct list_head list;
-	struct list_head interrupt;
+	list_t list;
+	list_t interrupt;
 };
 
 /* allocate */
@@ -124,7 +124,7 @@ active_db_h *initng_active_db_find_by_pid(pid_t pid);
 void initng_active_db_compensate_time(time_t skew);
 
 /* the db */
-#define initng_active_db_unregister(serv) list_del(&(serv)->list)
+#define initng_active_db_unregister(serv) initng_list_del(&(serv)->list)
 int initng_active_db_register(active_db_h * new_a);
 int initng_active_db_count(a_state_h * state);
 void initng_active_db_free(active_db_h * pf);
@@ -136,9 +136,19 @@ int initng_active_db_percent_stopped(void);
 void initng_active_db_clean_down(void);
 
 /* walk the db */
-#define while_active_db(current) list_for_each_entry_prev(current, &g.active_database.list, list)
-#define while_active_db_safe(current, safe) list_for_each_entry_prev_safe(current, safe, &g.active_database.list, list)
-#define while_active_db_interrupt(current) list_for_each_entry_prev(current, &g.active_database.interrupt, interrupt)
-#define while_active_db_interrupt_safe(current, safe) list_for_each_entry_prev_safe(current, safe, &g.active_database.interrupt, interrupt)
+#define while_active_db(current) \
+	initng_list_foreach_rev(current, &g.active_database.list, list)
+
+#define while_active_db_safe(current, safe) \
+	initng_list_foreach_rev_safe(current, safe, &g.active_database.list, \
+				     list)
+
+#define while_active_db_interrupt(current) \
+	initng_list_foreach_rev(current, &g.active_database.interrupt, \
+				interrupt)
+
+#define while_active_db_interrupt_safe(current, safe) \
+	initng_list_foreach_rev_safe(current, safe, \
+				     &g.active_database.interrupt, interrupt)
 
 #endif /* INITNG_ACTIVE_DB_H */

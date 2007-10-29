@@ -37,10 +37,10 @@ void initng_event_type_register(s_event_type * ent)
 		ent->name_len = 0;
 
 	/* initialize the event types list */
-	INIT_LIST_HEAD(&ent->list);
+	initng_list_init(&ent->list);
 
 	/* initialize the event hooks list */
-	INIT_LIST_HEAD(&ent->hooks.list);
+	initng_list_init(&ent->hooks.list);
 
 #ifdef CHECK_IF_CURRENTLY_ADDED
 	{
@@ -69,7 +69,7 @@ void initng_event_type_register(s_event_type * ent)
 #endif
 
 	/* add the event to the event_db list */
-	list_add(&ent->list, &g.event_db.list);
+	initng_list_add(&ent->list, &g.event_db.list);
 #ifdef DEBUG
 	if (ent->name)
 		D_(" \"%s\" added to option_db!\n", ent->name);
@@ -81,7 +81,7 @@ void initng_event_type_register(s_event_type * ent)
  */
 void initng_event_type_unregister(s_event_type * ent)
 {
-	list_del(&ent->list);
+	initng_list_del(&ent->list);
 }
 
 /*
@@ -97,7 +97,7 @@ void initng_event_type_unregister_all(void)
 	}
 
 	/* make sure the list is cleared! */
-	INIT_LIST_HEAD(&g.event_db.list);
+	initng_list_init(&g.event_db.list);
 }
 
 /*

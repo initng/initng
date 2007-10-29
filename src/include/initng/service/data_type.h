@@ -24,13 +24,16 @@
 #include <initng/list.h>
 
 typedef enum {
-	U_D_T = 0,					/* UnDefinedType, unknown data type */
-	STRING = 1,								/* Entry shud contain a string, when set again, the old string is owerwritten */
-	STRINGS = 2,							/* On every add, a new string with same name is added */
-	SET = 3,								/* A Bool, Enable or Disable */
-	INT = 6,								/* An value set in it */
-	ALIAS = 7,								/* Set this datatype when s_entry->alias is filled */
-	TIME_T = 8,								/* Contains an time entry */
+	U_D_T = 0,		/* UnDefinedType, unknown data type */
+	STRING = 1,		/* Entry shud contain a string, when set
+				 * again, the old string is owerwritten */
+	STRINGS = 2,		/* On every add, a new string with same name
+				 * is added */
+	SET = 3,		/* A Bool, Enable or Disable */
+	INT = 6,		/* An value set in it */
+	ALIAS = 7,		/* Set this datatype when s_entry->alias is
+				 * filled */
+	TIME_T = 8,		/* Contains an time entry */
 
 	/*
 	 * This works works like abow, but you can attach variable names to it,
@@ -60,15 +63,18 @@ struct ss_entry {
 
 	/* this should not be set static */
 	int name_len;
-	struct list_head list;
+	list_t list;
 };
 
-void initng_service_data_type_register(s_entry * ent);
-void initng_service_data_type_unregister(s_entry * ent);
+void initng_service_data_type_register(s_entry *ent);
+void initng_service_data_type_unregister(s_entry *ent);
 s_entry *initng_service_data_type_find(const char *string);
 void initng_service_data_type_unregister_all(void);
 
-#define while_service_data_types(current) list_for_each_entry_prev(current, &g.option_db.list, list)
-#define while_service_data_types_safe(current, safe) list_for_each_entry_prev_safe(current, safe, &g.option_db.list, list)
+#define while_service_data_types(current) \
+	initng_list_foreach_rev(current, &g.option_db.list, list)
+
+#define while_service_data_types_safe(current, safe) \
+	initng_list_foreach_rev_safe(current, safe, &g.option_db.list, list)
 
 #endif /* INITNG_SERVICE_DATA_TYPES_H */

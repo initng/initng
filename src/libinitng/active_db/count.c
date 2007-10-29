@@ -53,7 +53,7 @@ int initng_active_db_count(a_state_h * current_state_to_count)
 			counter++;
 		}
 
-		return (counter);
+		return counter;
 	}
 
 	/* ok, go COUNT A SPECIAL */
@@ -64,5 +64,5 @@ int initng_active_db_count(a_state_h * current_state_to_count)
 			counter++;
 	}
 	/* return counter */
-	return (counter);
+	return counter;
 }

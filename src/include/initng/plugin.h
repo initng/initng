@@ -55,10 +55,13 @@ struct s_callers_s {
 	char *from_file;
 	uc c;
 	int order;
-	struct list_head list;
+	list_t list;
 };
 
-#define while_list(current, call) list_for_each_entry_prev(current, &(call)->list, list)
-#define while_list_safe(current, call, safe) list_for_each_entry_prev_safe(current, safe, &(call)->list, list)
+#define while_list(current, call) \
+	initng_list_foreach_rev(current, &(call)->list, list)
+
+#define while_list_safe(current, call, safe) \
+	initng_list_foreach_rev_safe(current, safe, &(call)->list, list)
 
 #endif /* INITNG_PLUGIN_H */

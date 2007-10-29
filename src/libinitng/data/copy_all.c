@@ -33,7 +33,7 @@ void initng_data_copy_all(data_head * from, data_head * to)
 	s_data *tmp = NULL;
 	s_data *current = NULL;
 
-	list_for_each_entry(current, &from->head.list, list) {
+	initng_list_foreach(current, &from->head.list, list) {
 		/* make sure type is set
 		   TODO, should this be an assert(current->type) ??? */
 		if (!current->type)
@@ -65,6 +65,6 @@ void initng_data_copy_all(data_head * from, data_head * to)
 			tmp->vn = NULL;
 
 		/* add to list */
-		list_add(&tmp->list, &to->head.list);
+		initng_list_add(&tmp->list, &to->head.list);
 	}
 }

@@ -59,5 +59,5 @@ void initng_data_set_another_string_var(s_entry * type, char *vn,
 	current->vn = vn;
 
 	/* add this one */
-	list_add(&(current->list), &d->head.list);
+	initng_list_add(&(current->list), &d->head.list);
 }

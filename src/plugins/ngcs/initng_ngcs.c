@@ -152,7 +152,7 @@ static void conn_fdw_handler(s_event * event)
 
 	data = event->data;
 
-	list_for_each_entry(current, &ngcs_conns.list, list) {
+	initng_list_foreach(current, &ngcs_conns.list, list) {
 		switch (data->action) {
 		case FDW_ACTION_CLOSE:
 			if (current->fdw.fds > 0)
@@ -279,7 +279,7 @@ void accepted_client(f_module_h * from, e_fdw what)
 		conn->nextid = 1;
 		conn->list.next = 0;
 		conn->list.prev = 0;
-		list_add(&conn->list, &ngcs_conns.list);
+		initng_list_add(&conn->list, &ngcs_conns.list);
 		return;
 	}
 
@@ -300,7 +300,7 @@ static void handle_close(ngcs_conn * conn)
 	ngcs_svr_conn *sconn = (ngcs_svr_conn *) conn->userdata;
 
 	sconn->fdw.fds = -1;
-	list_move(&sconn->list, &ngcs_dead_conns.list);
+	initng_list_move(&sconn->list, &ngcs_dead_conns.list);
 }
 
 static void data_ready(f_module_h * from, e_fdw what)
@@ -489,7 +489,7 @@ static void clean_dead_conns(void)
 
 	while_ngcs_dead_conns_safe(curr, tmp) {
 		ngcs_conn_free(curr->conn);
-		list_del(&curr->list);
+		initng_list_del(&curr->list);
 		free(curr);
 	}
 }
@@ -526,7 +526,7 @@ void ngcs_reg_cmd(ngcs_cmd * cmd)
 {
 	cmd->list.prev = 0;
 	cmd->list.next = 0;
-	list_add(&cmd->list, &ngcs_cmds.list);
+	initng_list_add(&cmd->list, &ngcs_cmds.list);
 }
 
 void ngcs_unreg_cmd(ngcs_cmd * cmd)
@@ -534,7 +534,7 @@ void ngcs_unreg_cmd(ngcs_cmd * cmd)
 	assert(cmd);
 	assert(cmd->list.prev);
 	assert(cmd->list.next);
-	list_del(&cmd->list);
+	initng_list_del(&cmd->list);
 }
 
 #if 0
@@ -751,9 +751,9 @@ int module_init(int api_version)
 	/* zero globals */
 	fdh.fds = -1;
 	memset(&sock_stat, 0, sizeof(sock_stat));
-	INIT_LIST_HEAD(&ngcs_conns.list);
-	INIT_LIST_HEAD(&ngcs_dead_conns.list);
-	INIT_LIST_HEAD(&ngcs_cmds.list);
+	initng_list_init(&ngcs_conns.list);
+	initng_list_init(&ngcs_dead_conns.list);
+	initng_list_init(&ngcs_cmds.list);
 
 	/* decide which socket to use */
 	if (g.i_am == I_AM_INIT)

@@ -49,11 +49,11 @@ void initng_process_db_real_free(process_h * free_this)
 	assert(free_this);
 
 	/* Make sure this entry are not on any list */
-	list_del(&free_this->list);
+	initng_list_del(&free_this->list);
 
 	while_pipes_safe(current_pipe, free_this, current_pipe_safe) {
 		/* unbound this pipe from list */
-		list_del(&current_pipe->list);
+		initng_list_del(&current_pipe->list);
 
 		/* close all pipes */
 		if (current_pipe->pipe[0] > 0)

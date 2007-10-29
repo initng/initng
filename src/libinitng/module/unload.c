@@ -80,12 +80,11 @@ void initng_module_unload_all(void)
 {
 	m_h *m, *safe = NULL;
 
-	while_module_db_safe(m, safe) {
+	while_module_db_safe(m, safe)
 		unload(m);
-	}
 
 	/* reset the list, to make sure its empty */
-	INIT_LIST_HEAD(&g.module_db.list);
+	initng_list_init(&g.module_db.list);
 
 	D_("initng_module_close_all()\n");
 }

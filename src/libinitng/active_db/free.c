@@ -44,8 +44,8 @@ void initng_active_db_free(active_db_h * pf)
 	initng_common_mark_service(pf, &FREEING);
 
 	/* unregister on all lists */
-	list_del(&pf->list);
-	list_del(&pf->interrupt);
+	initng_list_del(&pf->list);
+	initng_list_del(&pf->interrupt);
 
 	while_processes_safe(current, safe, pf) {
 		initng_process_db_real_free(current);

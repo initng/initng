@@ -34,7 +34,7 @@ s_data *initng_data_get_next_var(s_entry * type, const char *vn,
 				 data_head * head, s_data * last)
 {
 	assert(head);
-	struct list_head *place = NULL;
+	list_t *place = NULL;
 	s_data *current = NULL;
 
 	ALIAS_WALK;
@@ -65,7 +65,7 @@ s_data *initng_data_get_next_var(s_entry * type, const char *vn,
 		return NULL;
 
 	/* Make sure the list is not empty */
-	if (!list_empty(&head->head.list)) {
+	if (!initng_list_isempty(&head->head.list)) {
 		/* put place on the initial */
 		place = head->head.list.prev;
 	}
@@ -73,7 +73,7 @@ s_data *initng_data_get_next_var(s_entry * type, const char *vn,
 	/* as long as we dont stand on the header */
 	while (place && place != &head->head.list) {
 		/* get the entry */
-		current = list_entry(place, s_data, list);
+		current = initng_list_entry(place, s_data, list);
 
 		/* if last still set, fast forward */
 		if (last && current != last) {

@@ -53,7 +53,7 @@ typedef struct cmd_res_s {
 			int got_svcs;
 		} svc_watch;
 	} d;
-	struct list_head list;
+	list_t list;
 } cmd_res;
 
 cmd_res pending;
@@ -272,7 +272,7 @@ void svc_watch_cb(ngcs_svc_evt_hook * hook, void *userdata,
 		if (last_out == res)
 			last_out = NULL;
 
-		list_del(&res->list);
+		initng_list_del(&res->list);
 		free(res);
 
 	default:
@@ -310,7 +310,7 @@ void docmd(char *cmd, char *arg)
 			return;
 		}
 
-		list_add(&res->list, &pending.list);
+		initng_list_add(&res->list, &pending.list);
 		return;
 	} else if (strcmp(cmd, "--status") == 0 || strcmp(cmd, "-s") == 0) {
 		res->d.svc_watch.in_present = 0;
@@ -326,7 +326,7 @@ void docmd(char *cmd, char *arg)
 			return;
 		}
 
-		list_add(&res->list, &pending.list);
+		initng_list_add(&res->list, &pending.list);
 		return;
 	} else if (strcmp(cmd, "--start") == 0 || strcmp(cmd, "-u") == 0) {
 		res->d.svc_watch.in_present = 0;
@@ -342,7 +342,7 @@ void docmd(char *cmd, char *arg)
 			return;
 		}
 
-		list_add(&res->list, &pending.list);
+		initng_list_add(&res->list, &pending.list);
 		return;
 	} else if (strcmp(cmd, "--stop") == 0 || strcmp(cmd, "-d") == 0) {
 		res->d.svc_watch.in_present = 0;
@@ -358,7 +358,7 @@ void docmd(char *cmd, char *arg)
 			return;
 		}
 
-		list_add(&res->list, &pending.list);
+		initng_list_add(&res->list, &pending.list);
 		return;
 	}
 
@@ -380,7 +380,7 @@ void docmd(char *cmd, char *arg)
 		return;
 	}
 
-	list_add(&res->list, &pending.list);
+	initng_list_add(&res->list, &pending.list);
 }
 
 void resp_handler(ngcs_cli_conn * cconn, void *userdata, ngcs_data * ret)
@@ -447,7 +447,7 @@ void resp_handler(ngcs_cli_conn * cconn, void *userdata, ngcs_data * ret)
 		}
 	}
 
-	list_del(&res->list);
+	initng_list_del(&res->list);
 	free(res);
 }
 
@@ -459,7 +459,7 @@ int main(int argc, char *argv[])
 	char *prog_name = NULL;
 
 	assert(argv[0]);
-	INIT_LIST_HEAD(&pending.list);
+	initng_list_init(&pending.list);
 
 	last_out = NULL;
 	need_nl = 0;
@@ -537,7 +537,8 @@ int main(int argc, char *argv[])
 	if (last_sw >= 0 && last_sw == cc - 1)
 		docmd(argv[last_sw], NULL);
 
-	while (!list_empty(&pending.list) && !ngcs_client_conn_is_closed(cconn)) {
+	while (!initng_list_isempty(&pending.list) &&
+	       !ngcs_client_conn_is_closed(cconn)) {
 		fd_set readset, writeset;
 		int fd = ngcs_client_get_fd(cconn);
 		int retval;

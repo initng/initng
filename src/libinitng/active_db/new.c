@@ -45,7 +45,7 @@ active_db_h *initng_active_db_new(const char *name)
 	}
 
 	/* initialize all lists */
-	INIT_LIST_HEAD(&(new_active->processes.list));
+	initng_list_init(&(new_active->processes.list));
 
 	/* set the name */
 	new_active->name = initng_toolbox_strdup(name);
