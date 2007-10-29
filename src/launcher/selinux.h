@@ -26,10 +26,6 @@
 #include <selinux/context.h>
 #include <sepol/sepol.h>
 
-#ifdef OLDSELINUX
-int load_policy(int *enforce);
-#endif
-
 void setup_selinux(void);
 
 #endif /* __SELINUX_H */

@@ -36,11 +36,7 @@ void setup_selinux(void)
 	    getenv("SELINUX_INIT") == NULL) {
 		int enforce = -1;
 		putenv("SELINUX_INIT=YES");
-#ifdef OLDSELINX
-		if (load_policy(&enforce) == 0) {
-#else
 		if (selinux_init_load_policy(&enforce) != 0 && enforce > 0) {
-#endif
 			/* SELinux in enforcing mode but load_policy
 			 * failed. At this point, we probably can't
 			 * open /dev/console, so log() won't work

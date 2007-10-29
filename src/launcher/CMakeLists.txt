@@ -3,9 +3,6 @@ SET(launcher_bin_srcs
 )
 
 IF(HAVE_SELINUX)
-	IF(NOT HAVE_SELINUX_NEW)
-		SET(launcher_bin_srcs ${launcher_bin_srcs} oldselinux.c)
-	ENDIF(NOT HAVE_SELINUX_NEW)
 	SET(launcher_bin_srcs ${launcher_bin_srcs} selinux.c)
 ENDIF(HAVE_SELINUX)
 
