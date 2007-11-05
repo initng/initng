@@ -512,11 +512,13 @@ static void cp_print_error(s_event * event)
 	s_event_error_message_data *data;
 	struct tm *ts;
 	time_t t;
+	va_list va;
 
 	assert(event->event_type == &EVENT_ERROR_MESSAGE);
 	assert(event->data);
 
 	data = event->data;
+	va_copy(va, data->arg);
 
 	switch (data->mt) {
 	case MSG_FAIL:
@@ -531,13 +533,15 @@ static void cp_print_error(s_event * event)
 			ts->tm_min, ts->tm_sec,
 			data->mt == MSG_FAIL ? "FAIL" : "WARN");
 
-		vfprintf(output, data->format, data->arg);
+		vfprintf(output, data->format, va);
 		break;
 
 	default:
-		vfprintf(output, data->format, data->arg);
+		vfprintf(output, data->format, va);
 		break;
 	}
+
+	va_end(va);
 
 	/* make sure it reach screen */
 	fflush(output);

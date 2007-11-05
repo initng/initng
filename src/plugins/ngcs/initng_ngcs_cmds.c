@@ -147,11 +147,13 @@ static void error_watch(s_event * event)
 	int len, size;
 	ngcs_data dat[5];
 	char *buf;
+	va_list va;
 
 	assert(event->event_type == &EVENT_ERROR_MESSAGE);
 	assert(event->data);
 
 	data = event->data;
+	va_copy(va, data->arg);
 
 	/* Don't do the processing if we're just going to throw away the
 	 * result */
@@ -173,7 +175,8 @@ static void error_watch(s_event * event)
 
 	size = 256;
 	dat[4].d.s = initng_toolbox_calloc(1, size);
-	len = vsnprintf(dat[4].d.s, size, data->format, data->arg);
+	len = vsnprintf(dat[4].d.s, size, data->format, va);
+	va_end(va);
 
 	while (len < 0 || len >= size) {
 		/* Some glibc versions apparently return -1 if buffer too
@@ -185,7 +188,9 @@ static void error_watch(s_event * event)
 
 		free(dat[4].d.s);
 		dat[4].d.s = initng_toolbox_calloc(1, size);
-		len = vsnprintf(dat[4].d.s, size, data->format, data->arg);
+		va_copy(va, data->arg);
+		len = vsnprintf(dat[4].d.s, size, data->format, va);
+		va_end(va);
 	}
 
 	dat[4].len = len;

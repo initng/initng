@@ -115,8 +115,7 @@ static void initng_log(int prio, const char *owner, const char *format, ...)
 	} else {
 		char b[201];
 		log_ent *tmp = (log_ent *) initng_toolbox_calloc(1,
-								 sizeof
-								 (log_ent));
+							 sizeof(log_ent));
 
 		if (!tmp)
 			return;
@@ -278,18 +277,20 @@ static void syslog_fetch_output(s_event * event)
 static void syslog_print_error(s_event * event)
 {
 	s_event_error_message_data *data;
+	va_list va;
 
 	assert(event->event_type == &EVENT_ERROR_MESSAGE);
 	assert(event->data);
 
 	data = event->data;
+	va_copy(va, data->arg);
 
 	assert(data->file);
 	assert(data->func);
 	assert(data->format);
 	char tempspace[200];
 
-	vsnprintf(tempspace, 200, data->format, data->arg);
+	vsnprintf(tempspace, 200, data->format, va);
 
 	switch (data->mt) {
 	case MSG_FAIL:
@@ -314,6 +315,8 @@ static void syslog_print_error(s_event * event)
 		syslog(LOG_NOTICE, "%s", tempspace);
 		break;
 	}
+
+	va_end(va);
 }
 
 int module_init(int api_version)

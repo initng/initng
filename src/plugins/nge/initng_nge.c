@@ -601,15 +601,18 @@ static void print_error(s_event * event)
 	char *buffert = NULL;
 	char *msg;
 	int len, size;
+	va_list va;
 
 	assert(event->event_type == &EVENT_ERROR_MESSAGE);
 	assert(event->data);
 
 	data = event->data;
+	va_copy(va, data->arg);
 
 	size = 256;
 	msg = initng_toolbox_calloc(1, size);
-	len = vsnprintf(msg, size, data->format, data->arg);
+	len = vsnprintf(msg, size, data->format, va);
+	va_end(va);
 	while (len < 0 || len >= size) {
 		/* Some glibc versions apparently return -1 if buffer too
 		 * small. Oh, and the argument counts the null char, but the
@@ -618,7 +621,9 @@ static void print_error(s_event * event)
 		size = (len < 0 ? size * 2 : len + 1);
 		free(msg);
 		msg = initng_toolbox_calloc(1, size);
-		len = vsnprintf(msg, size, data->format, data->arg);
+		va_copy(va, data->arg);
+		len = vsnprintf(msg, size, data->format, va);
+		va_end(va);
 	}
 
 	buffert = initng_toolbox_calloc(100 + len + strlen(data->file) +

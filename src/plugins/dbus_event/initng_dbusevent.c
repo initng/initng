@@ -362,11 +362,13 @@ static void print_error(s_event * event)
 	s_event_error_message_data *data;
 	DBusMessage *msg;
 	dbus_uint32_t serial = 0;
+	va_list va;
 
 	assert(event->event_type == &EVENT_ERROR_MESSAGE);
 	assert(event->data);
 
 	data = event->data;
+	va_copy(va, data->arg);
 
 	if (conn == NULL)
 		return;
@@ -381,7 +383,8 @@ static void print_error(s_event * event)
 	/* compose the message */
 	char *message = initng_toolbox_calloc(1001, 1);
 
-	vsnprintf(message, 1000, data->format, data->arg);
+	vsnprintf(message, 1000, data->format, va);
+	va_end(va);
 
 	/* Append some arguments to the call */
 	if (!dbus_message_append_args(msg, DBUS_TYPE_INT32, &data->mt,
