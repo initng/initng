@@ -94,5 +94,5 @@ int initng_execute_launch(active_db_h * service, ptype_h * type,
 	/* on failure remove the process from list, and free it */
 	initng_process_db_free(process);
 
-	return ret;
+	return FALSE;
 }
