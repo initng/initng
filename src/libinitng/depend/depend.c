@@ -55,7 +55,7 @@ int initng_depend(active_db_h * service, active_db_h * check)
 		data.check = check;
 
 		initng_event_send(&event);
-		if (event.status == OK)
+		if (event.status == HANDLED)
 			return TRUE;
 	}
 
