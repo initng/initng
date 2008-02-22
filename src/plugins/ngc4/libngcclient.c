@@ -393,10 +393,10 @@ char *ngc_hlp(reply * rep, int ansi)
 	help_row *row = rep->payload;
 
 	/* print head */
-	asprintf(&string, " ngc understand this commands:\n");
-	asprintf(&string, " short Option                          : "
+	initng_string_mprintf(&string, " ngc understand this commands:\n");
+	initng_string_mprintf(&string, " short Option                          : "
 		"description\n");
-	asprintf(&string, " ----------------------------------------"
+	initng_string_mprintf(&string, " ----------------------------------------"
 		"------------------\n");
 
 	while (row->dt == HELP_ROW) {
@@ -439,15 +439,15 @@ char *ngc_hlp(reply * rep, int ansi)
 
 		if (row->c != '\0') {
 			if (ansi) {
-				asprintf(&string, " [" C_FG_LIGHT_RED "-%c"
+				initng_string_mprintf(&string, " [" C_FG_LIGHT_RED "-%c"
 					C_OFF "] --%-40s: %s\n",
 					row->c, lname, row->d);
 			} else {
-				asprintf(&string, " [-%c] --%-40s: %s\n",
+				initng_string_mprintf(&string, " [-%c] --%-40s: %s\n",
 					row->c, lname, row->d);
 			}
 		} else {
-			asprintf(&string, "       --%-40s: %s\n", lname, row->d);
+			initng_string_mprintf(&string, "       --%-40s: %s\n", lname, row->d);
 		}
 
 		row++;
@@ -461,18 +461,18 @@ char *ngc_state_entry(reply * rep, int ansi)
 	state_row *row = rep->payload;
 	char *string = NULL;
 
-	asprintf(&string, " I State    State name                    "
+	initng_string_mprintf(&string, " I State    State name                    "
 		"Description\n");
-	asprintf(&string, " -----------------------------------------"
+	initng_string_mprintf(&string, " -----------------------------------------"
 		"-----------------\n");
 
 	while (row->dt == STATE_ROW) {
 		if (ansi) {
-			asprintf(&string, " %i %s%-8s %-29s %s\n" C_OFF,
+			initng_string_mprintf(&string, " %i %s%-8s %-29s %s\n" C_OFF,
 				row->is, is_to_ansi(row->is),
 				is_to_string(row->is), row->name, row->desc);
 		} else {
-			asprintf(&string, " %i %-8s %-29s %s\n", row->is,
+			initng_string_mprintf(&string, " %i %-8s %-29s %s\n", row->is,
 				is_to_string(row->is), row->name, row->desc);
 		}
 
@@ -494,17 +494,17 @@ char *ngc_active_db(reply * rep, int ansi)
 
 	/* print head */
 	if (ansi) {
-		asprintf(&string, C_FG_LIGHT_RED " hh:mm:ss" C_OFF
+		initng_string_mprintf(&string, C_FG_LIGHT_RED " hh:mm:ss" C_OFF
 			C_FG_CYAN " T " C_OFF
 			"service                             : "
 			C_FG_NEON_GREEN "status\n" C_OFF);
 	} else {
-		asprintf(&string, " hh:mm:ss T service                   "
+		initng_string_mprintf(&string, " hh:mm:ss T service                   "
 			"          : status\n");
 	}
 
 	/* don't make it weighter! only 80chars, not weighter. */
-	asprintf(&string, " ---------------------------------------------"
+	initng_string_mprintf(&string, " ---------------------------------------------"
 		"-------------------\n");
 
 	while (row->dt == ACTIVE_ROW) {
@@ -512,7 +512,7 @@ char *ngc_active_db(reply * rep, int ansi)
 
 		/* don't make it weighter! only 80chars, not weighter. */
 		if (ansi) {
-			asprintf(&string, " " C_FG_LIGHT_RED "%.2i:%.2i:%.2i"
+			initng_string_mprintf(&string, " " C_FG_LIGHT_RED "%.2i:%.2i:%.2i"
 				C_OFF C_FG_CYAN " %c" C_OFF " %-35s : ",
 				ts->tm_hour, ts->tm_min, ts->tm_sec,
 				row->type[0] ? (char)toupper((int)
@@ -520,7 +520,7 @@ char *ngc_active_db(reply * rep, int ansi)
 							     type[0]) : ' ',
 				row->name);
 		} else {
-			asprintf(&string, " %.2i:%.2i:%.2i %c %-35s : ",
+			initng_string_mprintf(&string, " %.2i:%.2i:%.2i %c %-35s : ",
 				ts->tm_hour, ts->tm_min, ts->tm_sec,
 				row->type[0] ? (char)toupper((int)
 							     row->
@@ -529,10 +529,10 @@ char *ngc_active_db(reply * rep, int ansi)
 		}
 
 		if (ansi) {
-			asprintf(&string, "%s%s" C_OFF "\n",
+			initng_string_mprintf(&string, "%s%s" C_OFF "\n",
 				is_to_ansi(row->is), row->state);
 		} else {
-			asprintf(&string, "%s\n", row->state);
+			initng_string_mprintf(&string, "%s\n", row->state);
 		}
 
 		row++;
@@ -600,15 +600,15 @@ char *ngc_option_db(reply * rep, int ansi)
 
 	/* print head */
 	if (ansi) {
-		asprintf(&string, " " C_FG_LIGHT_RED "%-10s" C_OFF C_FG_CYAN
+		initng_string_mprintf(&string, " " C_FG_LIGHT_RED "%-10s" C_OFF C_FG_CYAN
 			"%-8s" C_OFF " %-24s %s\n", "Where", "Type", "Name",
 			"Description");
 	} else {
-		asprintf(&string, " %-10s%-8s %-24s %s\n", "Where", "Type",
+		initng_string_mprintf(&string, " %-10s%-8s %-24s %s\n", "Where", "Type",
 			"Name", "Description");
 	}
 
-	asprintf(&string, " ----------------------------------------------"
+	initng_string_mprintf(&string, " ----------------------------------------------"
 		"------------------\n");
 
 	while (row->dt == OPTION_ROW) {
@@ -663,11 +663,11 @@ char *ngc_option_db(reply * rep, int ansi)
 		}
 
 		if (ansi) {
-			asprintf(&string, " " C_FG_LIGHT_RED "%-10s" C_OFF
+			initng_string_mprintf(&string, " " C_FG_LIGHT_RED "%-10s" C_OFF
 				C_FG_CYAN "%-8s" C_OFF " %-24s %s\n", row->o,
 				ct, row->n, row->d);
 		} else {
-			asprintf(&string, " %-10s%-8s %-24s %s\n", row->o, ct,
+			initng_string_mprintf(&string, " %-10s%-8s %-24s %s\n", row->o, ct,
 				row->n, row->d);
 		}
 

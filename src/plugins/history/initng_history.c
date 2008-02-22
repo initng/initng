@@ -137,8 +137,8 @@ static char *cmd_log(char *arg)
 			only_output = TRUE;
 	}
 
-	asprintf(&string, " %" NAME_SPACER "s : STATUS\n", "SERVICE");
-	asprintf(&string, " ---------------------------------------"
+	initng_string_mprintf(&string, " %" NAME_SPACER "s : STATUS\n", "SERVICE");
+	initng_string_mprintf(&string, " ---------------------------------------"
 		"---------------\n");
 
 	while_history_db_prev(current) {
@@ -167,8 +167,8 @@ static char *cmd_log(char *arg)
 			/* print a nice service change status entry */
 			char *c = ctime(&current->time.tv_sec);
 
-			asprintf(&string, "\n %s", c);
-			asprintf(&string, " --------------------------------"
+			initng_string_mprintf(&string, "\n %s", c);
+			initng_string_mprintf(&string, " --------------------------------"
 				"----------------------\n");
 
 			last = current->time.tv_sec;
@@ -210,7 +210,7 @@ static char *cmd_log(char *arg)
 				buf[i] = '\0';
 
 				/* send that to client */
-				asprintf(&string, " %" NAME_SPACER "s : %s\n",
+				initng_string_mprintf(&string, " %" NAME_SPACER "s : %s\n",
 					name, buf);
 
 				/* where to start next */
@@ -225,13 +225,13 @@ static char *cmd_log(char *arg)
 				/* if there has gone some seconds sence last
 				 * change, print that */
 				if (current->duration > 0) {
-					asprintf(&string, " %" NAME_SPACER
+					initng_string_mprintf(&string, " %" NAME_SPACER
 						"s | %s (after %i seconds)\n",
 						name,
 						current->action->name,
 						(int)current->duration);
 				} else {
-					asprintf(&string, " %" NAME_SPACER
+					initng_string_mprintf(&string, " %" NAME_SPACER
 						"s | %s\n", name,
 						current->action->name);
 				}

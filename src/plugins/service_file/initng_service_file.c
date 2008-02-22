@@ -186,7 +186,7 @@ static int bpf_handler(s_event * event)
 	case FDW_ACTION_DEBUG:
 		if (!data->debug_find_what ||
 		    strstr(__FILE__, data->debug_find_what)) {
-			asprintf(data->debug_out, " %i: Used by plugin: %s\n",
+			initng_string_mprintf(data->debug_out, " %i: Used by plugin: %s\n",
 				bpf.fds, __FILE__);
 		}
 		break;

@@ -38,7 +38,7 @@ int initng_string_mprintf(char **p, const char *format, ...)
 	int add_len = 0;	/* This mutch more strings are
 				 * we gonna alloc for */
 
-	/* printf("\n\nasprintf(%s);\n", format); */
+	/* printf("\n\ninitng_string_mprintf(%s);\n", format); */
 
 	/* count old chars */
 	if (*p)
