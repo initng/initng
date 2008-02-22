@@ -57,6 +57,8 @@ char **initng_env_new(active_db_h * s)
 	int nr = 0;
 	char **env;
 
+	assert(s);
+
 	/* Better safe than sorry... */
 	if (s && s->name == NULL)
 		s->name = initng_toolbox_strdup("unknown");
@@ -124,15 +126,30 @@ char **initng_env_new(active_db_h * s)
 		}
 
 		if (g.old_runlevel && (nr + 1) < allocate) {
-			env[nr] = (char *)initng_toolbox_calloc(1,
-								(14 +
-								 strlen(g.
-									old_runlevel)));
+			env[nr] = (char *)initng_toolbox_calloc(1, (14 +
+						strlen(g.old_runlevel)));
 			strcpy(env[nr], "PREVLEVEL=");
 			strcat(env[nr], g.old_runlevel);
 			nr++;
 		}
 
+		if (is_var(&ENV, NULL, s)) {
+			s_data *itt = NULL;
+			const char *value;
+			while ((value = get_next_string_var(&ENV, NULL, s,
+						 &itt))) {
+				if (value && (nr + 1) < allocate) {
+					env[nr] = (char *)
+						initng_toolbox_calloc(1, (1 +
+							strlen(itt->vn) +
+							strlen(value)));
+					strcpy(env[nr], itt->vn);
+					strcat(env[nr], "=");
+					strcat(env[nr], value);
+					nr++;
+				}
+			}
+  		}
 	}
 
 	/* null last */

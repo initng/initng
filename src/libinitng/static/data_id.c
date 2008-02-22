@@ -28,6 +28,14 @@
  * Description:
  * { "name_of_opt", TYPE_OF_OPT, STRING_LEN_OF("name_of_opt") }
  */
+
+s_entry ENV = {
+  .name = "env",
+  .type = STRING,
+  .ot = NULL,
+  .description = NULL
+};
+
 s_entry USE = {
 	.name = "use",
 	.type = STRINGS,
@@ -70,6 +78,7 @@ s_entry RESTARTING = {
  */
 void initng_static_data_id_register_defaults(void)
 {
+	initng_service_data_type_register(&ENV);
 	initng_service_data_type_register(&USE);
 	initng_service_data_type_register(&NEED);
 	initng_service_data_type_register(&REQUIRE);
