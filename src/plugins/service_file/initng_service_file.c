@@ -899,20 +899,12 @@ static int parse_new_service_file(s_event * event, char *file)
 	/* start parse process */
 	if (initng_fork(new_active, process) == 0) {
 		char *new_argv[3];
-		char *new_env[4];
 
 		new_argv[0] = file;
 		new_argv[1] = (char *)"internal_setup";
 		new_argv[2] = NULL;
 
-		/* SERVICE=getty/tty1 */
-		new_env[0] = initng_toolbox_calloc(strlen(name) + 20, 1);
-		strcpy(new_env[0], "SERVICE=");
-		strcat(new_env[0], name);
-
-		new_env[1] = NULL;
-
-		execve(new_argv[0], new_argv, new_env);
+		execve(new_argv[0], new_argv, initng_env_new(new_active));
 		_exit(10);
 	}
 
