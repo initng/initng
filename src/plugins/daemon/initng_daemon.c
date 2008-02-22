@@ -264,7 +264,7 @@ s_entry INTERNAL_LAST_RESPAWN = {
 
 /*
  * ############################################################################
- * #                         DAEMON STATES STRUCTS                           #
+ * #                         DAEMON STATES STRUCTS                            #
  * ############################################################################
  */
 
@@ -364,6 +364,7 @@ a_state_h DAEMON_KILL = {
 	.init = &init_DAEMON_KILL,
 	.alarm = &timeout_DAEMON_KILL
 };
+
 a_state_h DAEMON_TERM = {
 	.name = "DAEMON_TERM",
 	.description = "This daemon is terminating.",
