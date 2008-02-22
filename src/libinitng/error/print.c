@@ -17,15 +17,17 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+#define _GNU_SOURCE
+
 #include <initng.h>
 
 #include <stdlib.h>		/* free() exit() */
 #include <stdio.h>
 #include <unistd.h>
-#include <string.h>
 #include <stdarg.h>
 #include <time.h>
 #include <assert.h>
+#include <string.h>
 
 int lock_error_printing = 0;
 
@@ -198,10 +200,9 @@ void initng_error_print_func(const char *file, const char *func)
 				if (g.verbose_this[i][0] == '%' &&
 				    g.verbose_this[i] + 1) {
 					if (strcasestr(file,
-						       (g.verbose_this[i]) + 1)
+						(g.verbose_this[i]) + 1)
 					    || strcasestr(func,
-							  (g.verbose_this[i]) +
-							  1)) {
+						(g.verbose_this[i]) + 1)) {
 						lock_error_printing = 0;
 						return;
 					}

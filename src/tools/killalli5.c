@@ -29,6 +29,10 @@
  *              as published by the Free Software Foundation; either version
  *              2 of the License, or (at your option) any later version.
  */
+
+#define _BSD_SOURCE
+#define _XOPEN_SOURCE 500
+
 #include <sys/types.h>
 #include <stdio.h>
 #include <string.h>
@@ -43,6 +47,8 @@
 #include <getopt.h>
 #include <stdarg.h>
 #include <fcntl.h>
+
+
 
 static void bailout(int *, char **buffer);
 static int open_read_close(const char *filename, char **buffer);

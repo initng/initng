@@ -28,6 +28,8 @@
 
 #define WRAPPER_PATH INITNG_PLUGIN_DIR "/wrappers/"
 
+extern char **environ;
+
 const char *wrapper = "default";
 
 /* FIXME: Wee need to change the way we detect when to forward commands */

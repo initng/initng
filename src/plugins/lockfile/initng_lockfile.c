@@ -18,6 +18,8 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+#define _GNU_SOURCE
+
 #include <initng.h>
 
 #include <sys/types.h>
@@ -31,7 +33,7 @@ INITNG_PLUGIN_MACRO;
 s_entry LOCKFILE = {
 	.name = "lockfile",
 	.description = "If this option is set, plugin will create "
-	    "/var/lock/subsys/$NAME lockfile.",
+		       "/var/lock/subsys/$NAME lockfile.",
 	.type = SET,
 	.ot = NULL,
 };
