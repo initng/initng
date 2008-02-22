@@ -29,7 +29,7 @@
 #include <stdarg.h>
 
 
-int asprintf(char **p, const char *format, ...)
+int initng_string_mprintf(char **p, const char *format, ...)
 {
 	va_list arg;		/* used for the variable
 				 * lists */
