@@ -105,11 +105,6 @@ OPTION(FORCE_POSIX_IFILES "Force POSIX compliance on ifiles" OFF)
 OPTION(WITH_BUSYBOX "Hacks to make initng work nice with busybox distros" OFF)
 OPTION(COUNT_ME "Send a simple http reqest to initng server, with initng version data to count initng users out there" OFF)
 
-ADD_DEFINITIONS(-D_GNU_SOURCE)
-
-SET(CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
-CHECK_SYMBOL_EXISTS(asprintf stdio.h HAVE_ASPRINTF)
-
 IF(SELINUX_SUPPORT)
 	CHECK_INCLUDE_FILES(selinux/selinux.h HAVE_SELINUX_H)
 	CHECK_LIBRARY_EXISTS(selinux selinux_init_load_policy "" HAVE_SELINUX)
