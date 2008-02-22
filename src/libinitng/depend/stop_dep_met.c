@@ -34,6 +34,8 @@ int initng_depend_stop_dep_met(active_db_h * service, int verbose)
 	active_db_h *currentA = NULL;
 	int count = 0;
 
+	assert(service);
+
 	/*
 	 * Check so all deps, that needs service, is down.
 	 * if there are services depending on this one still running,
