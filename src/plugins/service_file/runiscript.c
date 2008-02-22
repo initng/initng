@@ -30,6 +30,7 @@
 
 const char *wrapper = "default";
 
+/* FIXME: Wee need to change the way we detect when to forward commands */
 /* These commands will be forwarded to /sbin/ngc if issued */
 const char *ngc_args[] = {
 	"start",
@@ -40,6 +41,7 @@ const char *ngc_args[] = {
 	NULL
 };
 
+/* FIXME: this shouldn't be done by us */
 /* this lists the commands the service can be executed with directly */
 static void print_usage(char *me)
 {
@@ -110,14 +112,14 @@ int main(int argc, char *argv[])
 		exit(2);
 	}
 
+	/* FIXME: Should we use $SERVICE to detect when to realay the command to ngc? */
+	/*        We should never set this by ourselves... */
 	servname = getenv("SERVICE");
 	if (!servname) {
 		servname = (char *)initng_string_basename(path);
 		setenv("SERVICE", servname, 1);
+		setenv("NAME", servname, 1);
 	}
-
-	/* SERVICE=system/getty/tty1 -> NAME=tty1 */
-	setenv("NAME", initng_string_basename(servname), 1);
 
 	/* check if command shud forward to a ngc command */
 	{
@@ -148,6 +150,7 @@ int main(int argc, char *argv[])
 	}
 	/* end check */
 
+	/* FIXME: This isn't needed too */
 	/* check if command is valid */
 	if (strncmp(argv[2], "internal_", 9) != 0) {
 		int i;
