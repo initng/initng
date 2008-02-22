@@ -79,7 +79,7 @@ char **initng_env_new(active_db_h * s)
 
 	/* Set INITNG_PID, so we can send signals to initng */
 	env[nr] = malloc(32);
-	snprintf(env[nr], 32, "INITNG_PID=%d", getpid());
+	snprintf(env[nr], 32, "INITNG_PID=%d", getppid());
 	env[nr][31] = '\0';
 	nr++;
 
