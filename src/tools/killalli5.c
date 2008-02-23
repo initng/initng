@@ -33,6 +33,8 @@
 #define _BSD_SOURCE
 #define _XOPEN_SOURCE 500
 
+#include <initng.h>
+
 #include <sys/types.h>
 #include <stdio.h>
 #include <string.h>
@@ -50,8 +52,6 @@
 
 
 
-static void bailout(int *, char **buffer);
-static int open_read_close(const char *filename, char **buffer);
 char *ignorelist = NULL;
 
 const char *Version = "@(#)killall5 2.86 31-Jul-2004 miquels@cistron.nl";
@@ -586,75 +586,6 @@ static int main_pidof(int argc, char **argv)
 	return (first ? 1 : 0);
 }
 
-int open_read_close(const char *filename, char **buffer)
-{
-	int conf_file;		/* File descriptor for config file */
-	struct stat stat_buf;
-	int res;		/* Result of read */
-
-	/* Mark *buffer and conf_file as not set, for cleanup if bailing out... */
-
-	*buffer = NULL;
-	conf_file = -1;
-
-	/* */
-
-	conf_file = open(filename, O_RDONLY);	/* Open config file. */
-
-	if (conf_file == -1) {
-		bailout(&conf_file, buffer);
-		return (0);
-	}
-
-	if (fstat(conf_file, &stat_buf) == -1) {
-		bailout(&conf_file, buffer);
-		return (0);
-	}
-
-	/* Allocate a file buffer */
-
-	*buffer = (char *)calloc((stat_buf.st_size + 1), sizeof(char));
-
-	/* Read whole file */
-
-	res = read(conf_file, *buffer, stat_buf.st_size);
-
-	if (res == -1) {
-		bailout(&conf_file, buffer);
-		return (0);
-	}
-
-	if (res != stat_buf.st_size) {
-		bailout(&conf_file, buffer);
-		return (0);
-	}
-
-	/* close file */
-	close(conf_file);
-
-	(*buffer)[stat_buf.st_size] = '\0';	/* Null terminate *buffer */
-
-	return (1);
-}
-
-/* Avoid using go to sending a pointer to conf_file */
-static void bailout(int *p_conf_file, char **buffer)
-{
-	/* if conf_file != -1 it is open */
-
-	if (*p_conf_file != -1)
-		(void)close(*p_conf_file);	/* Ignore result this time */
-
-	*p_conf_file = -1;
-
-	/* *buffer != NULL => we have called calloc, so free it */
-
-	if (*buffer)
-		free(*buffer);
-
-	*buffer = NULL;
-}
-
 /* Main for either killall or pidof. */
 int main(int argc, char **argv)
 {
@@ -689,7 +620,7 @@ int main(int argc, char **argv)
 	mount_proc();
 
 	/* read the ignorelist */
-	open_read_close("/etc/initng/killall5-ignore", &ignorelist);
+	initng_io_open_read_close("/etc/initng/killall5-ignore", &ignorelist);
 
 	/*
 	 *      Ignoring SIGKILL and SIGSTOP do not make sense, but
@@ -747,7 +678,7 @@ int main(int argc, char **argv)
 			continue;
 		}
 
-		if (ignorelist && strstr(ignorelist, p->argv0)) {
+		if (ignorelist && strstr(ignorelist, initng_string_basename(p->argv0))) {
 			/*printf(" Process %i-%i, %s is ignored from ignorelist.\n", p->pid, p->sid, p->argv0); */
 			p->mark = 1;
 			continue;
