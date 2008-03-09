@@ -38,9 +38,7 @@ void initng_event_send(s_event * event)
 			D_("%s event handled by %s\n",
 			   event->event_type->name, current->from_file);
 			return;
-		}
-
-		if (event->status == FAILED) {
+		} else if (event->status == FAILED) {
 			D_("%s event failed on %s\n", event->event_type->name,
 			   current->from_file);
 			return;

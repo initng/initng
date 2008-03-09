@@ -35,5 +35,5 @@ int initng_depend_up_check(active_db_h * service)
 	event.data = service;
 
 	initng_event_send(&event);
-	return (event.status == OK);
+	return (event.status != FAILED);
 }

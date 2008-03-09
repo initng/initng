@@ -99,7 +99,7 @@ int initng_error_print(e_mt mt, const char *file, const char *func, int line,
 		va_copy(data.arg, arg);
 
 		initng_event_send(&event);
-		if (event.status == OK)
+		if (event.status != FAILED)
 			delivered = TRUE;
 
 		va_end(data.arg);
