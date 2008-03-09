@@ -22,10 +22,10 @@
 #define INITNG_EVENT_EVENT_H
 
 typedef enum {
-	WAITING = 0, /* reserved for future use */
-	OK,
-	HANDLED,
 	FAILED = -1,
+	UNKNOWN,
+	HANDLED,
+	WAITING,     /* reserved for future use */
 } event_status_t;
 
 typedef struct {

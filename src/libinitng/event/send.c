@@ -45,5 +45,5 @@ void initng_event_send(s_event * event)
 		}
 	}
 
-	event->status = OK;
+	event->status = UNKNOWN;
 }
