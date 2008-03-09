@@ -24,6 +24,7 @@ AUX_SOURCE_DIRECTORY(io			io_srcs)
 AUX_SOURCE_DIRECTORY(main		main_srcs)
 AUX_SOURCE_DIRECTORY(data		data_srcs)
 AUX_SOURCE_DIRECTORY(config		config_srcs)
+AUX_SOURCE_DIRECTORY(hash		hash_srcs)
 
 SET(libinitng_srcs
 	${active_db_srcs}
@@ -52,6 +53,7 @@ SET(libinitng_srcs
 	${main_srcs}
 	${data_srcs}
 	${config_srcs}
+	${hash_srcs}
 )
 
 ADD_LIBRARY(initng SHARED ${libinitng_srcs})
