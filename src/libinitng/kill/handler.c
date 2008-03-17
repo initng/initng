@@ -79,7 +79,8 @@ void initng_kill_handler_killed_by_pid(pid_t kpid, int r_code)
 			/* now close */
 			close(current_pipe->pipe[0]);
 			current_pipe->pipe[0] = -1;
-		} else if (current_pipe->dir == IN_PIPE &&
+		} else if ((current_pipe->dir == IN_PIPE ||
+			    current_pipe->dir == IN_AND_OUT_PIPE) &&
 			   current_pipe->pipe[1] > 0) {
 			close(current_pipe->pipe[1]);
 			current_pipe->pipe[1] = -1;
