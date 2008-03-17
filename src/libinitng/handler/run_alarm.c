@@ -66,14 +66,9 @@ void initng_handler_run_alarm(void)
 			continue;
 		}
 
-		/* if no next_to_get is set */
-		if (!g.next_alarm) {
-			g.next_alarm = current->alarm;
-			continue;
-		}
-
-		/* if this alarm is more early then next_to_get set it. */
-		if (current->alarm < g.next_alarm)
+		/* if this alarm is more early than next_to_get, or
+		   next_to_get isn't set. */
+		if (current->alarm < g.next_alarm || !g.next_alarm)
 			g.next_alarm = current->alarm;
 	}
 }
