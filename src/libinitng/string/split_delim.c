@@ -54,7 +54,7 @@ char **initng_string_split_delim(const char *string, const char *delim,
 			i++;
 			array = (char **)initng_toolbox_realloc(array,
 						sizeof(char *) *(i + 1));
-			array[i - 1] = strdup(string + ofs);
+			array[i - 1] = strndup(string + ofs, len);
 		} else {
 			len = 1;
 		}
