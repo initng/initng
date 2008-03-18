@@ -51,10 +51,11 @@ char **initng_string_split_delim(const char *string, const char *delim,
 	while (string[ofs] != '\0') {
 		len = strcspn(string + ofs, delim);
 		if (len != 0) {
-			i++;
 			array = (char **)initng_toolbox_realloc(array,
-						sizeof(char *) *(i + 1));
-			array[i - 1] = strndup(string + ofs, len);
+						sizeof(char *) * (i + 2));
+			array[i] = initng_toolbox_calloc(1, len);
+			memcpy(array[i], string + ofs, len);
+			i++;
 		} else {
 			len = 1;
 		}
