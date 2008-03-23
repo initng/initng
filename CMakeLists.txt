@@ -18,8 +18,6 @@ ADD_DEFINITIONS(-DHAVE_CONFIG_H)
 SET(CMAKE_C_FLAGS "-Wall -O2 ${CMAKE_C_FLAGS}")
 
 INCLUDE_DIRECTORIES(
-	${CMAKE_SOURCE_DIR}/src/include
-	${CMAKE_BINARY_DIR}/src/include
 	${CMAKE_BINARY_DIR}
 )
 
@@ -27,7 +25,6 @@ INCLUDE_DIRECTORIES(
 OPTION(CMAKE_COLOR_MAKEFILE "Generate Makefiles with colored output" ON)
 
 SET(CMAKE_INSTALL_PREFIX "" CACHE INTERNAL "")
-SET(INCLUDE_INSTALL_DIR /usr/include CACHE STRING "Install location for header files.")
 SET(SBIN_INSTALL_DIR /sbin CACHE STRING "Install location for system binaries.")
 SET(BIN_INSTALL_DIR /bin CACHE STRING "Install location for binaries.")
 SET(LIB_INSTALL_DIR /lib CACHE STRING "Install location for libraries.")
@@ -53,8 +50,6 @@ SET(DBUS_DEFINITIONS ${DBUS_CFLAGS})
 FIND_LIBRARY(DBUS_LIBS NAMES dbus-1 PATHS ${DBUS_LINK_DIR} /usr/lib /usr/local/lib)
 
 SUBDIRS(src doc extras)
-
-INSTALL_FILES(${INCLUDE_INSTALL_DIR}/initng FILES src/include/initng/paths.h)
 
 OPTION(BUILD_ALSO "Build also plugin" ON)
 OPTION(BUILD_SERVICE_FILE "Build service_file plugin" ON )
@@ -132,8 +127,6 @@ IF(COUNT_ME)
 	EXEC_PROGRAM(${CMAKE_CURRENT_SOURCE_DIR}/count_me.sh)
 ENDIF(COUNT_ME)
 
-CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/src/include/initng/paths.h.cmake
-	       ${CMAKE_CURRENT_BINARY_DIR}/src/include/initng/paths.h)
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake
                ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 CONFIGURE_FILE(
