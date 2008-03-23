@@ -1,0 +1,56 @@
+Syntax and indentation
+----------------------
+
+Some tips:
+
+* Use tab to indent code blocks (tab width is 8).
+* switch statement should be aligned this way:
+	switch (x) {
+	case Y:
+	case Z:
+	default:
+		break;
+	}
+
+* Curly braces stay on their own for functions, and behind the previous
+  statement otherwise.
+* Be generous with whitespace.
+* Single line blocks do not require braces.
+* Don't put multiple statements on the same line.
+* Line width is 80 columns. If you have something longer just break the line
+  into sensible chunks, and align them to the right.
+* Use one space around binary and ternary operators (except for the
+  function-like ones).
+* Don't use spaces after/before unary operators.
+* Don't use spaces around the '.' and '->' operators.
+* Don't use C99-style comments.
+* Remember to comment your functions in doxygen format.
+
+If you use indent, use these parameters:
+indent -npro -kr -ts8 -i8 -sob -l80 -ss -ncs
+
+
+Return Values:
+
+* Boolean: 0 = failure, non-zero = success
+* Error-code: -x = failure, 0 = success, x = success + status
+
+
+For .s-files:
+
+* Use a tab for indenting (you can resize the width of tabs in your editor).
+  Spaces are dirty, using tabs here allows consistency.
+* Curly braces stand behind the function. (POSIX).
+* Comments should take the form "# comment" not just "#comment", as "#if" is
+  an ifile processor statement.
+* #ifd, #elsed and other ifile processor tags should not be indented.
+* Variables should be in braces: ${var}.  This is both for clarity, and to
+  prevent problems parsing the script.
+* Every executable must be prefixed and suffixed with '@', as @/usr/bin/foo@.
+  Note the 'echo' statement does not.
+  Note the @ symbols surround the binary, not command line arguments,
+  "@/usr/bin/foo@ -f" not "@/usr/bin/foo -f@"
+* Scripts must be POSIX-compliant for portability.  Can be tested with bash or
+  other POSIX-compliant shells.
+* No service or daemon should depend on system/initial.  Use system/bootmisc.
+

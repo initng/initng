@@ -1,0 +1,4 @@
+ADD_LIBRARY(empty MODULE initng_empty.c)
+TARGET_LINK_LIBRARIES(empty initng)
+INSTALL_TARGETS(${LIB_INSTALL_DIR}/initng empty)
+
