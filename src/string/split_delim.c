@@ -88,7 +88,7 @@ char **initng_string_split_delim(const char *string, const char *delim,
 
 	tmp = initng_toolbox_realloc(dest, len + i * sizeof(char *));
 	if (tmp != dest) {
-		for (int j = 0; i < i; j++) {
+		for (int j = 0; j < i; j++) {
 			array[j] += tmp - dest;
 		}
 		dest = tmp;
