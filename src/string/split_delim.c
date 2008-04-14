@@ -81,7 +81,7 @@ char **initng_string_split_delim(const char *string, const char *delim,
 
 		/* if we have used all the array, reallocate it to one more
 		 * chunk */
-		if (i % CHUNK == 0) {
+		if (i < array_size) {
 			array_size += CHUNK;
 			array = initng_toolbox_realloc(array, array_size *
 							      sizeof(char *));
