@@ -75,13 +75,13 @@ char **initng_string_split_delim(const char *string, const char *delim,
 	array_size = CHUNK;
 
 	array[i++] = strtok_r(dest, delim, saveptr);
-	
-	while (tok = strtok_r(NULL, delim, saveptr) {
+
+	while ((tok = strtok_r(NULL, delim, saveptr))) {
 		array[i++] = tok;
 
 		/* if we have used all the array, reallocate it to one more
 		 * chunk */
-		if (i < array_size) {
+		if (i >= array_size) {
 			array_size += CHUNK;
 			array = initng_toolbox_realloc(array, array_size *
 							      sizeof(char *));
@@ -99,17 +99,17 @@ char **initng_string_split_delim(const char *string, const char *delim,
 		}
 		dest = tmp;
 	}
-	
+
 	memcpy(&dest[len], array, i);	/* copy the array at the end of the
 					 * string */
 
 	free(array);
 
 	if (argc) /* TODO: REMOVE */
-		*argc = i - 1;
+		*argc = i;
 
-	return &dest[len];	/* return the pointer to the first element of
-				 * the array */
+	return (char **) &dest[len];	/* return the pointer to the first element of
+					 * the array */
 }
 
 
