@@ -55,32 +55,17 @@ active_db_h *initng_active_db_find_by_exact_name(const char *service)
 /*
  * This is an less exact name, that will work with wildcards.
  * Searching for "net/eth*" will give you "net/eth0"
+ *
+ * FIXME: This function is a sinonym of ...find_by_exact_name() since long
+ *        ago. It should be removed.
  */
 active_db_h *initng_active_db_find_by_name(const char *service)
 {
 	assert(service);
-	active_db_h *current = NULL;
 
 	D_("(%s);\n", (char *)service);
 
-	/* first give the exact find a shot */
-	if ((current = initng_active_db_find_by_exact_name(service)))
-		return (current);
-
-	/* did not find any */
-	return NULL;
-
-	/* no need in pattern matching, because of unique names in cache (TheLich) */
-
-	/* walk the active db and compere */
-	current = NULL;
-	while_active_db(current) {
-		assert(current->name);
-		/* then try to find alike name */
-		if (initng_string_match(current->name, service))
-			return (current);
-
-	}
+	return initng_active_db_find_by_exact_name(service);
 }
 
 /*
