@@ -30,6 +30,8 @@ OPTION(CMAKE_COLOR_MAKEFILE "Generate Makefiles with colored output" ON)
 
 SET(CMAKE_INSTALL_PREFIX "" CACHE INTERNAL "")
 SET(INCLUDE_INSTALL_DIR /usr/include CACHE STRING "Install location for header files.")
+SET(SYSCONF_INSTALL_DIR /etc CACHE STRING "Install location for configuration files.")
+SET(SBIN_INSTALL_DIR /sbin CACHE STRING "Install location for system binaries.")
 SET(LIB_INSTALL_DIR /lib CACHE STRING "Install location for libraries.")
 SET(DATA_INSTALL_DIR /usr/share CACHE STRING "Install location for data files.")
 SET(MAN_INSTALL_DIR ${DATA_INSTALL_DIR}/man CACHE STRING "Install location for manpages.")
