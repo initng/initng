@@ -41,10 +41,8 @@
  */
 
 char **initng_string_split_delim(const char *string, const char *delim,
-				 size_t *argc, int ofs)
+				 size_t *argc)
 {
-	/* TODO: remove the argc and ofs arguments */
-
 	char *dest;
 	size_t len;
 
@@ -58,13 +56,10 @@ char **initng_string_split_delim(const char *string, const char *delim,
 	if (!string)
 		return NULL;
 
-	string += ofs; /* TODO: REMOVE */
-
 	/* skip any inital character in delim, to make sure dest[0]
 	 * will be the start of the string */
-	while (strcspn(string, delim) == 0) {
+	while (strcspn(string, delim) == 0)
 		string++;
-	}
 
 	len = strlen(string) + 1;		/* allocate memory for the */
 	dest = initng_toolbox_calloc(1, len);   /* string and copy it */
@@ -94,9 +89,8 @@ char **initng_string_split_delim(const char *string, const char *delim,
 	tmp = initng_toolbox_realloc(dest, len + i * sizeof(char *));
 	if (tmp != dest) {
 		/* if we got a different address, just rebase the pointers */
-		for (int j = 0; j < i; j++) {
+		for (int j = 0; j < i; j++)
 			array[j] += tmp - dest;
-		}
 		dest = tmp;
 	}
 
@@ -105,7 +99,7 @@ char **initng_string_split_delim(const char *string, const char *delim,
 
 	free(array);
 
-	if (argc) /* TODO: REMOVE */
+	if (argc)
 		*argc = i;
 
 	return (char **) &dest[len];	/* return the pointer to the first element of
