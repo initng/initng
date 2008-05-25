@@ -71,7 +71,7 @@ static char *expand_exec(char *exec)
 {
 	char *filename = NULL;
 	size_t exec_len = 0;
-	size_t path_c, i, len = 0;
+	size_t i, len = 0;
 	char *PATH = NULL;
 	char **path_argv = NULL;
 	struct stat test;
@@ -110,7 +110,7 @@ static char *expand_exec(char *exec)
 	D_("PATH determined to be %s\n", PATH);
 
 	/* split path by ':' char */
-	path_argv = initng_string_split_delim(PATH, ":", &path_c, 0);
+	path_argv = initng_string_split_delim(PATH, ":", NULL);
 
 	/* walk the list of entries */
 	for (i = 0; path_argv[i]; i++) {
@@ -202,7 +202,7 @@ static int simple_exec_try(const char *exec, active_db_h * service,
 
 		/* split the string, with entries to an array of strings */
 		argv =
-		    initng_string_split_delim(exec_args, WHITESPACE, &argc, 1);
+		    initng_string_split_delim(exec_args + 1, WHITESPACE, &argc);
 
 		/* make sure it succeeded */
 		if (!argv || !argv[0]) {
@@ -275,7 +275,7 @@ static int simple_run(active_db_h * service, process_h * process)
 	initng_string_fix_escapes(exec);
 
 	/* argv-entries are pointer to exec_t[x] */
-	argv = initng_string_split_delim(exec, WHITESPACE, &argc, 0);
+	argv = initng_string_split_delim(exec, WHITESPACE, &argc);
 
 	/* make sure we got something from the split */
 	if (!argv || !argv[0]) {

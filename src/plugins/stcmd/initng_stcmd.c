@@ -571,13 +571,12 @@ static char *cmd_get_depends_off_deep(char *arg)
 static int cmd_new_init(char *arg)
 {
 	char *new_i;
-	size_t i = 0;
 
 	if (!arg)
 		return FALSE;
 
 	new_i = strdup(arg);
-	g.new_init = initng_string_split_delim(new_i, WHITESPACE, &i, 0);
+	g.new_init = initng_string_split_delim(new_i, WHITESPACE, NULL);
 	g.when_out = THEN_NEW_INIT;
 
 	initng_handler_stop_all();
