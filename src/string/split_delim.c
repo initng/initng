@@ -50,7 +50,7 @@ char **initng_string_split_delim(const char *string, const char *delim,
 	size_t array_size;
 	size_t i = 0;
 
-	char **saveptr, *tok;
+	char *saveptr, *tok;
 	char *tmp;
 
 	if (!string)
@@ -69,9 +69,8 @@ char **initng_string_split_delim(const char *string, const char *delim,
 	array = initng_toolbox_calloc(1, CHUNK * sizeof(char *));
 	array_size = CHUNK;
 
-	array[i++] = strtok_r(dest, delim, saveptr);
-
-	while ((tok = strtok_r(NULL, delim, saveptr))) {
+	array[i++] = strtok_r(dest, delim, &saveptr);
+	while ((tok = strtok_r(NULL, delim, &saveptr))) {
 		array[i++] = tok;
 
 		/* if we have used all the array, reallocate it to one more
@@ -89,26 +88,25 @@ char **initng_string_split_delim(const char *string, const char *delim,
 	tmp = initng_toolbox_realloc(dest, len + i * sizeof(char *));
 	if (tmp != dest) {
 		/* if we got a different address, just rebase the pointers */
-		for (int j = 0; j < i; j++)
+		for (size_t j = 0; j < i; j++) {
 			array[j] += tmp - dest;
+		}
 		dest = tmp;
 	}
 
-	memcpy(&dest[len], array, i);	/* copy the array at the end of the
+	memcpy(dest+len, array, i * sizeof(char *));	/* copy the array at the end of the
 					 * string */
-
 	free(array);
 
 	if (argc)
 		*argc = i;
 
-	return (char **) &dest[len];	/* return the pointer to the first element of
+	return (char **)dest+len;	/* return the pointer to the first element of
 					 * the array */
 }
 
 
 void initng_string_split_delim_free(char **strs)
 {
-	free(strs[0]);		/* the first pointer is a pointer to the base
-				 * of the allocated memory */
+	free(strs[0]);		/* the first pointer is a pointer to the base * of the allocated memory */
 }
