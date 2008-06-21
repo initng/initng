@@ -1,13 +1,16 @@
+cmake_minimum_required(VERSION 2.2)
+
+if(COMMAND cmake_policy)
+	cmake_policy(SET CMP0003 NEW)
+endif(COMMAND cmake_policy)
+
+
 PROJECT(libinitng C)
 
 SET(VERSION "0.0.1" CACHE STRING "Version number of the project")
 SET(VERSION_NAME "Bleeding Edge" CACHE STRING "Version string")
 
 SET(API_VERSION 1)
-
-IF(CMAKE_BACKWARDS_COMPATIBILITY LESS 2.2)
-	MESSAGE(FATAL_ERROR "Error: Your CMake version is too old. This project requires version 2.2 or newer.")
-ENDIF(CMAKE_BACKWARDS_COMPATIBILITY LESS 2.2)
 
 SET(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 INCLUDE(CheckIncludeFiles)
