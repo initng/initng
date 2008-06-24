@@ -7,10 +7,10 @@ endif(COMMAND cmake_policy)
 
 PROJECT(libinitng C)
 
-SET(VERSION "0.0.1" CACHE STRING "Version number of the project")
+SET(VERSION "0.1.0" CACHE STRING "Version number of the project")
 SET(VERSION_NAME "Bleeding Edge" CACHE STRING "Version string")
 
-SET(API_VERSION 1)
+SET(API_VERSION 0.1)
 
 SET(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 INCLUDE(CheckIncludeFiles)
@@ -32,7 +32,8 @@ INCLUDE_DIRECTORIES(
 OPTION(CMAKE_COLOR_MAKEFILE "Generate Makefiles with colored output" ON)
 
 SET(CMAKE_INSTALL_PREFIX "" CACHE INTERNAL "")
-SET(INCLUDE_INSTALL_DIR /usr/include CACHE STRING "Install location for header files.")
+SET(INCLUDE_INSTALL_DIR /usr/include/libinitng-${API_VERSION} CACHE STRING
+	"Install location for header files.")
 SET(SYSCONF_INSTALL_DIR /etc CACHE STRING "Install location for configuration files.")
 SET(SBIN_INSTALL_DIR /sbin CACHE STRING "Install location for system binaries.")
 SET(LIB_INSTALL_DIR /lib CACHE STRING "Install location for libraries.")
