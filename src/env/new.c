@@ -18,6 +18,7 @@
  */
 
 #include <initng.h>
+#include <initng-paths.h>
 
 #include <time.h>		/* time() */
 #include <fcntl.h>		/* fcntl() */

@@ -26,7 +26,9 @@
 #include <dirent.h>
 #include <fnmatch.h>
 #include <errno.h>
+
 #include <initng.h>
+#include <initng-paths.h>
 
 #include "local.h"
 
