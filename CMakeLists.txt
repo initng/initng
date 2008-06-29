@@ -50,8 +50,6 @@ FIND_LIBRARY(DBUS_LIBS NAMES dbus-1 PATHS ${DBUS_LINK_DIR} /usr/lib /usr/local/l
 
 SUBDIRS(src include doc)
 
-INSTALL_FILES(${INCLUDE_INSTALL_DIR}/initng FILES include/initng/paths.h)
-
 OPTION(DEBUG "Build with developer tools, turns on additional warnings and -Werror" OFF)
 OPTION(CHECK_RO "Test if the / is mounted read-only before reboot/halt" ON)
 
@@ -67,8 +65,16 @@ IF(DEBUG)
 	SET(CMAKE_C_FLAGS "-DDEBUG -g -Werror -Wmissing-prototypes -Wmissing-declarations -Wstrict-prototypes -Wimplicit -Wredundant-decls -Wnested-externs -Wwrite-strings -Wsign-compare -Winline -Wswitch -Wreturn-type -Wparentheses -Wmissing-braces -Wformat -Wformat-nonliteral -Wformat-security -Wsequence-point -Wundef -Wunused -Wcomment ${CMAKE_C_FLAGS}")
 ENDIF(DEBUG)
 
-CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/include/initng/paths.h.cmake
-	       ${CMAKE_CURRENT_BINARY_DIR}/include/initng/paths.h)
+CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/libinitng.pc.in
+	       ${CMAKE_CURRENT_BINARY_DIR}/libinitng-${API_VERSION}.pc
+	       @ONLY)
+INSTALL_FILES(${LIB_INSTALL_DIR}/pkgconfig FILES
+	libinitng-${API_VERSION}.pc)
+
+CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/initng-paths.h.in
+	       ${CMAKE_CURRENT_BINARY_DIR}/initng-paths.h)
+INSTALL_FILES(${INCLUDE_INSTALL_DIR} FILES initng-paths.h)
+
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake
                ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 CONFIGURE_FILE(
