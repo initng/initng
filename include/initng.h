@@ -52,6 +52,5 @@
 #include <initng/config/all.h>
 #include <initng/service/all.h>
 #include <initng/static/all.h>
-#include <initng/paths.h>
 
 #endif /* INITNG_H */
