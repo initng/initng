@@ -1,4 +1,4 @@
-SUBDIRS(event config service module)
+SUBDIRS(event config service module static)
 
 SET(headers
 	misc.h
