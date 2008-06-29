@@ -9,4 +9,4 @@ Description: InitNG common componets library
 Version: @VERSION@
 URL: http://www.initng.org
 Libs: -L${libdir} -linitng
-Cflags: -I{includedir}
+Cflags: -I${includedir}
