@@ -42,7 +42,7 @@
 #include <sys/mount.h>
 
 #include <initng.h>
-#include <initng/paths.h>
+#include <initng-paths.h>
 #include "options.h"
 #define TIMEOUT 60000
 

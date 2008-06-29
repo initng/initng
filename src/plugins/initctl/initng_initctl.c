@@ -19,6 +19,7 @@
  */
 
 #include <initng.h>
+#include <initng-paths.h>
 
 #include <stdio.h>
 #include <stdlib.h>

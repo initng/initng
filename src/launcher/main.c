@@ -31,6 +31,7 @@
 #include <sys/resource.h>
 
 #include <initng.h>
+#include <initng-paths.h>
 
 #ifdef SELINUX
 #include "selinux.h"

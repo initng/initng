@@ -38,6 +38,7 @@
 #include <errno.h>
 
 #include <initng.h>
+#include <initng-paths.h>
 
 #include "libngcclient.h"
 

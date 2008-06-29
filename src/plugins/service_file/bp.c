@@ -41,6 +41,7 @@
 #include <poll.h>
 
 #include <initng.h>
+#include <initng-paths.h>
 
 #include "initng_service_file.h"
 

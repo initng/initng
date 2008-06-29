@@ -39,6 +39,7 @@
 #include <poll.h>
 
 #include <initng.h>
+#include <initng-paths.h>
 
 #include "libngeclient.h"
 int main(int argc, char *argv[]);
