@@ -8,7 +8,6 @@ endif(COMMAND cmake_policy)
 PROJECT(libinitng C)
 
 SET(VERSION "0.1.0" CACHE STRING "Version number of the project")
-SET(VERSION_NAME "Bleeding Edge" CACHE STRING "Version string")
 
 SET(API_VERSION 0.1)
 
@@ -75,11 +74,11 @@ CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/libinitng.pc.in
 INSTALL_FILES(${PKGCONFIG_INSTALL_DIR} FILES libinitng-${API_VERSION}.pc)
 
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/initng-paths.h.in
-	       ${CMAKE_CURRENT_BINARY_DIR}/initng-paths.h)
+	       ${CMAKE_CURRENT_BINARY_DIR}/initng-paths.h @ONLY)
 INSTALL_FILES(${INCLUDE_INSTALL_DIR} FILES initng-paths.h)
 
-CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake
-               ${CMAKE_CURRENT_BINARY_DIR}/config.h)
+CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in
+               ${CMAKE_CURRENT_BINARY_DIR}/config.h @ONLY)
 CONFIGURE_FILE(
 	"${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
 	"${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
