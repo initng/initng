@@ -1,8 +1,16 @@
 High priority:
 
+- move all the code specific to initng out of libinitng.
+- define a consistent api.
+- optimize local usage of functions (maybe by wrappers?, we may be able to
+  exploit some common calling convention feature to make it optimal...).
+- audit the functions to fix pointer and string usage if any; we should
+  avoid them, as they imply relocations, specially poiner arrays.
+- make it thread-safe.
 - Implement a hash-based search method.
-- Implement a hierarchical memory manager.
-- Implement an event-based logging facility.
+- Implement a logging facility.
+- Implement good memory management.
+- Implement asynchronous I/O.
 
 Medium priority:
 
