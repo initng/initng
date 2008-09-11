@@ -47,9 +47,9 @@
 #define FAIL    -1
 
 #ifdef _SVN_REF
-#define INITNG_VERSION VERSION "+svn " _SVN_REF " " VERSION_NAME
+#define INITNG_VERSION VERSION "+svn " _SVN_REF
 #else
-#define INITNG_VERSION VERSION " " VERSION_NAME
+#define INITNG_VERSION VERSION
 #endif
 
 #define INITNG_COPYRIGHT \
