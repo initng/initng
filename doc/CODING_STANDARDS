@@ -15,6 +15,7 @@ Some tips:
 * Curly braces stay on their own for functions, and behind the previous
   statement otherwise.
 * Names of functions in definitions should start in the first column.
+* Don't put a space between a function name and the opening parenthesis.
 * If the arguments of a function don't fit nicely on one line, split it and
   align it to the opening parenthesis, like this:
 
@@ -22,15 +23,12 @@ Some tips:
     function(int param1, char param2, short param3, long param4, size_t param5,
              double param6, float param7)
 
-* Be generous with whitespace.
 * Single line blocks do not require braces.
 * Don't put multiple statements on the same line.
 * Line width is 80 columns. If you have something longer just break the line
   into sensible chunks, and align them to the right.
-* Use one space around binary and ternary operators (except for the
-  function-like ones).
+* Use one space around binary and ternary operators (except for '.' and '->').
 * Don't use spaces after/before unary operators.
-* Don't use spaces around the '.' and '->' operators.
 * Don't use C99-style comments.
 * When you split an expresion, split it before an operator, not after one.
 * Remember to comment your functions in doxygen format.
