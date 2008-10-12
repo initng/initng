@@ -21,8 +21,7 @@ INCLUDE(CheckSymbolExists)
 SET(REQUIRED_API 0.1)
 MARK_AS_ADVANCED(REQUIRED_API)
 
-PKGCONFIG(libinitng-${REQUIRED_API} DROP DROP
-	INITNG_LDFLAGS INITNG_CFLAGS)
+pkg_search_module(INITNG REQUIRED libinitng-${REQUIRED_API})
 
 ADD_DEFINITIONS(-DHAVE_CONFIG_H)
 # Turn on warnings
@@ -55,9 +54,6 @@ SET(RUNLEVEL_DEFAULT runlevel/default CACHE STRING "Default runlevel.")
 SET(RUNLEVEL_FAKE runlevel/fake-default CACHE STRING "Fake-mode runlevel.")
 MARK_AS_ADVANCED(RUNLEVEL_DEFAULT)
 MARK_AS_ADVANCED(RUNLEVEL_FAKE)
-
-pkg_search_module(INITNG REQUIRED libinitng)
-
 
 pkg_search_module(DBUS dbus-1)
 SET(DBUS_DEFINITIONS ${DBUS_CFLAGS})
