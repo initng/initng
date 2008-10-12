@@ -2,8 +2,10 @@ cmake_minimum_required(VERSION 2.2)
 
 if(COMMAND cmake_policy)
 	cmake_policy(SET CMP0003 NEW)
+	cmake_policy(SET CMP0002 OLD)
 endif(COMMAND cmake_policy)
 
+INCLUDE(FindPkgConfig)
 
 PROJECT(initng C)
 
@@ -54,7 +56,10 @@ SET(RUNLEVEL_FAKE runlevel/fake-default CACHE STRING "Fake-mode runlevel.")
 MARK_AS_ADVANCED(RUNLEVEL_DEFAULT)
 MARK_AS_ADVANCED(RUNLEVEL_FAKE)
 
-PKGCONFIG(dbus-1 DBUS_INCLUDE_DIR DBUS_LINK_DIR DBUS_LINK_FLAGS DBUS_CFLAGS)
+pkg_search_module(INITNG REQUIRED libinitng)
+
+
+pkg_search_module(DBUS dbus-1)
 SET(DBUS_DEFINITIONS ${DBUS_CFLAGS})
 FIND_LIBRARY(DBUS_LIBS NAMES dbus-1 PATHS ${DBUS_LINK_DIR} /usr/lib /usr/local/lib)
 
