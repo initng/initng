@@ -82,31 +82,39 @@ char **initng_string_split_delim(const char *string, const char *delim,
 		}
 	}
 
-	array[i++] = NULL;
+	array[i] = NULL;
 
 	/* reallocate the string to append the array */
-	tmp = initng_toolbox_realloc(dest, len + i * sizeof(char *));
+	tmp = initng_toolbox_realloc(dest, len + (i + 1) * sizeof(char *));
 	if (tmp != dest) {
 		/* if we got a different address, just rebase the pointers */
+		/* make sure to skip the last entry (the NULL), otherwise it
+		 * would be set to something being neither a NULL nor a valid
+		 * pointer */
 		for (size_t j = 0; j < i; j++) {
 			array[j] += tmp - dest;
 		}
 		dest = tmp;
 	}
 
-	memcpy(dest+len, array, i * sizeof(char *));	/* copy the array at the end of the
-					 * string */
+	memcpy(dest+len, array, ++i * sizeof(char *));	/* copy the array at
+							 * the end of the
+							 * string */
 	free(array);
 
 	if (argc)
 		*argc = i;
 
-	return (char **)dest+len;	/* return the pointer to the first element of
-					 * the array */
+	return (char **)(dest + len);	/* return the pointer to the first
+					 * element of the array; use
+					 * parenthesis to ensure the compiler
+					 * treats the pointer as an array of
+					 * char and not (char *) */
 }
 
 
 void initng_string_split_delim_free(char **strs)
 {
-	free(strs[0]);		/* the first pointer is a pointer to the base * of the allocated memory */
+	free(strs[0]);		/* the first pointer is a pointer to the base
+				 * of the allocated memory */
 }
