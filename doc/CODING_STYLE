@@ -31,7 +31,20 @@ Some tips:
 * Don't use spaces after/before unary operators.
 * Don't use C99-style comments.
 * When you split an expresion, split it before an operator, not after one.
-* Remember to comment your functions in doxygen format.
+* Remember to comment your functions in doxygen format. The prefered form is
+  the following:
+
+  /**
+   * <Short description>
+   *
+   * [@param <Param_1 description>]
+   * [@param <Param_n description>]
+   * [@return <return value description>]
+   *
+   * [Long description]
+   * [@see <reference to other relevant function>]
+   */
+
 
 If you use indent, use these parameters:
 indent -npro -kr -ts8 -i8 -sob -l80 -ss -ncs
