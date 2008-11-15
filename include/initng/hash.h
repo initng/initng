@@ -21,6 +21,8 @@
 #ifndef INITNG_HASH_H
 #define INITNG_HASH_H
 
+#include <stdint.h>
+
 uint32_t initng_hash_compute(unsigned char *key, size_t len);
 
 #endif

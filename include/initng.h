@@ -32,6 +32,7 @@
 #include <initng/fd.h>
 #include <initng/fork.h>
 #include <initng/handler.h>
+#include <initng/hash.h>
 #include <initng/interrupt.h>
 #include <initng/is_state.h>
 #include <initng/kill.h>
