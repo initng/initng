@@ -29,7 +29,13 @@
 
 #include <initng.h>
 
-/* free some values in this one */
+/**
+ * Destroy an active_db entry.
+ *
+ * @param service
+ *
+ * Frees all the memory used by the service structure.
+ */
 void initng_active_db_free(active_db_h * pf)
 {
 	process_h *current = NULL;
@@ -40,10 +46,10 @@ void initng_active_db_free(active_db_h * pf)
 
 	D_("(%s);\n", pf->name);
 
-	/* look if there are plug-ins, that is interested to now, this is freeing */
+	/* inform any plug-ins interested on it now */
 	initng_common_mark_service(pf, &FREEING);
 
-	/* unregister on all lists */
+	/* unregister from all lists */
 	initng_list_del(&pf->list);
 	initng_list_del(&pf->interrupt);
 
@@ -62,7 +68,9 @@ void initng_active_db_free(active_db_h * pf)
 	free(pf);
 }
 
-/* clear database */
+/**
+ * Clear the entire active_db database.
+ */
 void initng_active_db_free_all(void)
 {
 	active_db_h *current, *safe = NULL;

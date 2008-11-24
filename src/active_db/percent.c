@@ -29,7 +29,14 @@
 
 #include <initng.h>
 
-/* calculate percent of processes started */
+/**
+ * Calculate the percentage of started processes.
+ *
+ * @return percentage
+ *
+ * Walks throught the active_db looking for started processes and calculates
+ * the percentage of started ones.
+ */
 int initng_active_db_percent_started(void)
 {
 	int starting = 0;
@@ -74,7 +81,14 @@ int initng_active_db_percent_started(void)
 	return 0;
 }
 
-/* calculate percent of processes stopped */
+/**
+ * Calculate percentage of stopped processes.
+ *
+ * @return percentage
+ *
+ * Walks throught the active_db looking for stopped processes and calculates
+ * the percentage of started ones.
+ */
 int initng_active_db_percent_stopped(void)
 {
 	int stopping = 0;
@@ -112,8 +126,10 @@ int initng_active_db_percent_stopped(void)
 
 	if (down > 0) {
 		tmp = 100 * (float)down / (float)(stopping + down);
-		D_("active_db_percent_stopped(): down/stopping: %f percent: %i\n\n", (float)down / (float)stopping, (int)tmp);
-		return ((int)tmp);
+		D_("active_db_percent_stopped(): "
+		   "down/stopping: %f percent: %i\n\n",
+		   (float)down / (float)stopping, (int)tmp);
+		return (int)tmp;
 	}
 	return 0;
 }

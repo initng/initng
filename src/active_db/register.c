@@ -29,8 +29,15 @@
 
 #include <initng.h>
 
-/* add active to data structure */
-/* remember to free service, if this fails */
+/**
+ * Add a service to the active_db.
+ *
+ * @param service
+ * @return TRUE if successful, FALSE otherwise
+ *
+ * Register a service to the active_db. Remember to free service if it this
+ * fails.
+ */
 int initng_active_db_register(active_db_h * add_this)
 {
 	active_db_h *current = NULL;

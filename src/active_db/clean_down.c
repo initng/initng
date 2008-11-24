@@ -29,10 +29,11 @@
 
 #include <initng.h>
 
-/*
- * Walk the active db, searching for services that are down, and been so for a minute.
- * It will remove this entry to save memory.
- * CLEAN_DELAY are defined in initng.h
+/**
+ * Removes unused entries from active_db to save memory.
+ *
+ * Walks the active db, searching for services that are down, and been so for a
+ * minute, removing them to save memory.
  */
 void initng_active_db_clean_down(void)
 {

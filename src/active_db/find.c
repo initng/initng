@@ -29,10 +29,15 @@
 
 #include <initng.h>
 
-/*
- * This is an exact search "net/eth0" must be "net/eth0"
+/**
+ * Search a service trought active_db by exact name.
+ *
+ * @param service name
+ * @return service
+ *
+ * This is an exact search, "net/eth0" must be "net/eth0".
  */
-active_db_h *initng_active_db_find_by_exact_name(const char *service)
+active_db_h * initng_active_db_find_by_name(const char *service)
 {
 	active_db_h *current = NULL;
 
@@ -45,32 +50,21 @@ active_db_h *initng_active_db_find_by_exact_name(const char *service)
 		assert(current->name);
 		/* check if this service name is like service */
 		if (strcmp(current->name, service) == 0)
-			return (current);
+			return current;
 	}
 
-	/* did not find any */
-	return (NULL);
+	/* did not found any */
+	return NULL;
 }
 
-/*
- * This is an less exact name, that will work with wildcards.
- * Searching for "net/eth*" will give you "net/eth0"
+/**
+ * Fuzzy search throught active_db.
  *
- * FIXME: This function is a sinonym of ...find_by_exact_name() since long
- *        ago. It should be removed.
- */
-active_db_h *initng_active_db_find_by_name(const char *service)
-{
-	assert(service);
-
-	D_("(%s);\n", (char *)service);
-
-	return initng_active_db_find_by_exact_name(service);
-}
-
-/*
- * This will search and find the best possible.
- * Search for "eth" will get you "net/eth0"
+ * @param service name
+ * @return service
+ *
+ * This function will do a search and find the best candidate for a gievn name
+ * (e.g. a search for "eth" will give "net/eth0").
  */
 active_db_h *initng_active_db_find_in_name(const char *service)
 {
@@ -96,7 +90,15 @@ active_db_h *initng_active_db_find_in_name(const char *service)
 	return (NULL);
 }
 
-/* returns pointer to active_h process belongs to, and sets process_type */
+/**
+ * Searchs a service by PID.
+ *
+ * @param pid
+ * @return service
+ *
+ * Returns a pointer to the active_db_h the process belongs to, and sets
+ * process_type.
+ */
 active_db_h *initng_active_db_find_by_pid(pid_t pid)
 {
 	active_db_h *currentA = NULL;

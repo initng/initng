@@ -29,7 +29,13 @@
 
 #include <initng.h>
 
-/* compensate time */
+/**
+ * Compensate time.
+ *
+ * @param adjustment
+ *
+ * Walks the active_db, adjusting any service's time-type variables.
+ */
 void initng_active_db_compensate_time(time_t skew)
 {
 	active_db_h *current = NULL;

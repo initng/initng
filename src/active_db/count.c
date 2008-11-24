@@ -29,7 +29,15 @@
 
 #include <initng.h>
 
-/* active_db_count counts a type, if null, count all */
+/**
+ * Count services on a given state.
+ *
+ * @param state
+ * @return number of services
+ *
+ * Counts the number of services currently on a given state, or
+ * if the parameter is NULL, counts all services.
+ */
 int initng_active_db_count(a_state_h * current_state_to_count)
 {
 	int counter = 0;	/* actives counter */
