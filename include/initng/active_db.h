@@ -24,6 +24,7 @@ typedef struct active_type active_db_h;
 
 
 #include <sys/types.h>
+#include <sys/time.h>
 #include <unistd.h>
 
 #include <initng/data.h>

@@ -62,11 +62,12 @@ char *initng_string_dirname(const char *string)
 int initng_string_strip_end(char **string)
 {
 
+	char *end;
 	assert(string);
 	assert(*string);
 
 	/* go to last '/' */
-	char *end = strrchr(*string, '/');
+	end = strrchr(*string, '/');
 
 	if (end) {
 		end[0] = '\0';

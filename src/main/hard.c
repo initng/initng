@@ -23,14 +23,14 @@
 #include <fcntl.h>		/* fcntl() */
 #include <sys/un.h>		/* memmove() strcmp() */
 #include <sys/wait.h>		/* waitpid() sa */
-#include <linux/kd.h>		/* KDSIGACCEPT */
 #include <sys/ioctl.h>		/* ioctl() */
 #include <stdlib.h>		/* free() exit() */
+#ifndef __HAIKU__
 #include <sys/reboot.h>		/* reboot() RB_DISABLE_CAD */
 #include <sys/mount.h>
+#endif
 #include <termios.h>
 #include <stdio.h>
-#include <sys/klog.h>
 #include <errno.h>
 
 #include "local.h"
@@ -101,6 +101,7 @@ void hard(h_then t)
 
 	/* if succeded (pid==0) or failed (pid < 0) */
 	if (pid <= 0) {
+#ifndef __HAIKU__
 		/* child process - shut down the machine */
 		switch (t) {
 		case THEN_REBOOT:
@@ -119,6 +120,7 @@ void hard(h_then t)
 			/* What to do here */
 			break;
 		}
+#endif
 
 		/* if in fork, quit it */
 		if (pid == 0)

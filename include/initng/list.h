@@ -132,12 +132,16 @@ static inline int initng_list_isempty(list_t *head)
  */
 static inline void initng_list_join(list_t *list, list_t *head)
 {
+	list_t *first;
+	list_t *last;
+	list_t *at;
+
 	if (initng_list_isempty(list))
 		return;
 
-	list_t *first = list->next;
-	list_t *last = list->prev;
-	list_t *at = head->next;
+	first = list->next;
+	last = list->prev;
+	at = head->next;
 
 	first->prev = head;
 	head->next = first;

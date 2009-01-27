@@ -83,7 +83,9 @@ void initng_signal_enable(void)
 	sigemptyset(&sa.sa_mask);
 
 	/* i don't get this one */
+#ifndef __HAIKU__
 	sa.sa_sigaction = 0;
+#endif
 
 	/* clear signal */
 	for (i = 0; i < SIGNAL_STACK; i++)
@@ -124,7 +126,9 @@ void initng_signal_disable(void)
 	sa.sa_flags = SA_RESTART | SA_NOCLDSTOP;
 
 	/* i don't get this one */
+#ifndef __HAIKU__
 	sa.sa_sigaction = 0;
+#endif
 	sa.sa_handler = SIG_DFL;
 	sigaction(SIGSEGV, &sa, 0);
 	sigaction(SIGABRT, &sa, 0);

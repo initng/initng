@@ -63,9 +63,11 @@ int initng_string_mprintf(char **p, const char *format, ...)
 
 	/* Ok, have a try until vsnprintf succeds */
 	while (1) {
+		int done;
+
 		/* start filling the newly allocaded area */
 		va_start(arg, format);
-		int done = vsnprintf((*p) + len, add_len, format, arg);
+		done = vsnprintf((*p) + len, add_len, format, arg);
 
 		va_end(arg);
 

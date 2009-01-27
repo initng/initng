@@ -25,7 +25,6 @@
 #endif
 
 #include <stdio.h>
-#include <error.h>
 
 /* Undef TRUE FALSE FAIL, so not compiler complains about redefining */
 #ifdef TRUE

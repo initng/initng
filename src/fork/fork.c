@@ -96,7 +96,9 @@ pid_t initng_fork(active_db_h * service, process_h * process)
 		if (g.i_am != I_AM_UTILITY) {
 			/* TODO, comment this */
 			if (g.i_am == I_AM_INIT) {
+#ifndef __HAIKU__
 				ioctl(0, TIOCNOTTY, 0);
+#endif
 				setsid();	/* Run a program in a new
 						 * session ??? */
 			}

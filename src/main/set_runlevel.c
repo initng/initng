@@ -23,14 +23,10 @@
 #include <fcntl.h>		/* fcntl() */
 #include <sys/un.h>		/* memmove() strcmp() */
 #include <sys/wait.h>		/* waitpid() sa */
-#include <linux/kd.h>		/* KDSIGACCEPT */
 #include <sys/ioctl.h>		/* ioctl() */
 #include <stdlib.h>		/* free() exit() */
-#include <sys/reboot.h>		/* reboot() RB_DISABLE_CAD */
-#include <sys/mount.h>
 #include <termios.h>
 #include <stdio.h>
-#include <sys/klog.h>
 #include <errno.h>
 #ifdef SELINUX
 #include <selinux/selinux.h>

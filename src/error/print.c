@@ -66,12 +66,13 @@ static void failsafe_print_error(e_mt mt, const char *file, const char *func,
 int initng_error_print(e_mt mt, const char *file, const char *func, int line,
 		       const char *format, ...)
 {
+	int delivered = FALSE;
+	va_list arg;
+
 	assert(file);
 	assert(func);
 	assert(format);
 
-	int delivered = FALSE;
-	va_list arg;
 
 	/* This lock is to make sure we don't get into an endless print loop */
 	if (lock_error_printing == 1)

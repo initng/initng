@@ -33,9 +33,10 @@
 s_data *initng_data_get_next_var(s_entry * type, const char *vn,
 				 data_head * head, s_data * last)
 {
-	assert(head);
 	list_t *place = NULL;
 	s_data *current = NULL;
+
+	assert(head);
 
 	ALIAS_WALK;
 

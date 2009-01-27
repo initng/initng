@@ -87,11 +87,12 @@ char **initng_string_split_delim(const char *string, const char *delim,
 	/* reallocate the string to append the array */
 	tmp = initng_toolbox_realloc(dest, len + (i + 1) * sizeof(char *));
 	if (tmp != dest) {
+		size_t j;
 		/* if we got a different address, just rebase the pointers */
 		/* make sure to skip the last entry (the NULL), otherwise it
 		 * would be set to something being neither a NULL nor a valid
 		 * pointer */
-		for (size_t j = 0; j < i; j++) {
+		for (j = 0; j < i; j++) {
 			array[j] += tmp - dest;
 		}
 		dest = tmp;

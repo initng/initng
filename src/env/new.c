@@ -24,13 +24,12 @@
 #include <fcntl.h>		/* fcntl() */
 #include <sys/un.h>		/* memmove() strcmp() */
 #include <sys/wait.h>		/* waitpid() sa */
-#include <linux/kd.h>		/* KDSIGACCEPT */
 #include <sys/ioctl.h>		/* ioctl() */
 #include <stdio.h>		/* printf() */
 #include <stdlib.h>		/* free() exit() */
-#include <sys/reboot.h>		/* reboot() RB_DISABLE_CAD */
 #include <assert.h>
 #include <ctype.h>		/* isgraph */
+#include <string.h>
 
 
 const char *initng_environ[] = {

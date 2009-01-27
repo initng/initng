@@ -177,11 +177,11 @@ m_h *initng_module_load(const char *module)
 
 	/* if its a full path starting with / and contains .so */
 	if (module[0] == '/' && strstr(module, ".so")) {
-		/* then copy module name, to module_path */
-		module_path = initng_toolbox_strdup(module);
-
 		int len = strlen(module);
 		int i = len;
+
+		/* then copy module name, to module_path */
+		module_path = initng_toolbox_strdup(module);
 
 		/*
 		 * backwards step until we stand on
@@ -309,10 +309,12 @@ int initng_module_load_all(const char *plugin_path)
 	m_h *current, *safe = NULL;
 
 	/* open plugin dir */
+#ifndef __HAIKU__
 	if ((files = scandir(plugin_path, &filelist, 0, alphasort)) < 1) {
 		F_("Unable to open plugin directory %s.\n", plugin_path);
 		return FALSE;
 	}
+#endif
 
 	/* memory for full path */
 	module_path = initng_toolbox_calloc(strlen(plugin_path) +
