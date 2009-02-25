@@ -70,7 +70,7 @@ int initng_depend_start_dep_met(active_db_h * service, int verbose)
 #endif
 
 		/* look if it exits already */
-		if (!(dep = initng_active_db_find_by_exact_name(current->t.s))) {
+		if (!(dep = initng_active_db_find_by_name(current->t.s))) {
 			if (current->type == &USE) {
 				/* if its not yet found, and i dont care */
 				continue;

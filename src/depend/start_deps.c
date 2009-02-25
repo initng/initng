@@ -55,7 +55,7 @@ int initng_depend_start_deps(active_db_h * service)
 		   current->t.s);
 
 		/* look if it exits already */
-		if ((dep = initng_active_db_find_by_exact_name(current->t.s))) {
+		if ((dep = initng_active_db_find_by_name(current->t.s))) {
 			D_("No need to LOAD \"%s\" == \"%s\", state %s it is "
 			   "already loaded!\n", current->t.s, dep->name,
 			   dep->current_state->name);

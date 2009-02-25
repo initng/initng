@@ -116,7 +116,6 @@ struct active_type {
 active_db_h *initng_active_db_new(const char *name);
 
 /* searching */
-active_db_h *initng_active_db_find_by_exact_name(const char *service);
 active_db_h *initng_active_db_find_by_name(const char *service);
 active_db_h *initng_active_db_find_in_name(const char *service);
 active_db_h *initng_active_db_find_by_pid(pid_t pid);
