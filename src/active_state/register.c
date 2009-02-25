@@ -23,6 +23,12 @@
 
 #include <initng.h>
 
+/**
+ * Register a new state.
+ *
+ * @param state
+ * @return TRUE if successful, FALSE otherwise.
+ */
 int initng_active_state_register(a_state_h * state)
 {
 	assert(state);
