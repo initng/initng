@@ -102,7 +102,7 @@ static int virtual_service_set_up(const char *name)
 {
 	active_db_h *vserv;
 
-	if ((vserv = initng_active_db_find_by_exact_name(name))) {
+	if ((vserv = initng_active_db_find_by_name(name))) {
 		if (IS_STARTING(vserv)) {
 			initng_common_mark_service(vserv, &PROVIDE_UP);
 			return TRUE;
@@ -116,7 +116,7 @@ static int add_virtual_service(const char *name)
 	active_db_h *vserv;
 
 	/* if found */
-	if ((vserv = initng_active_db_find_by_exact_name(name))) {
+	if ((vserv = initng_active_db_find_by_name(name))) {
 		/* make sure its a PROVIDED TYPE, else continue */
 		if (vserv->type != &PROVIDED) {
 			F_("Service name providing is used by another "
@@ -167,7 +167,7 @@ static void remove_virtual_service(const char *name)
 	int i = 0;
 
 	/* find that exact service */
-	if (!(vserv = initng_active_db_find_by_exact_name(name))) {
+	if (!(vserv = initng_active_db_find_by_name(name))) {
 		W_("Virtual service %s doesn't exist!\n", name);
 		return;
 	}

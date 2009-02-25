@@ -295,7 +295,7 @@ static void bp_new_active(bp_rep * rep, const char *type,
 	}
 
 	/* look for existing */
-	new_active = initng_active_db_find_by_exact_name(service);
+	new_active = initng_active_db_find_by_name(service);
 
 	/* check for duplet, not parsing */
 	if (new_active && new_active->current_state != &PARSING_FOR_START) {
@@ -336,7 +336,7 @@ static void bp_set_variable(bp_rep * rep, const char *service,
 			    const char *value)
 {
 	s_entry *type;
-	active_db_h *active = initng_active_db_find_by_exact_name(service);
+	active_db_h *active = initng_active_db_find_by_name(service);
 
 	/* make sure there are filled, or NULL, these variables are not strictly requierd */
 	if (!varname || strlen(varname) < 1)
@@ -445,7 +445,7 @@ static void bp_get_variable(bp_rep * rep, const char *service,
 			    const char *vartype, const char *varname)
 {
 	s_entry *type;
-	active_db_h *active = initng_active_db_find_by_exact_name(service);
+	active_db_h *active = initng_active_db_find_by_name(service);
 
 	/* This one is not required */
 	if (strlen(varname) < 1)
@@ -531,7 +531,7 @@ static void bp_get_variable(bp_rep * rep, const char *service,
 
 static void bp_done(bp_rep * rep, const char *service)
 {
-	active_db_h *active = initng_active_db_find_by_exact_name(service);
+	active_db_h *active = initng_active_db_find_by_name(service);
 
 	if (!active) {
 		strcpy(rep->message, "Service not found.");
@@ -568,7 +568,7 @@ static void bp_done(bp_rep * rep, const char *service)
 
 static void bp_abort(bp_rep * rep, const char *service)
 {
-	active_db_h *active = initng_active_db_find_by_exact_name(service);
+	active_db_h *active = initng_active_db_find_by_name(service);
 
 	if (!active) {
 		strcpy(rep->message, "Service not found.");

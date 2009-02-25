@@ -171,7 +171,7 @@ static active_db_h *find_or_create(const char *name)
 	active_db_h *netdev = NULL;
 
 	/* first try find */
-	if ((netdev = initng_active_db_find_by_exact_name(name))) {
+	if ((netdev = initng_active_db_find_by_name(name))) {
 		if (netdev->type == &NETDEV)
 			return netdev;
 		else
@@ -242,7 +242,7 @@ static void net_remove(const char *name)
 	strncat(new_name, name, 10);
 
 	/* find that exact service */
-	if (!(netdev = initng_active_db_find_by_exact_name(new_name))) {
+	if (!(netdev = initng_active_db_find_by_name(new_name))) {
 		/* if not found, its down */
 		return;
 	}

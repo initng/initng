@@ -72,7 +72,7 @@ static void check_critical(s_event * event)
 	initng_handler_start_service(service);
 
 	/* Make sure full runlevel starting fine */
-	if (!initng_active_db_find_by_exact_name(g.runlevel)) {
+	if (!initng_active_db_find_by_name(g.runlevel)) {
 		if (!initng_handler_start_new_service_named(g.runlevel)) {
 			F_("runlevel \"%s\" could not be executed!\n",
 			   g.runlevel);
