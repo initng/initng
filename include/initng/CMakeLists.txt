@@ -16,6 +16,7 @@ SET(headers
 	fd.h
 	fork.h
 	handler.h
+	hash.h
 	interrupt.h
 	is_state.h
 	kill.h
