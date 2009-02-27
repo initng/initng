@@ -21,11 +21,11 @@
 #ifndef INITNG_LIST_H
 #define INITNG_LIST_H
 
-struct list_s {
-	struct list_s *next, *prev;
+struct _list_s {
+	struct _list_s *next, *prev;
 };
 
-typedef struct list_s list_t;
+typedef struct _list_s list_t;
 
 #define LIST_HEAD_INIT(name) { &(name), &(name) }
 
@@ -36,9 +36,10 @@ static inline void initng_list_init(list_t *list)
 }
 
 /**
- * initng_list_add - add a new entry
- * @newe: new entry to be added
- * @head: list head to add it after
+ * Add a new entry.
+ *
+ * @param newe   New entry to be added.
+ * @param head   List head to add it after.
  *
  * Insert a new entry after the specified head.
  * This is good for implementing stacks.
@@ -56,9 +57,10 @@ static inline void initng_list_add(list_t *newe, list_t *head)
 }
 
 /**
- * initng_list_add_tail - add a new entry
- * @newe: new entry to be added
- * @head: list head to add it before
+ * Add a new entry at the tail.
+ *
+ * @param newe   New entry to be added.
+ * @param head   List head to add it before.
  *
  * Insert a new entry before the specified head.
  * This is useful for implementing queues.
@@ -76,8 +78,10 @@ static inline void initng_list_add_tail(list_t *newe, list_t *head)
 }
 
 /**
- * initng_list_del - deletes entry from list.
- * @entry: the element to delete from the list.
+ * Deletes an entry from the list.
+ *
+ * @param entry   The element to delete from the list.
+ *
  * Note: initng_list_empty on entry does not return true after this, the entry
  *       is in an undefined state.
  */
@@ -93,9 +97,10 @@ static inline void initng_list_del(list_t *entry)
 }
 
 /**
- * initng_list_move - delete from one list and add as another's head
- * @list: the entry to move
- * @head: the head that will precede our entry
+ * Delete from one list and add as another's head.
+ *
+ * @param list   The entry to move.
+ * @param head   The head that will precede our entry.
  */
 static inline void initng_list_move(list_t *list, list_t *head)
 {
@@ -104,9 +109,10 @@ static inline void initng_list_move(list_t *list, list_t *head)
 }
 
 /**
- * list_move_tail - delete from one list and add as another's tail
- * @list: the entry to move
- * @head: the head that will follow our entry
+ * Delete from one list and add as another's tail.
+ *
+ * @param list   The entry to move.
+ * @param head   The head that will follow our entry.
  */
 static inline void list_move_tail(list_t *list, list_t *head)
 {
@@ -115,20 +121,22 @@ static inline void list_move_tail(list_t *list, list_t *head)
 }
 
 /**
- * initng_list_isempty - tests whether a list is empty
- * @head: the list to test.
+ * Tests whether a list is empty.
+ *
+ * @param list   The list to test.
  */
-static inline int initng_list_isempty(list_t *head)
+static inline int initng_list_isempty(list_t *list)
 {
-	return head->next == head;
+	return list->next == list;
 }
 
 /**
- * initng_list_join - join two lists and reinitialise the emptied list.
- * @list: the new list to add.
- * @head: the place to add it in the first list.
+ * Join two lists and re-initialize the emptied list.
  *
- * The list at @list is reinitialised
+ * @param list   The new list to add.
+ * @param head   The place to add it in the first list.
+ *
+ * The list at @list is reinitialized.
  */
 static inline void initng_list_join(list_t *list, list_t *head)
 {
@@ -151,20 +159,22 @@ static inline void initng_list_join(list_t *list, list_t *head)
 }
 
 /**
- * initng_list_entry - get the struct for this entry
- * @ptr:	the &struct list_head pointer.
- * @type:	the type of the struct this is embedded in.
- * @member:	the name of the list_struct within the struct.
+ * Get the struct for this entry.
+ *
+ * @param ptr      The &struct list_head pointer.
+ * @param type     The type of the struct this is embedded in.
+ * @param member   The name of the list_struct within the struct.
  */
 #define initng_list_entry(ptr, type, member) \
 	((type *)((void *)(ptr) - (void *)(&((type *)0)->member)))
 
 
 /**
- * initng_list_foreach - iterate over list of given type
- * @pos:	the type * to use as a loop counter.
- * @head:	the head for your list.
- * @member:	the name of the list_struct within the struct.
+ * Iterate over a list of given type.
+ *
+ * @param pos      The type * to use as a loop counter.
+ * @param head     The head for your list.
+ * @param member   The name of the list_struct within the struct.
  */
 #define initng_list_foreach(pos, head, member) \
 	for (pos = initng_list_entry((head)->next, typeof(*pos), member); \
@@ -172,10 +182,11 @@ static inline void initng_list_join(list_t *list, list_t *head)
 	     pos = initng_list_entry(pos->member.next, typeof(*pos), member))
 
 /**
- * initng_list_foreach - iterate over list of given type in reverse order
- * @pos:	the type * to use as a loop counter.
- * @head:	the head for your list.
- * @member:	the name of the list_struct within the struct.
+ * Iterate over list of given type in reverse order.
+ *
+ * @param pos      The type * to use as a loop counter.
+ * @param head     The head for your list.
+ * @param member   The name of the list_struct within the struct.
  */
 #define initng_list_foreach_rev(pos, head, member) \
 	for (pos = initng_list_entry((head)->prev, typeof(*pos), member); \
@@ -184,12 +195,12 @@ static inline void initng_list_join(list_t *list, list_t *head)
 
 
 /**
- * initng_list_foreach_safe - iterate over list of given type safe against
- *                            removal of list entry
- * @pos:	the type * to use as a loop counter.
- * @n:		another type * to use as temporary storage
- * @head:	the head for your list.
- * @member:	the name of the list_struct within the struct.
+ * Iterate over a list of given type, safe against removal of list entry.
+ *
+ * @param pos      The type * to use as a loop counter.
+ * @param n        Another type * to use as temporary storage.
+ * @param head     The head for your list.
+ * @param member   The name of the list_struct within the struct.
  */
 #define initng_list_foreach_safe(pos, n, head, member) \
 	for (pos = initng_list_entry((head)->next, typeof(*pos), member), \
@@ -199,12 +210,12 @@ static inline void initng_list_join(list_t *list, list_t *head)
 	     n = initng_list_entry(n->member.next, typeof(*n), member))
 
 /**
- * initng_list_foreach_rev_safe - iterate over list of given type safe against
- *                                removal of list entry
- * @pos:	the type * to use as a loop counter.
- * @n:		another type * to use as temporary storage
- * @head:	the head for your list.
- * @member:	the name of the list_struct within the struct.
+ * Iterate over list of given type, safe against removal of list entry.
+ *
+ * @param pos      The type * to use as a loop counter.
+ * @param n        Another type * to use as temporary storage.
+ * @param head     The head for your list.
+ * @param member   The name of the list_struct within the struct.
  */
 #define initng_list_foreach_rev_safe(pos, n, head, member) \
 	for (pos = initng_list_entry((head)->prev, typeof(*pos), member), \
@@ -214,4 +225,4 @@ static inline void initng_list_join(list_t *list, list_t *head)
 	     n = initng_list_entry(n->member.prev, typeof(*n), member))
 
 
-#endif /* ! INITNG_LIST_H */
+#endif /* !defined(INITNG_LIST_H) */
