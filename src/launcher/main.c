@@ -45,12 +45,8 @@ static void setup_console(const char *console)
 	fd = open(console, O_RDWR | O_NOCTTY);
 
 	/* Try to open the console, but don't control it */
-	if (fd > 0) {
-		D_("Opened %s. Setting terminal options.\n", console);
-	} else {
-		D_("Failed to open %s. Setting options anyway.\n", console);
+	if (fd > 0)
 		fd = 0;
-	}
 
 	/* Accept signals from 'kbd' */
 	/* Like Ctrl + Alt + Delete signal? */
@@ -107,7 +103,7 @@ int main(int argc, char *argv[], char *env[])
 
 	/* change dir to / */
 	while (chdir("/") < 0) {
-		F_("Can't chdir to /\n");
+		fprintf(stderr, "Can't chdir to /\n");
 		initng_main_su_login();
 	}
 
@@ -146,8 +142,8 @@ int main(int argc, char *argv[], char *env[])
 
 	if (getpid() != 1) {
 		if (getuid() != 0) {
-			W_("Initng is designed to run as root user, a lot of "
-			   "functionality will not work correctly.\n");
+			fprintf(stderr, "Initng is designed to run as root user, a lot of "
+					"functionality will not work correctly.\n");
 		}
 		new_argv[argc] = (char *) "--fake";
 		argc++;
