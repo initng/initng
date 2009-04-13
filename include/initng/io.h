@@ -30,8 +30,8 @@ typedef int fdwalk_cb(void *, int);
 int initng_io_fdwalk(fdwalk_cb *func);
 int initng_io_closefrom(int lowfd);
 
-int initng_io_fdtrack(int fd);
-int initng_io_fduntrack(int fd);
+void initng_io_fdtrack(int fd);
+void initng_io_fduntrack(int fd);
 
 #endif /* !defined(INITNG_IO_H) */
 

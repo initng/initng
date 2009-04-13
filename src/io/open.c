@@ -18,6 +18,9 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+#include <fcntl.h>
+#include <initng/io.h>
+
 int initng_io_open(const char *path, int flags)
 {
 	int fd;
