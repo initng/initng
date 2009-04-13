@@ -17,9 +17,16 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef INITNG_OPEN_READ_CLOSE_H
-#define INITNG_OPEN_READ_CLOSE_H
+#ifndef INITNG_IO_H
+#define INITNG_IO_H
 
-int initng_io_open_read_close(const char *filename, char **buffer);
+char *initng_io_readwhole(const char *path);
 
-#endif /* INITNG_OPEN_READ_CLOSE_H */
+int initng_io_open(const char *path, int flags);
+int initng_io_close(int fd);
+
+int initng_io_fdwalk(int (*func)(void *, int));
+int initng_io_closefrom(int lowfd);
+
+#endif /* !defined(INITNG_IO_H) */
+

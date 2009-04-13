@@ -28,90 +28,59 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-static void bailout(int *, char **buffer);
-
-int initng_io_open_read_close(const char *filename, char **buffer)
+char *initng_io_readwhole(const char *path)
 {
-	int conf_file;		/* File descriptor for config file */
+	int fd;
 	struct stat stat_buf;
 	int res;		/* Result of read */
+	char *buf;
 
-	/* Mark *buffer and conf_file as not set, for cleanup if bailing
-	 * out... */
+	fd = open(filename, O_RDONLY);	/* Open config file. */
 
-	*buffer = NULL;
-	conf_file = -1;
-
-	conf_file = open(filename, O_RDONLY);	/* Open config file. */
-
-	if (conf_file == -1) {
-		D_("open_read_close(%s) error %d opening file; %s\n",
-		   filename, errno, strerror(errno));
-
-		bailout(&conf_file, buffer);
-		return FALSE;
+	if (fd == -1) {
+		D_("error opening %s: %s (%d)\n",
+		   filename, strerror(errno), errno);
+		return NULL;
 	}
 
-	if (fstat(conf_file, &stat_buf) == -1) {
-		D_("open_read_close(%s) error %s getting file size; %s\n",
-		   filename, errno, strerror(errno));
-
-		bailout(&conf_file, buffer);
-		return FALSE;
+	if (fstat(fd, &stat_buf) == -1) {
+		D_("error getting %s file size: %s (%d)\n",
+		   filename, strerror(errno), errno);
+		close(fd);
+		return NULL;
 	}
 
 	/* Allocate a file buffer */
 
-	*buffer = (char *)initng_toolbox_calloc((stat_buf.st_size + 1), 1);
+	buf = (char *)initng_toolbox_calloc((stat_buf.st_size + 1), 1);
 
 	/* Read whole file */
 
-	res = read(conf_file, *buffer, stat_buf.st_size);
+	res = read(fd, buf, stat_buf.st_size);
 
 	if (res == -1) {
-		F_("open_read_close(%s): Error %d reading file; %s\n",
-		   filename, errno, strerror(errno));
-
-		bailout(&conf_file, buffer);
-		return FALSE;
-	}
-
-	if (res != stat_buf.st_size) {
-		F_("open_read_close(%s): read %d instead of %d bytes\n",
-		   filename, (int)res, (int)stat_buf.st_size);
-
-		bailout(&conf_file, buffer);
-		return FALSE;
+		F_("error reading %s: %s (%d)\n",
+		   filename, strerror(errno), errno);
+		goto error;
+	} else if (res != stat_buf.st_size) {
+		F_("read %d instead of %d bytes from %s\n",
+		   (int)res, (int)stat_buf.st_size, filename);
+		goto error;
 	}
 
 	/* Normally we wouldn't care about this, but as this is init(ng)? */
-	if (close(conf_file) < 0) {
-		F_("open_read_close(%s): Error %d closing file; %s\n",
-		   filename, errno, strerror(errno));
-
-		bailout(&conf_file, buffer);
-		return FALSE;
+	if (close(fd) < 0) {
+		F_("error closing %s: %s (%d)\n",
+		   filename, strerror(errno), errno);
+		goto error;
 	}
 
-	(*buffer)[stat_buf.st_size] = '\0';	/* Null terminate *buffer */
+	buf[stat_buf.st_size] = '\0';	/* nil-terminate buffer */
 
-	return TRUE;
+	return buf;
+
+error:	free(buf);
+	close(fd);
+	return NULL;
 }
 
-/* Avoid using go to sending a pointer to conf_file */
-static void bailout(int *p_conf_file, char **buffer)
-{
-	/* if conf_file != -1 it is open */
-
-	if (*p_conf_file != -1)
-		(void)close(*p_conf_file);	/* Ignore result this time */
-
-	*p_conf_file = -1;
-
-	/* *buffer != NULL => we have called calloc, so free it */
-
-	if (*buffer)
-		free(*buffer);
-
-	*buffer = NULL;
-}
