@@ -58,12 +58,6 @@
 "There is NO WARRANTY, to the extent permitted by law.\n\n" \
 "Written by Jimmy Wennlund and Ismael Luceno.\n"
 
-/* Add to this counter everytime the api changes, and plugins need to recompile */
-#define API_VERSION 19
-
-/* define this macro in start of every plugin to check api version */
-#define INITNG_PLUGIN_MACRO int plugin_api_version = API_VERSION;
-
 /* standard console */
 #define INITNG_CONSOLE	"/dev/console"
 

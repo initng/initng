@@ -33,16 +33,6 @@
 /*
  * Some modules depend on other modules.
  *
- * A module declares its dependencies by adding an array called
- * module_needs, with the names of the modules that it needs, like
- * this:
- *
- * char *module_needs[] = {
- *     "foo",
- *     "bar",
- *     NULL
- * };
- *
  * When a module is loaded, it checks to see if all of the modules
  * that it depends on are already loaded. If they are not, it refuses
  * to load.
@@ -89,8 +79,8 @@ int module_is_loaded(const char *module_name)
 	assert(module_name != NULL);
 
 	while_module_db(m) {
-		if (strcmp(m->module_name, module_name) == 0 ||
-		    strcmp(m->module_filename, module_name) == 0)
+		if (strcmp(m->name, module_name) == 0 ||
+		    strcmp(m->path, module_name) == 0)
 			return TRUE;
 	}
 
@@ -108,19 +98,19 @@ int module_needs_are_loaded(const m_h * m)
 	assert(m != NULL);
 
 	/* if there are no needs, then we have met them */
-	if (m->module_needs == NULL)
+	if (m->modinfo->deps == NULL)
 		return TRUE;
 
 	/* otherwise check each one */
-	needs = m->module_needs;
+	needs = m->modinfo->deps;
 	retval = TRUE;
 	
-	if (needs != NULL) {
-		while (*needs != NULL) {
+	if (needs) {
+		while (*needs) {
 			if (!module_is_loaded(*needs)) {
 				F_("Plugin \"%s\" (%s) requires plugin \"%s\" to "
-				   "work, unlodading %s.\n", m->module_name,
-				   m->module_filename, *needs, m->module_name);
+				   "work, unlodading %s.\n", m->name,
+				   m->path, *needs, m->name);
 				retval = FALSE;
 			}
 			needs++;
@@ -145,14 +135,14 @@ int module_is_needed(const char *module_name)
 
 	while_module_db(m) {
 		/* if not this module, have needs set, continue.. */
-		if (!(m->module_needs))
+		if (!(m->modinfo->deps))
 			continue;
-		needs = m->module_needs;
+		needs = m->modinfo->deps;
 
 		while (*needs != NULL) {
 			if (strcmp(module_name, *needs) == 0) {
 				F_("Module \"%s\" needed by \"%s\"\n",
-				   module_name, m->module_name);
+				   module_name, m->name);
 				retval = TRUE;
 			}
 			needs++;

@@ -38,7 +38,7 @@ static void unload(m_h * module)
 	assert(module != NULL);
 
 	/* run the unload hook */
-	(*module->module_unload) ();
+	(*module->modinfo->unload)();
 
 	/* close and free the module entry in db */
 	initng_module_close_and_free(module);
@@ -60,8 +60,8 @@ int initng_module_unload_named(const char *name)
 
 	/* find the named module in our linked list */
 	while_module_db(m) {
-		if (strcmp(m->module_name, name) == 0) {
-			m->marked_for_removal = TRUE;
+		if (strcmp(m->name, name) == 0) {
+			m->flags |= MODULE_REMOVE;
 			g.modules_to_unload = TRUE;
 			return TRUE;
 		}
@@ -99,14 +99,14 @@ void initng_module_unload_marked(void)
 	S_;
 
 	while_module_db_safe(m, safe) {
-		if (m->marked_for_removal == TRUE) {
-			if (module_is_needed(m->module_name)) {
+		if (m->flags & MODULE_REMOVE) {
+			if (module_is_needed(m->name)) {
 				F_("Not unloading module \"%s\", it is "
-				   "needed\n", m->module_name);
-				m->marked_for_removal = FALSE;
+				   "needed\n", m->name);
+				m->flags &= ~MODULE_REMOVE;
 				continue;
 			}
-			D_("now unloading marked module %s.\n", m->module_name);
+			D_("now unloading marked module %s.\n", m->name);
 			unload(m);
 		}
 	}

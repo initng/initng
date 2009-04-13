@@ -22,15 +22,32 @@
 
 #include <initng/list.h>
 
+/* Add to this counter everytime the api changes, and plugins need to
+ * recompile */
+#define API_VERSION 19
+
+/* define this macro in start of every plugin to check api version */
+#define INITNG_MODULE(init, unload, ...) extern struct initng_module initng_module = { API_VERSION, { ... }, init, unload};
+
+struct initng_module {
+	int  api_version;
+	char **deps;
+	int  (*init) (int api_version);
+	void (*unload) (void);
+};
+
+
 typedef struct module_struct {
-	char *module_name;
-	char *module_filename;
-	void *module_dlhandle;
-	int initziated;
-	int marked_for_removal;
-	int (*module_init) (int api_version);
-	void (*module_unload) (void);
-	char **module_needs;
+	char *name;
+	char *path;
+	void *dlhandle;
+
+	enum {
+		MODULE_INITIALIZED = 1,
+		MODULE_REMOVE      = 2
+	} flags;
+
+	struct initng_module *modinfo;
 
 	list_t list;
 } m_h;

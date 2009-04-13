@@ -53,7 +53,7 @@ m_h *initng_module_open(const char *module_path, const char *module_name)
 	}
 
 	/* make sure this flag is not set */
-	m->initziated = FALSE;
+	m->flags &= ~MODULE_INITIALIZED;
 
 	/* check that file exists */
 	if (stat(module_path, &st) != 0) {
@@ -64,12 +64,12 @@ m_h *initng_module_open(const char *module_path, const char *module_name)
 
 	/* open module */
 	dlerror();		/* clear any existing error */
-	m->module_dlhandle = dlopen(module_path, RTLD_LAZY);
+	m->dlhandle = dlopen(module_path, RTLD_LAZY);
 	/*
 	 * this breaks ngc2 on my testbox - neuron :
 	 * g.modules[i].module = dlopen(module_name, RTLD_NOW | RTLD_GLOBAL);
 	 * */
-	if (m->module_dlhandle == NULL) {
+	if (m->dlhandle == NULL) {
 		F_("Error opening module %s; %s\n", module_name, dlerror());
 		free(m);
 		return NULL;
@@ -81,7 +81,7 @@ m_h *initng_module_open(const char *module_path, const char *module_name)
 	{
 		int *plugin_api;
 
-		plugin_api = dlsym(m->module_dlhandle, "plugin_api_version");
+		plugin_api = dlsym(m->dlhandle, "plugin_api_version");
 		if (!plugin_api) {
 			F_("Symbol \"plugin_api_version\" not found, the "
 			   "macro INITNG_PLUGIN_MACRO is not added to "
@@ -103,35 +103,27 @@ m_h *initng_module_open(const char *module_path, const char *module_name)
 
 	/* get initialization function */
 	dlerror();		/* clear any existing error */
-	m->module_init = dlsym(m->module_dlhandle, "module_init");
-	if (m->module_init == NULL) {
+	m->modinfo = dlsym(m->dlhandle, "initng_module");
+	if (!m->modinfo) {
 		errmsg = dlerror();
-		F_("Error reading module_init(); %s\n", errmsg);
-		initng_module_close_and_free(m);
-		return NULL;
+		F_("Error reading initng_module struct: %s\n", errmsg);
+		goto error;
 	}
 
-	/* get unload function */
-	dlerror();		/* clear any existing error */
-	m->module_unload = dlsym(m->module_dlhandle, "module_unload");
-	if (m->module_unload == NULL) {
-		errmsg = dlerror();
-		F_("Error reading module_unload(); %s\n", errmsg);
-		initng_module_close_and_free(m);
-		return NULL;
+	if (!(m->modinfo->init && m->modinfo->unload)) {
+		F_("Invalid module, missing init or unload function.");
+		goto error;
 	}
-
-	/* get dependency list (may be NULL - this is not an error) */
-	dlerror();		/* clear any existing error */
-	m->module_needs = (char **)dlsym(m->module_dlhandle, "module_needs");
-	/* XXX: is there any way to check for "not found", since we don't
-	 * consider that an error? */
 
 	/* set module name in database */
-	m->module_name = initng_toolbox_strdup(module_name);
-	m->module_filename = initng_toolbox_strdup(module_path);
+	m->name = initng_toolbox_strdup(module_name);
+	m->path = initng_toolbox_strdup(module_path);
 
 	return m;
+
+error:
+	initng_module_close_and_free(m);
+	return NULL;
 }
 
 /*
@@ -142,21 +134,21 @@ void initng_module_close_and_free(m_h * m)
 	assert(m != NULL);
 
 	/* free module name */
-	if (m->module_name) {
-		/*printf("Free: %s\n", m->module_name); */
-		free(m->module_name);
-		m->module_name = NULL;
+	if (m->name) {
+		/*printf("Free: %s\n", m->name); */
+		free(m->name);
+		m->name = NULL;
 	}
 
 	/* free module_filename */
-	if (m->module_filename) {
-		free(m->module_filename);
-		m->module_filename = NULL;
+	if (m->path) {
+		free(m->path);
+		m->path = NULL;
 	}
 
 	/* close the lib */
-	if (m->module_dlhandle)
-		dlclose(m->module_dlhandle);
+	if (m->dlhandle)
+		dlclose(m->dlhandle);
 
 	/* remove from list if added */
 	initng_list_del(&m->list);
@@ -279,19 +271,15 @@ m_h *initng_module_load(const char *module)
 	}
 
 	/* run module_init */
-	new_m->initziated = (*new_m->module_init) (API_VERSION);
-
-	D_("for module \"%s\" return: %i\n", module_path, new_m->initziated);
-
-	if (new_m->initziated < 1) {
-		F_("Module %s did not load correctly (module_init() returned %i)\n", module_path, new_m->initziated);
-		/* XXX: used to be here, but why? */
-		/* sleep(1); */
+	if ((*new_m->modinfo->init)(API_VERSION) > 0) {
+		new_m->flags |= MODULE_INITIALIZED;
+	} else {
+		F_("Module %s did not load correctly\n", module_path);
 		initng_module_close_and_free(new_m);
 		return NULL;
 	}
 
-	assert(new_m->module_name);
+	assert(new_m->name);
 	initng_list_add(&new_m->list, &g.module_db.list);
 	/* and we're done */
 	return new_m;
@@ -356,7 +344,7 @@ int initng_module_load_all(const char *plugin_path)
 			}
 
 			/* add to list and continue */
-			assert(current->module_name);
+			assert(current->name);
 			initng_list_add(&current->list, &g.module_db.list);
 
 			/* This is true until any plugin loads sucessfully */
@@ -378,7 +366,7 @@ int initng_module_load_all(const char *plugin_path)
 	/* load the entries on our TODO list */
 	while_module_db_safe(current, safe) {
 		/* already initialized */
-		if (current->initziated == TRUE)
+		if (current->flags & MODULE_INITIALIZED)
 			continue;
 
 		if (!module_needs_are_loaded(current)) {
@@ -387,16 +375,11 @@ int initng_module_load_all(const char *plugin_path)
 		}
 
 		/* if we did find find a module with needs loaded, try to load it */
-		current->initziated = (*current->module_init) (API_VERSION);
-		D_("for module \"%s\" return: %i\n", current->module_name,
-		   current->initziated);
-
-		/* check if it was initialized correctly */
-		if (current->initziated != TRUE) {
-			if (g.i_am == I_AM_INIT || g.i_am == I_AM_FAKE_INIT)
-				F_("Module %s did not load correctly "
-				   "(module_init() returned %i)\n",
-				   current->module_name, current->initziated);
+		if ((*current->modinfo->init)(API_VERSION) > 0) {
+			current->flags |= MODULE_INITIALIZED;
+		} else {
+			F_("Module %s did not load correctly\n",
+			   current->name);
 			initng_module_close_and_free(current);
 		}
 
