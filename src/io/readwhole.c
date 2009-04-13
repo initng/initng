@@ -35,17 +35,17 @@ char *initng_io_readwhole(const char *path)
 	int res;		/* Result of read */
 	char *buf;
 
-	fd = open(filename, O_RDONLY);	/* Open config file. */
+	fd = open(path, O_RDONLY);	/* Open config file. */
 
 	if (fd == -1) {
 		D_("error opening %s: %s (%d)\n",
-		   filename, strerror(errno), errno);
+		   path, strerror(errno), errno);
 		return NULL;
 	}
 
 	if (fstat(fd, &stat_buf) == -1) {
 		D_("error getting %s file size: %s (%d)\n",
-		   filename, strerror(errno), errno);
+		   path, strerror(errno), errno);
 		close(fd);
 		return NULL;
 	}
@@ -60,18 +60,18 @@ char *initng_io_readwhole(const char *path)
 
 	if (res == -1) {
 		F_("error reading %s: %s (%d)\n",
-		   filename, strerror(errno), errno);
+		   path, strerror(errno), errno);
 		goto error;
 	} else if (res != stat_buf.st_size) {
 		F_("read %d instead of %d bytes from %s\n",
-		   (int)res, (int)stat_buf.st_size, filename);
+		   (int)res, (int)stat_buf.st_size, path);
 		goto error;
 	}
 
 	/* Normally we wouldn't care about this, but as this is init(ng)? */
 	if (close(fd) < 0) {
 		F_("error closing %s: %s (%d)\n",
-		   filename, strerror(errno), errno);
+		   path, strerror(errno), errno);
 		goto error;
 	}
 
