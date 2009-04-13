@@ -17,7 +17,7 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-void initng_io_fdwalk(int fd)
+int initng_io_fdwalk(fdwalk_cb *func)
 {
 	F_("not implemented yet");
 }
