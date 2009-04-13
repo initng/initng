@@ -19,9 +19,10 @@
 
 void initng_io_fdtrack(int fd)
 {
-	
+	D_("not implemented yet");
 }
 
 void initng_io_fduntrack(int fd)
 {
+	D_("not implemented yet");
 }
