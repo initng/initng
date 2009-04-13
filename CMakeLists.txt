@@ -35,6 +35,7 @@ INCLUDE_DIRECTORIES(
 OPTION(CMAKE_COLOR_MAKEFILE "Generate Makefiles with colored output" ON)
 
 SET(CMAKE_INSTALL_PREFIX "" CACHE INTERNAL "")
+SET(INCLUDE_INSTALL_DIR /usr/include CACHE STRING "Install location for header files.") 
 SET(SBIN_INSTALL_DIR /sbin CACHE STRING "Install location for system binaries.")
 SET(BIN_INSTALL_DIR /bin CACHE STRING "Install location for binaries.")
 SET(LIB_INSTALL_DIR /lib CACHE STRING "Install location for libraries.")
