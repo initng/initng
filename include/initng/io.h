@@ -25,8 +25,13 @@ char *initng_io_readwhole(const char *path);
 int initng_io_open(const char *path, int flags);
 int initng_io_close(int fd);
 
-int initng_io_fdwalk(int (*func)(void *, int));
+typedef int fdwalk_cb(void *, int);
+
+int initng_io_fdwalk(fdwalk_cb *func);
 int initng_io_closefrom(int lowfd);
+
+int initng_io_fdtrack(int fd);
+int initng_io_fduntrack(int fd);
 
 #endif /* !defined(INITNG_IO_H) */
 
