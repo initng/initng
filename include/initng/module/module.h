@@ -27,7 +27,13 @@
 #define API_VERSION 19
 
 /* define this macro in start of every plugin to check api version */
-#define INITNG_MODULE(init, unload, ...) extern struct initng_module initng_module = { API_VERSION, { ... }, init, unload};
+#define INITNG_MODULE(...) \
+	extern struct initng_module initng_module = { \
+		API_VERSION, \
+		{ ..., NULL }, \
+		&module_init, \
+		&module_unload \
+	}
 
 struct initng_module {
 	int  api_version;
