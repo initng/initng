@@ -25,7 +25,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
-INITNG_PLUGIN_MACRO;
+INITNG_MODULE();
 
 s_entry CHROOT = {
 	.name = "chroot",

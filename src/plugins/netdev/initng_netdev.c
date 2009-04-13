@@ -34,7 +34,7 @@
 #include <arpa/inet.h>
 #include <assert.h>
 
-INITNG_PLUGIN_MACRO;
+INITNG_MODULE();
 
 /* this service type will a virtual provided get */
 stype_h NETDEV = {

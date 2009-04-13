@@ -34,7 +34,7 @@
 #include <sys/un.h>
 #include <assert.h>
 
-INITNG_PLUGIN_MACRO;
+INITNG_MODULE();
 
 static int cmd_get_pid_of(char *arg);
 static int cmd_start_on_new(char *arg);

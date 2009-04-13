@@ -26,7 +26,7 @@
 #include <signal.h>
 #include <errno.h>
 
-INITNG_PLUGIN_MACRO;
+INITNG_MODULE();
 
 /*
  * ############################################################################

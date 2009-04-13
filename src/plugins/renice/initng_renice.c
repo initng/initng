@@ -24,7 +24,7 @@
 #include <assert.h>
 #include <errno.h>
 
-INITNG_PLUGIN_MACRO;
+INITNG_MODULE();
 
 s_entry NICE = {
 	.name = "nice",

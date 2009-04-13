@@ -28,7 +28,7 @@
 
 #include "print_service.h"
 
-INITNG_PLUGIN_MACRO;
+INITNG_MODULE();
 
 #define IS_PRINTABLE(x) (x >= 32 || x == '\n' || x == '\t' || x == '\r')
 

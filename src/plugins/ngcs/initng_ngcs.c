@@ -39,7 +39,7 @@
 
 #include "initng_ngcs.h"
 
-INITNG_PLUGIN_MACRO;
+INITNG_MODULE("stcmd");
 
 static void accepted_client(f_module_h * from, e_fdw what);
 static void closesock(void);
@@ -56,10 +56,6 @@ static void handle_close(ngcs_conn * conn);
 static void ngcs_cmd_compat(ngcs_request * req);
 static void pollmode_hook(ngcs_conn * conn, int have_pending_writes);
 
-const char *module_needs[] = {
-	"stcmd",
-	NULL
-};
 
 ngcs_cmd ngcs_compat_cmds = {
 	NULL,

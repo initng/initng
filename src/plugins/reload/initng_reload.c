@@ -33,7 +33,7 @@
 extern char **environ;
 
 
-INITNG_PLUGIN_MACRO;
+INITNG_MODULE("service", "daemon", "runlevel");
 
 #define SAVE_FILE		VARDIR "/initng_db_backup.v15"
 #define SAVE_FILE_FAKE		VARDIR "/initng_db_backup_fake.v15"
@@ -45,12 +45,6 @@ static int write_file(const char *filename);
 static int read_file(const char *filename);
 static void cmd_fast_reload(char *arg);
 
-const char *module_needs[] = {
-	"service",
-	"daemon",
-	"runlevel",
-	NULL
-};
 
 s_command FAST_RELOAD = {
 	.id = 'c',

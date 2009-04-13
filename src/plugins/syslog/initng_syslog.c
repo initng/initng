@@ -32,7 +32,7 @@
 
 #include "initng_syslog.h"
 
-INITNG_PLUGIN_MACRO;
+INITNG_MODULE();
 
 static void syslog_print_system_state(s_event * event);
 static void syslog_print_status_change(s_event * event);

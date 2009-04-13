@@ -29,7 +29,7 @@
 
 #include "initng_colorprint_out.h"
 
-INITNG_PLUGIN_MACRO;
+INITNG_MODULE();
 
 #define CPE C_RED	" %3i%% " C_OFF C_BLUE "%s" C_OFF MOVE_TO_R
 #define CP C_RED	"      " C_OFF C_BLUE "%s" C_OFF MOVE_TO_R

@@ -27,7 +27,7 @@
 #include <unistd.h>
 #include <assert.h>
 
-INITNG_PLUGIN_MACRO;
+INITNG_MODULE();
 
 s_entry WAIT_FOR_FILE = {
 	.name = "wait_for_file",

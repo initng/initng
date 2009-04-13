@@ -37,7 +37,7 @@
 
 #include "initng_ngc4.h"
 
-INITNG_PLUGIN_MACRO;
+INITNG_MODULE("stcmd");
 
 static void accepted_client(f_module_h * from, e_fdw what);
 static void closesock(void);
@@ -49,10 +49,6 @@ static void fdh_handler(s_event * event);
 
 s_command local_commands_db;
 
-const char *module_needs[] = {
-	"stcmd",
-	NULL
-};
 
 /*
    In the Linux implementation, sockets which are visible in the file system

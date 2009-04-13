@@ -26,7 +26,7 @@
 #include <pwd.h>
 #include <grp.h>
 
-INITNG_PLUGIN_MACRO;
+INITNG_MODULE();
 
 s_entry SUID = {
 	.name = "suid",

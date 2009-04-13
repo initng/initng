@@ -30,16 +30,11 @@
 #include "../ngc4/initng_ngc4.h"
 #include "initng_history.h"
 
-INITNG_PLUGIN_MACRO;
+INITNG_MODULE("ngc4");
 
 int history_records = 0;
 
 history_h history_db;
-
-const char *module_needs[] = {
-	"ngc4",
-	NULL
-};
 
 static void cmd_history(char *arg, s_payload * payload)
 {

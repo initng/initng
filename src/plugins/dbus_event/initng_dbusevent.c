@@ -39,7 +39,7 @@
 
 #include "initng_dbusevent.h"
 
-INITNG_PLUGIN_MACRO;
+INITNG_MODULE();
 
 void send_to_all(char *buf);
 

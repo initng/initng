@@ -38,7 +38,7 @@
 #include <dirent.h>
 #include <ctype.h>		/* isdigit */
 
-INITNG_PLUGIN_MACRO;
+INITNG_MODULE();
 
 /*
  * ############################################################################

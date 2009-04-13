@@ -25,7 +25,7 @@
 #include <assert.h>
 #include <signal.h>
 
-INITNG_PLUGIN_MACRO;
+INITNG_MODULE();
 
 static void ctrlaltdel(s_event * event)
 {

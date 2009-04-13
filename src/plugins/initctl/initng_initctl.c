@@ -39,7 +39,7 @@
 #include <utmp.h>
 #include "initreq.h"
 
-INITNG_PLUGIN_MACRO;
+INITNG_MODULE();
 
 int utmp_stored = FALSE;
 

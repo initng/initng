@@ -26,7 +26,7 @@
 
 #include "active_db_print.h"
 
-INITNG_PLUGIN_MACRO;
+INITNG_MODULE();
 
 s_entry CRITICAL = {
 	.name = "critical",

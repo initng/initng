@@ -40,7 +40,7 @@
 #include "inotify.h"
 #include "inotify-syscalls.h"
 
-INITNG_PLUGIN_MACRO;
+INITNG_MODULE();
 
 /* static functions */
 static void initng_reload(void);

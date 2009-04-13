@@ -24,7 +24,7 @@
 #include <string.h>
 #include <assert.h>
 
-INITNG_PLUGIN_MACRO;
+INITNG_MODULE();
 
 /*
  * ############################################################################

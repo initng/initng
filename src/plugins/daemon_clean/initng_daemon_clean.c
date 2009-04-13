@@ -25,12 +25,7 @@
 #include <assert.h>
 #include <time.h>
 
-INITNG_PLUGIN_MACRO;
-
-const char *module_needs[] = {
-	"daemon",
-	NULL
-};
+INITNG_MODULE("daemon");
 
 ptype_h T_DAEMON_CLEAN = { "daemon_clean", NULL };
 

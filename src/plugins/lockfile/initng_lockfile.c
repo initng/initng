@@ -28,7 +28,7 @@
 #include <string.h>
 #include <assert.h>
 
-INITNG_PLUGIN_MACRO;
+INITNG_MODULE();
 
 s_entry LOCKFILE = {
 	.name = "lockfile",

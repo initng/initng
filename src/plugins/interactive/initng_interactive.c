@@ -24,7 +24,7 @@
 #include <stdlib.h>		/* free() exit() */
 #include <assert.h>
 
-INITNG_PLUGIN_MACRO;
+INITNG_MODULE();
 
 static int active;
 

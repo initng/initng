@@ -25,12 +25,8 @@
 #include <stdlib.h>		/* free() exit() */
 #include <assert.h>
 
-INITNG_PLUGIN_MACRO;
+INITNG_MODULE("service");
 
-const char *module_needs[] = {
-	"service",
-	NULL
-};
 
 s_entry SYNCRON = {
 	.name = "syncron",

@@ -25,7 +25,7 @@
 #include <string.h>
 #include <assert.h>
 
-INITNG_PLUGIN_MACRO;
+INITNG_MODULE();
 
 static void remove_virtual_service(const char *name);
 static int add_virtual_service(const char *name);

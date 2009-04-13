@@ -33,12 +33,8 @@
 #include <sys/un.h>
 #include <assert.h>
 
-INITNG_PLUGIN_MACRO;
+INITNG_MODULE("runlevel");
 
-const char *module_needs[] = {
-	"runlevel",
-	NULL
-};
 
 static int cmd_stop_unneeded(char *arg);
 

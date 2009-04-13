@@ -39,7 +39,7 @@
 
 #include "initng_service_file.h"
 
-INITNG_PLUGIN_MACRO;
+INITNG_MODULE();
 
 #ifdef GLOBAL_SOCKET
 static void bp_incoming(f_module_h * from, e_fdw what);

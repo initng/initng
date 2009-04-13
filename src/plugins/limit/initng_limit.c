@@ -28,7 +28,7 @@
 #include <sys/time.h>
 #include <sys/resource.h>
 
-INITNG_PLUGIN_MACRO;
+INITNG_MODULE();
 
 /* stolen from man setrlimit */
 s_entry RLIMIT_AS_SOFT = {

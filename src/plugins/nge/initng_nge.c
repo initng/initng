@@ -37,7 +37,7 @@
 
 #include "initng_nge.h"
 
-INITNG_PLUGIN_MACRO;
+INITNG_MODULE();
 
 /* globals */
 struct stat sock_stat;

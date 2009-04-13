@@ -33,7 +33,7 @@
 #include <errno.h>
 #include <time.h>
 
-INITNG_PLUGIN_MACRO;
+INITNG_MODULE();
 
 typedef unsigned long long ull_t;
 typedef long long ll_t;
