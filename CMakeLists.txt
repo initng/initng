@@ -108,7 +108,6 @@ OPTION(DEBUG "Build with developer tools, turns on additional warnings and -Werr
 OPTION(CHECK_RO "Test if the / is mounted read-only before reboot/halt" ON)
 OPTION(FORCE_NOCOLOR "Prevent cpout plugin from using colors" OFF)
 OPTION(FORCE_POSIX_IFILES "Force POSIX compliance on ifiles" OFF)
-OPTION(WITH_BUSYBOX "Hacks to make initng work nice with busybox distros" OFF)
 OPTION(COUNT_ME "Send a simple http reqest to initng server, with initng version data to count initng users out there" OFF)
 
 IF(SELINUX_SUPPORT)

@@ -88,11 +88,7 @@ static void setup_console(const char *console)
 /*
  * %%%%%%%%%%%%%%%%%%%%   main ()   %%%%%%%%%%%%%%%%%%%%
  */
-#ifdef BUSYBOX
-int init_main(int argc, char *argv[], char *env[])
-#else
 int main(int argc, char *argv[], char *env[])
-#endif
 {
 	char **new_argv;
 	const char *console = INITNG_CONSOLE;

@@ -46,11 +46,7 @@
 #include "options.h"
 #define TIMEOUT 60000
 
-#ifdef BUSYBOX
-int init_main(int argc, char *argv[], char *env[])
-#else
 int main(int argc, char *argv[], char *env[])
-#endif
 {
 	struct timeval last;	/* save the time here */
 	int retval;
