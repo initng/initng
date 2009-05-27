@@ -643,11 +643,9 @@ int module_init(int api_version)
 	initng_command_register(&RESTART_SERVICE);
 	initng_command_register(&PRINT_UPTIME);
 
-	if (g.i_am == I_AM_INIT) {
-		initng_command_register(&REBOOT_INITNG);
-		initng_command_register(&POWEROFF_INITNG);
-		initng_command_register(&HALT_INITNG);
-	}
+	initng_command_register(&REBOOT_INITNG);
+	initng_command_register(&POWEROFF_INITNG);
+	initng_command_register(&HALT_INITNG);
 
 	initng_command_register(&PRINT_MODULES);
 	initng_command_register(&LOAD_MODULE);
@@ -674,11 +672,9 @@ void module_unload(void)
 	initng_command_unregister(&RESTART_SERVICE);
 	initng_command_unregister(&PRINT_UPTIME);
 
-	if (g.i_am == I_AM_INIT) {
-		initng_command_unregister(&REBOOT_INITNG);
-		initng_command_unregister(&POWEROFF_INITNG);
-		initng_command_unregister(&HALT_INITNG);
-	}
+	initng_command_unregister(&REBOOT_INITNG);
+	initng_command_unregister(&POWEROFF_INITNG);
+	initng_command_unregister(&HALT_INITNG);
 
 	initng_command_unregister(&PRINT_MODULES);
 	initng_command_unregister(&LOAD_MODULE);

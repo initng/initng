@@ -665,12 +665,7 @@ int module_init(int api_version)
 	 */
 
 	/* decide which socket to use */
-	if (g.i_am == I_AM_INIT)
-		socket_filename = NGE_REAL;
-	else if (g.i_am == I_AM_FAKE_INIT)
-		socket_filename = NGE_TEST;
-	else
-		return FALSE;
+	socket_filename = NGE_REAL;
 
 	D_("Socket is: %s\n", socket_filename);
 

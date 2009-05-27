@@ -364,11 +364,6 @@ int module_init(int api_version)
 		return FALSE;
 	}
 
-	if (g.i_am != I_AM_INIT) {
-		initng_module_unload_named("initctl");
-		return TRUE;	/* this is not a failure */
-	}
-
 	utmp_stored = FALSE;
 
 	initctl_control_open();
@@ -385,10 +380,6 @@ int module_init(int api_version)
 void module_unload(void)
 {
 	D_("module_unload();\n");
-
-	/* then this module was never loaded */
-	if (g.i_am != I_AM_INIT)
-		return;		/* this is not a failure */
 
 	initctl_control_close();
 	/* remove all hooks */

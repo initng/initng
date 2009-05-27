@@ -39,10 +39,7 @@ static void ctrlaltdel(s_event * event)
 		return;
 
 	/* what to do when there is no services left */
-	if (g.i_am == I_AM_INIT)
-		g.when_out = THEN_REBOOT;
-	else if (g.i_am == I_AM_FAKE_INIT)
-		g.when_out = THEN_QUIT;
+	g.when_out = THEN_REBOOT;
 
 	/* stop all services */
 	initng_handler_stop_all();

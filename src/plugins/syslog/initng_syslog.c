@@ -328,12 +328,6 @@ int module_init(int api_version)
 		return FALSE;
 	}
 
-	/* Don't clutter syslog in fake mode */
-	if (g.i_am != I_AM_INIT) {
-		D_("The syslog plugin won't load when running in fake mode, "
-		   "to prevent cluttering up the log-files.\n");
-		return TRUE;
-	}
 	D_("Initializing syslog plugin\n");
 
 	initng_list_init(&log_list.list);
@@ -354,13 +348,6 @@ int module_init(int api_version)
 
 void module_unload(void)
 {
-	/* Don't clutter syslog in fake mode */
-	if (g.i_am != I_AM_INIT) {
-		D_("The syslog plugin won't load when running in fake mode, "
-		   "to prevent cluttering up the log-files.\n");
-		return;
-	}
-
 	initng_event_hook_unregister(&EVENT_IS_CHANGE,
 				     &syslog_print_status_change);
 	initng_event_hook_unregister(&EVENT_SYSTEM_CHANGE,

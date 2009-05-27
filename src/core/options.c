@@ -25,7 +25,6 @@
 #define OPT_HELP	0
 #define OPT_CONSOLE	1
 #define OPT_RUNLEVEL	2
-#define OPT_FAKE	3
 #define OPT_HOT_RELOAD	4
 #define OPT_NO_CIRCULAR	5
 #define OPT_VERBOSE_ADD	6
@@ -38,9 +37,6 @@ opt_t opts[] = {
 	,
 	{OPT_RUNLEVEL, "runlevel",
 	 "Specify default runlevel."}
-	,
-	{OPT_FAKE, "fake",
-	 "Start initng in fake init mode."}
 	,
 	{OPT_HOT_RELOAD, "hot_reload",
 	 NULL}
@@ -86,10 +82,6 @@ static void handle_it(char *str)
 
 	case OPT_NO_CIRCULAR:
 		g.no_circular = TRUE;
-		break;
-
-	case OPT_FAKE:
-		g.i_am = I_AM_FAKE_INIT;
 		break;
 
 	case OPT_HOT_RELOAD:

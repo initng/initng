@@ -558,10 +558,6 @@ int module_init(int api_version)
 		return FALSE;
 	}
 
-	/* only add this module if this is a real init */
-	if (g.i_am != I_AM_INIT && g.i_am != I_AM_FAKE_INIT)
-		return TRUE;
-
 	output = stdout;
 
 	/* check if output is specified */
@@ -631,8 +627,6 @@ int module_init(int api_version)
 void module_unload(void)
 {
 	D_("color_out: module_unload();\n");
-	if (g.i_am != I_AM_INIT && g.i_am != I_AM_FAKE_INIT)
-		return;
 
 	initng_event_hook_unregister(&EVENT_IS_CHANGE, &print_output);
 	initng_event_hook_unregister(&EVENT_SYSTEM_CHANGE, &print_system_state);

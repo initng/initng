@@ -236,9 +236,6 @@ int module_init(int api_version)
 	}
 
 	initng_command_register(&LIST_FDS);
-	if (g.i_am == I_AM_FAKE_INIT) {
-		initng_command_register(&QUIT_INITNG);
-	}
 	initng_command_register(&PRINT_ACTIVE_DB);
 
 #ifdef DEBUG
@@ -256,9 +253,6 @@ void module_unload(void)
 	D_("module_unload(stcmd);\n");
 
 	initng_command_unregister(&LIST_FDS);
-	if (g.i_am == I_AM_FAKE_INIT) {
-		initng_command_unregister(&QUIT_INITNG);
-	}
 	initng_command_unregister(&PRINT_ACTIVE_DB);
 #ifdef DEBUG
 	initng_command_unregister(&TOGGLE_VERBOSE);

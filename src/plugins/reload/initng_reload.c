@@ -663,10 +663,7 @@ static void dump_state(s_event * event)
 	assert(event->event_type == &EVENT_DUMP_ACTIVE_DB);
 
 	/* set the correct filename */
-	if (g.i_am == I_AM_INIT)
-		file = SAVE_FILE;
-	else if (g.i_am == I_AM_FAKE_INIT)
-		file = SAVE_FILE_FAKE;
+	file = SAVE_FILE;
 
 	/* if there is a file */
 	if (!file)
@@ -684,10 +681,7 @@ static void reload_state(s_event * event)
 	assert(event->event_type == &EVENT_RELOAD_ACTIVE_DB);
 
 	/* set the correct filename */
-	if (g.i_am == I_AM_INIT)
-		file = SAVE_FILE;
-	else if (g.i_am == I_AM_FAKE_INIT)
-		file = SAVE_FILE_FAKE;
+	file = SAVE_FILE;
 
 	/* if there is a file */
 	if (!file)
@@ -701,10 +695,7 @@ static void reload_state(s_event * event)
 	}
 
 	/* set the correct filename for import of v13 statefiles */
-	if (g.i_am == I_AM_INIT)
-		file = SAVE_FILE_V13;
-	else if (g.i_am == I_AM_FAKE_INIT)
-		file = SAVE_FILE_FAKE_v13;
+	file = SAVE_FILE_V13;
 
 	/* check that file exits */
 	if (stat(file, &st) == 0) {
@@ -729,20 +720,13 @@ static void save_backup(s_event * event)
 	/* only save when system is getting up */
 	if (*state == STATE_UP) {
 		/* save file */
-		if (g.i_am == I_AM_INIT)
-			write_file(SAVE_FILE);
-		else if (g.i_am == I_AM_FAKE_INIT)
-			write_file(SAVE_FILE_FAKE);
+		write_file(SAVE_FILE);
 		return;
 	}
 
 	/* if system is stopping, remove the SAVE_FILE */
 	if (*state == STATE_STOPPING) {
-		if (g.i_am == I_AM_INIT)
-			unlink(SAVE_FILE);
-		else if (g.i_am == I_AM_FAKE_INIT)
-			unlink(SAVE_FILE_FAKE);
-		return;
+		unlink(SAVE_FILE);
 	}
 }
 
@@ -757,11 +741,7 @@ int module_init(int api_version)
 	}
 
 	/*    if (g.hot_reload) {
-	   if (g.i_am == I_AM_INIT) {
 	   read_file(SAVE_FILE);
-	   } else {
-	   read_file(SAVE_FILE_FAKE);
-	   }
 	   } */
 
 	initng_event_hook_register(&EVENT_SYSTEM_CHANGE, &save_backup);

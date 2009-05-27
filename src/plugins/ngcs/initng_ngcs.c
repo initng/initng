@@ -752,12 +752,7 @@ int module_init(int api_version)
 	initng_list_init(&ngcs_cmds.list);
 
 	/* decide which socket to use */
-	if (g.i_am == I_AM_INIT)
-		socket_filename = SOCKET_FILENAME_REAL;
-	else if (g.i_am == I_AM_FAKE_INIT)
-		socket_filename = SOCKET_FILENAME_TEST;
-	else
-		return TRUE;
+	socket_filename = SOCKET_FILENAME_REAL;
 
 	D_("Socket is: %s\n", socket_filename);
 
@@ -783,9 +778,6 @@ void module_unload(void)
 	ngcs_svr_conn *curr, *tmp;
 
 	D_("module_unload(ngcs);\n");
-
-	if (g.i_am != I_AM_INIT && g.i_am != I_AM_FAKE_INIT)
-		return;
 
 	/* close open sockets */
 	closesock();

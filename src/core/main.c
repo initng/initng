@@ -66,19 +66,10 @@ int main(int argc, char *argv[], char *env[])
 	/* Parse options given on argv. */
 	options_parse_args(argv);
 
-	/* if this is real init */
-	if (g.i_am == I_AM_INIT) {
-		/* when last service stopped, offer a sulogin */
-		g.when_out = THEN_SULOGIN;
-		if (!g.runlevel)
-			initng_main_set_runlevel(RUNLEVEL_DEFAULT);
-	} else if (g.i_am == I_AM_FAKE_INIT) {
-		/* when last service stopped, quit initng */
-		W_("Starting initng in fake mode, running fake-default "
-		   "runlevel as default.");
-		g.when_out = THEN_QUIT;
-		initng_main_set_runlevel(RUNLEVEL_FAKE);
-	}
+	/* when last service stopped, offer a sulogin */
+	g.when_out = THEN_SULOGIN;
+	if (!g.runlevel)
+		initng_main_set_runlevel(RUNLEVEL_DEFAULT);
 
 	D_("MAIN_LOAD_MODULES\n");
 	/* Load modules, if fails - launch sulogin and then try again */
