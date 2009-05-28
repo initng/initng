@@ -96,11 +96,9 @@ void initng_signal_enable(void)
 	sa.sa_flags = SA_RESTART | SA_NOCLDSTOP;
 
 	/* segfault */
-	if (g.i_am == I_AM_INIT) {
-		sa.sa_handler = sigsegv;
-		sigaction(SIGSEGV, &sa, 0);
-		sigaction(SIGABRT, &sa, 0);
-	}
+	sa.sa_handler = sigsegv;
+	sigaction(SIGSEGV, &sa, 0);
+	sigaction(SIGABRT, &sa, 0);
 
 	sa.sa_handler = set_signal;
 	sigaction(SIGCHLD, &sa, 0);	/* Dead children */

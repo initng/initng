@@ -290,10 +290,6 @@ int initng_error_print_debug(const char *file, const char *func, int line,
 	last_file = file;
 	last_func = func;
 
-	if (g.i_am != I_AM_INIT && getpid() != 1) {
-		fprintf(stderr, " [%i]: ", getpid());
-	}
-
 	/* Don't fetch time, until we know we wanna print on screen */
 	t = time(0);
 	ts = localtime(&t);

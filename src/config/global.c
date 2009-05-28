@@ -43,9 +43,6 @@ void initng_config_global_new(int argc, char *argv[], char *env[])
 	/* zero the complete s_global */
 	memset(&g, 0, sizeof(s_global));
 
-	/* Set i_am, default to real-init mode */
-	g.i_am = I_AM_INIT;
-
 	/* we want to keep a copy of the arguments passed to us, this will be
 	 * overwritten by set_title()
 	 */

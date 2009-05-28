@@ -55,7 +55,7 @@ void initng_main_when_out(void)
 		sleep(15);
 	}
 
-	if (g.i_am == I_AM_INIT && getpid() != 1) {
+	if (getpid() != 1) {
 		F_("I AM NOT INIT, THIS CANT BE HAPPENING!\n");
 		sleep(3);
 		return;

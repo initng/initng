@@ -42,14 +42,6 @@ typedef enum
 	THEN_POWEROFF = 7,
 } h_then;
 
-typedef enum
-{
-	I_AM_UNKNOWN = 0,
-	I_AM_INIT = 1,
-	I_AM_FAKE_INIT = 2,
-	I_AM_UTILITY = 3,
-} h_i_am;
-
 /* The GLOBAL struct */
 typedef struct
 {
@@ -81,7 +73,6 @@ typedef struct
 	char *Argv0;
 
 	/* system state data */
-	h_i_am i_am;
 	int hot_reload;
 	char *runlevel;
 	char *old_runlevel;

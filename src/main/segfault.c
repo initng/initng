@@ -47,11 +47,6 @@ void initng_main_segfault(void)
 	/* open a direct socket to /dev/console */
 	int emergency_output = -1;
 
-	/* if this is not init */
-	if (g.i_am != I_AM_INIT) {
-		/* just quit */
-		_exit(99);
-	}
 #ifdef DEBUG
 #define MESSAGE "Initng segfaulted, will wait in 20 seconds for you to start a gdb, before execve(/sbin/initng-segfault);\n"
 

@@ -93,69 +93,63 @@ pid_t initng_fork(active_db_h * service, process_h * process)
 		/* g.verbose = 0; */
 #endif
 
-		if (g.i_am != I_AM_UTILITY) {
-			/* TODO, comment this */
-			if (g.i_am == I_AM_INIT) {
+		/* TODO, comment this */
 #ifndef __HAIKU__
-				ioctl(0, TIOCNOTTY, 0);
+		ioctl(0, TIOCNOTTY, 0);
 #endif
-				setsid();	/* Run a program in a new
-						 * session ??? */
-			}
+		setsid();	/* Run a program in a new
+				 * session ??? */
 
-			/*
-			 * set up file descriptors, for local fork,
-			 * a fork in initng, should now receive any input, but stdout & stderr, should be sent
-			 * to process->out_pipe[], that is set up by pipe() #man 2 pipe
-			 * [0] for reading, and [1] for writing, as the pipe is for sending output
-			 * FROM the fork, to initng for handle, the input part should be closed here,
-			 * the other are mapped to STDOUT and STDERR.
-			 */
+		/*
+		 * set up file descriptors, for local fork,
+		 * a fork in initng, should now receive any input, but stdout & stderr, should be sent
+		 * to process->out_pipe[], that is set up by pipe() #man 2 pipe
+		 * [0] for reading, and [1] for writing, as the pipe is for sending output
+		 * FROM the fork, to initng for handle, the input part should be closed here,
+		 * the other are mapped to STDOUT and STDERR.
+		 */
 
-			/* walk thru all the added pipes */
-			while_pipes(current_pipe, process) {
-				int i;
+		/* walk thru all the added pipes */
+		while_pipes(current_pipe, process) {
+			int i;
 
-				/* for every target */
-				for (i = 0; current_pipe->targets[i] > 0 &&
-				     i < MAX_TARGETS; i++) {
-					/* close any conflicting one */
-					close(current_pipe->targets[i]);
+			/* for every target */
+			for (i = 0; current_pipe->targets[i] > 0 &&
+			     i < MAX_TARGETS; i++) {
+				/* close any conflicting one */
+				close(current_pipe->targets[i]);
 
-					if (current_pipe->dir == OUT_PIPE ||
-					    current_pipe->dir ==
-					    BUFFERED_OUT_PIPE) {
-						/* duplicate the new target right */
-						dup2(current_pipe->pipe[1],
-						     current_pipe->targets[i]);
-					} else if (current_pipe->dir == IN_PIPE) {
-						/* duplicate the input pipe
-						 * instead */
-						dup2(current_pipe->pipe[0],
-						     current_pipe->targets[i]);
-					} else if (current_pipe->dir ==
-						   IN_AND_OUT_PIPE) {
-						/* in a unidirectional socket,
-						 * there is pipe[0] that is
-						 * used in the child */
-						dup2(current_pipe->pipe[0],
-						     current_pipe->targets[i]);
-					} else
-						continue;
+				if (current_pipe->dir == OUT_PIPE ||
+				    current_pipe->dir ==
+				    BUFFERED_OUT_PIPE) {
+					/* duplicate the new target right */
+					dup2(current_pipe->pipe[1],
+					     current_pipe->targets[i]);
+				} else if (current_pipe->dir == IN_PIPE) {
+					/* duplicate the input pipe
+					 * instead */
+					dup2(current_pipe->pipe[0],
+					     current_pipe->targets[i]);
+				} else if (current_pipe->dir ==
+					   IN_AND_OUT_PIPE) {
+					/* in a unidirectional socket,
+					 * there is pipe[0] that is
+					 * used in the child */
+					dup2(current_pipe->pipe[0],
+					     current_pipe->targets[i]);
+				} else
+					continue;
 
-					/* IMPORTANT Tell the os not to close
-					 * the new target on execve */
-					fcntl(current_pipe->targets[i],
-					      F_SETFD, 0);
-				}
+				/* IMPORTANT Tell the os not to close
+				 * the new target on execve */
+				fcntl(current_pipe->targets[i],
+				      F_SETFD, 0);
 			}
 		}
 
 		/* TODO, what does this do? */
-		if (g.i_am == I_AM_INIT) {
-			/* run this in foreground on fd 0 */
-			tcsetpgrp(0, getpgrp());
-		}
+		/* run this in foreground on fd 0 */
+		tcsetpgrp(0, getpgrp());
 
 		/* do a minimum sleep, to let the mother process
 		   to register child, and notice death */
