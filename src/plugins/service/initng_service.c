@@ -851,7 +851,7 @@ static void handle_killed_start(active_db_h * service, process_h * process)
 	/* TODO, create state WAITING_FOR_UP_CHECK */
 
 	/* make the final up check */
-	if (initng_depend_up_check(service) != TRUE) {
+	if (initng_depend_up_check(service) == FAIL) {
 		initng_common_mark_service(service, &SERVICE_UP_CHECK_FAILED);
 		return;
 	}

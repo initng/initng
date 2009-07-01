@@ -842,7 +842,7 @@ static void init_DAEMON_START_DEPS_MET(active_db_h * daemon)
 	D_("FORKS not set, setting to DAEMON_RUNNING directly.\n");
 
 	/* check with up_check */
-	if (initng_depend_up_check(daemon) != TRUE) {
+	if (initng_depend_up_check(daemon) == FAIL) {
 		initng_common_mark_service(daemon, &DAEMON_UP_CHECK_FAILED);
 		return;
 	}
@@ -1462,7 +1462,7 @@ static int try_get_pid(active_db_h * s)
 			p->pid = pid;
 
 		/* check with up_check */
-		if (initng_depend_up_check(s) != TRUE) {
+		if (initng_depend_up_check(s) == FAIL) {
 			initng_common_mark_service(s, &DAEMON_UP_CHECK_FAILED);
 			return FALSE;
 		}
