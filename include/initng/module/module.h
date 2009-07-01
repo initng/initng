@@ -29,10 +29,10 @@
 /* define this macro in start of every plugin to check api version */
 #define INITNG_MODULE(...) \
 	extern struct initng_module initng_module = { \
-		API_VERSION, \
-		{ ..., NULL }, \
-		&module_init, \
-		&module_unload \
+		.api_version = API_VERSION, \
+		.deps = { __VA_ARGS__, NULL }, \
+		.init = &module_init, \
+		.unload = &module_unload \
 	}
 
 struct initng_module {
