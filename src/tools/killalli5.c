@@ -620,7 +620,7 @@ int main(int argc, char **argv)
 	mount_proc();
 
 	/* read the ignorelist */
-	initng_io_open_read_close("/etc/initng/killall5-ignore", &ignorelist);
+	ignorelist = initng_io_readwhole("/etc/initng/killall5-ignore");
 
 	/*
 	 *      Ignoring SIGKILL and SIGSTOP do not make sense, but

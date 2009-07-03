@@ -406,30 +406,21 @@ static char *cmd_print_modules(char *arg)
 
 	(void)arg;
 
-	sprintf(string, "modules: \n");
+	string_len = sprintf(string, "modules: \n");
 
 	while_module_db(mod) {
+		int namelen;
+		char *append_at;
+
+		namelen = strlen(mod->name);
+		append_at = string + string_len;
 		/* Increase buffer for adding */
-		string_len += (strlen(mod->module_name) +
-			       strlen(mod->module_filename) + 40);
+		string_len += 6 + strlen(mod->path);
+				+ namelen < 30 ? 30 : namelen;
+
 		string = initng_toolbox_realloc(string, string_len);
-		strcat(string, "  * ");
-		strcat(string, mod->module_name);
-
-		/* make sure its 30 chars */
-		{
-			int i;
-
-			for (i = strlen(mod->module_name); i < 30; i++)
-				strcat(string, " ");
-		}
-		strcat(string, mod->module_filename);
-		strcat(string, "\n");
+		sprintf(append_at, "  * %-30s %s\n", mod->name, mod->path);
 	}
-
-	/* ok, the string lengh is probably a lot bigger, resize it right */
-	string_len = strlen(string) + 1;
-	string = initng_toolbox_realloc(string, string_len);
 
 	return string;
 }
