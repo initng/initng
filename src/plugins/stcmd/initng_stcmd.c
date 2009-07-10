@@ -415,7 +415,7 @@ static char *cmd_print_modules(char *arg)
 		namelen = strlen(mod->name);
 		append_at = string + string_len;
 		/* Increase buffer for adding */
-		string_len += 6 + strlen(mod->path);
+		string_len += 6 + strlen(mod->path)
 				+ namelen < 30 ? 30 : namelen;
 
 		string = initng_toolbox_realloc(string, string_len);
