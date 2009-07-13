@@ -42,7 +42,7 @@ static void on_kill(s_event * event)
 		return;
 
 	/* start the T_DAEMON_CLEAN */
-	W_("%s %s has been killed!, executing DAEMON_CLEAN!\n",
+	D_("%s %s has been killed!, executing DAEMON_CLEAN!\n",
 	   data->process->pt->name, data->service->name);
 	initng_execute_launch(data->service, &T_DAEMON_CLEAN, NULL);
 
