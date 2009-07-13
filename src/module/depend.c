@@ -102,22 +102,14 @@ int module_needs_are_loaded(const m_h * m)
 		return TRUE;
 
 	/* otherwise check each one */
-	needs = m->modinfo->deps;
-	retval = TRUE;
-	
-	if (needs) {
-		while (*needs) {
-			if (!module_is_loaded(*needs)) {
-				F_("Plugin \"%s\" (%s) requires plugin \"%s\" to "
-				   "work, unlodading %s.\n", m->name,
-				   m->path, *needs, m->name);
-				retval = FALSE;
-			}
-			needs++;
+	for (needs = m->modinfo->deps; *needs; needs++) {
+		if (!module_is_loaded(*needs)) {
+			D_("Plugin \"%s\" (%s) requires plugin \"%s\" to "
+			   "work.\n", m->name, m->path, *needs);
+			return FALSE;
 		}
 	}
-
-	return retval;
+	return TRUE;
 }
 
 /*
