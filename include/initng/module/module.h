@@ -26,15 +26,7 @@
  * recompile */
 #define API_VERSION 19
 
-/* define this macro in start of every plugin to check api version */
-#define INITNG_MODULE(...) \
-	extern struct initng_module initng_module = { \
-		.api_version = API_VERSION, \
-		.deps = { __VA_ARGS__, NULL }, \
-		.init = &module_init, \
-		.unload = &module_unload \
-	}
-
+/* define this struct on every plugin */
 struct initng_module {
 	int  api_version;
 	char **deps;
