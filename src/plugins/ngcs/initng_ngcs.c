@@ -738,17 +738,8 @@ void service_status(s_event * event)
 		check_socket();
 }
 
-int module_init(int api_version)
+int module_init(void)
 {
-	D_("module_init(ngcs);\n");
-
-	if (api_version != API_VERSION) {
-		F_("This module is compiled for api_version %i version and "
-		   "initng is compiled on %i version, won't load this "
-		   "module!\n", API_VERSION, api_version);
-		return FALSE;
-	}
-
 	/* zero globals */
 	fdh.fds = -1;
 	memset(&sock_stat, 0, sizeof(sock_stat));
@@ -773,16 +764,12 @@ int module_init(int api_version)
 
 	/* do the first socket directly */
 	open_socket();
-
-	D_("ngcs.so.0.0 loaded!\n");
 	return TRUE;
 }
 
 void module_unload(void)
 {
 	ngcs_svr_conn *curr, *tmp;
-
-	D_("module_unload(ngcs);\n");
 
 	/* close open sockets */
 	closesock();
@@ -799,6 +786,4 @@ void module_unload(void)
 	initng_event_hook_unregister(&EVENT_FD_WATCHER, &conn_fdw_handler);
 	initng_event_hook_unregister(&EVENT_FD_WATCHER, &fdh_handler);
 	initng_event_hook_unregister(&EVENT_IS_CHANGE, &service_status);
-
-	D_("ngcs.so.0.0 unloaded!\n");
 }

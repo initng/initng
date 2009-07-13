@@ -87,16 +87,8 @@ static void check_critical(s_event * event)
 	return;
 }
 
-int module_init(int api_version)
+int module_init(void)
 {
-	D_("module_init();\n");
-	if (api_version != API_VERSION) {
-		F_("This module is compiled for api_version %i version and "
-		   "initng is compiled on %i version, won't load this "
-		   "module!\n", API_VERSION, api_version);
-		return FALSE;
-	}
-
 	initng_service_data_type_register(&CRITICAL);
 	initng_event_hook_register(&EVENT_IS_CHANGE, &check_critical);
 	return TRUE;
@@ -104,7 +96,6 @@ int module_init(int api_version)
 
 void module_unload(void)
 {
-	D_("module_unload();\n");
 	initng_service_data_type_unregister(&CRITICAL);
 	initng_event_hook_unregister(&EVENT_IS_CHANGE, &check_critical);
 }

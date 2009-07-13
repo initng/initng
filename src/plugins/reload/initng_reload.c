@@ -734,16 +734,8 @@ static void save_backup(s_event * event)
 	}
 }
 
-int module_init(int api_version)
+int module_init(void)
 {
-	D_("module_init(reload);\n");
-	if (api_version != API_VERSION) {
-		F_("This module is compiled for api_version %i version and "
-		   "initng is compiled on %i version, won't load this "
-		   "module!\n", API_VERSION, api_version);
-		return FALSE;
-	}
-
 	/*    if (g.hot_reload) {
 	   read_file(SAVE_FILE);
 	   } */
@@ -757,7 +749,6 @@ int module_init(int api_version)
 
 void module_unload(void)
 {
-	D_("module_unload();\n");
 	initng_event_hook_unregister(&EVENT_SYSTEM_CHANGE, &save_backup);
 	initng_event_hook_unregister(&EVENT_DUMP_ACTIVE_DB, &dump_state);
 	initng_event_hook_unregister(&EVENT_RELOAD_ACTIVE_DB, &reload_state);

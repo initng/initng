@@ -553,16 +553,9 @@ static void cp_print_error(s_event * event)
 	fflush(output);
 }
 
-int module_init(int api_version)
+int module_init(void)
 {
 	int i;
-
-	if (api_version != API_VERSION) {
-		F_("This module is compiled for api_version %i version and "
-		   "initng is compiled on %i version, won't load this "
-		   "module!\n", API_VERSION, api_version);
-		return FALSE;
-	}
 
 	output = stdout;
 
@@ -618,7 +611,6 @@ int module_init(int api_version)
 	    ("\tIf you find initng useful, please consider a small donation.\n\n");
 	fflush(output);
 
-	D_("module_init();\n");
 	lastservice = NULL;
 
 	initng_event_hook_register(&EVENT_ERROR_MESSAGE, &cp_print_error);
@@ -632,8 +624,6 @@ int module_init(int api_version)
 
 void module_unload(void)
 {
-	D_("color_out: module_unload();\n");
-
 	initng_event_hook_unregister(&EVENT_IS_CHANGE, &print_output);
 	initng_event_hook_unregister(&EVENT_SYSTEM_CHANGE, &print_system_state);
 	initng_event_hook_unregister(&EVENT_BUFFER_WATCHER,

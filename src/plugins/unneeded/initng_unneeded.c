@@ -90,27 +90,13 @@ static int cmd_stop_unneeded(char *arg)
 	return TRUE;
 }
 
-int module_init(int api_version)
+int module_init(void)
 {
-	D_("module_init(unneeded);\n");
-	if (api_version != API_VERSION) {
-		F_("This module is compiled for api_version %i version and "
-		   "initng is compiled on %i version, won't load this "
-		   "module!\n", API_VERSION, api_version);
-		return FALSE;
-	}
-
 	initng_command_register(&STOP_UNNEEDED);
-
-	D_("libunneeded.so.0.0 loaded!\n");
 	return TRUE;
 }
 
 void module_unload(void)
 {
-	D_("module_unload(unneeded);\n");
-
 	initng_command_unregister(&STOP_UNNEEDED);
-
-	D_("libunneeded.so.0.0 unloaded!\n");
 }

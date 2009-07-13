@@ -645,16 +645,9 @@ static void print_error(s_event * event)
 	free(buffert);
 }
 
-int module_init(int api_version)
+int module_init(void)
 {
 	int i;
-
-	if (api_version != API_VERSION) {
-		F_("This module is compiled for api_version %i version and "
-		   "initng is compiled on %i version, won't load this "
-		   "module!\n", API_VERSION, api_version);
-		return FALSE;
-	}
 
 	/* clear listeners struct */
 	for (i = 0; i < MAX_LISTENERS; i++)

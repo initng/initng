@@ -324,15 +324,8 @@ static void syslog_print_error(s_event * event)
 	va_end(va);
 }
 
-int module_init(int api_version)
+int module_init(void)
 {
-	if (api_version != API_VERSION) {
-		F_("This module is compiled for api_version %i version and "
-		   "initng is compiled on %i version, won't load this "
-		   "module!\n", API_VERSION, api_version);
-		return FALSE;
-	}
-
 	D_("Initializing syslog plugin\n");
 
 	initng_list_init(&log_list.list);

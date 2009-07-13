@@ -78,17 +78,8 @@ static void do_pause(s_event * event)
 	}
 }
 
-int module_init(int api_version)
+int module_init(void)
 {
-	D_("module_init();\n");
-
-	if (api_version != API_VERSION) {
-		F_("This module is compiled for api_version %i version and "
-		   "initng is compiled on %i version, won't load this "
-		   "module!\n", API_VERSION, api_version);
-		return FALSE;
-	}
-
 	initng_service_data_type_register(&S_DELAY);
 	initng_service_data_type_register(&MS_DELAY);
 	return (initng_event_hook_register(&EVENT_AFTER_FORK, &do_pause));
@@ -96,7 +87,6 @@ int module_init(int api_version)
 
 void module_unload(void)
 {
-	D_("module_unload();\n");
 	initng_service_data_type_unregister(&S_DELAY);
 	initng_service_data_type_unregister(&MS_DELAY);
 	initng_event_hook_unregister(&EVENT_AFTER_FORK, &do_pause);

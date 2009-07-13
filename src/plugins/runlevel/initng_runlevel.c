@@ -221,16 +221,8 @@ static int stop_RUNLEVEL(active_db_h * service)
  * ############################################################################
  */
 
-int module_init(int api_version)
+int module_init(void)
 {
-	D_("module_init();\n");
-	if (api_version != API_VERSION) {
-		F_("This module is compiled for api_version %i version and "
-		   "initng is compiled on %i version, won't load this "
-		   "module!\n", API_VERSION, api_version);
-		return FALSE;
-	}
-
 	initng_service_type_register(&TYPE_RUNLEVEL);
 	initng_service_type_register(&TYPE_VIRTUAL);
 
@@ -247,8 +239,6 @@ int module_init(int api_version)
 
 void module_unload(void)
 {
-	D_("module_unload();\n");
-
 	initng_service_type_unregister(&TYPE_RUNLEVEL);
 	initng_service_type_unregister(&TYPE_VIRTUAL);
 

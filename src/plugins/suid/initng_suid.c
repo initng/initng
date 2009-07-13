@@ -128,16 +128,8 @@ static void do_suid(s_event * event)
 	/* group and passwd are static data structures - don't free */
 }
 
-int module_init(int api_version)
+int module_init(void)
 {
-	D_("module_init();\n");
-	if (api_version != API_VERSION) {
-		F_("This module is compiled for api_version %i version and "
-		   "initng is compiled on %i version, won't load this "
-		   "module!\n", API_VERSION, api_version);
-		return FALSE;
-	}
-
 	initng_service_data_type_register(&SUID);
 	initng_service_data_type_register(&SGID);
 	return (initng_event_hook_register(&EVENT_AFTER_FORK, &do_suid));
@@ -145,7 +137,6 @@ int module_init(int api_version)
 
 void module_unload(void)
 {
-	D_("module_unload();\n");
 	initng_service_data_type_unregister(&SUID);
 	initng_service_data_type_unregister(&SGID);
 	initng_event_hook_unregister(&EVENT_AFTER_FORK, &do_suid);

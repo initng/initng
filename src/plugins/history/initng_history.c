@@ -438,15 +438,8 @@ static void fetch_output(s_event * event)
 	add_hist(tmp_e);
 }
 
-int module_init(int api_version)
+int module_init(void)
 {
-	if (api_version != API_VERSION) {
-		F_("This module is compiled for api_version %i version and "
-		   "initng is compiled on %i version, won't load this "
-		   "module!\n", API_VERSION, api_version);
-		return FALSE;
-	}
-
 	initng_list_init(&history_db.list);
 
 	initng_command_register(&HISTORYS);

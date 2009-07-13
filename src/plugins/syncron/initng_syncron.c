@@ -129,19 +129,11 @@ static void check_syncronicly(s_event * event)
 	}
 }
 
-int module_init(int api_version)
+int module_init(void)
 {
 	int i;
 
 	SERVICE_START_RUN = NULL;
-
-	D_("module_init();\n");
-	if (api_version != API_VERSION) {
-		F_("This module is compiled for api_version %i version and "
-		   "initng is compiled on %i version, won't load this "
-		   "module!\n", API_VERSION, api_version);
-		return FALSE;
-	}
 
 	initng_service_data_type_register(&SYNCRON);
 	for (i = 0; g.Argv[i]; i++) {

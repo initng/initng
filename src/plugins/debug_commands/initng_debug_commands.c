@@ -233,9 +233,8 @@ static int cmd_del_verbose(char *arg)
 }
 #endif
 
-int module_init(int api_version)
+int module_init(void)
 {
-	D_("module_init(stcmd);\n");
 	initng_command_register(&LIST_FDS);
 	initng_command_register(&PRINT_ACTIVE_DB);
 
@@ -245,14 +244,11 @@ int module_init(int api_version)
 	initng_command_register(&DEL_VERBOSE);
 #endif
 
-	D_("libstcmd.so.0.0 loaded!\n");
 	return TRUE;
 }
 
 void module_unload(void)
 {
-	D_("module_unload(stcmd);\n");
-
 	initng_command_unregister(&LIST_FDS);
 	initng_command_unregister(&PRINT_ACTIVE_DB);
 #ifdef DEBUG
@@ -260,6 +256,4 @@ void module_unload(void)
 	initng_command_unregister(&ADD_VERBOSE);
 	initng_command_unregister(&DEL_VERBOSE);
 #endif
-
-	D_("libstcmd.so.0.0 unloaded!\n");
 }

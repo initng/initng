@@ -58,16 +58,8 @@ static void on_kill(s_event * event)
 	return;
 }
 
-int module_init(int api_version)
+int module_init(void)
 {
-	D_("module_init();\n");
-	if (api_version != API_VERSION) {
-		F_("This module is compiled for api_version %i version and "
-		   "initng is compiled on %i version, won't load this "
-		   "module!\n", API_VERSION, api_version);
-		return FALSE;
-	}
-
 	initng_process_db_ptype_register(&T_DAEMON_CLEAN);
 	initng_event_hook_register(&EVENT_HANDLE_KILLED, &on_kill);
 	return TRUE;
@@ -75,7 +67,6 @@ int module_init(int api_version)
 
 void module_unload(void)
 {
-	D_("module_unload();\n");
 	initng_event_hook_unregister(&EVENT_HANDLE_KILLED, &on_kill);
 	initng_process_db_ptype_unregister(&T_DAEMON_CLEAN);
 }

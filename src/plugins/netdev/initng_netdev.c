@@ -334,17 +334,9 @@ static void system_stopping(s_event * event)
 	}
 }
 
-int module_init(int api_version)
+int module_init(void)
 {
 	int i;
-
-	S_;
-	if (api_version != API_VERSION) {
-		F_("This module is compiled for api_version %i version and "
-		   "initng is compiled on %i version, won't load this "
-		   "module!\n", API_VERSION, api_version);
-		return FALSE;
-	}
 
 	/* reset local db */
 	for (i = 0; i < 20; i++) {
@@ -364,8 +356,6 @@ int module_init(int api_version)
 void module_unload(void)
 {
 	int i;
-
-	S_;
 
 	for (i = 0; i < 20; i++) {
 		if (devs[i].dev)

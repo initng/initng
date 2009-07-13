@@ -1419,16 +1419,8 @@ s_command STOP = {
 	.description = "Stop service."
 };
 
-int module_init(int api_version)
+int module_init(void)
 {
-	D_("module_init(ngc2);\n");
-	if (api_version != API_VERSION) {
-		F_("This module is compiled for api_version %i version and "
-		   "initng is compiled on %i version, won't load this "
-		   "module!\n", API_VERSION, api_version);
-		return FALSE;
-	}
-
 	/* initziate the local commands db */
 	initng_list_init(&local_commands_db.list);
 
@@ -1459,20 +1451,15 @@ int module_init(int api_version)
 	/* do the first socket directly */
 	open_socket();
 
-	D_("ngc2.so.0.0 loaded!\n");
 	return TRUE;
 }
 
 void module_unload(void)
 {
-	D_("module_unload(ngc2);\n");
-
 	/* close open sockets */
 	closesock();
 
 	/* remove hooks */
 	initng_event_hook_unregister(&EVENT_FD_WATCHER, &fdh_handler);
 	initng_event_hook_unregister(&EVENT_SIGNAL, &check_socket);
-
-	D_("ngc2.so.0.0 unloaded!\n");
 }

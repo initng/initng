@@ -74,23 +74,14 @@ static void do_chroot(s_event * event)
 	}
 }
 
-int module_init(int api_version)
+int module_init(void)
 {
-	D_("module_init();\n");
-	if (api_version != API_VERSION) {
-		F_("This module is compiled for api_version %i version and "
-		   "initng is compiled on %i version, won't load this "
-		   "module!\n", API_VERSION, api_version);
-		return FALSE;
-	}
-
 	initng_service_data_type_register(&CHROOT);
 	return (initng_event_hook_register(&EVENT_AFTER_FORK, &do_chroot));
 }
 
 void module_unload(void)
 {
-	D_("module_unload();\n");
 	initng_service_data_type_unregister(&CHROOT);
 	initng_event_hook_unregister(&EVENT_AFTER_FORK, &do_chroot);
 }

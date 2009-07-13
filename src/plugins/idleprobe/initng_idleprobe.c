@@ -209,16 +209,8 @@ static void check_cpu_idle(s_event * event)
 	}
 }
 
-int module_init(int api_version)
+int module_init(void)
 {
-	S_;
-	if (api_version != API_VERSION) {
-		F_("This module is compiled for api_version %i version and "
-		   "initng is compiled on %i version, won't load this "
-		   "module!\n", API_VERSION, api_version);
-		return FALSE;
-	}
-
 	initng_service_data_type_register(&WAIT_FOR_CPU_IDLE);
 	initng_service_data_type_register(&WAIT_FOR_CPU_COUNT);
 	initng_event_hook_register(&EVENT_START_DEP_MET, &check_cpu_idle);
@@ -227,7 +219,6 @@ int module_init(int api_version)
 
 void module_unload(void)
 {
-	S_;
 	initng_service_data_type_unregister(&WAIT_FOR_CPU_IDLE);
 	initng_service_data_type_unregister(&WAIT_FOR_CPU_COUNT);
 	initng_event_hook_unregister(&EVENT_START_DEP_MET, &check_cpu_idle);

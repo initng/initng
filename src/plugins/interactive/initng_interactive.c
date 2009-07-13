@@ -115,18 +115,9 @@ static void interactive_STOP_MARKED(s_event * event)
 	event->status = FAILED;
 }
 
-int module_init(int api_version)
+int module_init(void)
 {
 	int i;
-
-	if (api_version != API_VERSION) {
-		F_("This module is compiled for api_version %i version and "
-		   "initng is compiled on %i version, won't load this "
-		   "module!\n", API_VERSION, api_version);
-		return FALSE;
-	}
-
-	D_("module_init();\n");
 
 	/* look for the string interactive */
 	for (i = 0; g.Argv[i]; i++) {
@@ -148,7 +139,6 @@ int module_init(int api_version)
 
 void module_unload(void)
 {
-	D_("module_unload();\n");
 	if (active == TRUE) {
 		initng_event_hook_unregister(&EVENT_START_DEP_MET,
 					     &interactive_STARTING);

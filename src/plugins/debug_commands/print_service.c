@@ -28,14 +28,6 @@
 
 #include "print_service.h"
 
-const struct initng_module initng_module = {
-	.api_version = API_VERSION,
-	.deps = NULL,
-	.init = &module_init,
-	.unload = &module_unload
-}
-
-
 #define IS_PRINTABLE(x) (x >= 32 || x == '\n' || x == '\t' || x == '\r')
 
 static void active_db_print_u(active_db_h * s, char **string);

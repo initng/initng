@@ -360,16 +360,8 @@ static void initng_s_launch(s_event * event)
 	}
 }
 
-int module_init(int api_version)
+int module_init(void)
 {
-	D_("initng_simple_plugin: module_init();\n");
-	if (api_version != API_VERSION) {
-		F_("This module is compiled for api_version %i version and "
-		   "initng is compiled on %i version, won't load this "
-		   "module!\n", API_VERSION, api_version);
-		return FALSE;
-	}
-
 	initng_event_hook_register(&EVENT_LAUNCH, &initng_s_launch);
 	initng_service_data_type_register(&EXEC);
 	initng_service_data_type_register(&EXECS);
@@ -380,8 +372,6 @@ int module_init(int api_version)
 
 void module_unload(void)
 {
-	D_("initng_simple_plugin: module_unload();\n");
-
 	initng_service_data_type_unregister(&EXEC);
 	initng_service_data_type_unregister(&EXECS);
 	initng_service_data_type_unregister(&EXEC_ARGS);

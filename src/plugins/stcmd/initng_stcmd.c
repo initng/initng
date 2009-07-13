@@ -623,16 +623,8 @@ static int cmd_run(char *arg)
 	return TRUE;
 }
 
-int module_init(int api_version)
+int module_init(void)
 {
-	D_("module_init(stcmd);\n");
-	if (api_version != API_VERSION) {
-		F_("This module is compiled for api_version %i version and "
-		   "initng is compiled on %i version, won't load this "
-		   "module!\n", API_VERSION, api_version);
-		return FALSE;
-	}
-
 	initng_command_register(&GET_PID_OF);
 	initng_command_register(&START_ON_NEW);
 	initng_command_register(&FREE_SERVICE);
@@ -653,15 +645,11 @@ int module_init(int api_version)
 	initng_command_register(&DEPENDS_OFF_DEEP);
 	initng_command_register(&NEW_INIT);
 	initng_command_register(&RUN);
-
-	D_("libstcmd.so.0.0 loaded!\n");
 	return TRUE;
 }
 
 void module_unload(void)
 {
-	D_("module_unload(stcmd);\n");
-
 	initng_command_unregister(&GET_PID_OF);
 	initng_command_unregister(&START_ON_NEW);
 	initng_command_unregister(&FREE_SERVICE);
@@ -682,6 +670,4 @@ void module_unload(void)
 	initng_command_unregister(&DEPENDS_OFF_DEEP);
 	initng_command_unregister(&NEW_INIT);
 	initng_command_unregister(&RUN);
-
-	D_("libstcmd.so.0.0 unloaded!\n");
 }

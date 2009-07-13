@@ -173,16 +173,8 @@ static void check_files_to_exist_after(s_event * event)
 	}
 }
 
-int module_init(int api_version)
+int module_init(void)
 {
-	S_;
-	if (api_version != API_VERSION) {
-		F_("This module is compiled for api_version %i version and "
-		   "initng is compiled on %i version, won't load this "
-		   "module!\n", API_VERSION, api_version);
-		return FALSE;
-	}
-
 	initng_service_data_type_register(&WAIT_FOR_FILE);
 	initng_service_data_type_register(&REQUIRE_FILE);
 	initng_service_data_type_register(&WAIT_FOR_FILE_AFTER);
@@ -198,7 +190,6 @@ int module_init(int api_version)
 
 void module_unload(void)
 {
-	S_;
 	initng_service_data_type_unregister(&WAIT_FOR_FILE);
 	initng_service_data_type_unregister(&REQUIRE_FILE);
 	initng_service_data_type_unregister(&WAIT_FOR_FILE_AFTER);

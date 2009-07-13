@@ -342,16 +342,8 @@ static void do_limit(s_event * event)
 		event->status = FAILED;
 }
 
-int module_init(int api_version)
+int module_init(void)
 {
-	D_("module_init();\n");
-	if (api_version != API_VERSION) {
-		F_("This module is compiled for api_version %i version and "
-		   "initng is compiled on %i version, won't load this "
-		   "module!\n", API_VERSION, api_version);
-		return FALSE;
-	}
-
 	/* Add all options to initng */
 	initng_service_data_type_register(&RLIMIT_AS_SOFT);
 	initng_service_data_type_register(&RLIMIT_AS_HARD);
@@ -385,8 +377,6 @@ int module_init(int api_version)
 
 void module_unload(void)
 {
-	D_("module_unload();\n");
-
 	/* remove the hook */
 	initng_event_hook_unregister(&EVENT_AFTER_FORK, &do_limit);
 
