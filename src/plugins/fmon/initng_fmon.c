@@ -40,7 +40,13 @@
 #include "inotify.h"
 #include "inotify-syscalls.h"
 
-INITNG_MODULE();
+struct initng_module initng_module = {
+	.api_version = API_VERSION,
+	.deps = { NULL },
+	.init = &module_init,
+	.unload = &module_unload
+}
+
 
 /* static functions */
 static void initng_reload(void);

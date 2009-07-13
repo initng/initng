@@ -39,7 +39,12 @@
 
 #include "initng_service_file.h"
 
-INITNG_MODULE();
+struct initng_module initng_module = {
+	.api_version = API_VERSION,
+	.deps = { NULL },
+	.init = &module_init,
+	.unload = &module_unload
+}
 
 #ifdef GLOBAL_SOCKET
 static void bp_incoming(f_module_h * from, e_fdw what);

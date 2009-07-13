@@ -32,8 +32,12 @@
 
 extern char **environ;
 
-
-INITNG_MODULE("service", "daemon", "runlevel");
+struct initng_module initng_module = {
+	.api_version = API_VERSION,
+	.deps = { "service", "daemon", "runlevel", NULL },
+	.init = &module_init,
+	.unload = &module_unload
+}
 
 #define SAVE_FILE		VARDIR "/initng_db_backup.v15"
 #define SAVE_FILE_FAKE		VARDIR "/initng_db_backup_fake.v15"

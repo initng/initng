@@ -33,8 +33,12 @@
 #include <sys/un.h>
 #include <assert.h>
 
-INITNG_MODULE("runlevel");
-
+struct initng_module initng_module = {
+	.api_version = API_VERSION,
+	.deps = { "runlevel", NULL },
+	.init = &module_init,
+	.unload = &module_unload
+}
 
 static int cmd_stop_unneeded(char *arg);
 

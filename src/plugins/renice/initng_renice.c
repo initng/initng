@@ -24,7 +24,12 @@
 #include <assert.h>
 #include <errno.h>
 
-INITNG_MODULE();
+struct initng_module initng_module = {
+	.api_version = API_VERSION,
+	.deps = { NULL },
+	.init = &module_init,
+	.unload = &module_unload
+}
 
 s_entry NICE = {
 	.name = "nice",

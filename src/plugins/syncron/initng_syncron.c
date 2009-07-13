@@ -25,7 +25,12 @@
 #include <stdlib.h>		/* free() exit() */
 #include <assert.h>
 
-INITNG_MODULE("service");
+struct initng_module initng_module = {
+	.api_version = API_VERSION,
+	.deps = { "service", NULL },
+	.init = &module_init,
+	.unload = &module_unload
+}
 
 
 s_entry SYNCRON = {

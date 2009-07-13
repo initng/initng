@@ -25,7 +25,12 @@
 #include <assert.h>
 #include <time.h>
 
-INITNG_MODULE("daemon");
+struct initng_module initng_module = {
+	.api_version = API_VERSION,
+	.deps = { "daemon", NULL },
+	.init = &module_init,
+	.unload = &module_unload
+}
 
 ptype_h T_DAEMON_CLEAN = { "daemon_clean", NULL };
 

@@ -32,7 +32,12 @@
 
 #include "initng_syslog.h"
 
-INITNG_MODULE();
+struct initng_module initng_module = {
+	.api_version = API_VERSION,
+	.deps = { NULL },
+	.init = &module_init,
+	.unload = &module_unload
+}
 
 static void syslog_print_system_state(s_event * event);
 static void syslog_print_status_change(s_event * event);

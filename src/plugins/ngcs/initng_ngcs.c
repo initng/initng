@@ -39,7 +39,12 @@
 
 #include "initng_ngcs.h"
 
-INITNG_MODULE("stcmd");
+struct initng_module initng_module = {
+	.api_version = API_VERSION,
+	.deps = { "stcmd", NULL },
+	.init = &module_init,
+	.unload = &module_unload
+}
 
 static void accepted_client(f_module_h * from, e_fdw what);
 static void closesock(void);
