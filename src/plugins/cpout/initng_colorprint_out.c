@@ -34,7 +34,7 @@ const struct initng_module initng_module = {
 	.deps = NULL,
 	.init = &module_init,
 	.unload = &module_unload
-}
+};
 
 
 #define CPE C_RED	" %3i%% " C_OFF C_BLUE "%s" C_OFF MOVE_TO_R

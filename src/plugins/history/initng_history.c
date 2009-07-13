@@ -35,7 +35,7 @@ const struct initng_module initng_module = {
 	.deps = { "ngc4", NULL },
 	.init = &module_init,
 	.unload = &module_unload
-}
+};
 
 int history_records = 0;
 

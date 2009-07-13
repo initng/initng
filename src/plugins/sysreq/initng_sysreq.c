@@ -30,7 +30,7 @@ const struct initng_module initng_module = {
 	.deps = NULL,
 	.init = &module_init,
 	.unload = &module_unload
-}
+};
 
 static void sysreq(s_event * event)
 {

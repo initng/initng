@@ -30,7 +30,7 @@ const struct initng_module initng_module = {
 	.deps = { "service", NULL },
 	.init = &module_init,
 	.unload = &module_unload
-}
+};
 
 
 s_entry SYNCRON = {

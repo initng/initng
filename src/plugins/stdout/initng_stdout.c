@@ -32,7 +32,7 @@ const struct initng_module initng_module = {
 	.deps = NULL,
 	.init = &module_init,
 	.unload = &module_unload
-}
+};
 
 s_entry STDOUT = {
 	.name = "stdout",

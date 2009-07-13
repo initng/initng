@@ -42,7 +42,7 @@ const struct initng_module initng_module = {
 	.deps = NULL,
 	.init = &module_init,
 	.unload = &module_unload
-}
+};
 
 /* globals */
 struct stat sock_stat;

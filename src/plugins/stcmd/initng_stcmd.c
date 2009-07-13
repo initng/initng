@@ -39,7 +39,7 @@ const struct initng_module initng_module = {
 	.deps = NULL,
 	.init = &module_init,
 	.unload = &module_unload
-}
+};
 
 static int cmd_get_pid_of(char *arg);
 static int cmd_start_on_new(char *arg);

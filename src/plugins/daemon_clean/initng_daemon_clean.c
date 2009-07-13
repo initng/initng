@@ -30,7 +30,7 @@ const struct initng_module initng_module = {
 	.deps = { "daemon", NULL },
 	.init = &module_init,
 	.unload = &module_unload
-}
+};
 
 ptype_h T_DAEMON_CLEAN = { "daemon_clean", NULL };
 

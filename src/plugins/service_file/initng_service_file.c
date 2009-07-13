@@ -44,7 +44,7 @@ const struct initng_module initng_module = {
 	.deps = NULL,
 	.init = &module_init,
 	.unload = &module_unload
-}
+};
 
 #ifdef GLOBAL_SOCKET
 static void bp_incoming(f_module_h * from, e_fdw what);

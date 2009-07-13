@@ -38,7 +38,7 @@ const struct initng_module initng_module = {
 	.deps = { "runlevel", NULL },
 	.init = &module_init,
 	.unload = &module_unload
-}
+};
 
 static int cmd_stop_unneeded(char *arg);
 
