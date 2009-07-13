@@ -85,7 +85,7 @@ m_h *initng_module_open(const char *module_path, const char *module_name)
 		goto error;
 	}
 
-	if (m->api_version != API_VERSION) {
+	if (m->modinfo->api_version != API_VERSION) {
 		F_("Module %s has wrong api version, this meens that "
 		   "it's compiled with another version of initng.\n",
 		   module_path);
@@ -253,7 +253,7 @@ m_h *initng_module_load(const char *module)
 	}
 
 	/* run module_init */
-	if ((*new_m->modinfo->init)(API_VERSION) > 0) {
+	if ((*new_m->modinfo->init)() > 0) {
 		new_m->flags |= MODULE_INITIALIZED;
 	} else {
 		F_("Module %s did not load correctly\n", module_path);
@@ -357,7 +357,7 @@ int initng_module_load_all(const char *plugin_path)
 		}
 
 		/* if we did find find a module with needs loaded, try to load it */
-		if ((*current->modinfo->init)(API_VERSION) > 0) {
+		if ((*current->modinfo->init)() > 0) {
 			current->flags |= MODULE_INITIALIZED;
 		} else {
 			F_("Module %s did not load correctly\n",
