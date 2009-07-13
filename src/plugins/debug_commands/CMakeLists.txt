@@ -2,3 +2,4 @@ ADD_LIBRARY(debug_commands MODULE initng_debug_commands.c print_service.c)
 TARGET_LINK_LIBRARIES(debug_commands initng)
 INSTALL_TARGETS(${LIB_INSTALL_DIR}/initng debug_commands)
 
+SET_TARGET_PROPERTIES(debug_commands PROPERTIES LINK_FLAGS ${MOD_LDFLAGS})

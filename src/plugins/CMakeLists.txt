@@ -1,3 +1,5 @@
+SET(MOD_LDFLAGS "-Wl,--version-script=module.map")
+
 SUBDIRS( service daemon runlevel )
 
 IF(BUILD_ALSO)
