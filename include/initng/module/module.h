@@ -30,7 +30,7 @@
 struct initng_module {
 	int  api_version;
 	char **deps;
-	int  (*init) (int api_version);
+	int  (*init) (void);
 	void (*unload) (void);
 };
 
