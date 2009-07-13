@@ -77,36 +77,18 @@ m_h *initng_module_open(const char *module_path, const char *module_name)
 
 	D_("Success opening module \"%s\"\n", module_name);
 
-	/* match api_version */
-	{
-		int *plugin_api;
-
-		plugin_api = dlsym(m->dlhandle, "plugin_api_version");
-		if (!plugin_api) {
-			F_("Symbol \"plugin_api_version\" not found, the "
-			   "macro INITNG_PLUGIN_MACRO is not added to "
-			   "plugin %s :: %s\n", module_path, dlerror());
-			initng_module_close_and_free(m);
-			return NULL;
-		}
-
-		/* match the API version */
-		if (*plugin_api != API_VERSION) {
-			F_("Plugin %s has wrong api version, this meens that "
-			   "its compiled with another version of initng "
-			   "core.\n", module_path);
-			initng_module_close_and_free(m);
-			return NULL;
-		}
-		D_("Plugin %s ver match: %i\n", module_path, *plugin_api);
-	}
-
-	/* get initialization function */
 	dlerror();		/* clear any existing error */
 	m->modinfo = dlsym(m->dlhandle, "initng_module");
 	if (!m->modinfo) {
 		errmsg = dlerror();
 		F_("Error reading initng_module struct: %s\n", errmsg);
+		goto error;
+	}
+
+	if (m->api_version != API_VERSION) {
+		F_("Module %s has wrong api version, this meens that "
+		   "it's compiled with another version of initng.\n",
+		   module_path);
 		goto error;
 	}
 
