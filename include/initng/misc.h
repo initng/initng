@@ -98,9 +98,4 @@
 #define S_
 #endif
 
-
-/* standard defines for module inits and unload */
-int module_init(int api_version);
-void module_unload(void);
-
 #endif /* INITNG_MISC_H */
