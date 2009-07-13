@@ -24,7 +24,7 @@
 #include <string.h>
 #include <assert.h>
 
-struct module_info initng_module = {
+struct initng_module initng_module = {
 	.api_version = API_VERSION,
 	.deps = NULL,
 	.init = &module_init,
