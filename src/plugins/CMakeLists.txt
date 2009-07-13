@@ -1,4 +1,4 @@
-SET(MOD_LDFLAGS "-Wl,--version-script=module.map")
+SET(MOD_LDFLAGS "-Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/module.map")
 
 SUBDIRS( service daemon runlevel )
 
