@@ -45,7 +45,7 @@ static int cmd_add_verbose(char *arg);
 static int cmd_del_verbose(char *arg);
 #endif
 
-struct initng_module initng_module = {
+const struct initng_module initng_module = {
 	.api_version = API_VERSION,
 	.deps = NULL,
 	.init = &module_init,

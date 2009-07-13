@@ -37,7 +37,7 @@
 
 #include "initng_ngc4.h"
 
-struct initng_module initng_module = {
+const struct initng_module initng_module = {
 	.api_version = API_VERSION,
 	.deps = { "stcmd", NULL },
 	.init = &module_init,

@@ -33,7 +33,7 @@
 #include <sys/un.h>
 #include <assert.h>
 
-struct initng_module initng_module = {
+const struct initng_module initng_module = {
 	.api_version = API_VERSION,
 	.deps = { "runlevel", NULL },
 	.init = &module_init,

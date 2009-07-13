@@ -25,7 +25,7 @@
 #include <assert.h>
 #include <time.h>
 
-struct initng_module initng_module = {
+const struct initng_module initng_module = {
 	.api_version = API_VERSION,
 	.deps = { "daemon", NULL },
 	.init = &module_init,

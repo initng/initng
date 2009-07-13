@@ -30,7 +30,7 @@
 #include "../ngc4/initng_ngc4.h"
 #include "initng_history.h"
 
-struct initng_module initng_module = {
+const struct initng_module initng_module = {
 	.api_version = API_VERSION,
 	.deps = { "ngc4", NULL },
 	.init = &module_init,

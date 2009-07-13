@@ -25,7 +25,7 @@
 #include <stdlib.h>		/* free() exit() */
 #include <assert.h>
 
-struct initng_module initng_module = {
+const struct initng_module initng_module = {
 	.api_version = API_VERSION,
 	.deps = { "service", NULL },
 	.init = &module_init,

@@ -26,7 +26,7 @@
 #include <pwd.h>
 #include <grp.h>
 
-struct initng_module initng_module = {
+const struct initng_module initng_module = {
 	.api_version = API_VERSION,
 	.deps = NULL,
 	.init = &module_init,

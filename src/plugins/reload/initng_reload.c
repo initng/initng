@@ -32,7 +32,7 @@
 
 extern char **environ;
 
-struct initng_module initng_module = {
+const struct initng_module initng_module = {
 	.api_version = API_VERSION,
 	.deps = { "service", "daemon", "runlevel", NULL },
 	.init = &module_init,
