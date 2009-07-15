@@ -1,7 +1,7 @@
 /*
  * Initng, a next generation sysvinit replacement.
  * Copyright (C) 2006 Jimmy Wennlund <jimmy.wennlund@gmail.com>
- * Copyright (C) 2005 neuron <neuron@hollowtube.mine.nu>
+ * Copyright (C) 2005 neuron <aagaande@gmail.com>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by

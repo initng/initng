@@ -1,5 +1,5 @@
           name : stdout
-        author : Neuron <neuron@hollowtube.mine.nu>
+        author : Neuron <aagaande@gmail.com>
   contributors : Jimmy Wennlund <jimmy.wennlund@gmail.com>
       commands : 
        options : stdout, stderr, stdall, stdin
