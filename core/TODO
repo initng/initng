@@ -1,0 +1,49 @@
+High priority:
+
+- move all the code specific to initng out of libinitng.
+- define a consistent api.
+- optimize local usage of functions (maybe by wrappers?, we may be able to
+  exploit some common calling convention feature to make it optimal...).
+- audit the functions to fix pointer and string usage if any; we should
+  avoid them, as they imply relocations, specially poiner arrays.
+- make it thread-safe.
+- Implement a hash-based search method.
+- Implement a logging facility.
+- Implement good memory management.
+- Implement asynchronous I/O.
+
+Medium priority:
+
+- Implement external events.
+- Reimplement sfiles stuff in an event-driven way.
+
+Low priority:
+
+- Provide replacements for telinit, shutdown and the like, so we can
+  completely replace sysvinit when INSTALL_AS_INIT.
+
+  Is better to do this stuff outside of initng, and do not depend on
+  initctl.
+
+  The replacements can be scripts.
+
+- Make reload plugin, save sys_state, and current runlevel and more static
+  global stuff. Maby we can call ngc -c, when system is stopping or starting
+  without problems.
+
+- Add need deps like need = (daemon/sysvlog || daemon/syslogd), needs core
+  rewrite.
+
+- A service that stops because the dependency stoped, will atomaticly be
+  started again when the dep is up again. Need to rewrite pars of core to
+  make this nice?
+
+- dbus work, for a dbusc plugin. [BIG_TASK]
+
+- Fix devices/printer like services, maby using hal? [BIG_TASK]
+
+- Fix the/A xml parser. [BIG_TASK]
+
+- create ngc5 with an shiny new xml data backend. [BIG_TASK]
+
+- Remove doc/initng_hooks.txt and document the new static event_types.

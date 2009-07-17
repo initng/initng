@@ -1,0 +1,12 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix=${prefix}
+libdir=@LIB_INSTALL_DIR@
+includedir=@INCLUDE_INSTALL_DIR@
+sysconfdir=@SYSCONF_INSTALL_DIR@
+
+Name: libinitng
+Description: InitNG common componets library
+Version: @VERSION@
+URL: http://www.initng.org
+Libs: -L${libdir} -linitng
+Cflags: -I${includedir}
