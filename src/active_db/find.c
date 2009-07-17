@@ -41,8 +41,6 @@ active_db_h * initng_active_db_find_by_name(const char *service)
 {
 	active_db_h *current = NULL;
 
-	D_("(%s);\n", (char *)service);
-
 	assert(service);
 
 	/* first, search for an exact match */
@@ -71,8 +69,6 @@ active_db_h *initng_active_db_find_in_name(const char *service)
 	active_db_h *current = NULL;
 
 	assert(service);
-
-	D_("(%s);\n", (char *)service);
 
 	/* first search by name */
 	if ((current = initng_active_db_find_by_name(service)))
