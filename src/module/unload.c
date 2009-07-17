@@ -85,8 +85,6 @@ void initng_module_unload_all(void)
 
 	/* reset the list, to make sure its empty */
 	initng_list_init(&g.module_db.list);
-
-	D_("initng_module_close_all()\n");
 }
 
 /*
@@ -95,8 +93,6 @@ void initng_module_unload_all(void)
 void initng_module_unload_marked(void)
 {
 	m_h *m, *safe = NULL;
-
-	S_;
 
 	while_module_db_safe(m, safe) {
 		if (m->flags & MODULE_REMOVE) {

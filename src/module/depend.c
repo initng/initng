@@ -79,8 +79,7 @@ int module_is_loaded(const char *module_name)
 	assert(module_name != NULL);
 
 	while_module_db(m) {
-		if (strcmp(m->name, module_name) == 0 ||
-		    strcmp(m->path, module_name) == 0)
+		if (strcmp(m->name, module_name) == 0)
 			return TRUE;
 	}
 
@@ -104,8 +103,8 @@ int module_needs_are_loaded(const m_h * m)
 	/* otherwise check each one */
 	for (needs = m->modinfo->deps; *needs; needs++) {
 		if (!module_is_loaded(*needs)) {
-			D_("Plugin \"%s\" (%s) requires plugin \"%s\" to "
-			   "work.\n", m->name, m->path, *needs);
+			D_("Plugin \"%s\" requires plugin \"%s\" to "
+			   "work.\n", m->name, *needs);
 			return FALSE;
 		}
 	}
