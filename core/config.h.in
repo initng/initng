@@ -1,2 +1,0 @@
-#define VERSION		"${VERSION}"
-#define CHECK_RO
