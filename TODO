@@ -1,8 +1,13 @@
 High priority:
 
+- Avoid exporting unneeded symbols out of core.
+- Optimize local usage of functions (maybe by wrappers?, we may be able to
+  exploit some common calling convention feature to make it optimal...).
+- Make it thread-safe.
 - Implement a hash-based search method.
-- Implement a hierarchical memory manager.
-- Implement an event-based logging facility.
+- Implement a logging facility.
+- Implement good memory management.
+- Implement asynchronous I/O.
 
 Medium priority:
 
