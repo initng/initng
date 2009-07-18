@@ -60,7 +60,7 @@ pkg_search_module(DBUS dbus-1)
 SET(DBUS_DEFINITIONS ${DBUS_CFLAGS})
 FIND_LIBRARY(DBUS_LIBS NAMES dbus-1 PATHS ${DBUS_LINK_DIR} /usr/lib /usr/local/lib)
 
-SUBDIRS(src doc extras)
+SUBDIRS(src doc extras core plugins)
 
 OPTION(BUILD_ALSO "Build also plugin" ON)
 OPTION(BUILD_SERVICE_FILE "Build service_file plugin" ON )
