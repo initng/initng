@@ -1,4 +1,0 @@
-# Compulsory line, this is a version 3 file
-version=3
-
-http://download.initng.org/initng/v0.6/initng-(.*)\.tar\.gz
