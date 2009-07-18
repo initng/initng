@@ -51,7 +51,7 @@ PKGCONFIG(dbus-1 DBUS_INCLUDE_DIR DBUS_LINK_DIR DBUS_LINK_FLAGS DBUS_CFLAGS)
 SET(DBUS_DEFINITIONS ${DBUS_CFLAGS})
 FIND_LIBRARY(DBUS_LIBS NAMES dbus-1 PATHS ${DBUS_LINK_DIR} /usr/lib /usr/local/lib)
 
-SUBDIRS(src include doc)
+SUBDIRS(src include)
 
 OPTION(DEBUG "Build with developer tools, turns on additional warnings and -Werror" OFF)
 OPTION(CHECK_RO "Test if the / is mounted read-only before reboot/halt" ON)
