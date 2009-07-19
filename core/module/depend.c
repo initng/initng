@@ -92,7 +92,6 @@ int module_is_loaded(const char *module_name)
 int module_needs_are_loaded(const m_h * m)
 {
 	char **needs;
-	int retval;
 
 	assert(m != NULL);
 
