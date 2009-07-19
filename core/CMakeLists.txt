@@ -1,3 +1,5 @@
+SUBDIRS(frontend)
+
 AUX_SOURCE_DIRECTORY(active_db		active_db_srcs)
 AUX_SOURCE_DIRECTORY(module		module_srcs)
 AUX_SOURCE_DIRECTORY(event		event_srcs)
