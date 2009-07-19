@@ -5,29 +5,26 @@ if(COMMAND cmake_policy)
 	cmake_policy(SET CMP0002 OLD)
 endif(COMMAND cmake_policy)
 
-INCLUDE(FindPkgConfig)
 
 PROJECT(initng C)
 
 SET(VERSION "0.7.0-svn" CACHE STRING "Version number of the project")
 SET(VERSION_NAME "Bleeding Edge" CACHE STRING "Version string")
 
+SET(API_VERSION 0.1)
+
 SET(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 INCLUDE(CheckIncludeFiles)
 INCLUDE(CheckLibraryExists)
+INCLUDE(FindPkgConfig)
 INCLUDE(CheckSymbolExists)
-
-SET(REQUIRED_API 0.1)
-MARK_AS_ADVANCED(REQUIRED_API)
-
-pkg_search_module(INITNG REQUIRED libinitng-${REQUIRED_API})
-ADD_DEFINITIONS(-I${INITNG_INCLUDE_DIRS})
 
 ADD_DEFINITIONS(-DHAVE_CONFIG_H)
 # Turn on warnings
-SET(CMAKE_C_FLAGS "-std=gnu99 -Wall -O2 ${CMAKE_C_FLAGS} ${INITNG_CFLAGS}")
+SET(CMAKE_C_FLAGS "-std=gnu99 -Wall -O2 ${CMAKE_C_FLAGS}")
 
 INCLUDE_DIRECTORIES(
+	${CMAKE_SOURCE_DIR}/include
 	${CMAKE_BINARY_DIR}
 )
 
@@ -35,13 +32,16 @@ INCLUDE_DIRECTORIES(
 OPTION(CMAKE_COLOR_MAKEFILE "Generate Makefiles with colored output" ON)
 
 SET(CMAKE_INSTALL_PREFIX "" CACHE INTERNAL "")
-SET(INCLUDE_INSTALL_DIR /usr/include CACHE STRING "Install location for header files.") 
+SET(INCLUDE_INSTALL_DIR /usr/include/libinitng-${API_VERSION} CACHE STRING
+	"Install location for header files.")
 SET(SBIN_INSTALL_DIR /sbin CACHE STRING "Install location for system binaries.")
 SET(BIN_INSTALL_DIR /bin CACHE STRING "Install location for binaries.")
 SET(LIB_INSTALL_DIR /lib CACHE STRING "Install location for libraries.")
 SET(SYSCONF_INSTALL_DIR /etc CACHE STRING "Install location for configuration files.")
 SET(DATA_INSTALL_DIR /usr/share CACHE STRING "Install location for data files.")
 SET(MAN_INSTALL_DIR ${DATA_INSTALL_DIR}/man CACHE STRING "Install location for manpages.")
+SET(DOC_INSTALL_DIR ${DATA_INSTALL_DIR}/doc CACHE STRING "Install location for documentation.")
+SET(PKGCONFIG_INSTALL_DIR /usr/lib/pkgconfig CACHE STRING "Install location for pkg-config files.")
 MARK_AS_ADVANCED(INCLUDE_INSTALL_DIR)
 MARK_AS_ADVANCED(SBIN_INSTALL_DIR)
 MARK_AS_ADVANCED(BIN_INSTALL_DIR)
@@ -49,7 +49,8 @@ MARK_AS_ADVANCED(LIB_INSTALL_DIR)
 MARK_AS_ADVANCED(SYSCONF_INSTALL_DIR)
 MARK_AS_ADVANCED(DATA_INSTALL_DIR)
 MARK_AS_ADVANCED(MAN_INSTALL_DIR)
-
+MARK_AS_ADVANCED(DOC_INSTALL_DIR)
+MARK_AS_ADVANCED(PKGCONFIG_INSTALL_DIR)
 
 SET(RUNLEVEL_DEFAULT runlevel/default CACHE STRING "Default runlevel.")
 SET(RUNLEVEL_FAKE runlevel/fake-default CACHE STRING "Fake-mode runlevel.")
@@ -60,7 +61,7 @@ pkg_search_module(DBUS dbus-1)
 SET(DBUS_DEFINITIONS ${DBUS_CFLAGS})
 FIND_LIBRARY(DBUS_LIBS NAMES dbus-1 PATHS ${DBUS_LINK_DIR} /usr/lib /usr/local/lib)
 
-SUBDIRS(src doc extras core plugins)
+SUBDIRS(src doc extras core plugins include)
 
 OPTION(BUILD_ALSO "Build also plugin" ON)
 OPTION(BUILD_SERVICE_FILE "Build service_file plugin" ON )
@@ -136,6 +137,15 @@ ENDIF(DEBUG)
 IF(COUNT_ME)
 	EXEC_PROGRAM(${CMAKE_CURRENT_SOURCE_DIR}/count_me.sh)
 ENDIF(COUNT_ME)
+
+CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/initng.pc.in
+	       ${CMAKE_CURRENT_BINARY_DIR}/initng-${API_VERSION}.pc
+	       @ONLY)
+INSTALL_FILES(${PKGCONFIG_INSTALL_DIR} FILES initng-${API_VERSION}.pc)
+
+CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/initng-paths.h.in
+	       ${CMAKE_CURRENT_BINARY_DIR}/initng-paths.h @ONLY)
+INSTALL_FILES(${INCLUDE_INSTALL_DIR} FILES initng-paths.h)
 
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in
                ${CMAKE_CURRENT_BINARY_DIR}/config.h @ONLY)
