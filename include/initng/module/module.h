@@ -29,11 +29,10 @@
 /* define this struct on every plugin */
 struct initng_module {
 	int  api_version;
-	char **deps;
 	int  (*init) (void);
 	void (*unload) (void);
+	char *deps[];
 };
-
 
 typedef struct module_struct {
 	char *name;
