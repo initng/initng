@@ -1,5 +1,4 @@
-SUBDIRS(frontend)
-
+AUX_SOURCE_DIRECTORY(frontend           frontend_srcs)
 AUX_SOURCE_DIRECTORY(active_db		active_db_srcs)
 AUX_SOURCE_DIRECTORY(module		module_srcs)
 AUX_SOURCE_DIRECTORY(event		event_srcs)
@@ -28,7 +27,7 @@ AUX_SOURCE_DIRECTORY(data		data_srcs)
 AUX_SOURCE_DIRECTORY(config		config_srcs)
 AUX_SOURCE_DIRECTORY(hash		hash_srcs)
 
-SET(libinitng_srcs
+ADD_EXECUTABLE(initng
 	${active_db_srcs}
 	${module_srcs}
 	${event_srcs}
@@ -56,9 +55,11 @@ SET(libinitng_srcs
 	${data_srcs}
 	${config_srcs}
 	${hash_srcs}
+	${frontend_srcs}
 )
 
-ADD_LIBRARY(initng SHARED ${libinitng_srcs})
 TARGET_LINK_LIBRARIES(initng dl ${COREDUMPER_LIBS} ${SELINUX_LIBS})
-SET_TARGET_PROPERTIES(initng PROPERTIES VERSION ${VERSION} SOVERSION ${API_VERSION})
-INSTALL_TARGETS(${LIB_INSTALL_DIR} initng)
+SET_TARGET_PROPERTIES(initng PROPERTIES
+	ENABLE_EXPORTS TRUE
+)
+INSTALL_TARGETS(${BIN_INSTALL_DIR} initng)
