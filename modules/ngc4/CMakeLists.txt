@@ -1,9 +1,8 @@
 ADD_LIBRARY(ngc4 MODULE initng_ngc4.c)
 INSTALL_TARGETS(${LIB_INSTALL_DIR}/initng ngc4)
 
-ADD_LIBRARY(ngcclient SHARED libngcclient.c)
+ADD_LIBRARY(ngcclient SHARED libngcclient.c ../../core/string/mprintf.c)
 SET_TARGET_PROPERTIES(ngcclient PROPERTIES VERSION 0.0.0 SOVERSION 0)
-TARGET_LINK_LIBRARIES(ngcclient initng)
 INSTALL_TARGETS(${LIB_INSTALL_DIR} ngcclient)
 
 ADD_EXECUTABLE(ngc ngc4.c)
