@@ -39,7 +39,7 @@
 #include <ctype.h>		/* isdigit */
 
 static int module_init(void);
-static int module_unload(void);
+static void module_unload(void);
 
 const struct initng_module initng_module = {
 	.api_version = API_VERSION,
