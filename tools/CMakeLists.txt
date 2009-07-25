@@ -1,5 +1,5 @@
 ADD_EXECUTABLE(killalli5 killalli5.c)
-TARGET_LINK_LIBRARIES(killalli5 initng)
+TARGET_LINK_LIBRARIES(killalli5 libinitng)
 
 ADD_EXECUTABLE(itype itype.c)
 
