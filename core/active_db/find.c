@@ -43,12 +43,16 @@ active_db_h * initng_active_db_find_by_name(const char *service)
 
 	assert(service);
 
+	hash_t hash = initng_hash(service);
+
 	/* first, search for an exact match */
 	while_active_db(current) {
-		assert(current->name);
-		/* check if this service name is like service */
-		if (strcmp(current->name, service) == 0)
-			return current;
+		if (current->name_hash == hash) {
+			assert(current->name);
+
+			if (strcmp(current->name, service) == 0)
+				return current;
+		}
 	}
 
 	/* did not found any */
@@ -71,7 +75,8 @@ active_db_h *initng_active_db_find_in_name(const char *service)
 	assert(service);
 
 	/* first search by name */
-	if ((current = initng_active_db_find_by_name(service)))
+	current = initng_active_db_find_by_name(service);
+	if (current)
 		return (current);
 
 	/* then search for a word match */
@@ -79,11 +84,11 @@ active_db_h *initng_active_db_find_in_name(const char *service)
 	while_active_db(current) {
 		assert(current->name);
 		if (initng_string_match_in_service(current->name, service))
-			return (current);
+			return current;
 	}
 
 	/* did not find any */
-	return (NULL);
+	return NULL;
 }
 
 /**
@@ -102,14 +107,13 @@ active_db_h *initng_active_db_find_by_pid(pid_t pid)
 
 	/* walk the active_db */
 	while_active_db(currentA) {
-		assert(currentA->name);
 		currentP = NULL;
 		while_processes(currentP, currentA) {
 			if (currentP->pid == pid)
-				return (currentA);
+				return currentA;
 		}
 	}
 
 	/* bad luck */
-	return (NULL);
+	return NULL;
 }

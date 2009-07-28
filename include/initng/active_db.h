@@ -33,6 +33,7 @@ typedef struct active_type active_db_h;
 #include <initng/service/type.h>
 #include <initng/active_state.h>
 #include <initng/process_db.h>
+#include <initng/hash.h>
 
 #define MAX_SUCCEEDED 30
 
@@ -42,6 +43,8 @@ struct active_type {
 	/***** IDENTIFICATION ***********/
 	char *name;					/* the name of this service */
 	stype_h *type;				/* the service type */
+
+	hash_t name_hash;
 
 	/******* STATE ******************/
 
