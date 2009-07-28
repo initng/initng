@@ -56,13 +56,12 @@ SET(libinitng_srcs
 	${hash_srcs}
 )
 
-
 ADD_LIBRARY(libinitng STATIC ${libinitng_srcs})
 SET_TARGET_PROPERTIES(libinitng PROPERTIES OUTPUT_NAME initng)
 
 ADD_EXECUTABLE(initng ${frontend_srcs})
 TARGET_LINK_LIBRARIES(initng
-	-W,-whole-archive libinitng -W,-no-whole-archive
+	-Wl,--whole-archive libinitng -Wl,--no-whole-archive
 	dl
 	${COREDUMPER_LIBS} ${SELINUX_LIBS}
 )

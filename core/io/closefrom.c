@@ -19,6 +19,7 @@
 
 #include <initng/error.h>
 #include <initng/misc.h>
+#include <initng/io.h>
 
 int initng_io_closefrom(int lowfd)
 {

@@ -198,6 +198,7 @@ void filemon_event(f_module_h * from, e_fdw what)
 	}
 }
 
+#ifdef FIXME_UNUSED
 static int mon_dir(const char *dir)
 {
 	DIR *path;
@@ -245,6 +246,7 @@ static int mon_dir(const char *dir)
 	closedir(path);
 	return FALSE;
 }
+#endif /* FIXME_UNUSED */
 
 int module_init(void)
 {
