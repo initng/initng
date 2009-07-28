@@ -23,9 +23,9 @@
 #include <stdint.h>
 
 /* Jenkins One-at-a-time hash */
-uint32_t initng_hash_compute(unsigned char *key, size_t len)
+hash_t initng_hash_compute(unsigned char *key, size_t len)
 {
-	uint32_t hash = 0;
+	hash_t hash = 0;
 	size_t i;
 
 	for (i = 0; i < len; i++) {

@@ -23,6 +23,8 @@
 
 #include <stdint.h>
 
-uint32_t initng_hash_compute(unsigned char *key, size_t len);
+typedef uint32_t hash_t;
+
+hash_t initng_hash_compute(unsigned char *key, size_t len);
 
 #endif
