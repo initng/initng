@@ -31,7 +31,7 @@ struct initng_module {
 	int  api_version;
 	int  (*init) (void);
 	void (*unload) (void);
-	char *deps[];
+	const char *deps[];
 };
 
 typedef struct module_struct {

@@ -91,15 +91,10 @@ int module_is_loaded(const char *module_name)
  */
 int module_needs_are_loaded(const m_h * m)
 {
-	char **needs;
+	const char **needs;
 
 	assert(m != NULL);
 
-	/* if there are no needs, then we have met them */
-	if (m->modinfo->deps == NULL)
-		return TRUE;
-
-	/* otherwise check each one */
 	for (needs = m->modinfo->deps; *needs; needs++) {
 		if (!module_is_loaded(*needs)) {
 			D_("Plugin \"%s\" requires plugin \"%s\" to "
@@ -117,7 +112,7 @@ int module_needs_are_loaded(const m_h * m)
  */
 int module_is_needed(const char *module_name)
 {
-	char **needs;
+	const char **needs;
 	m_h *m = NULL;
 	int retval = FALSE;
 
