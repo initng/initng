@@ -27,6 +27,7 @@ AUX_SOURCE_DIRECTORY(data		data_srcs)
 AUX_SOURCE_DIRECTORY(config		config_srcs)
 AUX_SOURCE_DIRECTORY(hash		hash_srcs)
 SET(libinitng_srcs
+	${hash_srcs}
 	${active_db_srcs}
 	${module_srcs}
 	${event_srcs}
@@ -53,7 +54,6 @@ SET(libinitng_srcs
 	${main_srcs}
 	${data_srcs}
 	${config_srcs}
-	${hash_srcs}
 )
 
 ADD_LIBRARY(libinitng STATIC ${libinitng_srcs})
@@ -63,7 +63,8 @@ ADD_EXECUTABLE(initng ${frontend_srcs})
 TARGET_LINK_LIBRARIES(initng
 	-Wl,--whole-archive libinitng -Wl,--no-whole-archive
 	dl
-	${COREDUMPER_LIBS} ${SELINUX_LIBS}
+	${COREDUMPER_LIBS}
+	${SELINUX_LIBS}
 )
 
 SET_TARGET_PROPERTIES(initng PROPERTIES

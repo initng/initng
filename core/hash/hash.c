@@ -23,13 +23,12 @@
 #include <stdint.h>
 
 /* Jenkins One-at-a-time hash */
-hash_t initng_hash_compute(unsigned char *key, size_t len)
+hash_t initng_hash(const char *key, size_t len)
 {
 	hash_t hash = 0;
-	size_t i;
 
-	for (i = 0; i < len; i++) {
-		hash += key[i];
+	while (len--) {
+		hash += *key++;
 		hash += (hash << 10);
 		hash ^= (hash >> 6);
 	}
