@@ -22,6 +22,7 @@
 #define INITNG_HASH_H
 
 #include <stdint.h>
+#include <unistd.h>
 
 typedef uint32_t hash_t;
 
