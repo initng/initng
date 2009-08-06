@@ -39,23 +39,21 @@ typedef struct active_type active_db_h;
 
 /* the active service struct */
 struct active_type {
-
-	/***** IDENTIFICATION ***********/
-	char *name;					/* the name of this service */
-	stype_h *type;				/* the service type */
-
+	/* IDENTIFICATION */
 	hash_t name_hash;
+	char *name;
+	stype_h *type;
 
-	/******* STATE ******************/
+	/* STATE */
 
 	/*
 	 * current state.
-	 * This pointer point to a a_state_h struct containing
-	 * info in what state the service is in currelty, also
-	 * is a timepoint saved in here when the service got that state.
+	 * This pointer point to a a_state_h struct containing info in what
+	 * state the service is currently in, also a timestamp is kept here in
+	 * order to remember when the service got that state.
 	 */
 	a_state_h *current_state;
-	struct timeval time_current_state;	/* the time got current state */
+	struct timeval time_current_state;
 
 	/*
 	 * Last state
@@ -84,7 +82,7 @@ struct active_type {
 	e_is last_rought_state;
 	struct timeval last_rought_time;	/* the time got last rught state */
 
-	/******** SUB_OBJECTS ***********/
+	/* SUB_OBJECTS */
 	/* list of system processes that are connected to this service */
 	process_h processes;
 
@@ -98,17 +96,17 @@ struct active_type {
 	 */
 	data_head data;
 
-	/******** VARIABLES *************/
+	/* VARIABLES */
 
 	/* Alarm, the current state alarm is run when this time passes */
 	time_t alarm;
 
-	/******* TEMPORARY STUFF ********/
+	/* TEMPORARY STUFF */
 
 	/* depend cache - Optimization to speed up UP_DEPS_CHECK */
 	int depend_cache;
 
-	/******* LIST_HEADS *************/
+	/* LIST_HEADS */
 
 	/* the list */
 	list_t list;

@@ -1,7 +1,7 @@
 /*
  * Initng, a next generation sysvinit replacement.
- * Copyright (C) 2008 Jimmy Wennlund <jimmy.wennlund@gmail.com>
- * Copyright (C) 2008 Ismael Luceno <jimmy.wennlund@gmail.com>
+ * Copyright (C) 2009 Jimmy Wennlund <jimmy.wennlund@gmail.com>
+ * Copyright (C) 2009 Ismael Luceno <ismael.luceno@gmail.com>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -29,13 +29,13 @@ hash_t initng_hash(const char *key, size_t len)
 
 	while (len--) {
 		hash += *key++;
-		hash += (hash << 10);
-		hash ^= (hash >> 6);
+		hash += hash << 10;
+		hash += hash >>  6;
 	}
 
-	hash += (hash << 3);
-	hash ^= (hash >> 11);
-	hash += (hash << 15);
+	hash += hash <<  3;
+	hash ^= hash >> 11;
+	hash += hash << 15;
 
 	return hash;
 }
