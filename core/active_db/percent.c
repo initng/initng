@@ -39,46 +39,31 @@
  */
 int initng_active_db_percent_started(void)
 {
-	int starting = 0;
-	int up = 0;
-	int other = 0;
-	float tmp = 0;
-
 	active_db_h *current = NULL;
+	int starting = 0, up = 0, other = 0;
+	int ret = 0;
 
-	/* walk the active_db */
 	while_active_db(current) {
 		assert(current->name);
 		assert(current->current_state);
 
-		/* count starting */
-		if (IS_STARTING(current)) {
+		if (IS_STARTING(current))
 			starting++;
-			continue;
-		}
-
-		/* count up */
-		if (IS_UP(current)) {
+		else if (IS_UP(current))
 			up++;
-			continue;
-		}
-
-		/* count others */
-		other++;
+		else
+			other++;
 	}
-	D_("active_db_percent_started(): up: %i   starting: %i  other: %i\n",
-	   up, starting, other);
+	D_("up: %i  starting: %i  other: %i\n", up, starting, other);
 
-	/* if no one starting */
+	/* if no one is starting */
 	if (starting <= 0)
-		return (100);
-
-	if (up > 0) {
-		tmp = 100 * (float)up / (float)(starting + up);
-		D_("active_db_percent_started(): up/starting: %f percent: %i\n\n", (float)up / (float)starting, (int)tmp);
-		return ((int)tmp);
+		ret = 100;
+	else if (up > 0) {
+		ret = 100 * up / (starting + up);
+		D_("up/starting: %i  percent: %i\n", up / starting, ret);
 	}
-	return 0;
+	return ret;
 }
 
 /**
@@ -91,45 +76,30 @@ int initng_active_db_percent_started(void)
  */
 int initng_active_db_percent_stopped(void)
 {
-	int stopping = 0;
-	int down = 0;
-	int other = 0;
-	float tmp = 0;
 	active_db_h *current = NULL;
+	int stopping = 0, down = 0, other = 0;
+	int ret = 0;
 
 	while_active_db(current) {
 		assert(current->name);
 		assert(current->current_state);
 
-		/* count stopped services */
-		if (IS_DOWN(current)) {
+		if (IS_DOWN(current))
 			down++;
-			continue;
-		}
-
-		/* count stopping */
-		if (IS_STOPPING(current)) {
+		else if (IS_STOPPING(current))
 			stopping++;
-			continue;
-		}
-
-		/* count others */
-		other++;
+		else
+			other++;
 	}
 
-	D_("active_db_percent_stopped(): down: %i   stopping: %i  other: %i\n",
-	   down, stopping, other);
+	D_("down: %i  stopping: %i  other: %i\n", down, stopping, other);
 
 	/* if no one stopping */
 	if (stopping <= 0)
-		return (100);
-
-	if (down > 0) {
-		tmp = 100 * (float)down / (float)(stopping + down);
-		D_("active_db_percent_stopped(): "
-		   "down/stopping: %f percent: %i\n\n",
-		   (float)down / (float)stopping, (int)tmp);
-		return (int)tmp;
+		ret = 100;
+	else if (down > 0) {
+		ret = 100 * down / (stopping + down);
+		D_("down/stopping: %f  percent: %i\n", down / stopping, ret);
 	}
-	return 0;
+	return ret;
 }

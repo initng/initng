@@ -91,7 +91,7 @@ static int is_cpu_idle(int wait)
 	static char buf[256 + 64];
 	static int idle_cnt = 0;
 
-	float scale;
+	int scale;
 
 	D_("is_cpu_idle(%i);\n", wait);
 	/* check so that wait value is correct */
@@ -160,10 +160,10 @@ static int is_cpu_idle(int wait)
 	if (cpu_tot_frm < 1)
 		cpu_tot_frm = 1;
 
-	scale = 100.0 / (float)cpu_tot_frm;
+	scale = 100000 / cpu_tot_frm;
 
 	if (old_cpu_user) {
-		if ((float)cpu_idle_frm * scale > 90.0) {
+		if (cpu_idle_frm * scale > 90000) {
 			D_("idle_cnt: %i\n", idle_cnt);
 			if (++idle_cnt > wait)
 				return TRUE;
