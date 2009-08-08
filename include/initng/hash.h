@@ -26,6 +26,24 @@
 
 typedef uint32_t hash_t;
 
+
+/* This hash table implementation aims at wasting as less space as possible
+ * by providing no flexibility at all :P.
+ *
+ * It's indexed by the seven most significant bits of the hashes, which is
+ * important to conserve the same order as in the list.
+ *
+ * Considering that the biggest list initng uses is active_db, and normally
+ * it's bellow 90 items, 128 buckets should be enough to avoid most collisions.
+ *
+ * In the case of a collision, since the order in the list is the same, we
+ * know it's near, so we can reach it by just walking in the right direction.
+ */
+
+#define initng_hash_lookup(table, hash) table[hash >> 25]
+
+typedef void * hash_table[128];
+
 hash_t initng_hash(const char *key, size_t len);
 
 #endif
