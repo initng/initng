@@ -54,7 +54,7 @@ int initng_active_db_register(active_db_h * add_this)
 		return FALSE;
 	}
 
-	initng_list_add(&add_this->list, &g.active_database.list);
+	initng_list_add(&add_this->list, &g.active_db.list);
 
 	return TRUE;
 }

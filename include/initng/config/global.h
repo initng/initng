@@ -46,7 +46,7 @@ typedef enum
 typedef struct
 {
 	/* all the databases */
-	active_db_h active_database;
+	active_db_h active_db;
 	a_state_h states;
 	ptype_h ptypes;
 	m_h module_db;

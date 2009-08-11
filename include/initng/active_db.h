@@ -137,18 +137,18 @@ void initng_active_db_clean_down(void);
 
 /* walk the db */
 #define while_active_db(current) \
-	initng_list_foreach_rev(current, &g.active_database.list, list)
+	initng_list_foreach_rev(current, &g.active_db.list, list)
 
 #define while_active_db_safe(current, safe) \
-	initng_list_foreach_rev_safe(current, safe, &g.active_database.list, \
+	initng_list_foreach_rev_safe(current, safe, &g.active_db.list, \
 				     list)
 
 #define while_active_db_interrupt(current) \
-	initng_list_foreach_rev(current, &g.active_database.interrupt, \
+	initng_list_foreach_rev(current, &g.active_db.interrupt, \
 				interrupt)
 
 #define while_active_db_interrupt_safe(current, safe) \
 	initng_list_foreach_rev_safe(current, safe, \
-				     &g.active_database.interrupt, interrupt)
+				     &g.active_db.interrupt, interrupt)
 
 #endif /* INITNG_ACTIVE_DB_H */

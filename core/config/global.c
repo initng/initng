@@ -83,8 +83,8 @@ void initng_config_global_new(int argc, char *argv[], char *env[])
 	/*
 	 * initialize all databases, next and prev have to point to own struct
 	 */
-	initng_list_init(&g.active_database.list);
-	initng_list_init(&g.active_database.interrupt);
+	initng_list_init(&g.active_db.list);
+	initng_list_init(&g.active_db.interrupt);
 	initng_list_init(&g.states.list);
 	initng_list_init(&g.ptypes.list);
 	initng_list_init(&g.module_db.list);
