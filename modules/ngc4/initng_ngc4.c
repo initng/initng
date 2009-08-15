@@ -1031,7 +1031,7 @@ static void cmd_stop(char *arg, s_payload * payload)
 		return;
 	}
 
-	serv = initng_active_db_find_in_name(arg);
+	serv = initng_active_db_find_by_name(arg);
 	if (!serv) {
 		strncpy(row->name, arg, 100);
 		strcpy(row->state, "NOT_FOUND");
@@ -1216,7 +1216,9 @@ static void cmd_services(char *arg, s_payload * payload)
 		strncpy(row->name, arg, 100);
 		strcpy(row->state, "NOT_FOUND");
 		row->is = IS_FAILED;
-		if ((current = initng_active_db_find_in_name(arg))) {
+
+		current = initng_active_db_find_by_name(arg);
+		if (current) {
 			if (current->current_state &&
 			    current->current_state->name) {
 				row->is = current->current_state->is;
@@ -1228,7 +1230,6 @@ static void cmd_services(char *arg, s_payload * payload)
 					strncpy(row->type,
 						current->type->name, 100);
 				}
-
 			} else {
 				row->is = 0;
 				row->state[0] = '\0';

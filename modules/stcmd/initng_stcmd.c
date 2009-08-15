@@ -285,7 +285,8 @@ static int cmd_get_pid_of(char *arg)
 	if (!arg)
 		return -2;
 
-	if (!(apt = initng_active_db_find_in_name(arg)))
+	apt = initng_active_db_find_by_name(arg);
+	if (!apt)
 		return -1;
 
 	/* browse all processes */
@@ -315,7 +316,7 @@ static int cmd_free_service(char *arg)
 	int ret = FALSE;
 
 	/* check if we got an service */
-	if (arg && (apt = initng_active_db_find_in_name(arg))) {
+	if (arg && (apt = initng_active_db_find_by_name(arg))) {
 		/* zap found */
 		initng_active_db_free(apt);
 		ret = TRUE;
@@ -341,7 +342,7 @@ static int cmd_restart(char *arg)
 		return FALSE;
 	}
 
-	apt = initng_active_db_find_in_name(arg);
+	apt = initng_active_db_find_by_name(arg);
 	if (!apt) {
 		return FALSE;
 		F_("Service \"%s\" not found.\n", arg);
@@ -365,7 +366,7 @@ static char *cmd_print_uptime(char *arg)
 					     "to get up-time from.");
 	}
 
-	apt = initng_active_db_find_in_name(arg);
+	apt = initng_active_db_find_by_name(arg);
 	if (!apt) {
 		string = initng_toolbox_calloc(35 + strlen(arg), 1);
 		sprintf(string, "Service \"%s\" is not found!", arg);
@@ -468,7 +469,8 @@ static char *cmd_get_depends_on(char *arg)
 	active_db_h *current = NULL;
 	active_db_h *on = NULL;
 
-	if (!(on = initng_active_db_find_in_name(arg)))
+	on = initng_active_db_find_by_name(arg);
+	if (!on)
 		return initng_toolbox_strdup("Did not find service.");
 
 	initng_string_mprintf(&string, "The \"%s\" depends on:\n", on->name);
@@ -494,7 +496,8 @@ static char *cmd_get_depends_on_deep(char *arg)
 	active_db_h *current = NULL;
 	active_db_h *on = NULL;
 
-	if (!(on = initng_active_db_find_in_name(arg)))
+	on = initng_active_db_find_by_name(arg);
+	if (!on)
 		return initng_toolbox_strdup("Did not find service.");
 
 	initng_string_mprintf(&string, "The \"%s\" depends on:\n", on->name);
@@ -520,7 +523,8 @@ static char *cmd_get_depends_off(char *arg)
 	active_db_h *current = NULL;
 	active_db_h *on = NULL;
 
-	if (!(on = initng_active_db_find_in_name(arg)))
+	on = initng_active_db_find_by_name(arg);
+	if (!on)
 		return initng_toolbox_strdup("Did not find service.");
 
 	initng_string_mprintf(&string, "The services that depends on \"%s\":\n", on->name);
@@ -546,7 +550,8 @@ static char *cmd_get_depends_off_deep(char *arg)
 	active_db_h *current = NULL;
 	active_db_h *on = NULL;
 
-	if (!(on = initng_active_db_find_in_name(arg)))
+	on = initng_active_db_find_by_name(arg);
+	if (!on)
 		return (initng_toolbox_strdup("Did not find service."));
 
 	initng_string_mprintf(&string, "The the services that depends on \"%s\":\n",

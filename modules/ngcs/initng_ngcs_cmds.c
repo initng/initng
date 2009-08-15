@@ -345,7 +345,7 @@ static void ngcs_cmd_stop(ngcs_request * req)
 
 	svcname = req->argv[1].d.s;
 
-	serv = initng_active_db_find_in_name(svcname);
+	serv = initng_active_db_find_by_name(svcname);
 	if (!serv) {
 		ngcs_send_response(req, NGCS_TYPE_STRING, 9, "NOT_FOUND");
 		return;
@@ -378,7 +378,7 @@ static void ngcs_cmd_start(ngcs_request * req)
 
 	svcname = req->argv[1].d.s;
 
-	serv = initng_active_db_find_in_name(svcname);
+	serv = initng_active_db_find_by_name(svcname);
 	if (serv) {
 		watch = ngcs_add_watch(req->conn, serv->name,
 				       NGCS_WATCH_STATUS | NGCS_WATCH_OUTPUT |
@@ -594,7 +594,8 @@ static void ngcs_cmd_zap(ngcs_request * req)
 		return;
 	}
 
-	if (!(apt = initng_active_db_find_in_name(req->argv[1].d.s))) {
+	apt = initng_active_db_find_by_name(req->argv[1].d.s);
+	if (!apt) {
 		ngcs_send_response(req, NGCS_TYPE_STRING, 9, "NOT_FOUND");
 		return;
 	}

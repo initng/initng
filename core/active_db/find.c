@@ -60,38 +60,6 @@ active_db_h * initng_active_db_find_by_name(const char *service)
 }
 
 /**
- * Fuzzy search throught active_db.
- *
- * @param service name
- * @return service
- *
- * This function will do a search and find the best candidate for a gievn name
- * (e.g. a search for "eth" will give "net/eth0").
- */
-active_db_h *initng_active_db_find_in_name(const char *service)
-{
-	active_db_h *current = NULL;
-
-	assert(service);
-
-	/* first search by name */
-	current = initng_active_db_find_by_name(service);
-	if (current)
-		return (current);
-
-	/* then search for a word match */
-	current = NULL;
-	while_active_db(current) {
-		assert(current->name);
-		if (initng_string_match_in_service(current->name, service))
-			return current;
-	}
-
-	/* did not find any */
-	return NULL;
-}
-
-/**
  * Searchs a service by PID.
  *
  * @param pid
