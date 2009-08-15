@@ -1,0 +1,4 @@
+{
+	global: initng_*;
+	local: *;
+};
