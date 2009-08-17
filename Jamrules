@@ -1,0 +1,4 @@
+VERSION = 0.7.0svn ;
+VERSION_NAME = "Bleeding Edge" ;
+RUNLEVEL_DEFAULT = runlevel/default ;
+RUNLEVEL_FAKE = runlevel/fake-default ;
