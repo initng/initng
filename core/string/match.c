@@ -29,35 +29,6 @@
 #include <stdarg.h>
 
 /*
- * a simple strncasecmp, which only returns TRUE or FALSE
- * it will also add the pointer of string, the value, to forward the
- * pointer to next word.
- */
-int initng_string_cmp(char **string, const char *to_cmp)
-{
-	int chars = 0;
-
-	assert(to_cmp);
-	assert(string);
-
-	chars = strlen(to_cmp);
-
-	/* skip beginning first spaces */
-	JUMP_SPACES(*string);
-	/* this might be an "comp pare" */
-	if ((*string)[0] == '"' && to_cmp[0] != '"')
-		(*string)++;
-
-	/* ok, strcasecmp this */
-	if (strncasecmp((*string), to_cmp, chars) == 0) {
-		/* increase the string pointer */
-		(*string) += chars;
-		return TRUE;
-	}
-	return FALSE;
-}
-
-/*
  * This search for a pattern.
  * If string is "net/eth0" then pattern "net/et*" and pattern "net/eth?"
  * should return true.

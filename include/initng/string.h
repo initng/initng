@@ -61,7 +61,6 @@
 	(s)++; \
     while ((s)[0] == ' ' || (s)[0] == '\t') (s)++;
 
-int initng_string_cmp(char **string, const char *to_cmp);
 char *initng_string_dup_next_word(const char **string);
 char *initng_string_dup_line(char **string);
 
