@@ -326,7 +326,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* check if cmd-line contains "ngdc", if set debug */
-	if (strncasecmp(Argv, "ngd", 3) == 0) {
+	if (strncmp(Argv, "ngd", 3) == 0) {
 		if (ansi)
 			print_out(C_FG_YELLOW "Warning. This is ngdc!" C_OFF
 				  "\n");
@@ -351,8 +351,8 @@ int main(int argc, char *argv[])
 
 
 	/* check that Argc string is not ngc, NGC, ngdc, NGDC */
-	if (strcasecmp(Argv, "ngc") != 0 && strcasecmp(Argv, "ngdc") != 0 &&
-	    strcasecmp(Argv, "ngc4") != 0 && strcasecmp(Argv, "ngdc4") != 0) {
+	if (strcmp(Argv, "ngc") != 0 && strcmp(Argv, "ngdc") != 0 &&
+	    strcmp(Argv, "ngc4") != 0 && strcmp(Argv, "ngdc4") != 0) {
 		/*printf("Not standard ngc or ngdc command.\n"); */
 		/* check if argv0 starts with "ng..." */
 		if (Argv[0] == 'n' && Argv[1] == 'g' && Argv[2]) {

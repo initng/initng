@@ -17,13 +17,16 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <initng.h>
+#define _BSD_SOURCE
 
+#include <unistd.h>
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
+
+#include <initng.h>
 
 static int module_init(void);
 static void module_unload(void);

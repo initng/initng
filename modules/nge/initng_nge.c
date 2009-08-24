@@ -33,7 +33,7 @@
 #include <sys/socket.h>
 #include <string.h>
 #include <assert.h>
-
+#include <sys/un.h>
 
 #include "initng_nge.h"
 

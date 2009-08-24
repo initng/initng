@@ -32,6 +32,7 @@
 #include <sys/time.h>
 #include <time.h>
 #include <getopt.h>
+#include <sys/un.h>
 #include <sys/socket.h>
 #include <string.h>
 #include <assert.h>
@@ -263,9 +264,12 @@ static char *ngeclient_get_content(const char *tag)
 	 * "<specialtag>This is some data.</specialtag>"
 	 *              |                 ^
 	 */
-	if (len > 0)
-		return strndup(point, len);
-
+	if (len > 0) {
+		char *ret = malloc(len+1);
+		strncpy(ret,point,len);
+		ret[len] = 0;
+		return ret;
+	}
 	/* else return ZERO */
 	return NULL;
 }
@@ -336,7 +340,10 @@ static char *ngeclient_get_option(const char *tag, const char *name)
 		 */
 
 		/* return that string */
-		return strndup(point, len);
+		char *ret = malloc(len+1);
+		strncpy(ret, point, len);
+		ret[len] = 0;
+		return ret;
 	}
 
 	sprintf(err_msg_buffer, "Could not find option \"%s\" in tag", name);
@@ -699,7 +706,10 @@ nge_event *get_next_event(nge_connection * c, int block)
 			nge_event *event = calloc(1, sizeof(nge_event));
 
 			/* copy the full tag */
-			char *tmp = strndup(c->read_buffer, chars);
+			char *tmp;
+			tmp = malloc(chars+1);
+			strncpy(tmp, c->read_buffer, chars);
+			tmp[chars] = 0;
 
 			/* Strip chars - that we copied abow. */
 			ngeclient_cut_buffert(c, chars);

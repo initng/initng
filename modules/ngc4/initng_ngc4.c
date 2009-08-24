@@ -30,6 +30,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <errno.h>
+#include <sys/un.h>
 #include <sys/socket.h>
 #include <string.h>
 #include <assert.h>
@@ -197,7 +198,7 @@ static void handle_client(int fd)
 	D_("handle_client(%i);\n", fd);
 
 	/* use file descriptor, because fread hangs here? */
-	if (TEMP_FAILURE_RETRY(recv(fd, &header, sizeof(read_header), 0)) <
+	if (recv(fd, &header, sizeof(read_header), 0) <
 	    (signed)sizeof(read_header)) {
 		F_("Could not read header.\n");
 		return;
@@ -227,8 +228,8 @@ static void handle_client(int fd)
 		/* yost so ngc got a chance to fill header_data again */
 		usleep(10);
 
-		if (TEMP_FAILURE_RETRY(recv(fd, header_data, header.body_len,
-					    0)) < (signed)header.body_len) {
+		if (recv(fd, header_data, header.body_len, 0)
+		    < (signed)header.body_len) {
 			F_("Could not read header_data\n");
 
 			if (header_data)
@@ -1106,7 +1107,7 @@ static void cmd_options(char *arg, s_payload * payload)
 			continue;
 
 		/* if the names starts with "internal" its no value here */
-		if (strncasecmp(current->name, "internal", 8) == 0)
+		if (strncmp(current->name, "internal", 8) == 0)
 			continue;
 
 		row->dt = OPTION_ROW;

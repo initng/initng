@@ -24,7 +24,10 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <pwd.h>
+
+#define __USE_BSD	/* initgroups() */
 #include <grp.h>
+#include <sys/types.h>
 
 static int module_init(void);
 static void module_unload(void);

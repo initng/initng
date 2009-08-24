@@ -64,7 +64,8 @@ static void status_change(s_event * event)
 		char *p = strrchr(service->name, '/') + 1;
 		char lockfile[sizeof(LOCKDIR) + strlen(p)];
 
-		strcpy(mempcpy(lockfile, LOCKDIR, sizeof(LOCKDIR) - 1), p);
+		memcpy(lockfile, LOCKDIR, sizeof(LOCKDIR) - 1);
+		strcpy(lockfile + sizeof(LOCKDIR) - 1, p);
 
 		D_("lockfile path [%s]\n", lockfile);
 		/* service states from initng_is.h */

@@ -2,6 +2,8 @@
 #define _LINUX_INOTIFY_SYSCALLS_H
 
 #include <sys/syscall.h>
+#define __USE_MISC
+#include <unistd.h>
 
 #if defined(__i386__)
 # define __NR_inotify_init	291

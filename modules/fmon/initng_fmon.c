@@ -17,8 +17,10 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <initng.h>
-#include <initng-paths.h>
+
+/* the standard intotify headers */
+#include "inotify.h"
+#include "inotify-syscalls.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -35,10 +37,9 @@
 #include <assert.h>
 #include <dirent.h>
 
+#include <initng.h>
+#include <initng-paths.h>
 
-/* the standard intotify headers */
-#include "inotify.h"
-#include "inotify-syscalls.h"
 
 static int module_init(void);
 static void module_unload(void);

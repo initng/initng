@@ -17,7 +17,6 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <initng.h>
 
 #include <stdio.h>
 #include <stdlib.h>		/* free() exit() */
@@ -29,10 +28,16 @@
 #include <sys/ioctl.h>
 #include <netinet/ip.h>
 #include <netinet/in.h>
-#include <net/if.h>
 #include <string.h>
 #include <arpa/inet.h>
 #include <assert.h>
+
+#define __USE_MISC
+#include <sys/ioctl.h>	/* netdevice structs */
+#include <net/if.h>
+#undef __USE_MISC
+
+#include <initng.h>
 
 static int module_init(void);
 static void module_unload(void);

@@ -33,6 +33,7 @@
 #include <sys/time.h>
 #include <time.h>
 #include <getopt.h>
+#include <sys/un.h>
 #include <sys/socket.h>
 #include <string.h>
 #include <assert.h>
@@ -187,8 +188,7 @@ reply *ngcclient_send_command(const char *path, const char c, const char *l,
 	int res = 0;
 
 	/* read header data */
-	res = TEMP_FAILURE_RETRY(recv(sock, &rep->result, sizeof(result_desc),
-				      0));
+	res = recv(sock, &rep->result, sizeof(result_desc), 0);
 	if (res < (signed)sizeof(result_desc)) {
 		ngcclient_error = "failed to fetch the result.";
 		return NULL;
@@ -263,10 +263,7 @@ reply *ngcclient_send_command(const char *path, const char c, const char *l,
 		/* sleep a bit, to make sure initng filled the buffer */
 		usleep(50000);
 
-		got = TEMP_FAILURE_RETRY(recv(sock, rep->payload,
-					      rep->result.payload, 0));
-		/* printf("got an payload of: %i bytes, suposed to be %i. "
-		   "#errno %i\n", got, rep->result.payload, errno); */
+		got = recv(sock, rep->payload, rep->result.payload, 0);
 	}
 
 	/* close the socket */

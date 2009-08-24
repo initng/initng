@@ -23,7 +23,6 @@
 
 #include <fcntl.h>
 #include <sys/file.h>
-#include <sys/types.h>
 #include <signal.h>
 #include <stdio.h>
 #include <string.h>
@@ -32,11 +31,14 @@
 #include <sys/time.h>
 #include <time.h>
 #include <getopt.h>
-#include <sys/socket.h>
 #include <string.h>
 #include <assert.h>
 #include <errno.h>
 #include <poll.h>
+
+#include <sys/types.h>	/* unix domain sockets */
+#include <sys/socket.h>
+#include <sys/un.h>
 
 #include <initng.h>
 #include <initng-paths.h>
@@ -140,7 +142,7 @@ int main(int argc, char **argv)
 	/* LIST THE DB OF COMMANDS AND EXECUTE THE RIGHT ONE */
 	{
 		for (i = 0; commands[i].name; i++) {
-			if (strcasecmp(argv0, commands[i].name) == 0)
+			if (strcmp(argv0, commands[i].name) == 0)
 				status = (*commands[i].function) (service,
 								  new_argc,
 								  new_argv);
@@ -428,7 +430,7 @@ int bp_send(bp_req * to_send)
 	/* sleep to give initng a chanse */
 	usleep(200);
 
-	e = TEMP_FAILURE_RETRY(recv(sock, &rep, sizeof(bp_rep), 0));
+	e = recv(sock, &rep, sizeof(bp_rep), 0);
 
 	if (e != (signed)sizeof(bp_rep)) {
 		char *m = strerror(errno);

@@ -207,7 +207,7 @@ static int bpf_handler(s_event * event)
 
 #endif
 
-#define RSCV() (TEMP_FAILURE_RETRY(recv(fd, &req, sizeof(bp_req), 0)))
+#define RSCV() recv(fd, &req, sizeof(bp_req), 0)
 #define SEND() send(fd, &rep, sizeof(bp_rep), 0)
 
 static void bp_handle_client(int fd)
