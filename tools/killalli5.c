@@ -146,7 +146,7 @@ static int mount_proc(void)
 			execv("/bin/mount", args);
 
 			/* Okay, I give up. */
-			nsyslog(LOG_ERR, "cannot execute mount");
+    			nsyslog(LOG_ERR, "cannot execute mount");
 			exit(1);
 		}
 		/* Wait for child. */
@@ -479,7 +479,8 @@ static void nsyslog(int pri, const char *fmt, ...)
 	va_start(args, fmt);
 
 	if (ttyname(0) == NULL) {
-		vsyslog(pri, fmt, args);
+// FIXME : vsyslog isn't standard
+//		vsyslog(pri, fmt, args);
 	} else {
 		fprintf(stderr, "%s: ", progname);
 		vfprintf(stderr, fmt, args);

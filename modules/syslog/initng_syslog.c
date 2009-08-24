@@ -52,6 +52,9 @@ static void free_buffert(void);
 int syslog_running;
 log_ent log_list;
 
+extern void vsyslog(int, const char*, va_list); // FIXME : this isn't standard
+
+
 static void check_syslog(void)
 {
 	struct stat st;
