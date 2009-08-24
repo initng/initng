@@ -72,11 +72,12 @@ char *initng_toolbox_strdup(const char *s)
 char *initng_toolbox_strndup(const char *s, size_t n)
 {
 	char *alloced;
+	size_t len = strlen(s);
+	if (len > n)
+		len = n;
 
-	while ((alloced = strndup(s, n)) == NULL) {
-		F_("Out of memory, trying again in 1 second\n");
-		sleep(1);
-	}
+	alloced = initng_toolbox_calloc(1, len);
+	strncpy(alloced, s, len);
 
 	return alloced;
 }
