@@ -91,7 +91,7 @@ s_data *initng_data_get_next_var(s_entry * type, const char *vn,
 
 		/* Make sure the string variable name matches if set */
 		if ((!type || current->type == type) &&
-		    (!current->vn || !vn || strcasecmp(current->vn, vn) == 0)) {
+		    (!current->vn || !vn || strcmp(current->vn, vn) == 0)) {
 			return current;
 		}
 
