@@ -17,20 +17,31 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+/* FIXME : avoid guessing the module name, just rely on module_open. */
+
+
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <stdio.h>
 #include <dlfcn.h>
 #include <assert.h>
 #include <string.h>
-#include <dirent.h>
 #include <fnmatch.h>
 #include <errno.h>
+
+#include <sys/types.h>	/* {open,read}dir */
+#include <dirent.h>	/* {open,read}dir */
+#include <limits.h>	/* NAME_MAX */
 
 #include <initng.h>
 #include <initng-paths.h>
 
 #include "local.h"
+
+
+#ifndef NAME_MAX
+#define NAME_MAX 255
+#endif
 
 /*
  * Read the module information from the file. Does not actually call
@@ -267,83 +278,66 @@ m_h *initng_module_load(const char *module)
 	return new_m;
 }
 
-int initng_module_load_all(const char *plugin_path)
+int initng_module_load_all(const char *path)
 {
-	struct dirent **filelist;
-	int files;
-	int i;
-	char *module_path = NULL;
-	char *module_name = NULL;
+	char *modpath = NULL;
+	char *module = NULL;
 	int success = FALSE;
 
 	m_h *current, *safe = NULL;
 
+	/* memory for full path */
+	modpath = initng_toolbox_calloc(strlen(path) + NAME_MAX + 2, 1);
+
 	/* open plugin dir */
-#ifndef __HAIKU__
-	if ((files = scandir(plugin_path, &filelist, 0, alphasort)) < 1) {
-		F_("Unable to open plugin directory %s.\n", plugin_path);
+	DIR *pdir = opendir(path);
+	if (!pdir) {
+		F_("Unable to open plugin directory %s.\n", path);
 		return FALSE;
 	}
-#endif
-
-	/* memory for full path */
-	module_path = initng_toolbox_calloc(strlen(plugin_path) +
-					    NAME_MAX + 2, 1);
 
 	/* get every entry */
-	for (i = 0; i < files; i++) {
-		/* check for files, ending with .so */
-		if (fnmatch("lib*.so", filelist[i]->d_name, 0) == 0) {
-			module_name =
-			    initng_toolbox_strndup(filelist[i]->d_name + 3,
-						   strlen(filelist[i]->d_name +
-							  3) - 3);
+	struct dirent *file;
+	while ((file = readdir(pdir))) {
+		/* skip files without the "mod" prefix */
+		if (file->d_name[0] != 'm' || file->d_name[1] != 'o'
+		    || file->d_name[2] != 'd')
+			continue;
 
-			/* search the plugin name, for blacklisted */
-			if (initng_common_service_blacklisted(module_name)) {
-				F_("Plugin %s blacklisted.\n", module_name);
-				free(module_name);
-				module_name = NULL;
-				free(filelist[i]);
-				continue;
-			}
+		/* remove suffix and prefix */
+		module = initng_toolbox_strndup(file->d_name + 3,
+						strlen(file->d_name + 3) - 3);
 
-			/* set full path */
-			strcpy(module_path, plugin_path);
-			strcat(module_path, "/");
-			strcat(module_path, filelist[i]->d_name);
-
-			/* open the module */
-			current = initng_module_open(module_path, module_name);
-			free(module_name);	/* initng_module_open strdups
-						 * this itself */
-			module_name = NULL;
-
-			/* add this to the list of loaded modules */
-			if (!current) {
-				free(filelist[i]);
-				continue;
-			}
-
-			/* add to list and continue */
-			assert(current->name);
-			initng_list_add(&current->list, &g.module_db.list);
-
-			/* This is true until any plugin loads sucessfully */
-			success = TRUE;
-		} else {
-#ifdef DEBUG
-			if (filelist[i]->d_name[0] != '.') {
-				D_("Won't load module \"%s\", doesn't match "
-				   "\"*.so\" pattern.\n", filelist[i]->d_name);
-			}
-#endif
+		/* check if the plugin is blacklisted */
+		if (initng_common_service_blacklisted(module)) {
+			F_("Plugin %s blacklisted.\n", module);
+			free(module);
+			module = NULL;
+			continue;
 		}
-		free(filelist[i]);
-	}
 
-	free(filelist);
-	free(module_path);
+		strcpy(modpath, path);
+		strcat(modpath, "/");
+		strcat(modpath, file->d_name);
+
+
+		current = initng_module_open(modpath, module);
+		free(module);
+		module = NULL;
+
+		if (!current)
+			continue;
+	
+		/* add to list and continue */
+		assert(current->name);
+		initng_list_add(&current->list, &g.module_db.list);
+
+		/* This is true until any plugin loads sucessfully */
+		success = TRUE;
+	}	
+
+	closedir(pdir);
+	free(modpath);
 
 	/* load the entries on our TODO list */
 	while_module_db_safe(current, safe) {
@@ -356,7 +350,8 @@ int initng_module_load_all(const char *plugin_path)
 			continue;
 		}
 
-		/* if we did find find a module with needs loaded, try to load it */
+		/* if we did find find a module with needs loaded, try to load
+		 * it */
 		if ((*current->modinfo->init)() > 0) {
 			current->flags |= MODULE_INITIALIZED;
 		} else {
@@ -364,7 +359,6 @@ int initng_module_load_all(const char *plugin_path)
 			   current->name);
 			initng_module_close_and_free(current);
 		}
-
 	}
 
 	/* initng_load_static_modules(); */
