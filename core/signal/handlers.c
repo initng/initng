@@ -30,6 +30,10 @@
 
 #include "local.h"
 
+#ifndef WCOREDUMP /* FIXME */
+#define WCOREDUMP(a) 0
+#endif
+
 /*
  * If we got an child that died, this handler is called.
  */
