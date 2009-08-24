@@ -30,9 +30,6 @@
  *              2 of the License, or (at your option) any later version.
  */
 
-#define _BSD_SOURCE
-#define _XOPEN_SOURCE 500
-
 #include <initng.h>
 
 #include <sys/types.h>
