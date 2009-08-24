@@ -22,28 +22,13 @@
 
 #include <initng/misc.h>
 
-/*
-   #undef initng_calloc
-   #define initng_calloc(nemb, size) \
-   initng_calloc2(nemb, size, __func__, __LINE__)
-   void *initng_calloc2(size_t nmemb, size_t size, const char *func, int line);
-*/
 void *initng_toolbox_calloc(size_t nmemb, size_t size);
 
-#undef initng_toolbox_realloc
-#define initng_toolbox_realloc(ptr, size) \
-    initng_toolbox_realloc2(ptr, size, (const char*)__func__, __LINE__)
-void *initng_toolbox_realloc2(void *ptr, size_t size, const char *func, int line);
+void *initng_toolbox_realloc(void *ptr, size_t size);
 
-#undef initng_toolbox_strdup
-#define initng_toolbox_strdup(s) \
-	initng_toolbox_strdup2(s, (const char*)__func__, __LINE__)
-char *initng_toolbox_strdup2(const char *s, const char *func, int line);
+char *initng_toolbox_strdup(const char *s);
 
-#undef initng_toolbox_strndup
-#define initng_toolbox_strndup(s, n) \
-	initng_toolbox_strndup2(s, n, (const char*)__func__, __LINE__)
-char *initng_toolbox_strndup2(const char *s, size_t n, const char *func, int line);
+char *initng_toolbox_strndup(const char *s, size_t n);
 int initng_toolbox_set_proc_title(const char *fmt, ...);
 
 #define MS_DIFF(A, B) (int)((int)(((A).tv_sec * 1000) + ((A).tv_usec / 1000)) - (int)(((B).tv_sec * 1000) + ((B).tv_usec / 1000)))

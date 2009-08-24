@@ -17,7 +17,6 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#define _GNU_SOURCE
 
 #include <initng.h>
 
@@ -44,14 +43,12 @@ void *initng_toolbox_calloc(size_t nmemb, size_t size)
 }
 
 /* in init, a realloc must never fail! */
-void *initng_toolbox_realloc2(void *ptr, size_t size, const char *func,
-			      int line)
+void *initng_toolbox_realloc(void *ptr, size_t size)
 {
 	void *alloced;
 
 	while ((alloced = realloc(ptr, size)) == NULL) {
-		F_("%s(): line %i Out of memory, trying again in 1 second\n",
-		   func, line);
+		F_("Out of memory, trying again in 1 second\n");
 		sleep(1);
 	}
 
@@ -59,13 +56,12 @@ void *initng_toolbox_realloc2(void *ptr, size_t size, const char *func,
 }
 
 /* in init, a strdup must never fail! */
-char *initng_toolbox_strdup2(const char *s, const char *func, int line)
+char *initng_toolbox_strdup(const char *s)
 {
 	char *alloced;
 
 	while ((alloced = strdup(s)) == NULL) {
-		F_("%s(): line %i Out of memory, trying again in 1 second\n",
-		   func, line);
+		F_("Out of memory, trying again in 1 second\n");
 		sleep(1);
 	}
 
@@ -73,14 +69,12 @@ char *initng_toolbox_strdup2(const char *s, const char *func, int line)
 }
 
 /* in init, a strndup must never fail! */
-char *initng_toolbox_strndup2(const char *s, size_t n, const char *func,
-			      int line)
+char *initng_toolbox_strndup(const char *s, size_t n)
 {
 	char *alloced;
 
 	while ((alloced = strndup(s, n)) == NULL) {
-		F_("%s(): line %i Out of memory, trying again in 1 second\n",
-		   func, line);
+		F_("Out of memory, trying again in 1 second\n");
 		sleep(1);
 	}
 
