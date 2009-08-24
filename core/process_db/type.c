@@ -25,7 +25,6 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
-#include <alloca.h>
 #include <assert.h>
 
 /*

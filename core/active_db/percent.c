@@ -21,7 +21,6 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <alloca.h>
 #include <assert.h>
 #include <fnmatch.h>
 #include <sys/time.h>
