@@ -173,7 +173,7 @@ int initng_error_verbose_del(const char *string)
 
 	for (i = 0; i < MAX_VERBOSES; i++) {
 		if (g.verbose_this[i] &&
-		    strcasecmp(g.verbose_this[i], string) == 0) {
+		    strcmp(g.verbose_this[i], string) == 0) {
 			free(g.verbose_this[i]);
 			g.verbose_this[i] = NULL;
 			t = TRUE;
@@ -198,17 +198,17 @@ void initng_error_print_func(const char *file, const char *func)
 			if (g.verbose_this[i]) {
 				if (g.verbose_this[i][0] == '%' &&
 				    g.verbose_this[i] + 1) {
-					if (strcasestr(file,
+					if (strstr(file,
 						(g.verbose_this[i]) + 1)
-					    || strcasestr(func,
+					    || strstr(func,
 						(g.verbose_this[i]) + 1)) {
 						lock_error_printing = 0;
 						return;
 					}
 				} else {
-					if (strcasestr(file,
+					if (strstr(file,
 						       g.verbose_this[i]) ||
-					    strcasestr(func,
+					    strstr(func,
 						       g.verbose_this[i])) {
 						i = 1;
 						break;
@@ -253,18 +253,18 @@ int initng_error_print_debug(const char *file, const char *func, int line,
 			if (g.verbose_this[i]) {
 				if (g.verbose_this[i][0] == '%' &&
 				    (g.verbose_this[i] + 1)) {
-					if (strcasestr(file,
+					if (strstr(file,
 						       (g.verbose_this[i]) + 1)
-					    || strcasestr(func,
+					    || strstr(func,
 							  (g.verbose_this[i]) +
 							  1)) {
 						lock_error_printing = 0;
 						return (TRUE);
 					}
 				} else {
-					if (strcasestr(file,
+					if (strstr(file,
 						       g.verbose_this[i]) ||
-					    strcasestr(func,
+					    strstr(func,
 						       g.verbose_this[i])) {
 						goto yes;
 					}
