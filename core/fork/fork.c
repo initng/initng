@@ -17,12 +17,10 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <initng.h>
-
-#include <time.h>		/* time() */
+#include <unistd.h>		/* execv() pipe() pause() chown() pid_t */
+#include <time.h>		/* time() nanosleep() */
 #include <fcntl.h>		/* fcntl() */
-#include <unistd.h>		/* execv() pipe() usleep() */
-						/* pause() chown() pid_t   */
+
 #include <sys/types.h>
 #include <sys/wait.h>		/* waitpid() sa */
 #include <sys/ioctl.h>		/* ioctl() */
@@ -34,6 +32,9 @@
 #include <pwd.h>
 #include <sys/stat.h>
 #include <errno.h>
+
+#include <initng.h>
+
 
 pid_t initng_fork(active_db_h * service, process_h * process)
 {
@@ -48,7 +49,6 @@ pid_t initng_fork(active_db_h * service, process_h * process)
 	/* Create all pipes */
 	while_pipes(current_pipe, process) {
 		if (current_pipe->dir == IN_AND_OUT_PIPE) {
-			/*printf("calling socketpair:\n"); */
 			/* create an two directional pipe with socketpair */
 			if (socketpair(AF_UNIX, SOCK_STREAM, 0,
 				       current_pipe->pipe) < 0) {
@@ -56,8 +56,6 @@ pid_t initng_fork(active_db_h * service, process_h * process)
 				   strerror(errno));
 				return -1;
 			}
-			/* printf("parent: fd%i fork: fd%i\n", current_pipe->pipe[1], current_pipe->pipe[0]); */
-
 		} else {
 			/* create an one directional pipe with pipe */
 			if (pipe(current_pipe->pipe) != 0) {
@@ -79,19 +77,17 @@ pid_t initng_fork(active_db_h * service, process_h * process)
 		}
 		F_("FAILED TO FORK! try no# %i, this can be FATAL!\n",
 		   try_count);
-		usleep(++try_count * 2000);	/* Sleep a while before trying
-						 * again */
+
+		/* sleep a while before trying again */
+		struct timespec nap;
+		nap.tv_nsec = 2000 * ++try_count;
+		nanosleep(&nap, NULL);
 	}
 
 	/* if this is child */
 	if (pid_fork == 0) {
 		/* from now, don't trap signals */
 		initng_signal_disable();
-
-#ifdef DEBUG
-		/* unverbose by default for now */
-		/* g.verbose = 0; */
-#endif
 
 		/* TODO, comment this */
 #ifndef __HAIKU__
@@ -153,7 +149,8 @@ pid_t initng_fork(active_db_h * service, process_h * process)
 
 		/* do a minimum sleep, to let the mother process
 		   to register child, and notice death */
-		usleep(ALL_USLEEP);
+		struct timespec nap = { 0, ALL_NANOSLEEP };
+		nanosleep(&nap, NULL);
 	} else {
 		/* walk all pipes and close all remote sides of pipes */
 		while_pipes(current_pipe, process) {

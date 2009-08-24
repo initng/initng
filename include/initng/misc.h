@@ -65,9 +65,9 @@
 #define MAX_VERBOSES    50
 #define MAX_BLACKLIST   20
 
-/* makes all services sleep this many microseconds before launching,
+/* makes all services sleep this many nanoseconds before launching,
  * this will get initng time to register service */
-#define ALL_USLEEP 1000
+#define ALL_NANOSLEEP 1000000
 
 /*
  * Clean delay, wait this no of seconds after a service is down, before removing
