@@ -19,7 +19,8 @@
 
 #include <initng.h>
 #include <stdlib.h>
-#include <string.h>
+
+#include <string.h> /* strtok_r() */
 
 
 #define CHUNK	16

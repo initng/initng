@@ -22,7 +22,7 @@
 #include <sys/time.h>
 #include <time.h>		/* time() */
 #include <fcntl.h>		/* fcntl() */
-#include <sys/un.h>		/* memmove() strcmp() */
+#include <string.h>		/* memmove() strcmp() */
 #include <sys/wait.h>		/* waitpid() sa */
 #include <sys/ioctl.h>		/* ioctl() */
 #include <stdio.h>		/* printf() */

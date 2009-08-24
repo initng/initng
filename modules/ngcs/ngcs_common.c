@@ -21,7 +21,7 @@
 #include <stdlib.h>
 #include "ngcs_common.h"
 #include <sys/socket.h>
-#include <sys/un.h>
+#include <string.h>
 #include <assert.h>
 #include <unistd.h>
 #include <errno.h>

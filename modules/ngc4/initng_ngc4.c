@@ -31,7 +31,7 @@
 #include <sys/stat.h>
 #include <errno.h>
 #include <sys/socket.h>
-#include <sys/un.h>
+#include <string.h>
 #include <assert.h>
 
 #include "initng_ngc4.h"

@@ -34,7 +34,7 @@
 #include <time.h>
 #include <getopt.h>
 #include <sys/socket.h>
-#include <sys/un.h>
+#include <string.h>
 #include <assert.h>
 #include <errno.h>
 #include <ctype.h>

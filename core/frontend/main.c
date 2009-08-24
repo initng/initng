@@ -37,7 +37,7 @@
 #include <sys/resource.h>
 #include <sys/mman.h>
 #include <sys/types.h>
-#include <sys/un.h>		/* memmove() strcmp() */
+#include <string.h>		/* memmove() strcmp() */
 #include <sys/wait.h>		/* waitpid() sa */
 #include <sys/mount.h>
 

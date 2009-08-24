@@ -22,7 +22,7 @@
 #include "ngcs_client.h"
 #include "ngcs_paths.h"
 #include <sys/socket.h>
-#include <sys/un.h>
+#include <string.h>
 #include <unistd.h>
 #include <assert.h>
 
