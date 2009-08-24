@@ -18,6 +18,9 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+/* FIXME : Avoid __typeof__ to be fully standard.
+ */
+
 #ifndef INITNG_LIST_H
 #define INITNG_LIST_H
 
@@ -177,9 +180,9 @@ static inline void initng_list_join(list_t *list, list_t *head)
  * @param member   The name of the list_struct within the struct.
  */
 #define initng_list_foreach(pos, head, member) \
-	for (pos = initng_list_entry((head)->next, typeof(*pos), member); \
+	for (pos = initng_list_entry((head)->next, __typeof__(*pos), member); \
 	     &pos->member != (head); \
-	     pos = initng_list_entry(pos->member.next, typeof(*pos), member))
+	     pos = initng_list_entry(pos->member.next, __typeof__(*pos), member))
 
 /**
  * Iterate over list of given type in reverse order.
@@ -189,9 +192,9 @@ static inline void initng_list_join(list_t *list, list_t *head)
  * @param member   The name of the list_struct within the struct.
  */
 #define initng_list_foreach_rev(pos, head, member) \
-	for (pos = initng_list_entry((head)->prev, typeof(*pos), member); \
+	for (pos = initng_list_entry((head)->prev, __typeof__(*pos), member); \
 	     &pos->member != (head); \
-	     pos = initng_list_entry(pos->member.prev, typeof(*pos), member))
+	     pos = initng_list_entry(pos->member.prev, __typeof__(*pos), member))
 
 
 /**
@@ -203,11 +206,11 @@ static inline void initng_list_join(list_t *list, list_t *head)
  * @param member   The name of the list_struct within the struct.
  */
 #define initng_list_foreach_safe(pos, n, head, member) \
-	for (pos = initng_list_entry((head)->next, typeof(*pos), member), \
-	     n = initng_list_entry(pos->member.next, typeof(*pos), member); \
+	for (pos = initng_list_entry((head)->next, __typeof__(*pos), member), \
+	     n = initng_list_entry(pos->member.next, __typeof__(*pos), member); \
 	     &pos->member != (head); \
 	     pos = n, \
-	     n = initng_list_entry(n->member.next, typeof(*n), member))
+	     n = initng_list_entry(n->member.next, __typeof__(*n), member))
 
 /**
  * Iterate over list of given type, safe against removal of list entry.
@@ -218,11 +221,11 @@ static inline void initng_list_join(list_t *list, list_t *head)
  * @param member   The name of the list_struct within the struct.
  */
 #define initng_list_foreach_rev_safe(pos, n, head, member) \
-	for (pos = initng_list_entry((head)->prev, typeof(*pos), member), \
-	     n = initng_list_entry(pos->member.prev, typeof(*pos), member); \
+	for (pos = initng_list_entry((head)->prev, __typeof__(*pos), member), \
+	     n = initng_list_entry(pos->member.prev, __typeof__(*pos), member); \
 	     &pos->member != (head); \
 	     pos = n, \
-	     n = initng_list_entry(n->member.prev, typeof(*n), member))
+	     n = initng_list_entry(n->member.prev, __typeof__(*n), member))
 
 
 #endif /* !defined(INITNG_LIST_H) */
