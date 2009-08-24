@@ -37,6 +37,14 @@
 #include "selinux.h"
 #endif
 
+#ifndef CBAUD // FIXME
+#define CBAUD   0
+#define CBAUDEX 0
+#define ECHOCTL 0
+#define ECHOKE  0
+#define ECHOPRT 0
+#endif
+
 static void setup_console(const char *console)
 {
 	int fd;
