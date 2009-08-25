@@ -179,7 +179,7 @@ int initng_data_count_type(s_entry * type, data_head * data);
 void initng_data_remove_var(s_entry * type, const char *vn, data_head * d);
 
 #define remove_var(type, vn, point) initng_data_remove_var(type, vn, &(point)->data)
-#define remove(type, point) remove_var(type, NULL, point)
+#define initng_data_remove(type, point) remove_var(type, NULL, point)
 
 /*
  * free_all

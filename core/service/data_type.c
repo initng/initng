@@ -88,7 +88,7 @@ void initng_service_data_type_unregister(s_entry * ent)
 
 	/* clear the active db for this data */
 	while_active_db(currentA) {
-		remove(ent, currentA);
+		initng_data_remove(ent, currentA);
 	}
 
 	/* remove it from the list */

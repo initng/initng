@@ -49,7 +49,7 @@ void initng_handler_restart_restarting(void)
 		if (IS_DOWN(current)) {
 			if (is(&RESTARTING, current)) {
 				/* remove the restarting flag */
-				remove(&RESTARTING, current);
+				initng_data_remove(&RESTARTING, current);
 
 				/* start the service */
 				initng_handler_start_service(current);
