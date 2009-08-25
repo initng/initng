@@ -50,7 +50,7 @@
 m_h *initng_module_open(const char *module_path, const char *module_name)
 {
 	struct stat st;
-	char *errmsg;
+	const char *errmsg;
 	m_h *m = NULL;
 
 	assert(module_path != NULL);
