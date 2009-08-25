@@ -61,7 +61,7 @@ static void initng_reload(void);
 
 f_module_h pipe_fd = {
 	.call_module = &parse_control_input,
-	.what = FDW_READ,
+	.what = IOW_READ,
 	.fds = -1
 };				/* /dev/initctl */
 
@@ -69,9 +69,9 @@ struct stat st, st2;
 
 #define PIPE_FD    10		/* Fileno of initfifo. */
 
-static void pipe_fd_handler(s_event * event)
+static void pipe_io_handler(s_event * event)
 {
-	s_event_fd_watcher_data *data;
+	s_event_io_watcher_data *data;
 
 	assert(event);
 	assert(event->data);
@@ -79,12 +79,12 @@ static void pipe_fd_handler(s_event * event)
 	data = event->data;
 
 	switch (data->action) {
-	case FDW_ACTION_CLOSE:
+	case IOW_ACTION_CLOSE:
 		if (pipe_fd.fds > 0)
 			close(pipe_fd.fds);
 		break;
 
-	case FDW_ACTION_CHECK:
+	case IOW_ACTION_CHECK:
 		if (pipe_fd.fds <= 2)
 			break;
 
@@ -100,18 +100,18 @@ static void pipe_fd_handler(s_event * event)
 		data->added++;
 		break;
 
-	case FDW_ACTION_CALL:
+	case IOW_ACTION_CALL:
 		if (!data->added || pipe_fd.fds <= 2)
 			break;
 
 		if (!FD_ISSET(pipe_fd.fds, data->readset))
 			break;
 
-		parse_control_input(&pipe_fd, FDW_READ);
+		parse_control_input(&pipe_fd, IOW_READ);
 		data->added--;
 		break;
 
-	case FDW_ACTION_DEBUG:
+	case IOW_ACTION_DEBUG:
 		if (!data->debug_find_what ||
 		    strstr(__FILE__, data->debug_find_what)) {
 			initng_string_mprintf(data->debug_out,
@@ -170,10 +170,10 @@ static int initctl_control_open(void)
 			return FALSE;
 		}
 
-		initng_fd_set_cloexec(pipe_fd.fds);
+		initng_io_set_cloexec(pipe_fd.fds);
 
 		/* ok, finally add hook */
-		initng_event_hook_register(&EVENT_FD_WATCHER, &pipe_fd_handler);
+		initng_event_hook_register(&EVENT_IO_WATCHER, &pipe_io_handler);
 	}
 
 	return TRUE;
@@ -382,7 +382,7 @@ void module_unload(void)
 {
 	initctl_control_close();
 	/* remove all hooks */
-	initng_event_hook_unregister(&EVENT_FD_WATCHER, &pipe_fd_handler);
+	initng_event_hook_unregister(&EVENT_IO_WATCHER, &pipe_io_handler);
 	initng_event_hook_unregister(&EVENT_SYSTEM_CHANGE, &is_system_up);
 	initng_event_hook_unregister(&EVENT_SIGNAL, &hup_request);
 }

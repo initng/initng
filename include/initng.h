@@ -29,7 +29,6 @@
 #include <initng/env.h>
 #include <initng/error.h>
 #include <initng/execute.h>
-#include <initng/fd.h>
 #include <initng/fork.h>
 #include <initng/handler.h>
 #include <initng/hash.h>

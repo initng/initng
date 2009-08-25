@@ -575,7 +575,7 @@ int module_init(void)
 			printf("cpout_console=%s\n", &g.Argv[i][14]);
 			output = fopen(&g.Argv[i][14], "w");
 
-			initng_fd_set_cloexec(fileno(output));
+			initng_io_set_cloexec(fileno(output));
 			continue;
 		}
 

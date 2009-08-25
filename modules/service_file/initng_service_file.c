@@ -148,13 +148,13 @@ struct stat sock_stat;
 
 f_module_h bpf = {
 	.call_module = &bp_incoming,
-	.what = FDW_READ,
+	.what = IOW_READ,
 	.fds = -1
 };
 
 static int bpf_handler(s_event * event)
 {
-	s_event_fd_watcher_data *data;
+	s_event_io_watcher_data *data;
 
 	assert(event);
 	assert(event->data);
@@ -162,12 +162,12 @@ static int bpf_handler(s_event * event)
 	data = event->data;
 
 	switch (data->action) {
-	case FDW_ACTION_CLOSE:
+	case IOW_ACTION_CLOSE:
 		if (bpf.fds > 0)
 			close(bpf.fds);
 		break;
 
-	case FDW_ACTION_CHECK:
+	case IOW_ACTION_CHECK:
 		if (bpf.fds <= 2)
 			break;
 
@@ -182,18 +182,18 @@ static int bpf_handler(s_event * event)
 		data->added++;
 		break;
 
-	case FDW_ACTION_CALL:
+	case IOW_ACTION_CALL:
 		if (!data->added || bpf.fds <= 2)
 			break;
 
 		if (!FD_ISSET(bpf.fds, data->readset))
 			break;
 
-		bp_incoming(&bpf, FDW_READ);
+		bp_incoming(&bpf, IOW_READ);
 		data->added--;
 		break;
 
-	case FDW_ACTION_DEBUG:
+	case IOW_ACTION_DEBUG:
 		if (!data->debug_find_what ||
 		    strstr(__FILE__, data->debug_find_what)) {
 			initng_string_mprintf(data->debug_out, " %i: Used by plugin: %s\n",
@@ -681,7 +681,7 @@ static int bp_open_socket()
 		return (FALSE);
 	}
 
-	initng_fd_set_cloexec(bpf.fds);
+	initng_io_set_cloexec(bpf.fds);
 
 	/* Bind a name to the socket. */
 	serv_sockname.sun_family = AF_UNIX;
@@ -962,7 +962,7 @@ int module_init(void)
 	   "service.\n");
 	initng_process_db_ptype_register(&parse);
 #ifdef GLOBAL_SOCKET
-	initng_event_hook_register(&EVENT_FD_WATCHER, &bpf_handler);
+	initng_event_hook_register(&EVENT_IO_WATCHER, &bpf_handler);
 	initng_event_hook_register(&EVENT_SIGNAL, &bp_check_socket);
 #endif
 	initng_event_hook_register(&EVENT_NEW_ACTIVE, &create_new_active);
@@ -990,7 +990,7 @@ void module_unload(void)
 	/* remove hooks */
 	initng_process_db_ptype_unregister(&parse);
 #ifdef GLOBAL_SOCKET
-	initng_event_hook_unregister(&EVENT_FD_WATCHER, &bpf_handler);
+	initng_event_hook_unregister(&EVENT_IO_WATCHER, &bpf_handler);
 	initng_event_hook_unregister(&EVENT_SIGNAL, &bp_check_socket);
 #endif
 	initng_event_hook_unregister(&EVENT_NEW_ACTIVE, &create_new_active);

@@ -67,19 +67,19 @@ static void astatus_change(s_event * event);
 static void system_state_change(s_event * event);
 static void system_pipe_watchers(s_event * event);
 static void print_error(s_event * event);
-static void fd_event_acceptor_handler(s_event * event);
+static void io_event_acceptor_handler(s_event * event);
 
 /* todo, when last listener closed, del hooks to save cpu cykles */
 
-f_module_h fd_event_acceptor = {
+f_module_h io_event_acceptor = {
 	.call_module = &event_acceptor,
-	.what = FDW_READ,
+	.what = IOW_READ,
 	.fds = -1
 };
 
-static void fd_event_acceptor_handler(s_event * event)
+static void io_event_acceptor_handler(s_event * event)
 {
-	s_event_fd_watcher_data *data;
+	s_event_io_watcher_data *data;
 
 	assert(event);
 	assert(event->data);
@@ -87,42 +87,42 @@ static void fd_event_acceptor_handler(s_event * event)
 	data = event->data;
 
 	switch (data->action) {
-	case FDW_ACTION_CLOSE:
-		if (fd_event_acceptor.fds > 0)
-			close(fd_event_acceptor.fds);
+	case IOW_ACTION_CLOSE:
+		if (io_event_acceptor.fds > 0)
+			close(io_event_acceptor.fds);
 		break;
 
-	case FDW_ACTION_CHECK:
-		if (fd_event_acceptor.fds <= 2)
+	case IOW_ACTION_CHECK:
+		if (io_event_acceptor.fds <= 2)
 			break;
 
 		/* This is a expensive test, but better safe then sorry */
-		if (!STILL_OPEN(fd_event_acceptor.fds)) {
-			D_("%i is not open anymore.\n", fd_event_acceptor.fds);
-			fd_event_acceptor.fds = -1;
+		if (!STILL_OPEN(io_event_acceptor.fds)) {
+			D_("%i is not open anymore.\n", io_event_acceptor.fds);
+			io_event_acceptor.fds = -1;
 			break;
 		}
 
-		FD_SET(fd_event_acceptor.fds, data->readset);
+		FD_SET(io_event_acceptor.fds, data->readset);
 		data->added++;
 		break;
 
-	case FDW_ACTION_CALL:
-		if (!data->added || fd_event_acceptor.fds <= 2)
+	case IOW_ACTION_CALL:
+		if (!data->added || io_event_acceptor.fds <= 2)
 			break;
 
-		if (!FD_ISSET(fd_event_acceptor.fds, data->readset))
+		if (!FD_ISSET(io_event_acceptor.fds, data->readset))
 			break;
 
-		event_acceptor(&fd_event_acceptor, FDW_READ);
+		event_acceptor(&io_event_acceptor, IOW_READ);
 		data->added--;
 		break;
 
-	case FDW_ACTION_DEBUG:
+	case IOW_ACTION_DEBUG:
 		if (!data->debug_find_what ||
 		    strstr(__FILE__, data->debug_find_what)) {
 			initng_string_mprintf(data->debug_out, " %i: Used by plugin: %s\n",
-				fd_event_acceptor.fds, __FILE__);
+				io_event_acceptor.fds, __FILE__);
 		}
 		break;
 	}
@@ -176,7 +176,7 @@ static void handle_killed(s_event * event)
 static void close_initiator_socket(void)
 {
 	/* Check if we need to remove hooks */
-	if (fd_event_acceptor.fds < 0)
+	if (io_event_acceptor.fds < 0)
 		return;
 
 	/* only remove if hook is added */
@@ -199,12 +199,12 @@ static void close_initiator_socket(void)
 	}
 
 	/* close socket and set to 0 */
-	close(fd_event_acceptor.fds);
-	fd_event_acceptor.fds = -1;
+	close(io_event_acceptor.fds);
+	io_event_acceptor.fds = -1;
 
 	/* remove tha hook too */
-	initng_event_hook_unregister(&EVENT_FD_WATCHER,
-				     &fd_event_acceptor_handler);
+	initng_event_hook_unregister(&EVENT_IO_WATCHER,
+				     &io_event_acceptor_handler);
 }
 
 /* send to all listeners */
@@ -242,7 +242,7 @@ void event_acceptor(f_module_h * from, e_fdw what)
 	int lis = 0;
 
 	/* make a dumb check */
-	if (from != &fd_event_acceptor)
+	if (from != &io_event_acceptor)
 		return;
 
 	/* skipp all set listeners, so we dont owerwrite them */
@@ -271,7 +271,7 @@ void event_acceptor(f_module_h * from, e_fdw what)
 		is_active = TRUE;
 	}
 	/* create a new socket, for reading */
-	if ((listeners[lis] = accept(fd_event_acceptor.fds, NULL, NULL)) < 1) {
+	if ((listeners[lis] = accept(io_event_acceptor.fds, NULL, NULL)) < 1) {
 		F_("Failed to accept listener!\n");
 		return;
 	}
@@ -394,14 +394,14 @@ static int open_initiator_socket(void)
 	}
 
 	/* Create the socket. */
-	fd_event_acceptor.fds = socket(PF_UNIX, SOCK_STREAM, 0);
-	if (fd_event_acceptor.fds < 1) {
+	io_event_acceptor.fds = socket(PF_UNIX, SOCK_STREAM, 0);
+	if (io_event_acceptor.fds < 1) {
 		F_("Failed to init socket (%s)\n", strerror(errno));
-		fd_event_acceptor.fds = -1;
+		io_event_acceptor.fds = -1;
 		return FALSE;
 	}
 
-	initng_fd_set_cloexec(fd_event_acceptor.fds);
+	initng_io_set_cloexec(io_event_acceptor.fds);
 
 	/* Bind a name to the socket. */
 	serv_sockname.sun_family = AF_UNIX;
@@ -413,7 +413,7 @@ static int open_initiator_socket(void)
 	unlink(serv_sockname.sun_path);
 
 	/* Try to bind */
-	if (bind(fd_event_acceptor.fds, (struct sockaddr *)&serv_sockname,
+	if (bind(io_event_acceptor.fds, (struct sockaddr *)&serv_sockname,
 		 (strlen(serv_sockname.sun_path) +
 		  sizeof(serv_sockname.sun_family))) < 0) {
 
@@ -439,7 +439,7 @@ static int open_initiator_socket(void)
 	stat(serv_sockname.sun_path, &sock_stat);
 
 	/* Listen to socket */
-	if (listen(fd_event_acceptor.fds, 5)) {
+	if (listen(io_event_acceptor.fds, 5)) {
 		F_("Error on listen (errno: %d str: '%s')\n", errno,
 		   strerror(errno));
 
@@ -449,11 +449,11 @@ static int open_initiator_socket(void)
 	}
 
 	/*
-	 * Add an hook, so when fd_event_acceptor.fds have data,
-	 * fd_event_acceptor.call (event_acceptor()) is called.
+	 * Add an hook, so when io_event_acceptor.fds have data,
+	 * io_event_acceptor.call (event_acceptor()) is called.
 	 */
-	initng_event_hook_register(&EVENT_FD_WATCHER,
-				   &fd_event_acceptor_handler);
+	initng_event_hook_register(&EVENT_IO_WATCHER,
+				   &io_event_acceptor_handler);
 
 	/* return happily */
 	return TRUE;
@@ -477,8 +477,8 @@ static void check_socket(s_event * event)
 	D_("Checking socket\n");
 
 	/* Check if socket needs reopening */
-	if (fd_event_acceptor.fds <= 0) {
-		D_("fd_event_acceptor.fds not set, opening new socket.\n");
+	if (io_event_acceptor.fds <= 0) {
+		D_("io_event_acceptor.fds not set, opening new socket.\n");
 		open_initiator_socket();
 		return;
 	}
@@ -657,7 +657,7 @@ int module_init(void)
 		listeners[i] = -1;
 
 	/* zero globals */
-	fd_event_acceptor.fds = -1;
+	io_event_acceptor.fds = -1;
 	memset(&sock_stat, 0, sizeof(sock_stat));
 
 	/*

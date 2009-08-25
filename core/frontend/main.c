@@ -260,7 +260,7 @@ int main(int argc, char *argv[], char *env[])
 				 * watch fds */
 				D_("Will sleep for %i seconds.\n",
 				   closest_timeout);
-				initng_fd_plugin_poll(closest_timeout);
+				initng_io_plugin_poll(closest_timeout);
 			}
 		}
 	}			/* End main loop */

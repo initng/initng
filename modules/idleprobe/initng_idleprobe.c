@@ -113,7 +113,7 @@ static int is_cpu_idle(int wait)
 	/* if fp_proc not open, try to open it */
 	if (!fp_proc) {
 		fp_proc = fopen("/proc/stat", "r");
-		initng_fd_set_cloexec(fileno(fp_proc));
+		initng_io_set_cloexec(fileno(fp_proc));
 	}
 
 	/* if still not open, return false */

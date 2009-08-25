@@ -40,7 +40,7 @@ extern s_event_type EVENT_COMPENSATE_TIME;
 extern s_event_type EVENT_HANDLE_KILLED;
 extern s_event_type EVENT_SIGNAL;
 extern s_event_type EVENT_BUFFER_WATCHER;
-extern s_event_type EVENT_FD_WATCHER;
+extern s_event_type EVENT_IO_WATCHER;
 extern s_event_type EVENT_INTERRUPT;
 extern s_event_type HALT;
 extern s_event_type REBOOT;
@@ -86,11 +86,11 @@ typedef struct {
 	char *buffer_pos;
 } s_event_buffer_watcher_data;
 
-/* EVENT_FD_WATCHER actions */
-#define FDW_ACTION_CLOSE	1
-#define FDW_ACTION_CHECK	2
-#define FDW_ACTION_CALL		3
-#define FDW_ACTION_DEBUG	4
+/* EVENT_IO_WATCHER actions */
+#define IOW_ACTION_CLOSE	1
+#define IOW_ACTION_CHECK	2
+#define IOW_ACTION_CALL		3
+#define IOW_ACTION_DEBUG	4
 
 typedef struct {
 	int action;
@@ -98,6 +98,6 @@ typedef struct {
 	fd_set *readset, *writeset, *errset;
 	char *debug_find_what;
 	char **debug_out;
-} s_event_fd_watcher_data;
+} s_event_io_watcher_data;
 
 #endif /* INITNG_STATIC_EVENT_TYPES_H */

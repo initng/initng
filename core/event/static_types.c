@@ -124,8 +124,8 @@ s_event_type EVENT_BUFFER_WATCHER = {
 	.description = "Triggered when a service have outputed, and initng "
 	    "have filled its output buffer"
 };
-s_event_type EVENT_FD_WATCHER = {
-	.name = "fd_watcher",
+s_event_type EVENT_IO_WATCHER = {
+	.name = "io_watcher",
 	.description = "Triggered when initng open file descriptors receive "
 	    "data"
 };
@@ -166,7 +166,7 @@ void initng_register_static_event_types(void)
 	initng_event_type_register(&EVENT_HANDLE_KILLED);
 	initng_event_type_register(&EVENT_SIGNAL);
 	initng_event_type_register(&EVENT_BUFFER_WATCHER);
-	initng_event_type_register(&EVENT_FD_WATCHER);
+	initng_event_type_register(&EVENT_IO_WATCHER);
 	initng_event_type_register(&EVENT_INTERRUPT);
 	initng_event_type_register(&HALT);
 	initng_event_type_register(&REBOOT);

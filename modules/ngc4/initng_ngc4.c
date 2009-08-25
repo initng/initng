@@ -75,13 +75,13 @@ char *socket_filename;
 
 f_module_h fdh = {
 	.call_module = &accepted_client,
-	.what = FDW_READ,
+	.what = IOW_READ,
 	.fds = -1
 };
 
 static void fdh_handler(s_event * event)
 {
-	s_event_fd_watcher_data *data;
+	s_event_io_watcher_data *data;
 
 	assert(event);
 	assert(event->data);
@@ -89,12 +89,12 @@ static void fdh_handler(s_event * event)
 	data = event->data;
 
 	switch (data->action) {
-	case FDW_ACTION_CLOSE:
+	case IOW_ACTION_CLOSE:
 		if (fdh.fds > 0)
 			close(fdh.fds);
 		break;
 
-	case FDW_ACTION_CHECK:
+	case IOW_ACTION_CHECK:
 		if (fdh.fds <= 2)
 			break;
 
@@ -109,18 +109,18 @@ static void fdh_handler(s_event * event)
 		data->added++;
 		break;
 
-	case FDW_ACTION_CALL:
+	case IOW_ACTION_CALL:
 		if (!data->added || fdh.fds <= 2)
 			break;
 
 		if (!FD_ISSET(fdh.fds, data->readset))
 			break;
 
-		accepted_client(&fdh, FDW_READ);
+		accepted_client(&fdh, IOW_READ);
 		data->added--;
 		break;
 
-	case FDW_ACTION_DEBUG:
+	case IOW_ACTION_DEBUG:
 		if (!data->debug_find_what ||
 		    strstr(__FILE__, data->debug_find_what)) {
 			initng_string_mprintf(data->debug_out, " %i: Used by plugin: %s\n",
@@ -589,7 +589,7 @@ static int sendping()
 		return FALSE;
 	}
 
-	initng_fd_set_cloexec(client);
+	initng_io_set_cloexec(client);
 
 	/* Bind a name to the socket. */
 	sockname.sun_family = AF_UNIX;
@@ -623,7 +623,7 @@ static int sendping()
 	D_("PING sent..\n");
 
 	/* Accept "server side" */
-	accepted_client(&fdh, FDW_READ);
+	accepted_client(&fdh, IOW_READ);
 
 	D_("Reading PONG..\n");
 	if ((read(client, &result, sizeof(result_desc)) <
@@ -679,7 +679,7 @@ static int open_socket()
 		return FALSE;
 	}
 
-	initng_fd_set_cloexec(fdh.fds);
+	initng_io_set_cloexec(fdh.fds);
 
 	/* Set socket to non blocking mode */
 	/*    flags = fcntl(fdh.fds, F_GETFL);
@@ -1439,7 +1439,7 @@ int module_init(void)
 
 	D_("adding hook, that will reopen socket, for every started "
 	   "service.\n");
-	initng_event_hook_register(&EVENT_FD_WATCHER, &fdh_handler);
+	initng_event_hook_register(&EVENT_IO_WATCHER, &fdh_handler);
 	initng_event_hook_register(&EVENT_SIGNAL, &check_socket);
 
 	/* add the help command, that list commands to the client */
@@ -1464,6 +1464,6 @@ void module_unload(void)
 	closesock();
 
 	/* remove hooks */
-	initng_event_hook_unregister(&EVENT_FD_WATCHER, &fdh_handler);
+	initng_event_hook_unregister(&EVENT_IO_WATCHER, &fdh_handler);
 	initng_event_hook_unregister(&EVENT_SIGNAL, &check_socket);
 }

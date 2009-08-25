@@ -29,9 +29,9 @@
 
 /* flags for f_module_h.what - correspond to the arguments of select() */
 typedef enum {
-	FDW_READ = 1,	/* Want notification when data is ready to be read */
-	FDW_WRITE = 2,	/* when data can be written successfully */
-	FDW_ERROR = 4,	/* when an exceptional condition occurs */
+	IOW_READ = 1,	/* Want notification when data is ready to be read */
+	IOW_WRITE = 2,	/* when data can be written successfully */
+	IOW_ERROR = 4,	/* when an exceptional condition occurs */
 } e_fdw;
 
 typedef struct ft_module_h f_module_h;

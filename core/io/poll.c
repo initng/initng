@@ -46,7 +46,7 @@
  * This function will return FALSE, if it timeout, or if there was
  * no fds to monitor.
  */
-void initng_fd_plugin_poll(int timeout)
+void initng_io_plugin_poll(int timeout)
 {
 	/* Variables */
 	fd_set readset, writeset, errset;
@@ -74,11 +74,11 @@ void initng_fd_plugin_poll(int timeout)
 	/* scan through active plug-ins that have listening file descriptors, and add them */
 	{
 		s_event event;
-		s_event_fd_watcher_data data;
+		s_event_io_watcher_data data;
 
-		event.event_type = &EVENT_FD_WATCHER;
+		event.event_type = &EVENT_IO_WATCHER;
 		event.data = &data;
-		data.action = FDW_ACTION_CHECK;
+		data.action = IOW_ACTION_CHECK;
 		data.added = 0;
 		data.readset = &readset;
 		data.writeset = &writeset;
@@ -185,11 +185,11 @@ void initng_fd_plugin_poll(int timeout)
 	/* Now scan through callers */
 	{
 		s_event event;
-		s_event_fd_watcher_data data;
+		s_event_io_watcher_data data;
 
-		event.event_type = &EVENT_FD_WATCHER;
+		event.event_type = &EVENT_IO_WATCHER;
 		event.data = &data;
-		data.action = FDW_ACTION_CALL;
+		data.action = IOW_ACTION_CALL;
 		data.readset = &readset;
 		data.writeset = &writeset;
 		data.errset = &errset;
@@ -224,7 +224,7 @@ void initng_fd_plugin_poll(int timeout)
 					   current_pipe->pipe[0]);
 
 					/* Do the actual read from pipe */
-					initng_fd_process_read_input(currentA,
+					initng_io_process_read_input(currentA,
 								     currentP,
 								     current_pipe);
 
@@ -238,7 +238,7 @@ void initng_fd_plugin_poll(int timeout)
 				if (current_pipe->dir == OUT_PIPE &&
 				    current_pipe->pipe[0] > 2 &&
 				    FD_ISSET(current_pipe->pipe[0], &readset)) {
-					initng_fd_pipe(currentA, currentP,
+					initng_io_pipe(currentA, currentP,
 						       current_pipe);
 
 					/* Found match, that means we need to
@@ -251,7 +251,7 @@ void initng_fd_plugin_poll(int timeout)
 				if (current_pipe->dir == IN_AND_OUT_PIPE &&
 				    current_pipe->pipe[1] > 2 &&
 				    FD_ISSET(current_pipe->pipe[1], &readset)) {
-					initng_fd_pipe(currentA, currentP,
+					initng_io_pipe(currentA, currentP,
 						       current_pipe);
 
 					/* Found match, that means we need to
@@ -265,7 +265,7 @@ void initng_fd_plugin_poll(int timeout)
 				    current_pipe->pipe[1] > 2 &&
 				    FD_ISSET(current_pipe->pipe[1],
 					     &writeset)) {
-					initng_fd_pipe(currentA, currentP,
+					initng_io_pipe(currentA, currentP,
 						       current_pipe);
 
 					/* Found match, that means we need to

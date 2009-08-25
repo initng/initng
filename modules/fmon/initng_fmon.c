@@ -59,7 +59,7 @@ static void filemon_event(f_module_h * from, e_fdw what);
 /* this plugin file descriptor we add to monitor */
 f_module_h fdh = {
 	.call_module = &filemon_event,
-	.what = FDW_READ,
+	.what = IOW_READ,
 	.fds = -1
 };
 
@@ -70,7 +70,7 @@ int i_watch = -1;
 
 static void fdh_handler(s_event * event)
 {
-	s_event_fd_watcher_data *data;
+	s_event_io_watcher_data *data;
 
 	assert(event);
 	assert(event->data);
@@ -78,12 +78,12 @@ static void fdh_handler(s_event * event)
 	data = event->data;
 
 	switch (data->action) {
-	case FDW_ACTION_CLOSE:
+	case IOW_ACTION_CLOSE:
 		if (fdh.fds > 0)
 			close(fdh.fds);
 		break;
 
-	case FDW_ACTION_CHECK:
+	case IOW_ACTION_CHECK:
 		if (fdh.fds <= 2)
 			break;
 
@@ -98,18 +98,18 @@ static void fdh_handler(s_event * event)
 		data->added++;
 		break;
 
-	case FDW_ACTION_CALL:
+	case IOW_ACTION_CALL:
 		if (!data->added || fdh.fds <= 2)
 			break;
 
 		if (!FD_ISSET(fdh.fds, data->readset))
 			break;
 
-		filemon_event(&fdh, FDW_READ);
+		filemon_event(&fdh, IOW_READ);
 		data->added--;
 		break;
 
-	case FDW_ACTION_DEBUG:
+	case IOW_ACTION_DEBUG:
 		if (!data->debug_find_what ||
 		    strstr(__FILE__, data->debug_find_what)) {
 			initng_string_mprintf(data->debug_out, " %i: Used by plugin: %s\n",
@@ -283,7 +283,7 @@ int module_init(void)
 	}
 
 	/* add this hook */
-	initng_event_hook_register(&EVENT_FD_WATCHER, &fdh_handler);
+	initng_event_hook_register(&EVENT_IO_WATCHER, &fdh_handler);
 
 	/* printf("Now monitoring...\n"); */
 	return TRUE;
@@ -299,5 +299,5 @@ void module_unload(void)
 	close(fdh.fds);
 
 	/* remove hooks */
-	initng_event_hook_unregister(&EVENT_FD_WATCHER, &fdh_handler);
+	initng_event_hook_unregister(&EVENT_IO_WATCHER, &fdh_handler);
 }

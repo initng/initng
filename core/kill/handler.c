@@ -71,7 +71,7 @@ void initng_kill_handler_killed_by_pid(pid_t kpid, int r_code)
 		    current_pipe->pipe[0] > 0) {
 			/* calling initng_process_read_input, Make sure all
 			 * buffers read, before closing them. */
-			initng_fd_process_read_input(service, process,
+			initng_io_process_read_input(service, process,
 						     current_pipe);
 
 			/* now close */

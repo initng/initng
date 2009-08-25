@@ -17,11 +17,11 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <fcntl.h>		/* fcntl() */
+#ifndef __LOCAL_H
+#define __LOCAL_H
 
-#include <initng.h>
+void initng_io_plugin_readpipe(active_db_h * service, process_h * process,
+                               pipe_h * pi, char *buffer_pos);
+int initng_io_pipe(active_db_h * service, process_h * process, pipe_h * pi);
 
-int initng_fd_set_cloexec(int fd)
-{
-	return fcntl(fd, F_SETFD, fcntl(fd, F_GETFD, 0) | FD_CLOEXEC);
-}
+#endif

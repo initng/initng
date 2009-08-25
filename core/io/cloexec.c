@@ -17,19 +17,11 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef INITNG_FD_H
-#define INITNG_FD_H
+#include <fcntl.h>		/* fcntl() */
 
-#include <unistd.h>
-#include <fcntl.h>
+#include <initng.h>
 
-#define STILL_OPEN(fd) (fcntl(fd, F_GETFD)>=0)
-
-void initng_fd_process_read_input(active_db_h * service, process_h * p,
-				  pipe_h * pipe);
-void initng_fd_close_all(void);
-void initng_fd_plugin_poll(int timeout);
-
-int initng_fd_set_cloexec(int fd);
-
-#endif /* INITNG_FD_H */
+int initng_io_set_cloexec(int fd)
+{
+	return fcntl(fd, F_SETFD, fcntl(fd, F_GETFD, 0) | FD_CLOEXEC);
+}

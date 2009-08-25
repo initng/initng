@@ -33,14 +33,14 @@
  * This function is called when data is polled below,
  * or when a process is freed ( with flush_buffer set)
  */
-void initng_fd_process_read_input(active_db_h * service, process_h * p,
+void initng_io_process_read_input(active_db_h * service, process_h * p,
 				  pipe_h * pi)
 {
 	int old_content_offset = pi->buffer_len;
 	int read_ret = 0;
 	char *tmp;
 
-	D_("\ninitng_fd_process_read_input(%s, %s);\n", service->name,
+	D_("\ninitng_io_process_read_input(%s, %s);\n", service->name,
 	   p->pt->name);
 
 	if (pi->pipe[0] <= 0) {
@@ -128,7 +128,7 @@ void initng_fd_process_read_input(active_db_h * service, process_h * p,
 	if (pi->buffer_len > old_content_offset) {
 		D_("Calling plugins for new buffer content...");
 		/* let all plugin take part of data */
-		initng_fd_plugin_readpipe(service, p, pi, pi->buffer +
+		initng_io_plugin_readpipe(service, p, pi, pi->buffer +
 					  old_content_offset);
 	}
 

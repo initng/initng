@@ -91,13 +91,13 @@ ngcs_cmd ngcs_cmds;
 
 f_module_h fdh = {
 	.call_module = &accepted_client,
-	.what = FDW_READ,
+	.what = IOW_READ,
 	.fds = -1
 };
 
 static void fdh_handler(s_event * event)
 {
-	s_event_fd_watcher_data *data;
+	s_event_io_watcher_data *data;
 
 	assert(event);
 	assert(event->data);
@@ -105,12 +105,12 @@ static void fdh_handler(s_event * event)
 	data = event->data;
 
 	switch (data->action) {
-	case FDW_ACTION_CLOSE:
+	case IOW_ACTION_CLOSE:
 		if (fdh.fds > 0)
 			close(fdh.fds);
 		break;
 
-	case FDW_ACTION_CHECK:
+	case IOW_ACTION_CHECK:
 		if (fdh.fds <= 2)
 			break;
 
@@ -125,18 +125,18 @@ static void fdh_handler(s_event * event)
 		data->added++;
 		break;
 
-	case FDW_ACTION_CALL:
+	case IOW_ACTION_CALL:
 		if (!data->added || fdh.fds <= 2)
 			break;
 
 		if (!FD_ISSET(fdh.fds, data->readset))
 			break;
 
-		accepted_client(&fdh, FDW_READ);
+		accepted_client(&fdh, IOW_READ);
 		data->added--;
 		break;
 
-	case FDW_ACTION_DEBUG:
+	case IOW_ACTION_DEBUG:
 		if (!data->debug_find_what ||
 		    strstr(__FILE__, data->debug_find_what)) {
 			initng_string_mprintf(data->debug_out, " %i: Used by plugin: %s\n",
@@ -148,7 +148,7 @@ static void fdh_handler(s_event * event)
 
 static void conn_fdw_handler(s_event * event)
 {
-	s_event_fd_watcher_data *data;
+	s_event_io_watcher_data *data;
 	ngcs_svr_conn *current = NULL;
 
 	assert(event);
@@ -158,12 +158,12 @@ static void conn_fdw_handler(s_event * event)
 
 	initng_list_foreach(current, &ngcs_conns.list, list) {
 		switch (data->action) {
-		case FDW_ACTION_CLOSE:
+		case IOW_ACTION_CLOSE:
 			if (current->fdw.fds > 0)
 				close(current->fdw.fds);
 			break;
 
-		case FDW_ACTION_CHECK:
+		case IOW_ACTION_CHECK:
 			if (current->fdw.fds <= 2)
 				break;
 
@@ -180,18 +180,18 @@ static void conn_fdw_handler(s_event * event)
 			data->added++;
 			break;
 
-		case FDW_ACTION_CALL:
+		case IOW_ACTION_CALL:
 			if (!data->added || current->fdw.fds <= 2)
 				break;
 
 			if (!FD_ISSET(current->fdw.fds, data->readset))
 				break;
 
-			current->fdw.call_module(&current->fdw, FDW_READ);
+			current->fdw.call_module(&current->fdw, IOW_READ);
 			data->added--;
 			break;
 
-		case FDW_ACTION_DEBUG:
+		case IOW_ACTION_DEBUG:
 			if (!data->debug_find_what ||
 			    strstr(__FILE__, data->debug_find_what)) {
 				initng_string_mprintf(data->debug_out,
@@ -247,7 +247,7 @@ void accepted_client(f_module_h * from, e_fdw what)
 
 	/* create a new socket, for reading */
 	if ((newsock = accept(fdh.fds, NULL, NULL)) > 0) {
-		initng_fd_set_cloexec(newsock);
+		initng_io_set_cloexec(newsock);
 
 		D_("read socket open, now setting options\n");
 		conn = (ngcs_svr_conn *)
@@ -278,7 +278,7 @@ void accepted_client(f_module_h * from, e_fdw what)
 		}
 
 		conn->fdw.fds = conn->conn->fd;
-		conn->fdw.what = FDW_READ;
+		conn->fdw.what = IOW_READ;
 		conn->fdw.call_module = data_ready;
 		conn->nextid = 1;
 		conn->list.next = 0;
@@ -311,10 +311,10 @@ static void data_ready(f_module_h * from, e_fdw what)
 {
 	ngcs_svr_conn *conn = (ngcs_svr_conn *) from;
 
-	if (what & FDW_READ)
+	if (what & IOW_READ)
 		ngcs_conn_data_ready(conn->conn);
 
-	if (what & FDW_WRITE)
+	if (what & IOW_WRITE)
 		ngcs_conn_write_ready(conn->conn);
 
 	clean_dead_conns();
@@ -324,7 +324,7 @@ static void pollmode_hook(ngcs_conn * conn, int have_pending_writes)
 {
 	ngcs_svr_conn *sconn = (ngcs_svr_conn *) conn->userdata;
 
-	sconn->fdw.what = FDW_READ | (have_pending_writes ? FDW_WRITE : 0);
+	sconn->fdw.what = IOW_READ | (have_pending_writes ? IOW_WRITE : 0);
 }
 
 static void handle_chan0(ngcs_chan * chan, int type, int len, char *data)
@@ -558,7 +558,7 @@ static int sendping()
 		return FALSE;
 	}
 
-	initng_fd_set_cloexec(client);
+	initng_io_set_cloexec(client);
 
 	/* Bind a name to the socket. */
 	sockname.sun_family = AF_UNIX;
@@ -637,7 +637,7 @@ static int open_socket()
 		return FALSE;
 	}
 
-	initng_fd_set_cloexec(fdh.fds);
+	initng_io_set_cloexec(fdh.fds);
 
 	/* Bind a name to the socket. */
 	serv_sockname.sun_family = AF_UNIX;
@@ -758,8 +758,8 @@ int module_init(void)
 	D_("adding hook, that will reopen socket, for every started "
 	   "service.\n");
 	initng_event_hook_register(&EVENT_IS_CHANGE, &service_status);
-	initng_event_hook_register(&EVENT_FD_WATCHER, &fdh_handler);
-	initng_event_hook_register(&EVENT_FD_WATCHER, &conn_fdw_handler);
+	initng_event_hook_register(&EVENT_IO_WATCHER, &fdh_handler);
+	initng_event_hook_register(&EVENT_IO_WATCHER, &conn_fdw_handler);
 
 	ngcs_reg_cmd(&ngcs_compat_cmds);
 
@@ -786,7 +786,7 @@ void module_unload(void)
 	unregister_ngcs_cmds();
 
 	/* remove hooks */
-	initng_event_hook_unregister(&EVENT_FD_WATCHER, &conn_fdw_handler);
-	initng_event_hook_unregister(&EVENT_FD_WATCHER, &fdh_handler);
+	initng_event_hook_unregister(&EVENT_IO_WATCHER, &conn_fdw_handler);
+	initng_event_hook_unregister(&EVENT_IO_WATCHER, &fdh_handler);
 	initng_event_hook_unregister(&EVENT_IS_CHANGE, &service_status);
 }

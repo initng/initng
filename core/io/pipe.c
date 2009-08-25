@@ -34,7 +34,7 @@
  * If no hook is found, or no return TRUE, it will
  * be printed to screen anyway.
  */
-void initng_fd_plugin_readpipe(active_db_h * service, process_h * process,
+void initng_io_plugin_readpipe(active_db_h * service, process_h * process,
 			       pipe_h * pi, char *buffer_pos)
 {
 	s_event event;
@@ -57,7 +57,7 @@ void initng_fd_plugin_readpipe(active_db_h * service, process_h * process,
 }
 
 /* if there is data incoming in a pipe, tell the plugins */
-int initng_fd_pipe(active_db_h * service, process_h * process, pipe_h * pi)
+int initng_io_pipe(active_db_h * service, process_h * process, pipe_h * pi)
 {
 	s_event event;
 	s_event_pipe_watcher_data data;

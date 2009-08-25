@@ -73,10 +73,10 @@ FileDescriptor Watchers
 		      You don't add the function hook directly here, but create
 		      a static f_module_h struct where you fill in the function
 		      pointer, the fd, and the events you're interested in
-		      (FDW_READ, FDW_WRITE, FDW_ERROR, or some combination thereof),
+		      (IOW_READ, IOW_WRITE, IOW_ERROR, or some combination thereof),
 		      then add that struct.
     Return value    : The return is void.
-    Caller location : initng_fd.c initng_plugin_fd_poll(timeout)
+    Caller location : initng_fd.c initng_plugin_io_poll(timeout)
 
 
 Service Output Watchers
@@ -95,7 +95,7 @@ Service Output Watchers
                       wanted the output, and initng will print the output to /dev/console
 		      (or alternative console set) to make sure that no service output ever
 		      gets lost, even if no plugin wants it.
-    Caller location : initng_fd.c initng_fd_plugin_readpipe(service, process, buffer_pos)
+    Caller location : initng_fd.c initng_io_plugin_readpipe(service, process, buffer_pos)
 
 
 Signal Wathers

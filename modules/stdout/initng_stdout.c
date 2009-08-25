@@ -163,7 +163,7 @@ static void setup_output(s_event * event)
 		dup2(fd_stdall, 1);
 		dup2(fd_stdall, 2);
 
-		initng_fd_set_cloexec(fd_stdall);
+		initng_io_set_cloexec(fd_stdall);
 	} else {
 		/* else dup them to diffrent fds */
 		if (fd_stdout > 2)
@@ -171,13 +171,13 @@ static void setup_output(s_event * event)
 		if (fd_stderr > 2)
 			dup2(fd_stderr, 2);
 
-		initng_fd_set_cloexec(fd_stdout);
-		initng_fd_set_cloexec(fd_stderr);
+		initng_io_set_cloexec(fd_stdout);
+		initng_io_set_cloexec(fd_stderr);
 	}
 
 	if (fd_stdin > 2) {
 		dup2(fd_stdin, 0);
-		initng_fd_set_cloexec(fd_stdin);
+		initng_io_set_cloexec(fd_stdin);
 	}
 }
 

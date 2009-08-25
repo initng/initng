@@ -130,11 +130,11 @@ static char *cmd_print_fds(char *arg)
 
 	{
 		s_event event;
-		s_event_fd_watcher_data data;
+		s_event_io_watcher_data data;
 
-		event.event_type = &EVENT_FD_WATCHER;
+		event.event_type = &EVENT_IO_WATCHER;
 		event.data = &data;
-		data.action = FDW_ACTION_DEBUG;
+		data.action = IOW_ACTION_DEBUG;
 		data.debug_find_what = arg;
 		data.debug_out = &string;
 

@@ -62,7 +62,7 @@ static void print_error(s_event * event);
 static dbus_bool_t add_dbus_watch(DBusWatch * watch, void *data);
 static void rem_dbus_watch(DBusWatch * watch, void *data);
 static void toggled_dbus_watch(DBusWatch * watch, void *data);
-static void fdw_callback(f_module_h * from, e_fdw what);
+static void iow_callback(f_module_h * from, e_fdw what);
 
 static void free_dbus_watch_data(void *data);
 
@@ -80,7 +80,7 @@ initng_dbus_watch dbus_watches;
 
 static void w_handler(s_event * event)
 {
-	s_event_fd_watcher_data *data;
+	s_event_io_watcher_data *data;
 	initng_dbus_watch *current = NULL;
 
 	assert(event);
@@ -90,12 +90,12 @@ static void w_handler(s_event * event)
 
 	initng_list_foreach(current, &dbus_watches.list, list) {
 		switch (data->action) {
-		case FDW_ACTION_CLOSE:
+		case IOW_ACTION_CLOSE:
 			if (current->fdw.fds > 0)
 				close(current->fdw.fds);
 			break;
 
-		case FDW_ACTION_CHECK:
+		case IOW_ACTION_CHECK:
 			if (current->fdw.fds <= 2)
 				break;
 
@@ -112,18 +112,18 @@ static void w_handler(s_event * event)
 			data->added++;
 			break;
 
-		case FDW_ACTION_CALL:
+		case IOW_ACTION_CALL:
 			if (!data->added || current->fdw.fds <= 2)
 				break;
 
 			if (!FD_ISSET(current->fdw.fds, data->readset))
 				break;
 
-			current->fdw.call_module(&current->fdw, FDW_READ);
+			current->fdw.call_module(&current->fdw, IOW_READ);
 			data->added--;
 			break;
 
-		case FDW_ACTION_DEBUG:
+		case IOW_ACTION_DEBUG:
 			if (!data->debug_find_what ||
 			    strstr(__FILE__, data->debug_find_what)) {
 				initng_string_mprintf(data->debug_out,
@@ -153,7 +153,7 @@ static dbus_bool_t add_dbus_watch(DBusWatch * watch, void *data)
 	}
 
 	w->fdw.fds = dbus_watch_get_fd(watch);
-	w->fdw.call_module = fdw_callback;
+	w->fdw.call_module = iow_callback;
 	w->dbus = watch;
 	w->fdw.what = 0;
 
@@ -181,12 +181,12 @@ static void toggled_dbus_watch(DBusWatch * watch, void *data)
 		int flags = dbus_watch_get_flags(watch);
 
 		if (flags & DBUS_WATCH_READABLE)
-			w->fdw.what |= FDW_READ;
+			w->fdw.what |= IOW_READ;
 
 		if (flags & DBUS_WATCH_WRITABLE)
-			w->fdw.what |= FDW_WRITE;
+			w->fdw.what |= IOW_WRITE;
 
-		w->fdw.what |= FDW_ERROR;
+		w->fdw.what |= IOW_ERROR;
 	}
 
 }
@@ -199,20 +199,20 @@ static void free_dbus_watch_data(void *data)
 	free(w);
 }
 
-static void fdw_callback(f_module_h * from, e_fdw what)
+static void iow_callback(f_module_h * from, e_fdw what)
 {
 	initng_dbus_watch *w = (initng_dbus_watch *) from;
 	int flgs = 0;
 
 	/* TODO - handle DBUS_WATCH_HANGUP ? */
 
-	if (what & FDW_READ)
+	if (what & IOW_READ)
 		flgs |= DBUS_WATCH_READABLE;
 
-	if (what & FDW_WRITE)
+	if (what & IOW_WRITE)
 		flgs |= DBUS_WATCH_WRITABLE;
 
-	if (what & FDW_ERROR)
+	if (what & IOW_ERROR)
 		flgs |= DBUS_WATCH_ERROR;
 
 	dbus_watch_handle(w->dbus, flgs);
@@ -498,7 +498,7 @@ int module_init(void)
 	initng_event_hook_register(&EVENT_SYSTEM_CHANGE, &system_state_change);
 	initng_event_hook_register(&EVENT_PIPE_WATCHER, &system_pipe_watchers);
 	initng_event_hook_register(&EVENT_ERROR_MESSAGE, &print_error);
-	initng_event_hook_register(&EVENT_FD_WATCHER, &w_handler);
+	initng_event_hook_register(&EVENT_IO_WATCHER, &w_handler);
 
 	/* return happily */
 	return TRUE;
@@ -518,5 +518,5 @@ void module_unload(void)
 	initng_event_hook_unregister(&EVENT_PIPE_WATCHER,
 				     &system_pipe_watchers);
 	initng_event_hook_unregister(&EVENT_ERROR_MESSAGE, &print_error);
-	initng_event_hook_unregister(&EVENT_FD_WATCHER, &w_handler);
+	initng_event_hook_unregister(&EVENT_IO_WATCHER, &w_handler);
 }

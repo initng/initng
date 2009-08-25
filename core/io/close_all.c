@@ -17,11 +17,26 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef __LOCAL_H
-#define __LOCAL_H
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdarg.h>
+#include <dlfcn.h>
+#include <assert.h>
+#include <errno.h>
+#include <string.h>
 
-void initng_fd_plugin_readpipe(active_db_h * service, process_h * process,
-                               pipe_h * pi, char *buffer_pos);
-int initng_fd_pipe(active_db_h * service, process_h * process, pipe_h * pi);
+#include <initng.h>
 
-#endif
+void initng_io_close_all(void)
+{
+	s_event event;
+	s_event_io_watcher_data data;
+
+	S_;
+
+	event.event_type = &EVENT_IO_WATCHER;
+	event.data = &data;
+	data.action = IOW_ACTION_CLOSE;
+
+	initng_event_send(&event);
+}
