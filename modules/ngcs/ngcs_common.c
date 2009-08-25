@@ -20,11 +20,12 @@
 
 #include <stdlib.h>
 #include "ngcs_common.h"
-#include <sys/socket.h>
 #include <string.h>
 #include <assert.h>
 #include <unistd.h>
 #include <errno.h>
+#include <sys/select.h>
+#include <sys/socket.h>
 
 typedef struct ngcs_incoming_s {
 	int chan;

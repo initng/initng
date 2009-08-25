@@ -20,7 +20,7 @@
 #include "ngcs_client.h"
 #include "initng_ngcs_cmds.h"
 #include "ansi_colors.h"
-#include <initng.h>
+
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
@@ -30,6 +30,8 @@
 #include <errno.h>
 #include <time.h>
 #include <ctype.h>
+
+#include <initng.h>
 
 #define C_ERROR "\n  "C_FG_RED" [ERROR] -->> "C_OFF
 

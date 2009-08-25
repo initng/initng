@@ -26,6 +26,8 @@
 #include <string.h>
 #include <fcntl.h>		/* fcntl() */
 
+#include <sys/select.h>
+
 #include <initng.h>
 #include "local.h"
 
