@@ -21,6 +21,8 @@
 #ifndef INITNG_STATIC_EVENT_TYPES_H
 #define INITNG_STATIC_EVENT_TYPES_H
 
+#include <sys/select.h>
+
 extern s_event_type EVENT_STATE_CHANGE;
 extern s_event_type EVENT_SYSTEM_CHANGE;
 extern s_event_type EVENT_IS_CHANGE;
