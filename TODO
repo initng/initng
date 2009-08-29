@@ -1,10 +1,6 @@
 High priority:
 
-- Avoid exporting unneeded symbols out of core.
-- Optimize local usage of functions (maybe by wrappers?, we may be able to
-  exploit some common calling convention feature to make it optimal...).
-- Make it thread-safe.
-- Implement a hash-based search method.
+- Make everything thread-safe .
 - Implement a logging facility.
 - Implement good memory management.
 - Implement asynchronous I/O.
@@ -35,12 +31,6 @@ Low priority:
   started again when the dep is up again. Need to rewrite pars of core to
   make this nice?
 
-- dbus work, for a dbusc plugin. [BIG_TASK]
-
 - Fix devices/printer like services, maby using hal? [BIG_TASK]
-
-- Fix the/A xml parser. [BIG_TASK]
-
-- create ngc5 with an shiny new xml data backend. [BIG_TASK]
 
 - Remove doc/initng_hooks.txt and document the new static event_types.
