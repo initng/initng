@@ -24,7 +24,7 @@ mkdir "${BDIR}"
 cd "${BDIR}" || die "Can't create directory ${BDIR}"
 
 echo "**** Configuring project ****"
-cmake .. || die "Configuration failed"
+cmake .. "$@" || die "Configuration failed"
 
 echo "**** Compiling project ****"
 make || die "Compilation failed"
