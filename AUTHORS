@@ -1,15 +1,15 @@
-Author:
+PROJECT FOUNDER
     Jimmy Wennlund (PowerJ)
     <jimmy@wennlund.nu>
     icq: 3102477
     msn: jimmy@jw.dyndns.org
 
-Maintainer and project lead:
+PROJECT LEAD
     Ismael Luceno (ismaell)
     <ismael@initng.org>
     jabber: ismael.luceno@jabberes.org
 
-Contributors:
+CONTRIBUTORS
     Andre Eisenbach
     <andre@eisenbach.com>
 
@@ -31,7 +31,10 @@ Contributors:
     Anders Aagaard (neuron)
     <aagaande@gmail.com>
 
-Script writers:
+    makomk
+    <makomk@lycos.co.uk>
+
+SCRIPT WRITERS
     Roy Marples
     <uberlord@gentoo.org>
     irc: irc.freenode.org #gentoo-uk
@@ -43,7 +46,15 @@ Script writers:
     <denisDOTknaufATgmailDOTcom>
     jabber: <deacATamessageDOTde>
 
-Documentation:
+DEBIAN PACKAGER
+    Florian Knauf (seldon)
+    <f.knauf@mmkf.de>
+
+RELEASE MANAGER
+    Armin Berres
+    <a.berres@onlinehome.de>
+
+DOCUMENTATION
     Andrei Oprisan
     <aioprisan@gmail.com>
 
