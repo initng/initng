@@ -42,8 +42,8 @@ const struct initng_module initng_module = {
 
 #define CPE C_RED	" %3i%% " C_OFF C_BLUE "%s" C_OFF MOVE_TO_R
 #define CP C_RED	"      " C_OFF C_BLUE "%s" C_OFF MOVE_TO_R
-#define PE		" %3i%% %s"
-#define P		"      %s"
+#define PE		" %3i%% %s" MOVE_TO_R
+#define P		"      %s" MOVE_TO_R
 
 active_db_h *lastservice;
 ptype_h *last_ptype;
