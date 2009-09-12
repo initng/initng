@@ -17,6 +17,8 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+#define _BSD_SOURCE	/* initgroups() */
+
 #include <initng.h>
 
 #include <stdio.h>
@@ -25,7 +27,6 @@
 #include <assert.h>
 #include <pwd.h>
 
-#define __USE_BSD	/* initgroups() */
 #include <grp.h>
 #include <sys/types.h>
 
