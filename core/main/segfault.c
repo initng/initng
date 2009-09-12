@@ -133,7 +133,8 @@ void initng_main_segfault(void)
 	while (i < 5) {
 		emergency_output = open("/dev/console", O_WRONLY);
 		if (emergency_output > 0) {
-			write(emergency_output, MESSAGE, strlen(MESSAGE));
+			/* throw away test for warn_unused_result */
+			if (write(emergency_output, MESSAGE, strlen(MESSAGE)) > 0) {};
 			close(emergency_output);
 		}
 		sleep(4);	/*  5 times 4 is 20 seconds */
@@ -144,8 +145,9 @@ void initng_main_segfault(void)
 #define LMESSAGE "Launching /sbin/initng-segfault"
 	emergency_output = open("/dev/console", O_WRONLY);
 	if (emergency_output > 0) {
-		write(emergency_output, LMESSAGE,
-		      sizeof(char) * strlen(LMESSAGE));
+		/* throw away test for warn_unused_result */
+		if (write(emergency_output, LMESSAGE,
+		      sizeof(char) * strlen(LMESSAGE) > 0)) {};
 		close(emergency_output);
 	}
 
