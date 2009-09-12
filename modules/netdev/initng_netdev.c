@@ -17,6 +17,7 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+#define _BSD_SOURCE
 
 #include <stdio.h>
 #include <stdlib.h>		/* free() exit() */
@@ -32,10 +33,8 @@
 #include <arpa/inet.h>
 #include <assert.h>
 
-#define __USE_MISC
 #include <sys/ioctl.h>	/* netdevice structs */
 #include <net/if.h>
-#undef __USE_MISC
 
 #include <initng.h>
 
