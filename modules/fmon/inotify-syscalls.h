@@ -2,6 +2,7 @@
 #define _LINUX_INOTIFY_SYSCALLS_H
 
 #define _BSD_SOURCE
+#include <features.h>
 #include <sys/syscall.h>
 #include <unistd.h>
 #undef _BSD_SOURCE
