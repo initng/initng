@@ -17,6 +17,7 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+#define _BSD_SOURCE
 
 /* the standard intotify headers */
 #include "inotify.h"

@@ -1,11 +1,8 @@
 #ifndef _LINUX_INOTIFY_SYSCALLS_H
 #define _LINUX_INOTIFY_SYSCALLS_H
 
-#define _BSD_SOURCE
-#include <features.h>
 #include <sys/syscall.h>
 #include <unistd.h>
-#undef _BSD_SOURCE
 
 #if defined(__i386__)
 # define __NR_inotify_init	291
