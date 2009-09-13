@@ -28,7 +28,7 @@
 /* public interface */
 m_h *initng_module_load(const char *module_path);
 int initng_module_unload_named(const char *name);
-int initng_module_load_all(const char *plugin_path);
+int initng_module_load_all(const char *path);
 void initng_module_unload_all(void);
 void initng_module_unload_marked(void);
 
