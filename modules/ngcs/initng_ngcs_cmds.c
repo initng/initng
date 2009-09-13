@@ -619,7 +619,7 @@ static void ngcs_cmd_hot_reload(ngcs_request * req)
 	int retval;
 	char *new_argv[4];
 
-	retval = initng_plugin_callers_active_db_dump();
+	retval = initng_module_callers_active_db_dump();
 
 	if (retval == TRUE) {
 		ngcs_send_response(req, NGCS_TYPE_BOOL, sizeof(int),

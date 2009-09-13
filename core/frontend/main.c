@@ -80,7 +80,7 @@ int main(int argc, char *argv[], char *env[])
 
 	if (g.hot_reload) {
 		/* Mark service as up */
-		retval = initng_plugin_callers_active_db_reload();
+		retval = initng_module_callers_active_db_reload();
 		if (retval != TRUE) {
 			if (retval == FALSE)
 				F_("No plugin handled hot_reload!\n");
@@ -142,7 +142,7 @@ int main(int argc, char *argv[], char *env[])
 			   (g.now.tv_sec - last.tv_sec));
 			initng_active_db_compensate_time(g.now.tv_sec -
 							 last.tv_sec);
-			initng_plugin_callers_compensate_time(g.now.tv_sec -
+			initng_module_callers_compensate_time(g.now.tv_sec -
 							      last.tv_sec);
 			last.tv_sec += (g.now.tv_sec - last.tv_sec);
 		}
@@ -169,7 +169,7 @@ int main(int argc, char *argv[], char *env[])
 				if (signals_got[i] == -1)
 					continue;
 
-				initng_plugin_callers_signal(signals_got[i]);
+				initng_module_callers_signal(signals_got[i]);
 
 				switch (signals_got[i]) {
 					/* dead children */
@@ -177,7 +177,7 @@ int main(int argc, char *argv[], char *env[])
 					initng_signal_handle_sigchild();
 					break;
 				case SIGALRM:
-					/*initng_plugin_callers_alarm(); */
+					/*initng_module_callers_alarm(); */
 					initng_handler_run_alarm();
 					break;
 				default:

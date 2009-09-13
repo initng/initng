@@ -24,17 +24,20 @@
 #include <assert.h>
 #include <errno.h>
 #include <string.h>
-#include <fcntl.h>		/* fcntl() */
 #include <time.h>
 
 #include <initng.h>
 
-void initng_plugin_callers_compensate_time(time_t t)
+active_db_h *initng_module_active_new(const char *name)
 {
 	s_event event;
 
-	event.event_type = &EVENT_COMPENSATE_TIME;
-	event.data = &t;
+	event.event_type = &EVENT_NEW_ACTIVE;
+	event.data = (void *)name;
 
 	initng_event_send(&event);
+	if (event.status == HANDLED)
+		return event.ret;
+
+	return NULL;
 }

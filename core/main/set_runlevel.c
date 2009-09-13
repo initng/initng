@@ -54,5 +54,5 @@ void initng_main_set_runlevel(const char *runlevel)
 	g.runlevel = initng_toolbox_strdup(runlevel);
 
 	/* call system state plugins on a change like this */
-	initng_plugin_callers_system_changed(g.sys_state);
+	initng_module_callers_system_changed(g.sys_state);
 }

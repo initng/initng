@@ -28,16 +28,12 @@
 
 #include <initng.h>
 
-active_db_h *initng_plugin_active_new(const char *name)
+void initng_module_callers_signal(int signal)
 {
 	s_event event;
 
-	event.event_type = &EVENT_NEW_ACTIVE;
-	event.data = (void *)name;
+	event.event_type = &EVENT_SIGNAL;
+	event.data = &signal;
 
 	initng_event_send(&event);
-	if (event.status == HANDLED)
-		return event.ret;
-
-	return NULL;
 }

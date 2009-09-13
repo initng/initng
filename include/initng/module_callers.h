@@ -26,13 +26,13 @@
 
 #include <stdarg.h>
 
-active_db_h *initng_plugin_active_new(const char *name);
-int initng_plugin_callers_handle_killed(active_db_h * s, process_h * p);
-void initng_plugin_callers_compensate_time(time_t t);
-void initng_plugin_callers_signal(int signal);
+active_db_h *initng_module_active_new(const char *name);
+int initng_module_callers_handle_killed(active_db_h * s, process_h * p);
+void initng_module_callers_compensate_time(time_t t);
+void initng_module_callers_signal(int signal);
 
-void initng_plugin_callers_system_changed(h_sys_state state);
-int initng_plugin_callers_active_db_dump(void);
-int initng_plugin_callers_active_db_reload(void);
+void initng_module_callers_system_changed(h_sys_state state);
+int initng_module_callers_active_db_dump(void);
+int initng_module_callers_active_db_reload(void);
 
 #endif /* INITNG_MODULE_CALLERS_H */
