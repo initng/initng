@@ -6,6 +6,8 @@ if(COMMAND cmake_policy)
 endif(COMMAND cmake_policy)
 
 
+INCLUDE(cmake/initng_module.cmake)
+
 PROJECT(initng C)
 
 SET(VERSION "0.7.0-svn" CACHE STRING "Version number of the project")
@@ -22,6 +24,8 @@ INCLUDE(CheckSymbolExists)
 ADD_DEFINITIONS(-DHAVE_CONFIG_H)
 # Turn on warnings
 SET(CMAKE_C_FLAGS "-std=c99 -Wall -O2 -D_XOPEN_SOURCE=600 ${CMAKE_C_FLAGS}")
+SET(MOD_CFLAGS "${CMAKE_C_FLAGS}")
+SET(MOD_LDFLAGS "${CMAKE_LINK_FLAGS}")
 
 INCLUDE_DIRECTORIES(
 	${CMAKE_SOURCE_DIR}/include

@@ -27,7 +27,7 @@
 #include <time.h>
 #include <assert.h>
 
-#include "initng_colorprint_out.h"
+#include "initng_cpout.h"
 
 static int module_init(void);
 static void module_unload(void);
