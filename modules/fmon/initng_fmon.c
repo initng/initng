@@ -168,7 +168,7 @@ void filemon_event(f_module_h * from, e_fdw what)
 			/* check if its a plugin modified */
 			if (event->wd == plugins_watch && event->len &&
 			    strstr(event->name, ".so")) {
-				W_("Plugin %s/%s has been changed, reloading initng.\n", INITNG_MODULE_DIR, event->name);
+				W_("Module %s/%s has been changed, reloading initng.\n", INITNG_MODULE_DIR, event->name);
 
 				/* sleep 1 seconds, maby more files will be
 				 * modified in short */

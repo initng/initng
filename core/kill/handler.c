@@ -87,7 +87,7 @@ void initng_kill_handler_killed_by_pid(pid_t kpid, int r_code)
 
 	/* Check if a plugin wants to override handle_killed behavior */
 	if (initng_module_callers_handle_killed(service, process)) {
-		D_("Plugin did handle this kill.\n");
+		D_("Module did handle this kill.\n");
 		return;
 	}
 

@@ -310,7 +310,7 @@ int initng_module_load_all(const char *path)
 
 		/* check if the plugin is blacklisted */
 		if (initng_common_service_blacklisted(module)) {
-			F_("Plugin %s blacklisted.\n", module);
+			F_("Module %s blacklisted.\n", module);
 			free(module);
 			module = NULL;
 			continue;
