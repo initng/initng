@@ -17,8 +17,8 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef INITNG_MODULE_H
-#define INITNG_MODULE_H
+#ifndef INITNG_MODULE_MODULE_H
+#define INITNG_MODULE_MODULE_H
 
 #include <initng/list.h>
 
@@ -55,4 +55,4 @@ typedef struct module_struct {
 #define while_module_db_safe(current, safe) \
 	initng_list_foreach_rev_safe(current, safe, &g.module_db.list, list)
 
-#endif /* INITNG_MODULE_H */
+#endif /* INITNG_MODULE_MODULE_H */
