@@ -73,7 +73,7 @@ int main(int argc, char *argv[], char *env[])
 
 	D_("MAIN_LOAD_MODULES\n");
 	/* Load modules, if fails - launch sulogin and then try again */
-	if (!initng_module_load_all(INITNG_PLUGIN_DIR)) {
+	if (!initng_module_load_all(INITNG_MODULE_DIR)) {
 		/* if we can't load modules, revert to single-user login */
 		initng_main_su_login();
 	}

@@ -168,7 +168,7 @@ void filemon_event(f_module_h * from, e_fdw what)
 			/* check if its a plugin modified */
 			if (event->wd == plugins_watch && event->len &&
 			    strstr(event->name, ".so")) {
-				W_("Plugin %s/%s has been changed, reloading initng.\n", INITNG_PLUGIN_DIR, event->name);
+				W_("Plugin %s/%s has been changed, reloading initng.\n", INITNG_MODULE_DIR, event->name);
 
 				/* sleep 1 seconds, maby more files will be
 				 * modified in short */
@@ -264,12 +264,12 @@ int module_init(void)
 	}
 
 	/* monitor initng plugins */
-	plugins_watch = inotify_add_watch(fdh.fds, INITNG_PLUGIN_DIR,
+	plugins_watch = inotify_add_watch(fdh.fds, INITNG_MODULE_DIR,
 					  IN_MODIFY);
 
 	/* check so it succeded */
 	if (plugins_watch < 0) {
-		F_("Fail to monitor \"%s\"\n", INITNG_PLUGIN_DIR);
+		F_("Fail to monitor \"%s\"\n", INITNG_MODULE_DIR);
 		return FALSE;
 	}
 

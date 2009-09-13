@@ -27,7 +27,7 @@
 #include <initng.h>
 #include <initng-paths.h>
 
-#define WRAPPER_PATH INITNG_PLUGIN_DIR "/wrappers/"
+#define WRAPPER_PATH INITNG_MODULE_DIR "/wrappers/"
 
 extern char **environ;
 

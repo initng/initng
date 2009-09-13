@@ -203,11 +203,11 @@ m_h *initng_module_load(const char *module)
 		/* build a path */
 		module_path = (char *)initng_toolbox_calloc(1,
 							    strlen
-							    (INITNG_PLUGIN_DIR)
+							    (INITNG_MODULE_DIR)
 							    +
 							    strlen(module_name)
 							    + 30);
-		strcpy(module_path, INITNG_PLUGIN_DIR "/lib");
+		strcpy(module_path, INITNG_MODULE_DIR "/lib");
 		strcat(module_path, module_name);
 		strcat(module_path, ".so");
 	}

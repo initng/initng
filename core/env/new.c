@@ -34,7 +34,7 @@
 
 const char *initng_environ[] = {
 	"INITNG=" INITNG_VERSION,
-	"INITNG_PLUGIN_DIR=" INITNG_PLUGIN_DIR,
+	"INITNG_MODULE_DIR=" INITNG_MODULE_DIR,
 	"INITNG_ROOT=" INITNG_ROOT,
 	"PATH=/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin:/opt/bin",
 	"HOME=/root",
