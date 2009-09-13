@@ -6,7 +6,7 @@
   cmd_line_opt : interactive
         states : INTERACTIVELY_DISABLED
    description : When initng is started with 'interactive' on the kernel command
-                 line and this plugin is loaded, the user will get a yes/no
+                 line and this module is loaded, the user will get a yes/no
                  prompt before each service is started.  If a service is
-                 preventing initng from booting, this plugin can be used to
+                 preventing initng from booting, this module can be used to
                  disable it temporarily.
