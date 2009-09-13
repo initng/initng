@@ -20,7 +20,7 @@ AUX_SOURCE_DIRECTORY(depend		depend_srcs)
 AUX_SOURCE_DIRECTORY(interrupt		interrupt_srcs)
 AUX_SOURCE_DIRECTORY(kill		kill_srcs)
 AUX_SOURCE_DIRECTORY(static		static_srcs)
-AUX_SOURCE_DIRECTORY(plugin_callers	plugin_callers_srcs)
+AUX_SOURCE_DIRECTORY(module_callers	module_callers_srcs)
 AUX_SOURCE_DIRECTORY(io			io_srcs)
 AUX_SOURCE_DIRECTORY(main		main_srcs)
 AUX_SOURCE_DIRECTORY(data		data_srcs)
@@ -49,7 +49,7 @@ SET(libinitng_srcs
 	${interrupt_srcs}
 	${kill_srcs}
 	${static_srcs}
-	${plugin_callers_srcs}
+	${module_callers_srcs}
 	${io_srcs}
 	${main_srcs}
 	${data_srcs}
