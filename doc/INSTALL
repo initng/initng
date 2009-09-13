@@ -38,8 +38,8 @@ To avoid any potential problems during compilation, you need to create a
 Run cmake (replaces ./configure).  Note if you need to manually disable plugins
 it can be done here.
 
-# cmake .. [-DPLUGIN_NAME=(ON|OFF)]
-(PLUGIN_NAME will be of the form BUILD_NGCS)
+# cmake .. [-DMODULE_NAME=(ON|OFF)]
+(MODULE_NAME will be of the form BUILD_NGCS)
 
 To faciliate easier selection of plugins, cmake offers an ncurses-based menu,
 which is accessed with 'ccmake'
