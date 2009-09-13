@@ -1,5 +1,2 @@
-ADD_LIBRARY(conflict MODULE initng_conflict.c)
-TARGET_LINK_LIBRARIES(conflict initng)
+INITNG_MODULE(conflict initng_conflict.c)
 INSTALL_TARGETS(${LIB_INSTALL_DIR}/initng conflict)
-
-SET_TARGET_PROPERTIES(conflict PROPERTIES LINK_FLAGS ${MOD_LDFLAGS} COMPILE_FLAGS ${MOD_CFLAGS})

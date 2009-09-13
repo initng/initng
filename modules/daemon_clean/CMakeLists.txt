@@ -1,5 +1,2 @@
-ADD_LIBRARY(daemon_clean MODULE initng_daemon_clean.c)
-TARGET_LINK_LIBRARIES(daemon_clean initng)
+INITNG_MODULE(daemon_clean initng_daemon_clean.c)
 INSTALL_TARGETS(${LIB_INSTALL_DIR}/initng daemon_clean)
-
-SET_TARGET_PROPERTIES(daemon_clean PROPERTIES LINK_FLAGS ${MOD_LDFLAGS} COMPILE_FLAGS ${MOD_CFLAGS})

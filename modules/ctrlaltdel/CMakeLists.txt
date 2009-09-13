@@ -1,5 +1,2 @@
-ADD_LIBRARY(ctrlaltdel MODULE initng_ctrlaltdel.c)
-TARGET_LINK_LIBRARIES(ctrlaltdel initng)
+INITNG_MODULE(ctrlaltdel initng_ctrlaltdel.c)
 INSTALL_TARGETS(${LIB_INSTALL_DIR}/initng ctrlaltdel)
-
-SET_TARGET_PROPERTIES(ctrlaltdel PROPERTIES LINK_FLAGS ${MOD_LDFLAGS} COMPILE_FLAGS ${MOD_CFLAGS})

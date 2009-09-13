@@ -1,5 +1,2 @@
-ADD_LIBRARY(critical MODULE initng_critical.c active_db_print.c)
-TARGET_LINK_LIBRARIES(critical initng)
+INITNG_MODULE(critical initng_critical.c active_db_print.c)
 INSTALL_TARGETS(${LIB_INSTALL_DIR}/initng critical)
-
-SET_TARGET_PROPERTIES(critical PROPERTIES LINK_FLAGS ${MOD_LDFLAGS} COMPILE_FLAGS ${MOD_CFLAGS})

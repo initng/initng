@@ -1,6 +1,6 @@
 SUBDIRS(wrappers)
 
-ADD_LIBRARY(service_file MODULE initng_service_file.c)
+INITNG_MODULE(service_file initng_service_file.c)
 INSTALL_TARGETS(${LIB_INSTALL_DIR}/initng service_file)
 
 ADD_EXECUTABLE(bp bp.c)

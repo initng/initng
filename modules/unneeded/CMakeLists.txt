@@ -1,5 +1,2 @@
-ADD_LIBRARY(unneeded MODULE initng_unneeded.c)
-TARGET_LINK_LIBRARIES(unneeded initng)
+INITNG_MODULE(unneeded initng_unneeded.c)
 INSTALL_TARGETS(${LIB_INSTALL_DIR}/initng unneeded)
-
-SET_TARGET_PROPERTIES(unneeded PROPERTIES LINK_FLAGS ${MOD_LDFLAGS} COMPILE_FLAGS ${MOD_CFLAGS})

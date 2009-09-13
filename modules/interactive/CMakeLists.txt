@@ -1,5 +1,2 @@
-ADD_LIBRARY(interactive MODULE initng_interactive.c)
-TARGET_LINK_LIBRARIES(interactive initng)
+INITNG_MODULE(interactive initng_interactive.c)
 INSTALL_TARGETS(${LIB_INSTALL_DIR}/initng interactive)
-
-SET_TARGET_PROPERTIES(interactive PROPERTIES LINK_FLAGS ${MOD_LDFLAGS} COMPILE_FLAGS ${MOD_CFLAGS})

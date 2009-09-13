@@ -1,5 +1,2 @@
-ADD_LIBRARY(idleprobe MODULE initng_idleprobe.c)
-TARGET_LINK_LIBRARIES(idleprobe initng)
+INITNG_MODULE(idleprobe initng_idleprobe.c)
 INSTALL_TARGETS(${LIB_INSTALL_DIR}/initng idleprobe)
-
-SET_TARGET_PROPERTIES(idleprobe PROPERTIES LINK_FLAGS ${MOD_LDFLAGS} COMPILE_FLAGS ${MOD_CFLAGS})
