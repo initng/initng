@@ -40,8 +40,8 @@
 #include <initng/module/all.h>
 #include <initng/msg.h>
 #include <initng/io.h>
-#include <initng/plugin_callers.h>
-#include <initng/plugin.h>
+#include <initng/module_callers.h>
+#include <initng/module.h>
 #include <initng/process_db.h>
 #include <initng/signal.h>
 #include <initng/string.h>

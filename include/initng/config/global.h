@@ -22,7 +22,7 @@
 #include <initng/misc.h>
 #include <initng/active_db.h>
 #include <initng/module/module.h>
-#include <initng/plugin.h>
+#include <initng/module.h>
 #include <initng/data.h>
 #include <initng/command.h>
 #include <initng/active_state.h>

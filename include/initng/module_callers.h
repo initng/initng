@@ -17,8 +17,8 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef INITNG_PLUGIN_CALLERS_H
-#define INITNG_PLUGIN_CALLERS_H
+#ifndef INITNG_MODULE_CALLERS_H
+#define INITNG_MODULE_CALLERS_H
 
 #include <initng/active_db.h>
 #include <initng/system_states.h>
@@ -35,4 +35,4 @@ void initng_plugin_callers_system_changed(h_sys_state state);
 int initng_plugin_callers_active_db_dump(void);
 int initng_plugin_callers_active_db_reload(void);
 
-#endif /* INITNG_PLUGIN_CALLERS_H */
+#endif /* INITNG_MODULE_CALLERS_H */
