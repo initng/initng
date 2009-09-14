@@ -22,11 +22,11 @@
 
 #include <initng/list.h>
 
-/* Add to this counter everytime the api changes, and plugins need to
+/* Add to this counter everytime the api changes, and modules need to
  * recompile */
 #define API_VERSION 19
 
-/* define this struct on every plugin */
+/* define this struct on every module */
 struct initng_module {
 	int  api_version;
 	int  (*init) (void);
