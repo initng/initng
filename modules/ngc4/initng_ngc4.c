@@ -123,7 +123,7 @@ static void fdh_handler(s_event * event)
 	case IOW_ACTION_DEBUG:
 		if (!data->debug_find_what ||
 		    strstr(__FILE__, data->debug_find_what)) {
-			initng_string_mprintf(data->debug_out, " %i: Used by plugin: %s\n",
+			initng_string_mprintf(data->debug_out, " %i: Used by module: %s\n",
 				fdh.fds, __FILE__);
 		}
 		break;
@@ -167,7 +167,7 @@ static void closesock(void)
 	fdh.fds = -1;
 }
 
-/* this is called on protocol_missmatch to reload initng if that plugin is present */
+/* this is called on protocol_missmatch to reload initng if that module is present */
 static void initng_reload(void)
 {
 	s_command *reload;
@@ -1339,7 +1339,7 @@ static void cmd_all_services(char *arg, s_payload * payload)
 
 /*
  * These are local commands, not added to initng commands db,
- * other plugins wont be able to use the replys from these commands
+ * other modules wont be able to use the replys from these commands
  * anyway.
  */
 
