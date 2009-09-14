@@ -127,7 +127,7 @@ static void w_handler(s_event * event)
 			if (!data->debug_find_what ||
 			    strstr(__FILE__, data->debug_find_what)) {
 				initng_string_mprintf(data->debug_out,
-					" %i: Used by plugin: %s\n",
+					" %i: Used by module: %s\n",
 					current->fdw.fds, __FILE__);
 			}
 			break;

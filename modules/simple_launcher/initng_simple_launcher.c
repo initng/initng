@@ -161,7 +161,7 @@ static int simple_exec_fork(process_h * process_to_exec, active_db_h * s,
 	pid_t pid_fork;		/* pid got from fork() */
 
 	if ((pid_fork = initng_fork(s, process_to_exec)) == 0) {
-		/* run g.AFTER_FORK from other plugins */
+		/* run g.AFTER_FORK from other modules */
 		initng_fork_aforkhooks(s, process_to_exec);
 
 #ifdef DEBUG
