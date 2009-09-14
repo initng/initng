@@ -44,7 +44,7 @@ void initng_io_fduntrack(int fd);
 void initng_io_process_read_input(active_db_h * service, process_h * p,
 				  pipe_h * pipe);
 void initng_io_close_all(void);
-void initng_io_plugin_poll(int timeout);
+void initng_io_module_poll(int timeout);
 
 int initng_io_set_cloexec(int fd);
 

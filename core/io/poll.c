@@ -43,12 +43,12 @@
  *
  * Third, if select returns that there is data to fetch, walk over
  * plug-ins and file descriptors again, and call plug-ins or initng_process_readpipe
- * with pointer to plugin/service.
+ * with pointer to module/service.
  *
  * This function will return FALSE, if it timeout, or if there was
  * no fds to monitor.
  */
-void initng_io_plugin_poll(int timeout)
+void initng_io_module_poll(int timeout)
 {
 	/* Variables */
 	fd_set readset, writeset, errset;
