@@ -56,7 +56,7 @@ const struct initng_module initng_module = {
 static void initng_reload(void);
 static void filemon_event(f_module_h * from, e_fdw what);
 
-/* this plugin file descriptor we add to monitor */
+/* this module file descriptor we add to monitor */
 f_module_h fdh = {
 	.call_module = &filemon_event,
 	.what = IOW_READ,
@@ -64,7 +64,7 @@ f_module_h fdh = {
 };
 
 /* Saved to be closed later on */
-int plugins_watch = -1;
+int modules_watch = -1;
 int initng_watch = -1;
 int i_watch = -1;
 
@@ -112,14 +112,14 @@ static void fdh_handler(s_event * event)
 	case IOW_ACTION_DEBUG:
 		if (!data->debug_find_what ||
 		    strstr(__FILE__, data->debug_find_what)) {
-			initng_string_mprintf(data->debug_out, " %i: Used by plugin: %s\n",
+			initng_string_mprintf(data->debug_out, " %i: Used by module: %s\n",
 				fdh.fds, __FILE__);
 		}
 		break;
 	}
 }
 
-/* This function trys to reload initng if reload plugin is loaded */
+/* This function trys to reload initng if reload module is loaded */
 static void initng_reload(void)
 {
 	/* get the command */
@@ -165,8 +165,8 @@ void filemon_event(f_module_h * from, e_fdw what)
 		   printf("name: %s\n", event->name); */
 
 		if (event->mask & IN_MODIFY) {
-			/* check if its a plugin modified */
-			if (event->wd == plugins_watch && event->len &&
+			/* check if its a module modified */
+			if (event->wd == modules_watch && event->len &&
 			    strstr(event->name, ".so")) {
 				W_("Module %s/%s has been changed, reloading initng.\n", INITNG_MODULE_DIR, event->name);
 
@@ -263,12 +263,12 @@ int module_init(void)
 		return FALSE;
 	}
 
-	/* monitor initng plugins */
-	plugins_watch = inotify_add_watch(fdh.fds, INITNG_MODULE_DIR,
+	/* monitor initng modules */
+	modules_watch = inotify_add_watch(fdh.fds, INITNG_MODULE_DIR,
 					  IN_MODIFY);
 
 	/* check so it succeded */
-	if (plugins_watch < 0) {
+	if (modules_watch < 0) {
 		F_("Fail to monitor \"%s\"\n", INITNG_MODULE_DIR);
 		return FALSE;
 	}
@@ -292,7 +292,7 @@ int module_init(void)
 void module_unload(void)
 {
 	/* remove watchers */
-	inotify_rm_watch(fdh.fds, plugins_watch);
+	inotify_rm_watch(fdh.fds, modules_watch);
 	inotify_rm_watch(fdh.fds, initng_watch);
 
 	/* close sockets */
