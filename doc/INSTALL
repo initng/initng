@@ -35,13 +35,13 @@ To avoid any potential problems during compilation, you need to create a
 # mkdir build
 # cd build
 
-Run cmake (replaces ./configure).  Note if you need to manually disable plugins
+Run cmake (replaces ./configure).  Note if you need to manually disable modules
 it can be done here.
 
 # cmake .. [-DMODULE_NAME=(ON|OFF)]
 (MODULE_NAME will be of the form BUILD_NGCS)
 
-To faciliate easier selection of plugins, cmake offers an ncurses-based menu,
+To faciliate easier selection of modules, cmake offers an ncurses-based menu,
 which is accessed with 'ccmake'
 
 # ccmake ..
