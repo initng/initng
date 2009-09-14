@@ -148,12 +148,12 @@ s_command REBOOT_INITNG = {
 
 s_command PRINT_MODULES = {
 	.id = 'm',
-	.long_id = "print_plugins",
+	.long_id = "print_modules",
 	.com_type = STRING_COMMAND,
 	.opt_visible = ADVANCHED_COMMAND,
 	.opt_type = NO_OPT,
 	.u = {(void *)&cmd_print_modules},
-	.description = "Print loaded plugins"
+	.description = "Print loaded modules"
 };
 
 s_command LOAD_MODULE = {
