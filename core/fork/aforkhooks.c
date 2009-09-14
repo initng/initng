@@ -48,7 +48,7 @@ void initng_fork_aforkhooks(active_db_h * service, process_h * process)
 
 	initng_event_send(&event);
 	if (event.status == FAILED) {
-		F_("Some plugin did fail in after fork launch.\n");
+		F_("Some module did fail in after fork launch.\n");
 		_exit(1);
 	}
 }

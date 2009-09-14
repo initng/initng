@@ -104,7 +104,7 @@ static void setup_output(s_event * event)
 	s_stdin = get_string(&STDIN, data->service);
 
 	if (!(s_stdout || s_stderr || s_stdall || s_stdin)) {
-		D_("This plugin won't do anything, because no opt set!\n");
+		D_("This module won't do anything, because no opt set!\n");
 		return;
 	}
 

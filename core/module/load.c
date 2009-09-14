@@ -289,10 +289,10 @@ int initng_module_load_all(const char *path)
 	/* memory for full path */
 	modpath = initng_toolbox_calloc(strlen(path) + NAME_MAX + 2, 1);
 
-	/* open plugin dir */
+	/* open module dir */
 	DIR *pdir = opendir(path);
 	if (!pdir) {
-		F_("Unable to open plugin directory %s.\n", path);
+		F_("Unable to open module directory %s.\n", path);
 		return FALSE;
 	}
 

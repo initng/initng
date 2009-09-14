@@ -115,7 +115,7 @@ static void cmd_fast_reload(char *arg)
 		F_("Failed to reload initng!\n");
 	} else {
 		if (retval == FALSE)
-			F_("No plugin was willing to dump state\n");
+			F_("No module was willing to dump state\n");
 		else
 			F_("dump_state failed!\n");
 	}

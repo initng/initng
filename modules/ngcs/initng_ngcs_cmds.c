@@ -632,7 +632,7 @@ static void ngcs_cmd_hot_reload(ngcs_request * req)
 		execve("/sbin/initng", new_argv, environ);
 		F_("Failed to reload initng!\n");
 	} else if (retval == FALSE) {
-		F_("No plugin was willing to dump state\n");
+		F_("No module was willing to dump state\n");
 		ngcs_send_response(req, NGCS_TYPE_ERROR, 13,
 				   (char *)"NOT_AVAILABLE");
 	} else {

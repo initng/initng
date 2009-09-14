@@ -332,7 +332,7 @@ static void syslog_print_error(s_event * event)
 
 int module_init(void)
 {
-	D_("Initializing syslog plugin\n");
+	D_("Initializing syslog module\n");
 
 	initng_list_init(&log_list.list);
 	check_syslog();

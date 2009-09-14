@@ -126,8 +126,8 @@ void initng_io_process_read_input(active_db_h * service, process_h * p,
 
 	/* make sure there is any */
 	if (pi->buffer_len > old_content_offset) {
-		D_("Calling plugins for new buffer content...");
-		/* let all plugin take part of data */
+		D_("Calling modules for new buffer content...");
+		/* let all module take part of data */
 		initng_io_plugin_readpipe(service, p, pi, pi->buffer +
 					  old_content_offset);
 	}

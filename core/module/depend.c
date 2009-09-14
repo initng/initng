@@ -97,7 +97,7 @@ int module_needs_are_loaded(const m_h * m)
 
 	for (needs = m->modinfo->deps; *needs; needs++) {
 		if (!module_is_loaded(*needs)) {
-			D_("Module \"%s\" requires plugin \"%s\" to "
+			D_("Module \"%s\" requires module \"%s\" to "
 			   "work.\n", m->name, *needs);
 			return FALSE;
 		}

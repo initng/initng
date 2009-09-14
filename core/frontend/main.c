@@ -83,7 +83,7 @@ int main(int argc, char *argv[], char *env[])
 		retval = initng_module_callers_active_db_reload();
 		if (retval != TRUE) {
 			if (retval == FALSE)
-				F_("No plugin handled hot_reload!\n");
+				F_("No module handled hot_reload!\n");
 			else
 				F_("Hot reload failed!\n");
 
