@@ -308,7 +308,7 @@ int initng_module_load_all(const char *path)
 		module = initng_toolbox_strndup(file->d_name + 3,
 						strlen(file->d_name + 3) - 3);
 
-		/* check if the plugin is blacklisted */
+		/* check if the module is blacklisted */
 		if (initng_common_service_blacklisted(module)) {
 			F_("Module %s blacklisted.\n", module);
 			free(module);
@@ -332,7 +332,7 @@ int initng_module_load_all(const char *path)
 		assert(current->name);
 		initng_list_add(&current->list, &g.module_db.list);
 
-		/* This is true until any plugin loads sucessfully */
+		/* This is true until any module loads sucessfully */
 		success = TRUE;
 	}	
 

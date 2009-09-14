@@ -106,8 +106,8 @@ void initng_signal_enable(void)
 	sigaction(SIGWINCH, &sa, 0);	/* keyboard request */
 	sigaction(SIGALRM, &sa, 0);	/* alarm, something has to */
 	/* be checked */
-	sigaction(SIGHUP, &sa, 0);	/* sighup, plugin actions */
-	sigaction(SIGPIPE, &sa, 0);	/* sigpipe, plugin actions */
+	sigaction(SIGHUP, &sa, 0);	/* sighup, module actions */
+	sigaction(SIGPIPE, &sa, 0);	/* sigpipe, module actions */
 }
 
 /* 
@@ -135,5 +135,5 @@ void initng_signal_disable(void)
 	sigaction(SIGWINCH, &sa, 0);	/* keyboard request */
 	sigaction(SIGALRM, &sa, 0);	/* alarm, something has to */
 	/* be checked */
-	sigaction(SIGHUP, &sa, 0);	/* sighup, plugin actions */
+	sigaction(SIGHUP, &sa, 0);	/* sighup, module actions */
 }

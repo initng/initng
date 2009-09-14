@@ -67,7 +67,7 @@ char **initng_env_new(active_db_h * s)
 	 * FIRST, try to figure out how big array we want to create.
 	 */
 
-	/* At least 11 allocations below, and place for plugin added to
+	/* At least 11 allocations below, and place for module added to
 	 * (about 100) */
 	allocate = 114;
 

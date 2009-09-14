@@ -44,7 +44,7 @@ int initng_depend(active_db_h * service, active_db_h * check)
 	if (dep_on(service, check) == TRUE)
 		return TRUE;
 
-	/* run the global plugin dep check */
+	/* run the global module dep check */
 	{
 		s_event event;
 		s_event_dep_on_data data;
