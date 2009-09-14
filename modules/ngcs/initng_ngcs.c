@@ -139,7 +139,7 @@ static void fdh_handler(s_event * event)
 	case IOW_ACTION_DEBUG:
 		if (!data->debug_find_what ||
 		    strstr(__FILE__, data->debug_find_what)) {
-			initng_string_mprintf(data->debug_out, " %i: Used by plugin: %s\n",
+			initng_string_mprintf(data->debug_out, " %i: Used by module: %s\n",
 				fdh.fds, __FILE__);
 		}
 		break;
@@ -195,7 +195,7 @@ static void conn_fdw_handler(s_event * event)
 			if (!data->debug_find_what ||
 			    strstr(__FILE__, data->debug_find_what)) {
 				initng_string_mprintf(data->debug_out,
-					" %i: Used by plugin: %s\n",
+					" %i: Used by module: %s\n",
 					current->fdw.fds, __FILE__);
 			}
 			break;
