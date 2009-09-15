@@ -3,4 +3,4 @@
   contributors : 
       commands : 
        options : 
-   description : This plugin outputs events and process output to syslogd.
+   description : This module outputs events and process output to syslogd.

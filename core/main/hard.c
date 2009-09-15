@@ -68,7 +68,7 @@ void hard(h_then t)
 	if (getuid() != 0)
 		return;
 
-	/* unload all modules (plugins) found */
+	/* unload all modules found */
 	initng_module_unload_all();
 
 	/* TODO: should we make sure all fds are closed at this point? */

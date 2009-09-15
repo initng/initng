@@ -20,7 +20,7 @@
 #ifndef __LOCAL_H
 #define __LOCAL_H
 
-void initng_io_plugin_readpipe(active_db_h * service, process_h * process,
+void initng_io_module_readpipe(active_db_h * service, process_h * process,
                                pipe_h * pi, char *buffer_pos);
 int initng_io_pipe(active_db_h * service, process_h * process, pipe_h * pi);
 

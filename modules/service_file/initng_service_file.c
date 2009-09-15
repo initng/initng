@@ -196,7 +196,7 @@ static int bpf_handler(s_event * event)
 	case IOW_ACTION_DEBUG:
 		if (!data->debug_find_what ||
 		    strstr(__FILE__, data->debug_find_what)) {
-			initng_string_mprintf(data->debug_out, " %i: Used by plugin: %s\n",
+			initng_string_mprintf(data->debug_out, " %i: Used by module: %s\n",
 				bpf.fds, __FILE__);
 		}
 		break;
@@ -570,7 +570,7 @@ static void bp_done(bp_rep * rep, const char *service)
 	return;
 
 	/* This wont start it, it will be started by as a dependency for a
-	 * other plugin */
+	 * other module */
 }
 
 static void bp_abort(bp_rep * rep, const char *service)

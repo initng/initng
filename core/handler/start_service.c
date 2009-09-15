@@ -100,7 +100,7 @@ int initng_handler_start_service(active_db_h * service_to_start)
 	}
 
 	/* Now execute the local start_service code, in the service type
-	 * plugin. */
+	 * module. */
 	if (!service_to_start->type->start)
 		return FALSE;
 

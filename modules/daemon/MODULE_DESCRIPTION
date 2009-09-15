@@ -14,6 +14,6 @@
 		 DAEMON_RESPAWN_RATE_EXCEEDED
    description : This handles the service type daemon.  A daemon is a process
                  that should execute and stay running (where a service will
-                 execute and terminate).  This plugin has checks for pidfiles
+                 execute and terminate).  This module has checks for pidfiles
                  and will watch for daemons terminating unexpectedly, amongst
                  other actions.

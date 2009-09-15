@@ -73,17 +73,17 @@ int main(int argc, char *argv[], char *env[])
 
 	D_("MAIN_LOAD_MODULES\n");
 	/* Load modules, if fails - launch sulogin and then try again */
-	if (!initng_module_load_all(INITNG_PLUGIN_DIR)) {
+	if (!initng_module_load_all(INITNG_MODULE_DIR)) {
 		/* if we can't load modules, revert to single-user login */
 		initng_main_su_login();
 	}
 
 	if (g.hot_reload) {
 		/* Mark service as up */
-		retval = initng_plugin_callers_active_db_reload();
+		retval = initng_module_callers_active_db_reload();
 		if (retval != TRUE) {
 			if (retval == FALSE)
-				F_("No plugin handled hot_reload!\n");
+				F_("No module handled hot_reload!\n");
 			else
 				F_("Hot reload failed!\n");
 
@@ -142,7 +142,7 @@ int main(int argc, char *argv[], char *env[])
 			   (g.now.tv_sec - last.tv_sec));
 			initng_active_db_compensate_time(g.now.tv_sec -
 							 last.tv_sec);
-			initng_plugin_callers_compensate_time(g.now.tv_sec -
+			initng_module_callers_compensate_time(g.now.tv_sec -
 							      last.tv_sec);
 			last.tv_sec += (g.now.tv_sec - last.tv_sec);
 		}
@@ -169,7 +169,7 @@ int main(int argc, char *argv[], char *env[])
 				if (signals_got[i] == -1)
 					continue;
 
-				initng_plugin_callers_signal(signals_got[i]);
+				initng_module_callers_signal(signals_got[i]);
 
 				switch (signals_got[i]) {
 					/* dead children */
@@ -177,7 +177,7 @@ int main(int argc, char *argv[], char *env[])
 					initng_signal_handle_sigchild();
 					break;
 				case SIGALRM:
-					/*initng_plugin_callers_alarm(); */
+					/*initng_module_callers_alarm(); */
 					initng_handler_run_alarm();
 					break;
 				default:
@@ -260,7 +260,7 @@ int main(int argc, char *argv[], char *env[])
 				 * watch fds */
 				D_("Will sleep for %i seconds.\n",
 				   closest_timeout);
-				initng_io_plugin_poll(closest_timeout);
+				initng_io_module_poll(closest_timeout);
 			}
 		}
 	}			/* End main loop */

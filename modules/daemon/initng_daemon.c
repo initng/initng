@@ -581,7 +581,7 @@ static int stop_DAEMON(active_db_h * daemon)
 
 /*
  * ############################################################################
- * #                         PLUGIN INITIATORS                               #
+ * #                          MODULE INITIATORS                               #
  * ############################################################################
  */
 
@@ -883,7 +883,7 @@ static void init_DAEMON_STOP_DEPS_MET(active_db_h * service)
 
 	case FALSE:
 		{
-			/* if there is no plugin that wanna kill this
+			/* if there is no module that wanna kill this
 			 * daemon, we do it ourself. */
 			kill_daemon(service, SIGTERM);
 			if (!initng_common_mark_service(service, &DAEMON_TERM))

@@ -28,24 +28,16 @@
 
 #include <initng.h>
 
-/* called to dump active_db */
-int initng_plugin_callers_active_db_dump(void)
+active_db_h *initng_module_active_new(const char *name)
 {
 	s_event event;
 
-	event.event_type = &EVENT_DUMP_ACTIVE_DB;
+	event.event_type = &EVENT_NEW_ACTIVE;
+	event.data = (void *)name;
 
 	initng_event_send(&event);
-	return (event.status != FAILED);
-}
+	if (event.status == HANDLED)
+		return event.ret;
 
-/* called to reload dump of active_db */
-int initng_plugin_callers_active_db_reload(void)
-{
-	s_event event;
-
-	event.event_type = &EVENT_RELOAD_ACTIVE_DB;
-
-	initng_event_send(&event);
-	return (event.status != FAILED);
+	return NULL;
 }

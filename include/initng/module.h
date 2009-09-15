@@ -17,8 +17,8 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef INITNG_PLUGIN_H
-#define INITNG_PLUGIN_H
+#ifndef INITNG_MODULE_H
+#define INITNG_MODULE_H
 #include <stdarg.h>
 
 #include <initng/system_states.h>
@@ -64,4 +64,4 @@ struct s_callers_s {
 #define while_list_safe(current, call, safe) \
 	initng_list_foreach_rev_safe(current, safe, &(call)->list, list)
 
-#endif /* INITNG_PLUGIN_H */
+#endif /* INITNG_MODULE_H */

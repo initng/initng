@@ -41,7 +41,7 @@ This package currently includes:
 
 - initng       sysvinit replacement; handles system & service control
 - ngc          an application for controlling initng
-- plugins      initng uses plugins to provide some functions
+- modules      initng uses modules to provide some functions
 
 
 1.1 Developers

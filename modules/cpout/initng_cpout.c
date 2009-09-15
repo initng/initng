@@ -405,7 +405,7 @@ static void print_program_output(s_event * event)
 	   position in them.
 
 	   That way when this function is called we can print every full line
-	   from plugin_pos.
+	   from module_pos.
 	   This way fsck will look nice, along with an "internal" database of
 	   write positions we can cache data so we print every 5 seconds or
 	   on int forceflush.

@@ -29,7 +29,7 @@
 #include <initng.h>
 
 /* called when system state has changed. */
-void initng_plugin_callers_system_changed(h_sys_state state)
+void initng_module_callers_system_changed(h_sys_state state)
 {
 	s_event event;
 

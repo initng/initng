@@ -2,7 +2,7 @@ SUBDIRS(event config service module static)
 
 SET(headers
 	misc.h
-	plugin.h
+	module.h
 	system_states.h
 	list.h
 	active_db.h
@@ -21,7 +21,7 @@ SET(headers
 	kill.h
 	main.h
 	io.h
-	plugin_callers.h
+	module_callers.h
 	process_db.h
 	signal.h
 	string.h

@@ -24,17 +24,16 @@
 #include <assert.h>
 #include <errno.h>
 #include <string.h>
-#include <fcntl.h>		/* fcntl() */
 #include <time.h>
 
 #include <initng.h>
 
-void initng_plugin_callers_compensate_time(time_t t)
+void initng_module_callers_signal(int signal)
 {
 	s_event event;
 
-	event.event_type = &EVENT_COMPENSATE_TIME;
-	event.data = &t;
+	event.event_type = &EVENT_SIGNAL;
+	event.data = &signal;
 
 	initng_event_send(&event);
 }

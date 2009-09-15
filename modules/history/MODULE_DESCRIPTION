@@ -4,5 +4,5 @@
       commands : 
        options : log, show_history
    description : This file opens a history database, storing all events,
-                 process output and state changes in memory.  This plugin
+                 process output and state changes in memory.  This module
                  will make initng take a lot of memory, be aware.

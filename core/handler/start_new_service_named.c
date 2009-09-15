@@ -54,7 +54,7 @@ active_db_h *initng_handler_start_new_service_named(const char *service)
 	}
 
 	/* get from hook */
-	if ((to_load = initng_plugin_active_new(service)))
+	if ((to_load = initng_module_active_new(service)))
 		return to_load;
 
 	/* the function calling this function will print out an error */

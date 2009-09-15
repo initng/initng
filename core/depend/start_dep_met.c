@@ -132,7 +132,7 @@ int initng_depend_start_dep_met(active_db_h * service, int verbose)
 		/* continue; */
 	}
 
-	/* run the global plugin dep check */
+	/* run the global module dep check */
 	{
 		s_event event;
 
@@ -143,7 +143,7 @@ int initng_depend_start_dep_met(active_db_h * service, int verbose)
 		if (event.status == FAILED) {
 			if (verbose) {
 				F_("Service %s can not be started because a "
-				   "plugin (EVENT_START_DEP_MET) says so.\n",
+				   "module (EVENT_START_DEP_MET) says so.\n",
 				   service->name);
 			}
 

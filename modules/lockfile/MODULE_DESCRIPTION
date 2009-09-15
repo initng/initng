@@ -3,5 +3,5 @@
   contributors : 
       commands : 
        options : lockfile
-   description : This plugins creates lockfiles in /var/lock/subsys for every
+   description : This modules creates lockfiles in /var/lock/subsys for every
                  service that has the lockfile option set.

@@ -22,7 +22,7 @@
 #define INITNG_EVENT_TYPES_H
 
 #include <initng/list.h>
-#include <initng/plugin.h>
+#include <initng/module.h>
 
 typedef struct s_event_type_s {
 	const char *name;

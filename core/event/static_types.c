@@ -89,13 +89,13 @@ s_event_type EVENT_DEP_ON = {
 
 s_event_type EVENT_RELOAD_ACTIVE_DB = {
 	.name = "reload_active_db",
-	.description = "Asks for a plugin willing to reload the active_db "
+	.description = "Asks for a module willing to reload the active_db "
 	    "from a dump"
 };
 
 s_event_type EVENT_DUMP_ACTIVE_DB = {
 	.name = "dump_active_db",
-	.description = "Asks for a plugin willing to dump the active_db"
+	.description = "Asks for a module willing to dump the active_db"
 };
 
 s_event_type EVENT_ERROR_MESSAGE = {

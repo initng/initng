@@ -17,16 +17,16 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef INITNG_MODULE_H
-#define INITNG_MODULE_H
+#ifndef INITNG_MODULE_MODULE_H
+#define INITNG_MODULE_MODULE_H
 
 #include <initng/list.h>
 
-/* Add to this counter everytime the api changes, and plugins need to
+/* Add to this counter everytime the api changes, and modules need to
  * recompile */
 #define API_VERSION 19
 
-/* define this struct on every plugin */
+/* define this struct on every module */
 struct initng_module {
 	int  api_version;
 	int  (*init) (void);
@@ -55,4 +55,4 @@ typedef struct module_struct {
 #define while_module_db_safe(current, safe) \
 	initng_list_foreach_rev_safe(current, safe, &g.module_db.list, list)
 
-#endif /* INITNG_MODULE_H */
+#endif /* INITNG_MODULE_MODULE_H */

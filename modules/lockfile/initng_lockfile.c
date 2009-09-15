@@ -40,7 +40,7 @@ const struct initng_module initng_module = {
 
 s_entry LOCKFILE = {
 	.name = "lockfile",
-	.description = "If this option is set, plugin will create "
+	.description = "If this option is set, module will create "
 		       "/var/lock/subsys/$NAME lockfile.",
 	.type = SET,
 	.ot = NULL,

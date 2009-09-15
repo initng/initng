@@ -17,22 +17,30 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef INITNG_PLUGIN_CALLERS_H
-#define INITNG_PLUGIN_CALLERS_H
-
-#include <initng/active_db.h>
-#include <initng/system_states.h>
-#include <initng/config/all.h>
-
+#include <stdlib.h>
+#include <stdio.h>
 #include <stdarg.h>
+#include <dlfcn.h>
+#include <assert.h>
+#include <errno.h>
+#include <string.h>
+#include <time.h>
 
-active_db_h *initng_plugin_active_new(const char *name);
-int initng_plugin_callers_handle_killed(active_db_h * s, process_h * p);
-void initng_plugin_callers_compensate_time(time_t t);
-void initng_plugin_callers_signal(int signal);
+#include <initng.h>
 
-void initng_plugin_callers_system_changed(h_sys_state state);
-int initng_plugin_callers_active_db_dump(void);
-int initng_plugin_callers_active_db_reload(void);
+int initng_module_callers_handle_killed(active_db_h * s, process_h * p)
+{
+	s_event event;
+	s_event_handle_killed_data data;
 
-#endif /* INITNG_PLUGIN_CALLERS_H */
+	event.event_type = &EVENT_HANDLE_KILLED;
+	event.data = &data;
+	data.service = s;
+	data.process = p;
+
+	initng_event_send(&event);
+	if (event.status == HANDLED)
+		return TRUE;
+
+	return FALSE;
+}

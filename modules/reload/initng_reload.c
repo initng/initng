@@ -103,7 +103,7 @@ static void cmd_fast_reload(char *arg)
 	int retval;
 	char *new_argv[4];
 
-	retval = initng_plugin_callers_active_db_dump();
+	retval = initng_module_callers_active_db_dump();
 
 	if (retval == TRUE) {
 		D_("exec()ing initng\n");
@@ -115,7 +115,7 @@ static void cmd_fast_reload(char *arg)
 		F_("Failed to reload initng!\n");
 	} else {
 		if (retval == FALSE)
-			F_("No plugin was willing to dump state\n");
+			F_("No module was willing to dump state\n");
 		else
 			F_("dump_state failed!\n");
 	}

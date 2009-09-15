@@ -17,23 +17,22 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <stdlib.h>
-#include <stdio.h>
+#ifndef INITNG_MODULE_CALLERS_H
+#define INITNG_MODULE_CALLERS_H
+
+#include <initng/active_db.h>
+#include <initng/system_states.h>
+#include <initng/config/all.h>
+
 #include <stdarg.h>
-#include <dlfcn.h>
-#include <assert.h>
-#include <errno.h>
-#include <string.h>
-#include <time.h>
 
-#include <initng.h>
+active_db_h *initng_module_active_new(const char *name);
+int initng_module_callers_handle_killed(active_db_h * s, process_h * p);
+void initng_module_callers_compensate_time(time_t t);
+void initng_module_callers_signal(int signal);
 
-void initng_plugin_callers_signal(int signal)
-{
-	s_event event;
+void initng_module_callers_system_changed(h_sys_state state);
+int initng_module_callers_active_db_dump(void);
+int initng_module_callers_active_db_reload(void);
 
-	event.event_type = &EVENT_SIGNAL;
-	event.data = &signal;
-
-	initng_event_send(&event);
-}
+#endif /* INITNG_MODULE_CALLERS_H */

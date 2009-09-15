@@ -8,4 +8,4 @@
         states : TASK_WAITING TASK_RUNNING TASK_DONE TASK_FAILED
                  TASK_RUN_MARKED TASK_DEPS_FAILED TASK_WAITING_FOR_DEPS
                  TASK_DEPS_MET
-   description : This plugin register the task service type.
+   description : This module register the task service type.

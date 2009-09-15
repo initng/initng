@@ -4,8 +4,8 @@ Description of InitNG versioning scheme
 
     Where an change in:
       x.o.o - means a complete or major rewrite of the core.
-      o.y.o - major changes to the core, and important plugin api changes.
-      o.o.z - minor changes to the core, changes in plugins, and fixes.
+      o.y.o - major changes to the core, and important module api changes.
+      o.o.z - minor changes to the core, changes in modules, and fixes.
       _pre# - a pre-release, it's unfinished, so use with care.
       .p    - a bugfix release, doesn't introduces new features.
 

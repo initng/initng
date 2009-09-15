@@ -121,7 +121,7 @@ static void io_event_acceptor_handler(s_event * event)
 	case IOW_ACTION_DEBUG:
 		if (!data->debug_find_what ||
 		    strstr(__FILE__, data->debug_find_what)) {
-			initng_string_mprintf(data->debug_out, " %i: Used by plugin: %s\n",
+			initng_string_mprintf(data->debug_out, " %i: Used by module: %s\n",
 				io_event_acceptor.fds, __FILE__);
 		}
 		break;

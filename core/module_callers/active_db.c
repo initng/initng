@@ -28,19 +28,24 @@
 
 #include <initng.h>
 
-int initng_plugin_callers_handle_killed(active_db_h * s, process_h * p)
+/* called to dump active_db */
+int initng_module_callers_active_db_dump(void)
 {
 	s_event event;
-	s_event_handle_killed_data data;
 
-	event.event_type = &EVENT_HANDLE_KILLED;
-	event.data = &data;
-	data.service = s;
-	data.process = p;
+	event.event_type = &EVENT_DUMP_ACTIVE_DB;
 
 	initng_event_send(&event);
-	if (event.status == HANDLED)
-		return TRUE;
+	return (event.status != FAILED);
+}
 
-	return FALSE;
+/* called to reload dump of active_db */
+int initng_module_callers_active_db_reload(void)
+{
+	s_event event;
+
+	event.event_type = &EVENT_RELOAD_ACTIVE_DB;
+
+	initng_event_send(&event);
+	return (event.status != FAILED);
 }
