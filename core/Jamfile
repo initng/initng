@@ -2,15 +2,14 @@
 SubDir TOP core ;
 
 # Directories that contain sources for libinitng:
-LIBINITNG_SRC_DIRS = active_db active_state command common config data
-    depend env error event execute fd fork handler hash interrupt io
-    kill main module plugin_callers process_db service signal static string
-    toolbox ;
+LIBINITNG_SRC_DIRS = hash active_db module event process_db service string
+    toolbox env active_state fork signal fd common error command execute
+    handler depend interrupt kill static plugin_callers io main data config ;
 
 # Where to look for headers:
 SubDirHdrs $(TOP) include ;
 
 # Build the library
-SEARCH_SOURCE = $(SUBDIR)/$(LIBINITNG_SRC_DIRS) ;
+SEARCH_SOURCE = $(SOURCE_GRIST)/$(LIBINITNG_SRC_DIRS) ;
 LIBINITNG_SOURCES = [ Glob $(SUBDIR)/$(LIBINITNG_SRC_DIRS) : *.c ] ;
 Library libinitng : $(LIBINITNG_SOURCES:BS) ;

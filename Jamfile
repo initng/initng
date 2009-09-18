@@ -1,2 +1,4 @@
 SubDir TOP ;
+SubDirHdrs $(TOP) include ;
 SubInclude TOP core ;
+SubInclude TOP tools ; 
