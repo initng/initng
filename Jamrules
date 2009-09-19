@@ -2,10 +2,35 @@ VERSION = 0.7.0svn ;
 VERSION_NAME = "Bleeding Edge" ;
 RUNLEVEL_DEFAULT = runlevel/default ;
 RUNLEVEL_FAKE = runlevel/fake-default ;
+CCFLAGS += -std=c99 -Wall -O2 -DHAVE_CONFIG_H -D_XOPEN_SOURCE=600 ;
 CCFLAGS += -DDEBUG -g -Werror -Wmissing-prototypes -Wmissing-declarations
     -Wstrict-prototypes -Wimplicit -Wredundant-decls -Wnested-externs
     -Wwrite-strings -Wsign-compare -Winline -Wswitch -Wreturn-type
     -Wparentheses -Wmissing-braces -Wformat -Wformat-nonliteral
     -Wformat-security -Wsequence-point -Wundef -Wunused -Wcomment ;
-CCFLAGS += -std=c99 -Wall -O2 -DHAVE_CONFIG_H -D_XOPEN_SOURCE=600 ;
 LINKFLAGS += -rdynamic -fPIC ;
+
+
+rule LibraryFromSubdirs
+{
+    local _sources _objects _subdir _dir ;
+
+    # Compile all objects
+    for _subdir in $(>)
+    {
+        _sources = [ Glob [ FDirName $(SUBDIR) $(_subdir) ] : *.c ] ;
+
+        # Adjust path to match grist (otherwise we get the grist two times)
+        _sources = $(_sources:D=$(_subdir)) ;
+
+        # Keep track of the objects we should have for the library
+        _objects += $(_sources:S=$(SUFOBJ)) ;
+
+        # Compile
+        Objects $(_sources) ;
+    }
+
+    # Link library and mark objects for cleanup
+    LibraryFromObjects libinitng : $(_objects) ;
+    Clean $(_objects) ;
+}

@@ -7,9 +7,8 @@ LIBINITNG_SRC_DIRS = hash active_db module event process_db service string
     handler depend interrupt kill static plugin_callers io main data config ;
 
 # Where to look for headers:
+SubDirHdrs $(TOP) ;
 SubDirHdrs $(TOP) include ;
 
 # Build the library
-SEARCH_SOURCE = $(SOURCE_GRIST)/$(LIBINITNG_SRC_DIRS) ;
-LIBINITNG_SOURCES = [ Glob $(SUBDIR)/$(LIBINITNG_SRC_DIRS) : *.c ] ;
-Library libinitng : $(LIBINITNG_SOURCES:BS) ;
+LibraryFromSubdirs libinitng : $(LIBINITNG_SRC_DIRS) ;
