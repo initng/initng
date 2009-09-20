@@ -20,5 +20,5 @@ LibraryFromSubdirs libinitng : $(LIBINITNG_SRC_DIRS) ;
 # Build initng executable
 MainFromSubdirs initng : $(INITNG_SRC_DIRS) ;
 LINKFLAGS on initng = -rdynamic -fPIC 
-    -Wl,--whole-archive [ FDirName $(SUBDIR) libintng$(SUFLIB) ]
+    -Wl,--whole-archive [ FDirName $(SUBDIR) libinitng$(SUFLIB) ]
     -Wl,--no-whole-archive -ldl ;
