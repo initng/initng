@@ -5,7 +5,7 @@ For the most up-to-date installation instructions, please refer to the initng
 wiki: http://www.initng.org/wiki/Installation
 
 As of version 0.6.4, GNU autotools support has been completely removed.
-To compile initng, you will need CMake version 2.2.0 or later.
+To compile initng, you will need CMake version 2.6.0 or later.
 
 
 SYSTEM REQUIREMENTS
@@ -13,8 +13,8 @@ SYSTEM REQUIREMENTS
 * A computer running linux (support for BSD-based operating systems is under
 development) on one of the following architectures: alpha, amd64, hppa, i386,
 ia64, m68k, mips, mipsel, ppc, sparc. (others may or may not work).
-* GNU GCC 3.4.x, 4.0.x or 4.1.x
-* CMake 2.2.0 or newer
+* GNU GCC 3.4.x, 4.0.x to 4.4.x
+* CMake 2.6.0 or newer
 * ncurses development libs (optional)
 
 
