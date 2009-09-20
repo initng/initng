@@ -4,7 +4,11 @@ SubDir TOP core ;
 # Directories that contain sources for libinitng:
 LIBINITNG_SRC_DIRS = hash active_db module event process_db service string
     toolbox env active_state fork signal fd common error command execute
-    handler depend interrupt kill static plugin_callers io main data config ;
+    handler depend interrupt kill static plugin_callers io module_callers main
+    data config ;
+
+# Source directores for initng executable
+INITNG_SRC_DIRS = frontend ;
 
 # Where to look for headers:
 SubDirHdrs $(TOP) ;
@@ -12,3 +16,9 @@ SubDirHdrs $(TOP) include ;
 
 # Build the library
 LibraryFromSubdirs libinitng : $(LIBINITNG_SRC_DIRS) ;
+
+# Build initng executable
+MainFromSubdirs initng : $(INITNG_SRC_DIRS) ;
+LINKFLAGS on initng = -rdynamic -fPIC 
+    -Wl,--whole-archive [ FDirName $(SUBDIR) libintng$(SUFLIB) ]
+    -Wl,--no-whole-archive -ldl ;
