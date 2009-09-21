@@ -1,36 +1,118 @@
+# Jamrules -- the rule boilerplate for InitNG
+# Copyright (C) 2009  Eric MSP Veith <eveith@wwweb-library.net>
+# Licensed under GNU GPL v3, see the included file "COPYING" for details.
+#
+# This file contains predefined variables available throughout the whole build
+# process as well as some rules needed for creating the executables and
+# libraries.
+# Normally, a packager or quite anyone building InitNG doesn't have to change
+# anything in here, but can rely on environmental variables or the -s
+# parameter to jam, e.g. OPTIM="" for compiler optimization flags.
+# If you have to change something in here to make InitNG build, it is probably
+# a bug, and you should contact the author of the build system.
+#
+
+
+# Configuration variables for the build that will later on be in config.h or
+# initng-paths.h
 VERSION = 0.7.0svn ;
 VERSION_NAME = "Bleeding Edge" ;
 RUNLEVEL_DEFAULT = runlevel/default ;
 RUNLEVEL_FAKE = runlevel/fake-default ;
-CCFLAGS += -std=c99 -Wall -O2 -DHAVE_CONFIG_H -D_XOPEN_SOURCE=600 ;
-CCFLAGS += -DDEBUG -g -Werror -Wmissing-prototypes -Wmissing-declarations
+
+PREFIX ?= / ;
+BINDIR ?= [ FDirName $(PREFIX) bin ] ;
+LIBDIR ?= [ FDirName $(PREFIX) lib ] ;
+MANDIR ?= [ FDirName $(PREFIX) share man ] ;
+SYSCONFDIR ?= [ FDirName $(PREFIX) etc ] ;
+LOCALSTATEDIR ?= [ FDirName $(PREFIX) var ] ;
+
+# Cflags, defines and linker flags:
+CCFLAGS += -std=c99 -Wall -O2 ;
+CCFLAGS += -g -Werror -Wmissing-prototypes -Wmissing-declarations
     -Wstrict-prototypes -Wimplicit -Wredundant-decls -Wnested-externs
     -Wwrite-strings -Wsign-compare -Winline -Wswitch -Wreturn-type
     -Wparentheses -Wmissing-braces -Wformat -Wformat-nonliteral
     -Wformat-security -Wsequence-point -Wundef -Wunused -Wcomment ;
+DEFINES += HAVE_CONFIG_H _XOPEN_SOURCE=600 DEBUG ;
 LINKFLAGS += -rdynamic -fPIC ;
 
+# config.h defines that are configurable by the user
+if $(CHECK_RO)
+{
+    DEFINES += CHECK_RO ;
+}
+if $(FORCE_NOCOLOR)
+{
+    DEFINES += FORCE_NOCOLOR ;
+}
+if $(FORCE_POSIX_IFILES)
+{
+    DEFINES += FORCE_POSIX_IFILES ;
+}
 
+
+# Builds a static library from a set of subdirectories given as arguments to
+# this rule. It takes care of creating the objects in the right place,
+# cleaning up and running Ar. It does not, however, handle recursion.
 rule LibraryFromSubdirs
 {
-    local _sources _objects _subdir _dir ;
+    local _o = [ ObjectsFromSubdir $(>) ] ;
+    LibraryFromObjects $(<) : $(_o) ;
+}
 
-    # Compile all objects
-    for _subdir in $(>)
+
+# Does pretty much the same as LibraryFromSubdirs, but creates an executable
+# instead.
+rule MainFromSubdirs
+{
+    local _o = [ ObjectsFromSubdir $(>) ] ;
+    MainFromObjects $(<) : $(_o) ;
+}
+
+
+# Workhouse for subdir compile. Iterates over all subdirectories given and
+# turns the *.c sources found there into objects. Returns a list of all
+# objects created. Doesn't do the cleanup as it doesn't know about the target.
+# USAGE: ObjectsFromSubdir foo bar baz ;
+rule ObjectsFromSubdir
+{
+    local _sources _objects _subdir ;
+    
+    for _subdir in $(<)
     {
+        # Get all source files
         _sources = [ Glob [ FDirName $(SUBDIR) $(_subdir) ] : *.c ] ;
 
-        # Adjust path to match grist (otherwise we get the grist two times)
+        # Adjust grist (otherwise we get $(SUBDIR) twice)
         _sources = $(_sources:D=$(_subdir)) ;
 
-        # Keep track of the objects we should have for the library
+        # Keep track of the objects we're about to create
         _objects += $(_sources:S=$(SUFOBJ)) ;
 
-        # Compile
+        # Do the actual compile
         Objects $(_sources) ;
     }
 
-    # Link library and mark objects for cleanup
-    LibraryFromObjects libinitng : $(_objects) ;
-    Clean $(_objects) ;
+    return $(_objects) ;
+}
+
+
+# Creates the config.h file from config.h.in.
+actions GenHeaders
+{
+    for h in $(<).in
+    do
+        cat "$h" | sed \
+                -e 's,@VERSION@,$(VERSION),g' \
+                -e 's,@VERSION_NAME@,$(VERSION_NAME),g' \
+                -e 's,@RUNLEVEL_DEFAULT@,$(RUNLEVEL_DEFAULT),g' \
+                -e 's,@RUNLEVEL_FAKE@,$(RUNLEVEL_FAKE),g' \
+                -e 's,@PREFIX@,$(PREFIX),g' \
+                -e 's,@BINDIR@,$(BINDIR),g' \
+                -e 's,@LIBDIR@,$(LIBDIR),g' \
+                -e 's,@SYSCONFDIR@,$(SYSCONFDIR),g' \
+                -e 's,@LOCALSTATEDIR@,$(LOCALSTATEDIR),g' \
+            > "${h%*.in}"
+    done
 }

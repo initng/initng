@@ -14,6 +14,7 @@ INITNG_SRC_DIRS = frontend ;
 SubDirHdrs $(TOP) ;
 SubDirHdrs $(TOP) include ;
 
+
 # Build the library
 LibraryFromSubdirs libinitng : $(LIBINITNG_SRC_DIRS) ;
 

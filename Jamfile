@@ -1,3 +1,5 @@
 SubDir TOP ;
 SubInclude TOP core ;
 SubInclude TOP tools ; 
+
+GenHeaders config.h initng-paths.h ;

@@ -1,6 +1,3 @@
 #define VERSION			"@VERSION@"
 #define VERSION_NAME		"@VERSION_NAME@"
-#cmakedefine CHECK_RO
-#cmakedefine FORCE_NOCOLOR
-#cmakedefine FORCE_POSIX_IFILES
 #define RUNLEVEL_DEFAULT	"@RUNLEVEL_DEFAULT@"

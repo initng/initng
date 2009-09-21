@@ -1,4 +1,0 @@
-{
-	global: initng_module;
-	local: *;
-};

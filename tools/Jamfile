@@ -10,7 +10,6 @@ LinkLibraries killalli5 : libinitng ;
 
 Main mountpoint : mountpoint.c ;
 
-# Sulogin links against libcrypt
 Main sulogin : sulogin.c ;
 CCFLAGS on <$(SOURCE_GRIST)>sulogin$(SUFOBJ) += -D_GNU_SOURCE ;
 LINKLIBS on sulogin += -lcrypt ;
