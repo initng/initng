@@ -20,6 +20,13 @@ VERSION_NAME = "Bleeding Edge" ;
 RUNLEVEL_DEFAULT = runlevel/default ;
 RUNLEVEL_FAKE = runlevel/fake-default ;
 
+MODULES ?= also chdir chroot conflict cpout critical ctrlaltdel daemon_clean
+    dbus_event debug_commands fmon fstat history idleprobe initctl interactive
+    last limit lockfile logfile netdev ngc4 ngcs nge pause provide reload
+    renice service_file simple_launcher stcmd stdout suid syncron syslog
+    sysreq task unneeded ;
+MODULES += service daemon runlevel ;
+
 PREFIX ?= / ;
 BINDIR ?= [ FDirName $(PREFIX) bin ] ;
 LIBDIR ?= [ FDirName $(PREFIX) lib ] ;
@@ -95,6 +102,22 @@ rule ObjectsFromSubdir
     }
 
     return $(_objects) ;
+}
+
+
+# Creates an InitNG module from a given subdirectory. Will automatically link
+# it against libinitng.a, and build a shared library named by the scheme
+# "mod$(SUBDIR)$(SUF)".
+rule ModuleFromSubdir
+{
+    local _lib = mod$(<).so ;
+    local _obj = [ ObjectsFromSubdir $(<) ] ;
+
+    LINKFLAGS on $(_lib) = -fPIC -rdynamic 
+        -shared -Wl,-soname,$(_lib)
+        -Wl,--whole-archive [ FDirName $(TOP) core libinitng$(SUFLIB) ] 
+        -Wl,--no-whole-archive -ldl ;
+    MainFromObjects $(_lib) : $(_obj) ;
 }
 
 

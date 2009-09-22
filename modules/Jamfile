@@ -1,0 +1,8 @@
+SubDir $(TOP) ;
+SubDirHdrs $(TOP) ;
+SubDirHdrs $(TOP) include ;
+
+for mod in $(MODULES)
+{
+    ModuleFromSubdir $(mod) ;
+}
