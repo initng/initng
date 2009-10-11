@@ -43,10 +43,8 @@ const struct initng_module initng_module = {
 };
 
 #define SAVE_FILE		VARDIR "/initng_db_backup.v15"
-#define SAVE_FILE_FAKE		VARDIR "/initng_db_backup_fake.v15"
 
 #define SAVE_FILE_V13		VARDIR "/initng_db_backup.v13"
-#define SAVE_FILE_FAKE_v13	VARDIR "/initng_db_backup_fake.v13"
 
 static int write_file(const char *filename);
 static int read_file(const char *filename);

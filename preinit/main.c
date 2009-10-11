@@ -144,15 +144,6 @@ int main(int argc, char *argv[], char *env[])
 
 	setup_console(console);
 
-	if (getpid() != 1) {
-		if (getuid() != 0) {
-			fprintf(stderr, "Initng is designed to run as root user, a lot of "
-					"functionality will not work correctly.\n");
-		}
-		new_argv[argc] = (char *) "--fake";
-		argc++;
-	}
-
 	new_argv[argc] = NULL;
 
 	execv(new_argv[0], new_argv);
