@@ -20,6 +20,7 @@ VERSION_NAME = "Bleeding Edge" ;
 RUNLEVEL_DEFAULT = runlevel/default ;
 RUNLEVEL_FAKE = runlevel/fake-default ;
 
+# Modules to be built
 MODULES ?= also chdir chroot conflict cpout critical ctrlaltdel daemon_clean
     dbus_event debug_commands fmon fstat history idleprobe initctl interactive
     last limit lockfile logfile netdev ngc4 ngcs nge pause provide reload
@@ -27,12 +28,15 @@ MODULES ?= also chdir chroot conflict cpout critical ctrlaltdel daemon_clean
     sysreq task unneeded ;
 MODULES += service daemon runlevel ;
 
-PREFIX ?= / ;
-BINDIR ?= [ FDirName $(PREFIX) bin ] ;
-LIBDIR ?= [ FDirName $(PREFIX) lib ] ;
-MANDIR ?= [ FDirName $(PREFIX) share man ] ;
-SYSCONFDIR ?= [ FDirName $(PREFIX) etc ] ;
-LOCALSTATEDIR ?= [ FDirName $(PREFIX) var ] ;
+
+DESTDIR ?= "" ;
+prefix ?= / ;
+bindir ?= $(prefix)/bin ;
+sbindir ?= $(prefix)/sbin ;
+libdir ?= $(prefix)/lib ;
+mandir ?= $(prefix)/share/man ;
+sysconfdir ?= $(prefix)/etc ;
+localstatedir ?= $(prefix)/var ;
 
 # Cflags, defines and linker flags:
 CCFLAGS += -std=c99 -Wall -O2 ;
@@ -113,11 +117,13 @@ rule ModuleFromSubdir
     local _lib = mod$(<).so ;
     local _obj = [ ObjectsFromSubdir $(<) ] ;
 
-    LINKFLAGS on $(_lib) = -fPIC -rdynamic 
+    LINKFLAGS on $(_lib) += -fPIC -rdynamic 
         -shared -Wl,-soname,$(_lib)
         -Wl,--whole-archive [ FDirName $(TOP) core libinitng$(SUFLIB) ] 
         -Wl,--no-whole-archive -ldl ;
     MainFromObjects $(_lib) : $(_obj) ;
+
+    return $(_lib) ;
 }
 
 
@@ -131,11 +137,11 @@ actions GenHeaders
                 -e 's,@VERSION_NAME@,$(VERSION_NAME),g' \
                 -e 's,@RUNLEVEL_DEFAULT@,$(RUNLEVEL_DEFAULT),g' \
                 -e 's,@RUNLEVEL_FAKE@,$(RUNLEVEL_FAKE),g' \
-                -e 's,@PREFIX@,$(PREFIX),g' \
-                -e 's,@BINDIR@,$(BINDIR),g' \
-                -e 's,@LIBDIR@,$(LIBDIR),g' \
-                -e 's,@SYSCONFDIR@,$(SYSCONFDIR),g' \
-                -e 's,@LOCALSTATEDIR@,$(LOCALSTATEDIR),g' \
+                -e 's,@PREFIX@,$(prefix),g' \
+                -e 's,@BINDIR@,$(bindir),g' \
+                -e 's,@LIBDIR@,$(libdir),g' \
+                -e 's,@SYSCONFDIR@,$(sysconfdir),g' \
+                -e 's,@LOCALSTATEDIR@,$(localstatedir),g' \
             > "${h%*.in}"
     done
 }

@@ -1,8 +1,15 @@
-SubDir $(TOP) ;
+SubDir $(TOP) modules ;
 SubDirHdrs $(TOP) ;
 SubDirHdrs $(TOP) include ;
 
+
+Linkflags on moddbus_event.so += -ldbus ;
+
 for mod in $(MODULES)
 {
-    ModuleFromSubdir $(mod) ;
+    MODFILES += [ ModuleFromSubdir $(mod) ] ;
 }
+
+
+MODDIR = [ FDirName $(libdir) initng ] ;
+InstallBin $(DESTDIR)/$(MODDIR) : $(MODFILES) ;
