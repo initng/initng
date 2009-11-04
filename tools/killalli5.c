@@ -30,7 +30,8 @@
  *              2 of the License, or (at your option) any later version.
  */
 
-#include <initng.h>
+#include <initng/io.h>
+#include <initng/string.h>
 
 #include <sys/types.h>
 #include <stdio.h>

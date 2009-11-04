@@ -20,6 +20,7 @@
 #ifndef INITNG_STRING_H
 #define INITNG_STRING_H
 
+#include <stddef.h>
 
 /*
  * MACRO JUMP_SPACES, will increase string, until it founds a valid token.
