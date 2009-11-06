@@ -1,0 +1,7 @@
+SubDir TOP ;
+SubInclude TOP core ;
+SubInclude TOP tools ; 
+SubInclude TOP modules ; 
+
+GenHeaders config.h initng-paths.h ;
+Clean config.h initng-paths.h ;
