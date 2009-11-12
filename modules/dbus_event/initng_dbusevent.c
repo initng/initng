@@ -152,7 +152,7 @@ static dbus_bool_t add_dbus_watch(DBusWatch * watch, void *data)
 		return FALSE;
 	}
 
-	w->fdw.fds = dbus_watch_get_fd(watch);
+	w->fdw.fds = dbus_watch_get_unix_fd(watch);
 	w->fdw.call_module = iow_callback;
 	w->dbus = watch;
 	w->fdw.what = 0;
