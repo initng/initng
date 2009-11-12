@@ -1,15 +1,27 @@
-SubDir $(TOP) modules ;
+SubDir TOP modules ;
+
 SubDirHdrs $(TOP) ;
 SubDirHdrs $(TOP) include ;
 
 
-Linkflags on moddbus_event.so += -ldbus ;
+# General compile rule for all modules. Module-specific stuff like link-flags
+# ought to be added after this. Yep, it's true.
+# Best way to do more complicated things is to create a Jamfile in the module
+# subdirectory. The loop below checks for a Jamfile in the directory and
+# includes that if available.
 
+modfiles = "" ;
 for mod in $(MODULES)
 {
-    MODFILES += [ ModuleFromSubdir $(mod) ] ;
+    modfiles += [ ModuleFromSubdir $(mod) ] ;
 }
 
+# Set up secifica for certain modules
+for src in [ Glob $(SUBDIR)/dbus_event : *.c ]
+{
+    ObjectHdrs $(src:D=dbus_event) : $(DBUS_INCLUDES) ;
+}
+LINKLIBS on moddbus_event.so += $(DBUS_LIBS) ;
 
-MODDIR = [ FDirName $(libdir) initng ] ;
-InstallBin $(DESTDIR)/$(MODDIR) : $(MODFILES) ;
+# Install the stuff. :-)
+InstallBin $(DESTDIR)/$(moddir) : $(modfiles) ;

@@ -34,6 +34,7 @@ prefix ?= / ;
 bindir ?= $(prefix)/bin ;
 sbindir ?= $(prefix)/sbin ;
 libdir ?= $(prefix)/lib ;
+moddir ?= $(libdir)/initng ;
 mandir ?= $(prefix)/share/man ;
 sysconfdir ?= $(prefix)/etc ;
 localstatedir ?= $(prefix)/var ;
@@ -47,6 +48,10 @@ CCFLAGS += -g -Werror -Wmissing-prototypes -Wmissing-declarations
     -Wformat-security -Wsequence-point -Wundef -Wunused -Wcomment ;
 DEFINES += HAVE_CONFIG_H _XOPEN_SOURCE=600 DEBUG ;
 LINKFLAGS += -rdynamic -fPIC ;
+
+# Header/linker flags specific for certain modules
+DBUS_INCLUDES = /usr/include/dbus-1.0 /usr/lib/dbus-1.0/include ;
+DBUS_LIBS = -ldbus-1 ;
 
 # config.h defines that are configurable by the user
 if $(CHECK_RO)
@@ -84,7 +89,7 @@ rule MainFromSubdirs
 
 # Workhouse for subdir compile. Iterates over all subdirectories given and
 # turns the *.c sources found there into objects. Returns a list of all
-# objects created. Doesn't do the cleanup as it doesn't know about the target.
+# objects created.
 # USAGE: ObjectsFromSubdir foo bar baz ;
 rule ObjectsFromSubdir
 {
@@ -105,6 +110,7 @@ rule ObjectsFromSubdir
         Objects $(_sources) ;
     }
 
+    Clean clean : $(_objects) ;
     return $(_objects) ;
 }
 
@@ -123,6 +129,7 @@ rule ModuleFromSubdir
         -Wl,--no-whole-archive -ldl ;
     MainFromObjects $(_lib) : $(_obj) ;
 
+    Clean clean : $(_lib) ;
     return $(_lib) ;
 }
 
@@ -144,4 +151,43 @@ actions GenHeaders
                 -e 's,@LOCALSTATEDIR@,$(localstatedir),g' \
             > "${h%*.in}"
     done
+}
+
+rule GenHeader
+{
+    GenHeaders $(<) ;
+    Clean clean : $(<) ;
+}
+
+
+# Sets up housekeeping for the typical InitNG module. It awaits the name of
+# the modules and guesses the path from it, i.e. $(TOP)/modules/$(1). 
+# It does the following things:
+#   - Uses "SubDir" to set up sub directory housekeeping,
+#   - automatically sets the include path to "TOP include" and "TOP include
+#     initng",
+#   - sets the linker flags for the target shared library,
+#   - marks the object files and the shared library for deletion on cleanup,
+#   - marks the shared library for installation in InitNG's target lib
+#     directory, and
+#   - sets up the variables MOD_SRC and MOD_NAME to contain the module's
+#     source files and the module's final file name.
+rule ModDir
+{
+    SubDir TOP modules $(1) ;
+    DEPENDS libinitng.a ;
+
+    MOD_NAME = mod$(1).so ;
+    MOD_SRC = [ Glob [ FDirName $(TOP) modules $(1) ] : *.c ] ;
+
+    SubDirHdrs $(TOP) ;
+    SubDirHdrs $(TOP) include ;
+    SubDirHdrs $(TOP) include initng ;
+
+    LINKFLAGS on $(MOD_NAME) += -fPIC -rdynamic 
+        -shared -Wl,-soname,$(MOD_NAME)
+        -Wl,--whole-archive [ FDirName $(TOP) core libinitng$(SUFLIB) ] 
+        -Wl,--no-whole-archive -ldl ;
+
+    Clean clean : $(MOD_NAME) $(MOD_SRC:S=$(SUFOBJ)) ;
 }
