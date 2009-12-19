@@ -76,7 +76,7 @@ char *initng_toolbox_strndup(const char *s, size_t n)
 	if (len > n)
 		len = n;
 
-	alloced = initng_toolbox_calloc(1, len);
+	alloced = initng_toolbox_calloc(1, len + 1);
 	strncpy(alloced, s, len);
 
 	return alloced;
