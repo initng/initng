@@ -3,4 +3,5 @@
   contributors : 
       commands : 
        options :
-   description : Provides interlan services deps like net/eth0, net/eth1, net/lo, net/ppp
+   description : Provides interlan services deps like net/eth0, net/eth1,
+                 net/lo, net/ppp.
