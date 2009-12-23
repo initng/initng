@@ -138,7 +138,7 @@ actions GenHeaders
                 -e 's,@RUNLEVEL_DEFAULT@,$(RUNLEVEL_DEFAULT),g' \
                 -e 's,@RUNLEVEL_FAKE@,$(RUNLEVEL_FAKE),g' \
                 -e 's,@PREFIX@,$(prefix),g' \
-                -e 's,@BINDIR@,$(bindir),g' \
+                -e 's,@SBINDIR@,$(sbindir),g' \
                 -e 's,@LIBDIR@,$(libdir),g' \
                 -e 's,@SYSCONFDIR@,$(sysconfdir),g' \
                 -e 's,@LOCALSTATEDIR@,$(localstatedir),g' \

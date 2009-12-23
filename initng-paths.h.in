@@ -6,6 +6,6 @@
 #define VARDIR                  "@LOCALSTATEDIR@"
 #define INITNG_ROOT             "@SYSCONFDIR@/initng"
 #define INITNG_MODULE_DIR       "@LIBDIR@/initng"
-#define INITNG_CORE_BIN         "@BINDIR@/initng"
+#define INITNG_CORE_BIN         "@SBINDIR@/initng"
 
 #endif /* INITNG_PATHS_H */
