@@ -46,6 +46,13 @@ SET(DATA_INSTALL_DIR /usr/share CACHE STRING "Install location for data files.")
 SET(MAN_INSTALL_DIR ${DATA_INSTALL_DIR}/man CACHE STRING "Install location for manpages.")
 SET(DOC_INSTALL_DIR ${DATA_INSTALL_DIR}/doc CACHE STRING "Install location for documentation.")
 SET(PKGCONFIG_INSTALL_DIR /usr/lib/pkgconfig CACHE STRING "Install location for pkg-config files.")
+
+# compatibility for Jam migration
+SET(SYSCONFDIR ${SYSCONF_INSTALL_DIR})
+SET(LOCALSTATEDIR /var)
+SET(LIBDIR ${LIB_INSTALL_DIR})
+SET(SBINDIR ${SBIN_INSTALL_DIR})
+
 MARK_AS_ADVANCED(INCLUDE_INSTALL_DIR)
 MARK_AS_ADVANCED(SBIN_INSTALL_DIR)
 MARK_AS_ADVANCED(BIN_INSTALL_DIR)
