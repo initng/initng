@@ -1,4 +1,4 @@
 {
-	global: initng_*;
+	global: initng_*; EVENT_*; ENV; NEED; g; NEW; FROM_FILE; FREEING;
 	local: *;
 };
