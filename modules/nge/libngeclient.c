@@ -104,8 +104,7 @@ void ngeclient_close(nge_connection * c)
 		close(c->sock);
 
 	/* free read_buffer */
-	if (c->read_buffer)
-		free(c->read_buffer);
+	free(c->read_buffer);
 
 	/* free connection info */
 	free(c);
@@ -741,58 +740,36 @@ void ngeclient_event_free(nge_event * e)
 
 	case SYSTEM_STATE_CHANGE:
 	case INITIAL_SYSTEM_STATE_CHANGE:
-		if (e->payload.system_state_change.runlevel)
-			free(e->payload.system_state_change.runlevel);
+		free(e->payload.system_state_change.runlevel);
 		break;
 
 	case SERVICE_STATE_CHANGE:
 	case INITIAL_SERVICE_STATE_CHANGE:
-		if (e->payload.service_state_change.service)
-			free(e->payload.service_state_change.service);
-
-		if (e->payload.service_state_change.state_name)
-			free(e->payload.service_state_change.state_name);
-
-		if (e->payload.service_state_change.service_type)
-			free(e->payload.service_state_change.service_type);
+		free(e->payload.service_state_change.service);
+		free(e->payload.service_state_change.state_name);
+		free(e->payload.service_state_change.service_type);
 		break;
 
 	case ERR_MSG:
-		if (e->payload.err_msg.file)
-			free(e->payload.err_msg.file);
-
-		if (e->payload.err_msg.func)
-			free(e->payload.err_msg.func);
-
-		if (e->payload.err_msg.message)
-			free(e->payload.err_msg.message);
+		free(e->payload.err_msg.file);
+		free(e->payload.err_msg.func);
+		free(e->payload.err_msg.message);
 		break;
 
 	case CONNECT:
-		if (e->payload.connect.initng_version)
-			free(e->payload.connect.initng_version);
+		free(e->payload.connect.initng_version);
 		break;
 
 	case SERVICE_OUTPUT:
-		if (e->payload.service_output.service)
-			free(e->payload.service_output.service);
-
-		if (e->payload.service_output.service)
-			free(e->payload.service_output.process);
-
-		if (e->payload.service_output.service)
-			free(e->payload.service_output.output);
+		free(e->payload.service_output.service);
+		free(e->payload.service_output.process);
+		free(e->payload.service_output.output);
 		break;
 
 	case PROCESS_KILLED:
-		if (e->payload.process_killed.service)
-			free(e->payload.process_killed.service);
-
-		if (e->payload.process_killed.state_name)
-			free(e->payload.process_killed.state_name);
-
-		if (e->payload.process_killed.process)
-			free(e->payload.process_killed.process);
+		free(e->payload.process_killed.service);
+		free(e->payload.process_killed.state_name);
+		free(e->payload.process_killed.process);
 		break;
 	}
 	free(e);

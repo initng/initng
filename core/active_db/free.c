@@ -60,8 +60,7 @@ void initng_active_db_free(active_db_h * pf)
 	remove_all(pf);
 
 	/* free service name */
-	if (pf->name)
-		free(pf->name);
+	free(pf->name);
 
 	/* free service struct */
 	free(pf);

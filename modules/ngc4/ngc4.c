@@ -257,8 +257,7 @@ static int send_and_handle(const char c, const char *l, const char *opt,
 	if (quiet == FALSE) {
 		string = ngcclient_reply_to_string(rep, ansi);
 		print_out("\n\n%s\n", string);
-		if (string)
-			free(string);
+		free(string);
 	}
 
 	free(rep);

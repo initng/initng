@@ -232,8 +232,7 @@ static void handle_client(int fd)
 		    < (signed)header.body_len) {
 			F_("Could not read header_data\n");
 
-			if (header_data)
-				free(header_data);
+			free(header_data);
 			return;
 		}
 	}
@@ -255,11 +254,8 @@ static void handle_client(int fd)
 		result->payload = 0;
 		D_("Ping received, sending pong\n");
 		send(fd, result, sizeof(result_desc), 0);
-		if (header_data)
-			free(header_data);
-
-		if (result)
-			free(result);
+		free(header_data);
+		free(result);
 		return;
 	}
 
@@ -278,11 +274,8 @@ static void handle_client(int fd)
 			tmp_cmd =
 			    initng_command_find_by_command_string(header.l);
 	} else {
-		if (header_data)
-			free(header_data);
-
-		if (result)
-			free(result);
+		free(header_data);
+		free(result);
 		return;
 	}
 
@@ -295,12 +288,8 @@ static void handle_client(int fd)
 		result->s = S_COMMAND_NOT_FOUND;
 		send(fd, result, sizeof(result_desc), 0);
 
-		if (header_data)
-			free(header_data);
-
-		if (result)
-			free(result);
-
+		free(header_data);
+		free(result);
 		return;
 	}
 
@@ -314,9 +303,7 @@ static void handle_client(int fd)
 		result->s = S_REQUIRES_OPT;
 		send(fd, result, sizeof(result_desc), 0);
 
-		if (header_data)
-			free(header_data);
-
+		free(header_data);
 		return;
 	}
 
@@ -330,8 +317,7 @@ static void handle_client(int fd)
 		result->s = S_NOT_REQUIRES_OPT;
 		send(fd, result, sizeof(result_desc), 0);
 
-		if (header_data)
-			free(header_data);
+		free(header_data);
 		return;
 	}
 
@@ -511,18 +497,13 @@ static void handle_client(int fd)
 		D_("Invalid command type '%c', line '%s'\n", header.c,
 		   header.l);
 
-		if (header_data)
-			free(header_data);
+		free(header_data);
 		return;
 	}
 
 	D_("Returned successfully.\n");
-	if (header_data)
-		free(header_data);
-
-	if (result)
-		free(result);
-
+	free(header_data);
+	free(result);
 	return;
 }
 

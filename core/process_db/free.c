@@ -61,8 +61,7 @@ void initng_process_db_real_free(process_h * free_this)
 			close(current_pipe->pipe[1]);
 
 		/* free buffer */
-		if (current_pipe->buffer)
-			free(current_pipe->buffer);
+		free(current_pipe->buffer);
 
 		/* free it */
 		free(current_pipe);

@@ -141,12 +141,10 @@ void initng_config_global_free(void)
 	remove_all(&g);
 
 	/* free runlevel name string */
-	if (g.runlevel)
-		free(g.runlevel);
+	free(g.runlevel);
 
 	/* free console string if set */
-	if (g.dev_console)
-		free(g.dev_console);
+	free(g.dev_console);
 
 	/* free our copy of argv, and argc */
 	for (i = 0; i < g.Argc; i++) {

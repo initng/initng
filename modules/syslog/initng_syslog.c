@@ -70,8 +70,7 @@ static void check_syslog(void)
 				initng_log(current->prio, current->owner,
 					   "%s", current->buffert);
 				free(current->buffert);
-				if (current->owner)
-					free(current->owner);
+				free(current->owner);
 				initng_list_del(&current->list);
 				free(current);
 			}
@@ -90,9 +89,7 @@ static void free_buffert(void)
 	check_syslog();
 	while_log_list_safe(current, safe) {
 		free(current->buffert);
-
-		if (current->owner)
-			free(current->owner);
+		free(current->owner);
 
 		initng_list_del(&current->list);
 		free(current);

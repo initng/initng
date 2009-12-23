@@ -281,13 +281,11 @@ void ngcs_free_unpack_one(ngcs_data * res)
 
 	case NGCS_TYPE_ERROR:
 	case NGCS_TYPE_STRING:
-		if (res->d.s)
-			free(res->d.s);
+		free(res->d.s);
 		break;
 
 	default:
-		if (res->d.p)
-			free(res->d.p);
+		free(res->d.p);
 		break;
 	}
 

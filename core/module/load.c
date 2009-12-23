@@ -126,18 +126,9 @@ void initng_module_close_and_free(m_h * m)
 {
 	assert(m != NULL);
 
-	/* free module name */
-	if (m->name) {
-		/*printf("Free: %s\n", m->name); */
-		free(m->name);
-		m->name = NULL;
-	}
-
-	/* free module_filename */
-	if (m->path) {
-		free(m->path);
-		m->path = NULL;
-	}
+	free(m->name);
+	free(m->path);
+	m->name = m->path = NULL;
 
 	/* close the lib */
 	if (m->dlhandle)
@@ -194,8 +185,7 @@ m_h *initng_module_load(const char *module)
 		/* free module_name if duped */
 		if (module_name != module)
 			free(module_name);
-		if (module_path)
-			free(module_path);
+		free(module_path);
 		return NULL;
 	}
 

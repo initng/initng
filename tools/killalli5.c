@@ -209,10 +209,8 @@ static int readproc(void)
 	n = plist;
 	for (p = plist; n; p = n) {
 		n = p->next;
-		if (p->argv0)
-			free(p->argv0);
-		if (p->argv1)
-			free(p->argv1);
+		free(p->argv0);
+		free(p->argv1);
 		free(p);
 	}
 	plist = NULL;

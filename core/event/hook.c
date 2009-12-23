@@ -68,8 +68,7 @@ void initng_event_hook_unregister_real(const char *from_file,
 
 		initng_list_del(&current->list);
 
-		if (current->from_file)
-			free(current->from_file);
+		free(current->from_file);
 
 		free(current);
 		return;

@@ -43,18 +43,15 @@ static void dfree(s_data * current)
 	case STRINGS:
 	case VARIABLE_STRING:
 	case VARIABLE_STRINGS:
-		if (current->t.s) {
-			free(current->t.s);
-			current->t.s = NULL;
-		}
+		free(current->t.s);
+		current->t.s = NULL;
 
 	default:
 		break;
 	}
 
 	/* free variable name, if set */
-	if (current->vn)
-		free(current->vn);
+	free(current->vn);
 
 	current->vn = NULL;
 

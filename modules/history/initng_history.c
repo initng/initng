@@ -295,12 +295,10 @@ static void history_free_all(void)
 	/* while there is a history db */
 	while_history_db_safe(current, safe) {
 		/* free history name */
-		if (current->name)
-			free(current->name);
+		free(current->name);
 
 		/* free data if any */
-		if (current->data)
-			free(current->data);
+		free(current->data);
 
 		/* remove from history_db list */
 		initng_list_del(&current->list);
@@ -332,12 +330,10 @@ static int add_hist(history_h * hist)
 		}
 
 		/* free the name */
-		if (entry->name)
-			free(entry->name);
+		free(entry->name);
 
 		/* free any data that might be in this history entry */
-		if (entry->data)
-			free(entry->data);
+		free(entry->data);
 
 		/* delete this from the historylist */
 		initng_list_del(last);

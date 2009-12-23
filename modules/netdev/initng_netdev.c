@@ -364,10 +364,8 @@ void module_unload(void)
 {
 	int i;
 
-	for (i = 0; i < 20; i++) {
-		if (devs[i].dev)
-			free(devs[i].dev);
-	}
+	for (i = 0; i < 20; i++)
+		free(devs[i].dev);
 
 	initng_active_state_unregister(&NIC_STARTING);
 	initng_active_state_unregister(&NIC_UP);

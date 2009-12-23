@@ -241,8 +241,7 @@ static void service_status_watch(s_event * event)
 		}
 	}
 
-	if (buf)
-		free(buf);
+	free(buf);
 }
 
 static int ngcs_watch_initial(ngcs_watch * watch)
@@ -325,8 +324,7 @@ static void service_output_watch(s_event * event)
 		}
 	}
 
-	if (buf)
-		free(buf);
+	free(buf);
 }
 
 static void ngcs_cmd_stop(ngcs_request * req)
@@ -526,9 +524,7 @@ static void ngcs_free_watch(ngcs_chan * chan)
 		return;
 
 	initng_list_del(&watch->list);
-	if (watch->name)
-		free(watch->name);
-
+	free(watch->name);
 	free(watch);
 	chan->userdata = 0;
 }
