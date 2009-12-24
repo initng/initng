@@ -178,6 +178,7 @@ int main(int argc, char *argv[])
 
 	/* set up the environments */
 	setenv("SFILE", path, 1);
+	setenv("INITNG_MODULE_DIR", INITNG_MODULE_DIR, 1);
 
 	/* now call the wrapper */
 	execve(new_argv[0], new_argv, environ);
