@@ -13,6 +13,17 @@
 #
 
 
+### PART 1: CONFIGURATION VARIABLES
+#
+# This part defines a bunch of variables that are used throughout the build
+# and describe certain features of InitNG, like the version number, the name,
+# installation paths, and so on.
+#
+# These are defaults; please don't change them here unless you intent the
+# change to be permanent. Use environment variables or Jam's "-s" parameter
+# instead.
+#
+
 # Configuration variables for the build that will later on be in config.h or
 # initng-paths.h
 VERSION = 0.7.0svn ;
@@ -20,53 +31,61 @@ VERSION_NAME = "Bleeding Edge" ;
 RUNLEVEL_DEFAULT = runlevel/default ;
 RUNLEVEL_FAKE = runlevel/fake-default ;
 
-# Modules to be built
-MODULES ?= also chdir chroot conflict cpout critical ctrlaltdel daemon_clean
-    dbus_event debug_commands fmon fstat history idleprobe initctl interactive
-    last limit lockfile logfile netdev ngc4 ngcs nge pause provide reload
-    renice service_file simple_launcher stcmd stdout suid syncron syslog
-    sysreq task unneeded ;
-MODULES += service daemon runlevel ;
-
-
-DESTDIR ?= "" ;
+# Paths used for installation.
+DESTDIR ?= ;
 prefix ?= / ;
 bindir ?= $(prefix)/bin ;
 sbindir ?= $(prefix)/sbin ;
 libdir ?= $(prefix)/lib ;
+includedir ?= /usr/include ;
 moddir ?= $(libdir)/initng ;
-mandir ?= $(prefix)/share/man ;
+mandir ?= /usr/share/man ;
 sysconfdir ?= $(prefix)/etc ;
 localstatedir ?= $(prefix)/var ;
 
-# Cflags, defines and linker flags:
+# Build defines. Don't add them as real parameters, just the define itself.
+# Jam figures out what compiler command line switch to use itself.
+DEFINES += HAVE_CONFIG_H _XOPEN_SOURCE=600 DEBUG ;
+
+# Global C build and linker flags:
 CCFLAGS += -std=c99 -Wall -O2 ;
 CCFLAGS += -g -Werror -Wmissing-prototypes -Wmissing-declarations
     -Wstrict-prototypes -Wimplicit -Wredundant-decls -Wnested-externs
     -Wwrite-strings -Wsign-compare -Winline -Wswitch -Wreturn-type
     -Wparentheses -Wmissing-braces -Wformat -Wformat-nonliteral
     -Wformat-security -Wsequence-point -Wundef -Wunused -Wcomment ;
-DEFINES += HAVE_CONFIG_H _XOPEN_SOURCE=600 DEBUG ;
 LINKFLAGS += -rdynamic -fPIC ;
 
-# Header/linker flags specific for certain modules
-DBUS_INCLUDES = /usr/include/dbus-1.0 /usr/lib/dbus-1.0/include ;
-DBUS_LIBS = -ldbus-1 ;
 
-# config.h defines that are configurable by the user
-if $(CHECK_RO)
-{
-    DEFINES += CHECK_RO ;
-}
-if $(FORCE_NOCOLOR)
-{
-    DEFINES += FORCE_NOCOLOR ;
-}
-if $(FORCE_POSIX_IFILES)
-{
-    DEFINES += FORCE_POSIX_IFILES ;
-}
+### PART 2: USER-CONFIGURABLES
+#
+# This section holds parameters that are configurable by the user and have
+# influence on the build. They mostly enable or disable certain features of
+# InitNG.
+#
+# As above, please use the "-s" switch or environment variables!
+#
 
+if $(CHECK_RO) { DEFINES += CHECK_RO ; }
+if $(FORCE_NOCOLOR) { DEFINES += FORCE_NOCOLOR ; }
+if $(FORCE_POSIX_IFILES) { DEFINES += FORCE_POSIX_IFILES ; }
+
+
+### PART 3: PATHS FOR 3RD-PARTY LIBRARIES
+#
+# This section includes variables that set up include or library paths for
+# modules that need 3rd-party libraries like D-BUS or others.
+#
+
+DBUS_INCLUDES = $(pkg-config --cflags-only-I dbus-1) ;
+DBUS_LIBS = $(pkg-config --cflags-only-I --cflags-only-l dbus-1) ;
+
+
+### PART 4: CUSTOM RULES
+#
+# The following section houses rules that are used exclusively by InitNG's
+# build system.
+#
 
 # Builds a static library from a set of subdirectories given as arguments to
 # this rule. It takes care of creating the objects in the right place,
@@ -120,22 +139,36 @@ rule ObjectsFromSubdir
 # "mod$(SUBDIR)$(SUF)".
 rule ModuleFromSubdir
 {
-    local _lib = mod$(<).so ;
+    local _lib = mod$(<) ;
     local _obj = [ ObjectsFromSubdir $(<) ] ;
 
     LINKFLAGS on $(_lib) += -fPIC -rdynamic 
         -shared -Wl,-soname,$(_lib)
         -Wl,--whole-archive [ FDirName $(TOP) core libinitng$(SUFLIB) ] 
         -Wl,--no-whole-archive -ldl ;
-    MainFromObjects $(_lib) : $(_obj) ;
+    MainFromObjects $(_lib).so : $(_obj) ;
 
     Clean clean : $(_lib) ;
     return $(_lib) ;
 }
 
 
-# Creates the config.h file from config.h.in.
-actions GenHeaders
+# Creates a shared library from C sources. You need to supply the target's
+# file name, nothing else happens here than adding the GCC linker flags to
+# turn a binary into a shared object.
+# USAGE: SharedLibrary NAME : SOURCE1 SOURCE2 ... SOURCEn ;
+rule SharedLibrary
+{
+    LINKFLAGS on $(<) += -shared -Wl,-soname,$(<) ;
+    Main $(<) : $(>) ;
+}
+
+
+# Does simple pattern substitution and creates an header file from an .h.in
+# file. Takes the header file path as argument, not the .h.in.
+# USAGE: GenHeader header1 header2 headerN ;
+# EXAMPLE: GenHeader config.h initng-paths.h ;
+actions GenHeader
 {
     for h in $(<).in
     do
@@ -155,39 +188,22 @@ actions GenHeaders
 
 rule GenHeader
 {
-    GenHeaders $(<) ;
+    local _h ;
+    for _h in $(<)
+    {
+        INCLUDES $(_h).in ;
+    }
     Clean clean : $(<) ;
 }
 
 
-# Sets up housekeeping for the typical InitNG module. It awaits the name of
-# the modules and guesses the path from it, i.e. $(TOP)/modules/$(1). 
-# It does the following things:
-#   - Uses "SubDir" to set up sub directory housekeeping,
-#   - automatically sets the include path to "TOP include" and "TOP include
-#     initng",
-#   - sets the linker flags for the target shared library,
-#   - marks the object files and the shared library for deletion on cleanup,
-#   - marks the shared library for installation in InitNG's target lib
-#     directory, and
-#   - sets up the variables MOD_SRC and MOD_NAME to contain the module's
-#     source files and the module's final file name.
-rule ModDir
+# Sets up housekeeping for an InitNG C source directory. It is basically the
+# same as SubDir, but does some additional tasks to make life easier:
+#   1. Calls "SubDir",
+#   2. Adds $(TOP) and $(TOP)/include to the include path.
+rule SrcDir
 {
-    SubDir TOP modules $(1) ;
-    DEPENDS libinitng.a ;
-
-    MOD_NAME = mod$(1).so ;
-    MOD_SRC = [ Glob [ FDirName $(TOP) modules $(1) ] : *.c ] ;
-
+    SubDir $(<) ;
     SubDirHdrs $(TOP) ;
     SubDirHdrs $(TOP) include ;
-    SubDirHdrs $(TOP) include initng ;
-
-    LINKFLAGS on $(MOD_NAME) += -fPIC -rdynamic 
-        -shared -Wl,-soname,$(MOD_NAME)
-        -Wl,--whole-archive [ FDirName $(TOP) core libinitng$(SUFLIB) ] 
-        -Wl,--no-whole-archive -ldl ;
-
-    Clean clean : $(MOD_NAME) $(MOD_SRC:S=$(SUFOBJ)) ;
 }
