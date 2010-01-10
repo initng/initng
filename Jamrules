@@ -132,7 +132,7 @@ actions GenHeaders
 {
     for h in $(<).in
     do
-        cat "$h" | sed \
+        sed \
                 -e 's,@VERSION@,$(VERSION),g' \
                 -e 's,@VERSION_NAME@,$(VERSION_NAME),g' \
                 -e 's,@RUNLEVEL_DEFAULT@,$(RUNLEVEL_DEFAULT),g' \
@@ -142,6 +142,6 @@ actions GenHeaders
                 -e 's,@LIBDIR@,$(libdir),g' \
                 -e 's,@SYSCONFDIR@,$(sysconfdir),g' \
                 -e 's,@LOCALSTATEDIR@,$(localstatedir),g' \
-            > "${h%*.in}"
+            < "$h" > "${h%*.in}"
     done
 }
