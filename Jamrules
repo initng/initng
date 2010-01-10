@@ -117,8 +117,8 @@ rule ModuleFromSubdir
     local _lib = mod$(<).so ;
     local _obj = [ ObjectsFromSubdir $(<) ] ;
 
-    LINKFLAGS on $(_lib) += -fPIC -rdynamic 
-        -shared -Wl,-soname,$(_lib)
+    CCFLAGS on $(_lib) += -fPIC -rdynamic ;
+    LINKFLAGS on $(_lib) += -shared -Wl,-soname,$(_lib)
         -Wl,--whole-archive [ FDirName $(TOP) core libinitng$(SUFLIB) ] 
         -Wl,--no-whole-archive -ldl ;
     MainFromObjects $(_lib) : $(_obj) ;
