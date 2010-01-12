@@ -1,0 +1,21 @@
+CFLAGS = @CFLAGS@ ;
+
+# Paths.
+prefix = @prefix@ ;
+exec_prefix = @exec_prefix@ ;
+bindir = @bindir@ ;
+sbindir = @sbindir@ ;
+libdir = @libdir@ ;
+includedir = @includedir@ ;
+moddir = $(libdir)/initng ;
+mandir = @mandir@ ;
+sysconfdir = @sysconfdir@ ;
+localstatedir = @localstatedir@ ;
+datarootdir = @datarootdir@ ;
+
+# D-Bus extras
+DBUS_CFLAGS = @DBUS_CFLAGS@ ;
+DBUS_LIBS = @DBUS_LIBS@ ;
+
+# Set $(CONFIGURED) variable. :-)
+CONFIGURED = 1 ;

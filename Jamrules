@@ -20,36 +20,30 @@
 # installation paths, and so on.
 #
 # These are defaults; please don't change them here unless you intent the
-# change to be permanent. Use environment variables or Jam's "-s" parameter
-# instead.
+# change to be permanent.  Most of them are set during ./configure run, but if
+# not, either use the "-s" parameter or environment variables.
 #
 
-# Configuration variables for the build that will later on be in config.h or
-# initng-paths.h
-VERSION = 0.7.0svn ;
-VERSION_NAME = "Bleeding Edge" ;
-RUNLEVEL_DEFAULT = runlevel/default ;
-RUNLEVEL_FAKE = runlevel/fake-default ;
+include "config.jam" ;
+if ! $(CONFIGURED)
+{
+    Echo "*** Error: config.jam was not found." ;
+    Echo "Please run ./configure first." ;
+    Echo "If configure is not there, run: aclocal -Iaclocal && autoconf" ;
+    Echo "" ;
+    Exit "*** Not configured, stopping." ;
+}
 
-# Paths used for installation.
+# Destination directory for package creation.
 DESTDIR ?= ;
-prefix ?= / ;
-bindir ?= $(prefix)/bin ;
-sbindir ?= $(prefix)/sbin ;
-libdir ?= $(prefix)/lib ;
-includedir ?= /usr/include ;
-moddir ?= $(libdir)/initng ;
-mandir ?= /usr/share/man ;
-sysconfdir ?= $(prefix)/etc ;
-localstatedir ?= $(prefix)/var ;
 
 # Build defines. Don't add them as real parameters, just the define itself.
 # Jam figures out what compiler command line switch to use itself.
 DEFINES += HAVE_CONFIG_H _XOPEN_SOURCE=600 DEBUG ;
 
-# Global C build and linker flags:
+# Global C build and linker flags aside from CFLAGS passed to configure:
 CCFLAGS += -std=c99 -Wall -O2 ;
-CCFLAGS += -g -Werror -Wmissing-prototypes -Wmissing-declarations
+CCFLAGS += -Werror -Wmissing-prototypes -Wmissing-declarations
     -Wstrict-prototypes -Wimplicit -Wredundant-decls -Wnested-externs
     -Wwrite-strings -Wsign-compare -Winline -Wswitch -Wreturn-type
     -Wparentheses -Wmissing-braces -Wformat -Wformat-nonliteral
@@ -77,8 +71,8 @@ if $(FORCE_POSIX_IFILES) { DEFINES += FORCE_POSIX_IFILES ; }
 # modules that need 3rd-party libraries like D-BUS or others.
 #
 
-DBUS_INCLUDES = $(pkg-config --cflags-only-I dbus-1) ;
-DBUS_LIBS = $(pkg-config --cflags-only-I --cflags-only-l dbus-1) ;
+DBUS_INCLUDES = "`pkg-config --cflags-only-I dbus-1`" ;
+DBUS_LIBS = "`pkg-config --cflags-only-I --cflags-only-l dbus-1`" ;
 
 
 ### PART 4: CUSTOM RULES
@@ -159,41 +153,18 @@ rule ModuleFromSubdir
 # USAGE: SharedLibrary NAME : SOURCE1 SOURCE2 ... SOURCEn ;
 rule SharedLibrary
 {
-    LINKFLAGS on $(<) += -shared -Wl,-soname,$(<) ;
+    local _sofile _soname _soversion _somajorversion ;
+    local _match = [ Match (.*)(\.(\d+)(\.\d+)*)? : $(<) ] ;
+
+    _sofile = $(1) ;
+    _soname = $(_match[1]).$(_match[3]) ;
+    _soversion = $(match[3-4]) ;
+    _somajorversion = $(match[3]) ;
+
+    DEPENDS $(<) : $(_soname) $(_sofile) ;
+
+    LINKFLAGS on $(<) += -shared -Wl,-soname,$(_soname) ;
     Main $(<) : $(>) ;
-}
-
-
-# Does simple pattern substitution and creates an header file from an .h.in
-# file. Takes the header file path as argument, not the .h.in.
-# USAGE: GenHeader header1 header2 headerN ;
-# EXAMPLE: GenHeader config.h initng-paths.h ;
-actions GenHeader
-{
-    for h in $(<).in
-    do
-        cat "$h" | sed \
-                -e 's,@VERSION@,$(VERSION),g' \
-                -e 's,@VERSION_NAME@,$(VERSION_NAME),g' \
-                -e 's,@RUNLEVEL_DEFAULT@,$(RUNLEVEL_DEFAULT),g' \
-                -e 's,@RUNLEVEL_FAKE@,$(RUNLEVEL_FAKE),g' \
-                -e 's,@PREFIX@,$(prefix),g' \
-                -e 's,@BINDIR@,$(bindir),g' \
-                -e 's,@LIBDIR@,$(libdir),g' \
-                -e 's,@SYSCONFDIR@,$(sysconfdir),g' \
-                -e 's,@LOCALSTATEDIR@,$(localstatedir),g' \
-            > "${h%*.in}"
-    done
-}
-
-rule GenHeader
-{
-    local _h ;
-    for _h in $(<)
-    {
-        INCLUDES $(_h).in ;
-    }
-    Clean clean : $(<) ;
 }
 
 

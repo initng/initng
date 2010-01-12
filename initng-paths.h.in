@@ -2,10 +2,10 @@
 #define INITNG_PATHS_H
 
 #define DEVDIR                  "/dev"
-#define ETCDIR                  "@SYSCONFDIR@"
-#define VARDIR                  "@LOCALSTATEDIR@"
-#define INITNG_ROOT             "@SYSCONFDIR@/initng"
-#define INITNG_MODULE_DIR       "@LIBDIR@/initng"
-#define INITNG_CORE_BIN         "@BINDIR@/initng"
+#define ETCDIR                  "@sysconfdir@"
+#define VARDIR                  "@localstatedir@"
+#define INITNG_ROOT             "@sysconfdir@/initng"
+#define INITNG_MODULE_DIR       "@libdir@/initng"
+#define INITNG_CORE_BIN         "@sbindir@/initng"
 
 #endif /* INITNG_PATHS_H */
