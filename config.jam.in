@@ -16,6 +16,7 @@ datarootdir = @datarootdir@ ;
 # D-Bus extras
 DBUS_CFLAGS = @DBUS_CFLAGS@ ;
 DBUS_LIBS = @DBUS_LIBS@ ;
+DBUS_INCLUDES = @DBUS_INCLUDES@ ;
 
 # Set $(CONFIGURED) variable. :-)
 CONFIGURED = 1 ;
