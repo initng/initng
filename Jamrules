@@ -157,14 +157,24 @@ rule ModuleFromSubdir
 rule SharedLibrary
 {
     local _sofile _soname _soversion _somajorversion ;
-    local _match = [ MATCH "([^.]*)\.so(\.((\d+)(\.\d+)*))?" : $(<) ] ;
+    local _match = [ MATCH "([^.]*)\\.so(\\.(([0-9]+)(\\.[0-9]+)*))?" : $(<) ] ;
 
     _sofile = $(<) ;
     _soversion = $(_match[3]) ;
     _somajorversion = $(_match[4]) ;
-    _soname = $(_match[1]).so.$(_somajorversion) ;
+
+    if $(_somajorversion)
+    {
+        _soname = $(_match[1]).so.$(_somajorversion) ;
+    }
+    else
+    {
+        _soname = $(_match[1]).so ;
+    }
 
     DEPENDS $(<) : $(_match[1]) ;
+    if $(<) != $(_soname) { DEPENDS $(<) : $(_soname) ; }
+
 
     LINKFLAGS on $(<) += -shared -Wl,-soname,$(_soname) ;
     Main $(<) : $(>) ;
