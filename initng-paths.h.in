@@ -1,11 +1,1 @@
-#ifndef INITNG_PATHS_H 
-#define INITNG_PATHS_H
-
-#define DEVDIR                  "/dev"
-#define ETCDIR                  "@sysconfdir@"
-#define VARDIR                  "@localstatedir@"
-#define INITNG_ROOT             "@sysconfdir@/initng"
-#define INITNG_MODULE_DIR       "@libdir@/initng"
-#define INITNG_CORE_BIN         "@sbindir@/initng"
-
-#endif /* INITNG_PATHS_H */
+#warning "This header file is obsolete and will be removed."

@@ -40,6 +40,9 @@ DESTDIR ?= ;
 # Build defines. Don't add them as real parameters, just the define itself.
 # Jam figures out what compiler command line switch to use itself.
 DEFINES += HAVE_CONFIG_H _XOPEN_SOURCE=600 DEBUG ;
+DEFINES += DEVDIR=/dev ETCDIR=$(sysconfdir) VARDIR=$(localstatedir)
+   INITNG_ROOT=$(sysconfdir)/initng INITNG_MODULE_DIR=$(libdir)/initng
+   INITNG_CORE_BIN=$(sbindir)/initng ; 
 
 # Global C build and linker flags aside from CFLAGS passed to configure:
 CCFLAGS += -std=c99 -Wall -O2 ;
@@ -154,14 +157,14 @@ rule ModuleFromSubdir
 rule SharedLibrary
 {
     local _sofile _soname _soversion _somajorversion ;
-    local _match = [ Match (.*)(\.(\d+)(\.\d+)*)? : $(<) ] ;
+    local _match = [ MATCH "([^.]*)\.so(\.((\d+)(\.\d+)*))?" : $(<) ] ;
 
-    _sofile = $(1) ;
-    _soname = $(_match[1]).$(_match[3]) ;
-    _soversion = $(match[3-4]) ;
-    _somajorversion = $(match[3]) ;
+    _sofile = $(<) ;
+    _soversion = $(_match[3]) ;
+    _somajorversion = $(_match[4]) ;
+    _soname = $(_match[1]).so.$(_somajorversion) ;
 
-    DEPENDS $(<) : $(_soname) $(_sofile) ;
+    DEPENDS $(<) : $(_match[1]) ;
 
     LINKFLAGS on $(<) += -shared -Wl,-soname,$(_soname) ;
     Main $(<) : $(>) ;

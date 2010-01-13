@@ -5,10 +5,11 @@ AC_PREREQ([2.65])
 AC_INIT([InitNG], [0.7-GIT], [http://initng.sourceforge.net/trac])
 
 AC_CONFIG_FILES([config.jam])
-AC_CONFIG_HEADERS([config.h initng-paths.h])
+AC_CONFIG_HEADERS([config.h])
 
 # Checks for programs.
 AC_PROG_CC
+AC_PROG_SED
 
 # Checks for libraries.
 
@@ -35,6 +36,10 @@ AC_CHECK_FUNCS([alarm dup2 getcwd getspnam gettimeofday memmove memset mkdir mkf
 # Checks for addional, third-party libraries
 PKG_PROG_PKG_CONFIG
 PKG_CHECK_MODULES([DBUS], [dbus-1])
+
+# Strip -I from include flags for Jam.
+DBUS_INCLUDES=`echo $DBUS_CFLAGS | sed -e 's,-\[lL][^ ]*,,g' -e 's,-I,,g'`
+AC_SUBST([DBUS_INCLUDES])
 
 AC_OUTPUT_INSTALLDIRS
 AC_OUTPUT
