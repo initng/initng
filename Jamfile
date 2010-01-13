@@ -1,6 +1,7 @@
 SubDir TOP ;
+
+Clean clean : config.jam config.h ;
+
 SubInclude TOP core ;
 SubInclude TOP tools ; 
 SubInclude TOP modules ; 
-
-GenHeader config.h initng-paths.h ;
