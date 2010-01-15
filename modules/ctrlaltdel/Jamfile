@@ -1,0 +1,3 @@
+SrcDir TOP modules ctrlaltdel ;
+SharedLibrary libctrlaltdel.so : initng_ctrlaltdel.c ;
+InstallBin libctrlaltdel.so : $(DESTDIR)/$(moddir) ;

@@ -38,7 +38,7 @@ PKG_PROG_PKG_CONFIG
 PKG_CHECK_MODULES([DBUS], [dbus-1])
 
 # Strip -I from include flags for Jam.
-DBUS_INCLUDES=`echo $DBUS_CFLAGS | sed -e 's,-\[lL][^ ]*,,g' -e 's,-I,,g'`
+DBUS_INCLUDES=`echo $DBUS_CFLAGS | sed -e 's,-\[lL\]\[^ \]*,,g' -e 's,-I,,g'`
 AC_SUBST([DBUS_INCLUDES])
 
 AC_OUTPUT_INSTALLDIRS

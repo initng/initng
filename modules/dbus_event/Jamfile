@@ -1,10 +1,10 @@
 SrcDir TOP modules dbus_event ;
-SubDirHdrs $(DBUS_INCLUDES) ;
+for h in $(DBUS_INCLUDES) { SubDirHdrs $(h) ; }
 
 LINKFLAGS on moddbus_event.so += -fPIC -rdynamic
    -Wl,--whole-archive [ FDirName $(TOP) core libinitng$(SUFLIB) ] 
    -Wl,--no-whole-archive -ldl
-   -ldbus-1 ;
+   $(DBUS_LIBS) ;
 
-SharedLibrary libdbus_event.so.0 : dbus_nge.c initng_dbusevent.c ;
-InstallBin moddbus_event.so.0 : $(DESTDIR)$(moddir) ;
+SharedLibrary libdbus_event.so : dbus_nge.c initng_dbusevent.c ;
+InstallBin moddbus_event.so : $(DESTDIR)/$(moddir) ;

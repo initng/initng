@@ -68,16 +68,6 @@ if $(FORCE_NOCOLOR) { DEFINES += FORCE_NOCOLOR ; }
 if $(FORCE_POSIX_IFILES) { DEFINES += FORCE_POSIX_IFILES ; }
 
 
-### PART 3: PATHS FOR 3RD-PARTY LIBRARIES
-#
-# This section includes variables that set up include or library paths for
-# modules that need 3rd-party libraries like D-BUS or others.
-#
-
-DBUS_INCLUDES = "`pkg-config --cflags-only-I dbus-1`" ;
-DBUS_LIBS = "`pkg-config --cflags-only-I --cflags-only-l dbus-1`" ;
-
-
 ### PART 4: CUSTOM RULES
 #
 # The following section houses rules that are used exclusively by InitNG's
@@ -172,8 +162,13 @@ rule SharedLibrary
         _soname = $(_match[1]).so ;
     }
 
+    NOTFILE $(_match[1]) ;
     DEPENDS $(<) : $(_match[1]) ;
-    if $(<) != $(_soname) { DEPENDS $(<) : $(_soname) ; }
+    if $(<) != $(_soname)
+    {
+        DEPENDS $(<) : $(_soname) ;
+        NOTFILE $(_soname) ;
+    }
 
 
     LINKFLAGS on $(<) += -shared -Wl,-soname,$(_soname) ;

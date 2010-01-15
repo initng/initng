@@ -1,0 +1,3 @@
+SrcDir TOP modules debug_commands ;
+SharedLibrary libdebug_commands.so : initng_debug_commands.c print_service.c ;
+InstallBin libdebug_commands.so : $(DESTDIR)/$(moddir) ;
