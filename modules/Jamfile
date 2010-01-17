@@ -1,27 +1,26 @@
 SubDir TOP modules ;
 
-SubDirHdrs $(TOP) ;
-SubDirHdrs $(TOP) include ;
-
-
-# General compile rule for all modules. Module-specific stuff like link-flags
-# ought to be added after this. Yep, it's true.
-# Best way to do more complicated things is to create a Jamfile in the module
-# subdirectory. The loop below checks for a Jamfile in the directory and
-# includes that if available.
-
-modfiles = "" ;
-for mod in $(MODULES)
-{
-    modfiles += [ ModuleFromSubdir $(mod) ] ;
-}
-
-# Set up secifica for certain modules
-for src in [ Glob $(SUBDIR)/dbus_event : *.c ]
-{
-    ObjectHdrs $(src:D=dbus_event) : $(DBUS_INCLUDES) ;
-}
-LINKLIBS on moddbus_event.so += $(DBUS_LIBS) ;
-
-# Install the stuff. :-)
-InstallBin $(DESTDIR)/$(moddir) : $(modfiles) ;
+# Build whatever modules are desired.
+SubInclude TOP modules also ;
+SubInclude TOP modules chdir ;
+SubInclude TOP modules chroot ;
+SubInclude TOP modules conflict ;
+SubInclude TOP modules cpout ;
+SubInclude TOP modules critical ;
+SubInclude TOP modules ctrlaltdel ;
+SubInclude TOP modules daemon ;
+SubInclude TOP modules daemon_clean ;
+SubInclude TOP modules dbus_event ;
+SubInclude TOP modules debug_commands ;
+SubInclude TOP modules fmon ;
+SubInclude TOP modules fstat ;
+SubInclude TOP modules history ;
+SubInclude TOP modules idleprobe ;
+SubInclude TOP modules initctl ;
+SubInclude TOP modules interactive ;
+SubInclude TOP modules last ;
+SubInclude TOP modules limit ;
+SubInclude TOP modules lockfile ;
+SubInclude TOP modules logfile ;
+SubInclude TOP modules netdev ;
+SubInclude TOP modules ngc4 ;

@@ -4408,7 +4408,7 @@ $as_echo "yes" >&6; }
 fi
 
 # Strip -I from include flags for Jam.
-DBUS_INCLUDES=`echo $DBUS_CFLAGS | sed -e 's,-\lL^ *,,' -e 's,-I,,'`
+DBUS_INCLUDES=`echo $DBUS_CFLAGS | sed -e 's,-\lL\\^ \*,,g' -e 's,-I,,g'`
 
 
 

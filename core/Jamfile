@@ -1,5 +1,5 @@
 # Let Jam know that this is a sub directory.
-SubDir TOP core ;
+SrcDir TOP core ;
 
 # Directories that contain sources for libinitng:
 LIBINITNG_SRC_DIRS = hash active_db module event process_db service string
@@ -9,11 +9,6 @@ LIBINITNG_SRC_DIRS = hash active_db module event process_db service string
 
 # Source directores for initng executable
 INITNG_SRC_DIRS = frontend ;
-
-# Where to look for headers:
-SubDirHdrs $(TOP) ;
-SubDirHdrs $(TOP) include ;
-
 
 # Build the library
 LibraryFromSubdirs libinitng : $(LIBINITNG_SRC_DIRS) ;
