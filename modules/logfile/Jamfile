@@ -1,0 +1,3 @@
+SrcDir TOP modules logfile ;
+SharedLibrary liblogfile.so : initng_logfile.c ;
+InstallBin liblogfile.so : $(DESTDIR)/$(moddir) ;

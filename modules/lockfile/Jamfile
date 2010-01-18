@@ -1,0 +1,3 @@
+SrcDir TOP modules lockfile ;
+SharedLibrary liblockfile.so : initng_lockfile.c ;
+InstallBin liblockfile.so : $(DESTDIR)/$(moddir) ;

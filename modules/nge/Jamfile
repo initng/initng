@@ -1,0 +1,17 @@
+SrcDir TOP modules nge ;
+
+SharedLibrary libngeclient.so.0.0.0 : libngeclient.c ;
+InstallBin libngeclient.so.0.0.0 : $(DESTDIR)$(moddir) ;
+
+Main nge : nge.c ;
+InstallBin nge : $(DESTDIR)$(sbindir) ;
+LINKFLAGS on nge += -lngeclient ;
+
+Main nge_raw : nge_raw.c ;
+InstallBin nge_raw : $(DESTDIR)$(sbindir) ;
+LINKFLAGS on nge_raw += -lngeclient ;
+
+InstallLib $(DESTDIR)$(includedir)/initng : libngeclient.h initng_nge.h ;
+
+SharedLibrary libnge.so : initng_nge.c ;
+InstallBin $(DESTDIR)$(moddir) : libnge.so ;

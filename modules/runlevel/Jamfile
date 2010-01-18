@@ -1,0 +1,3 @@
+SrcDir TOP modules runlevel ;
+SharedLibrary librunlevel.so : initng_runlevel.c ;
+InstallBin $(DESTDIR)$(moddir) : librunlevel.so ;

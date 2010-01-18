@@ -1,6 +1,4 @@
-SubDir TOP tools ;
-
-SubDirHdrs $(TOP) include ;
+SrcDir TOP tools ;
 
 Main itype : itype.c ;
 LinkLibraries itype : libinitng ;
@@ -14,4 +12,4 @@ Main sulogin : sulogin.c ;
 CCFLAGS on <$(SOURCE_GRIST)>sulogin$(SUFOBJ) += -D_GNU_SOURCE ;
 LINKLIBS on sulogin += -lcrypt ;
 
-InstallBin $(DESTDIR)/$(sbindir) : itype killalli5 sulogin ;
+InstallBin $(DESTDIR)$(sbindir) : itype killalli5 sulogin ;

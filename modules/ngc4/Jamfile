@@ -1,0 +1,18 @@
+SrcDir TOP modules ngc4 ;
+
+SharedLibrary libngcclient.so.0 : libngcclient.c ;
+InstallBin $(DESTDIR)$(libdir) : libngcclient.so.0 ;
+
+Main ngc : ngc4.c ;
+DEPENDS ngc : libngcclient.so.0 ;
+LINKFLAGS on ngc += -rdynamic -fPIC
+    -lngcclient
+    -Wl,--whole-archive [ FDirName $(TOP) core libinitng$(SUFLIB) ]
+    -Wl,--no-whole-archive -ldl ;
+InstallBin $(DESTDIR)$(sbindir) : ngc ;
+
+SharedLibrary libngc4.so : initng_ngc4.c ;
+InstallBin $(DESTDIR)$(moddir) : libngc4.so ;
+
+# Install headers. InstallLib is apropriate for this.
+InstallLib $(DESTDIR)$(includedir)/initng : libngcclient.h initng_ngc4.h ;

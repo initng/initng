@@ -1,0 +1,3 @@
+SrcDir TOP modules initctl ;
+SharedLibrary libinitctl.so : initng_initctl.c ;
+InstallBin libinitctl.so : $(DESTDIR)/$(moddir) ;

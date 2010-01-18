@@ -1,0 +1,3 @@
+SrcDir TOP modules renice ;
+SharedLibrary librenice.so : initng_renice.c ;
+InstallBin $(DESTDIR)$(moddir) : librenice.so ;

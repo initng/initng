@@ -1,0 +1,3 @@
+SrcDir TOP modules provide ;
+SharedLibrary libprovide.so : initng_provide.c ;
+InstallBin $(DESTDIR)$(moddir) : libprovide.so ;
