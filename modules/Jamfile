@@ -32,3 +32,4 @@ SubInclude TOP modules renice ;
 SubInclude TOP modules runlevel ;
 SubInclude TOP modules service ;
 SubInclude TOP modules service_file ;
+SubInclude TOP modules simple_launcher ;
