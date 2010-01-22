@@ -1,0 +1,3 @@
+SrcDir TOP modules unneeded ;
+SharedLibrary libunneeded.so : initng_unneeded.c ;
+InstallBin $(DESTDIR)$(moddir) : libunneeded.so ;

@@ -1,0 +1,3 @@
+SrcDir TOP modules sysreq ;
+SharedLibrary libsysreq.so : initng_sysreq.c ;
+InstallBin $(DESTDIR)$(moddir) : libsysreq.so ;
