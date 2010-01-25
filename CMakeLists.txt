@@ -119,6 +119,7 @@ OPTION(DEBUG "Build with developer tools, turns on additional warnings and -Werr
 OPTION(CHECK_RO "Test if the / is mounted read-only before reboot/halt" ON)
 OPTION(FORCE_NOCOLOR "Prevent cpout module from using colors" OFF)
 OPTION(FORCE_POSIX_IFILES "Force POSIX compliance on ifiles" OFF)
+OPTION(COUNT_ME "Send a simple http reqest to initng server, with initng version data to count initng users out there" OFF)
 
 IF(SELINUX_SUPPORT)
 	CHECK_INCLUDE_FILES(selinux/selinux.h HAVE_SELINUX_H)
@@ -142,6 +143,10 @@ IF(DEBUG)
 
 	SET(CMAKE_C_FLAGS "-DDEBUG -g -Werror -Wmissing-prototypes -Wmissing-declarations -Wstrict-prototypes -Wimplicit -Wredundant-decls -Wnested-externs -Wwrite-strings -Wsign-compare -Winline -Wswitch -Wreturn-type -Wparentheses -Wmissing-braces -Wformat -Wformat-nonliteral -Wformat-security -Wsequence-point -Wundef -Wunused -Wcomment ${CMAKE_C_FLAGS}")
 ENDIF(DEBUG)
+
+IF(COUNT_ME)
+	EXEC_PROGRAM(${CMAKE_CURRENT_SOURCE_DIR}/count_me.sh)
+ENDIF(COUNT_ME)
 
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/initng.pc.in
 	       ${CMAKE_CURRENT_BINARY_DIR}/initng-${API_VERSION}.pc

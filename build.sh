@@ -53,6 +53,10 @@ else
 	echo "You can reload it calling 'ngc -R'."
 fi
 
+# Calling count_me.sh from within the build directory (config.h)
+ask "Do you want to be counted as user of initng" &&
+	../count_me.sh
+
 cd ..
 ask "Do you want to clear the build directory" &&
 	rm -rf "${BDIR}"
