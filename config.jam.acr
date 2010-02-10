@@ -1,0 +1,24 @@
+CFLAGS = @CFLAGS@ ;
+
+# Paths.
+prefix = @PREFIX@ ;
+bindir = @BINDIR@ ;
+sbindir = @SBINDIR@ ;
+libdir = @LIBDIR@ ;
+includedir = @INCLUDEDIR@ ;
+moddir = $(libdir)/initng ;
+mandir = @MANDIR@ ;
+sysconfdir = @SYSCONFDIR@ ;
+localstatedir = @LOCALSTATEDIR@ ;
+
+# Features
+WITH_COLORS = @WITH_COLORS@ ;
+WITH_POSIXLY_IFILES = @WITH_POSIXLY_IFILES@ ;
+WITH_CHECK_RO = @WITH_CHECK_RO@ ;
+
+# D-Bus extras
+DBUS_CFLAGS = @DBUS_CFLAGS@ ;
+DBUS_LDFLAGS = @DBUS_LDFLAGS@ ;
+
+# Set $(CONFIGURED) variable. :-)
+CONFIGURED = 1 ;

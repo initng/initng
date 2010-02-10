@@ -28,8 +28,9 @@ include "config.jam" ;
 if ! $(CONFIGURED)
 {
     Echo "*** Error: config.jam was not found." ;
+    Echo "" ;
     Echo "Please run ./configure first." ;
-    Echo "If configure is not there, run: aclocal -Iaclocal && autoconf" ;
+    Echo "If configure is not there, run: acr" ;
     Echo "" ;
     Exit "*** Not configured, stopping." ;
 }
@@ -57,16 +58,14 @@ LINKFLAGS += -rdynamic -fPIC ;
 
 ### PART 2: USER-CONFIGURABLES
 #
-# This section holds parameters that are configurable by the user and have
+# This section adds parameters that are configurable by the user and have
 # influence on the build. They mostly enable or disable certain features of
-# InitNG.
-#
-# As above, please use the "-s" switch or environment variables!
+# InitNG and are set in the configure script.
 #
 
-if $(CHECK_RO) { DEFINES += CHECK_RO ; }
-if $(FORCE_NOCOLOR) { DEFINES += FORCE_NOCOLOR ; }
-if $(FORCE_POSIX_IFILES) { DEFINES += FORCE_POSIX_IFILES ; }
+if 0 = $(WITH_COLORS) { DEFINES += FORCE_NOCOLOR ; }
+if 1 = $(WITH_POSIXLY_IFILES) { DEFINES += FORCE_POSIX_IFILES ; }
+if 1 = $(WITH_CHECK_RO) { DEFINES += CHECK_RO ; }
 
 
 ### PART 4: CUSTOM RULES
@@ -186,4 +185,21 @@ rule SrcDir
     SubDir $(<) ;
     SubDirHdrs $(TOP) ;
     SubDirHdrs $(TOP) include ;
+}
+
+
+# Adds the headers from pkg-config output using the SubDirHdrs rule. 
+# Gets passed the prefix name of the variable used for pkg-config CFLAGS,
+# extracts all header definitions and runs "SubDirHdrs" for each.
+# USAGE: PkgConfigHdrs PREFIX
+# EXAMPLE: PkgConfigHdrs DBUS ; -- Will parse DBUS_CFLAGS.
+rule PkgConfigHdrs
+{
+    local _header_flags = [ Match "(-I[^ ]+)*" : $($(<)_CFLAGS) ] ;
+
+    local _flag ;
+    for _flag in $(_header_flags)
+    {
+       SubDirHdrs [ Match "-I([^ ]+)" : $(_flag) ] ;
+    }
 }
