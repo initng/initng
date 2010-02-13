@@ -1,0 +1,140 @@
+Hacking on InitNG
+=================
+Eric MSP Veith <eveith@wwweb-library.net>
+Version 0.3
+
+This file intends to give a short introduction to InitNG's sources and the
+build system. It will try to outline a few good practices and finally contains
+the code style convention used by this project. This document uses the
+AsciiDoc markup language.
+
+Build System
+------------
+
+InitNG is built using a combination of
+http://news.nopcode.org/pancake/acr.html[ACR] and
+http://www.perforce.com/jam/jam.html[Perforce Jam]. While it is not the
+pourpose of this text to give a lengthy introduction to both tools, this
+section will offer some advices on how to integrate new sources into the build
+system.
+
+*ACR* is a replacement for AutoConf. It provides a +configure+ script just
+like the latter, but does not resort to the complex *m4* macro language.
+Instead, ACR is written purely in shell scripts. The syntax of the
++configure.acr+ file is word-based and only constructed out of ACR's language,
+i.e. no embedded shell scripts as with AutoConf are allowed. Normally, one has
+to touch +configure.acr+ rarely.
+
+ACR does pattern substitution when advised with the +SUBDIRS+ stanza. The
+command takes either the name to a target file (i.e., without the +.acr+
+suffix) or a directory, in which case a +Makefile+ will be created from a
++Makefile.acr+ template. ACR then substitutes variables enclosed in +@+ signs,
+e.g. +@SBINDIR@+.
+
+The +configure+ script is most commonly used to enable or disable features at
+compile time. ACR provides +ARG_ENABLE+ and +ARG_DISABLE+ for that pourpose.
+The syntax is +ARG_ENABLE _VAR_ _ARG_ _DESCRIPTION_+. The latter can be a
+free-form text; +_VAR_+ is the variable that ACR substitutes later on: It will
+be set to 1 if the switch is given. +_ARG_+ is the second part of the switch
+to configure, as in +--enable-_ARG_+. The same applies to +ARG_DISABLE+ with
+the exception that the variable will be set to 0 if the argument is given.
+
+ACR supports scanning for needed headers and functions: +CHECK_INCLUDE
+_INCLUDE_+ is used for that, e.g. +CHECK_INCLUDE sys/wait.h+. +CHECK_FUNCTION
+_LIB_ _FUNCTION_+ checks for the function _FUNCTION_ in the library _LIB_.
+Finally, ACR incorporates the use of _pkg-config_ with +PKG_CONFIG _CFLAGS_
+_LDFLAGS_ _PKG_+. This will check for the package _PKG_ and place the output
+of +pkg-config --cflags+ in the first, and the result of +pkg-config
+--ldflags+ in the second variable. Those, in turn, can be subsituted in file
+mentioned with +SUBDIRS+.
+
+The results of pkg-config queries should be placed in +config.jam.acr+.
+Although it would be possible to create another file for that, e.g. in the
+sub-directory where the output is actually needed, it doesn't help: Jam does
+not derive any kind of namespacing from file inclusion; any variable ends up
+in the global name space. Additional to +config.jam.acr+, the +config.h.acr+
+header file exists for supplying defintions.
+
+The +config.jam.acr+ file is included in +Jamrules+. The latter file carries
+additional rules and a little bit of variable set-up for the build process.
+The file is heavily documented, so that an extensive introduction should not
+seem necessary. Some rules are widely used in the build process and will be
+mentioned here.
+
++SrcDir+ is an addition to the +SubDir+ rule Jam already has and additionally
+sets up InitNG's local include directory. It can be used in the same fashion,
+e.g. +SrcDir TOP modules dbus_event+. This rule is required to be the first
+statement in every +Jamfile+.
+
+Especially for the modules, the rule +SharedLibrary+ creates a shared object
+(first parameter) from the given C source files (following arguments). It
+automatically sets the +soname+ attribute on the newly created library if a
+version number is appended. For example, using +SharedLibary libfoo.so : foo.c
+bar.c ;+ will create no +soname+ attribute, while both +SharedLibrary
+libfoo.so.1 : foo.c bar.c ;+ and +SharedLibrary libfoo.so.1.1 : foo.c bar.c ;+
+will add the +soname libfoo.so.1+.
+
+Finally, when using pkg-config, the rule +PkgConfig+ comes handy: It extracts
+the include directories from the C flags pkg-config returns and hands them
+over to the +SubDirHdrs+ rule. It assumes that the variable is named in the
+schema of +ARG_CFLAGS+, with +_ARG_+ being the first and only argument to the
+rule: +PkgConfig DBUS ;+ examines the contents of +DBUS_CFLAGS+ for include
+directories.
+
+Extesive documentation to Jam can be found on the web page mentioned above.
+For ACR, the man page to configure.acr(5) will give enough information.
+
+Coding Style Guidelines
+-----------------------
+
+Please supply clean code. The minimum requirement for ``clean code'' is that
+it compiles without warnings. The warning flags passed to the compiler are
+defined in +Jamrules+ together with +-Werror+, which means that every warning
+is treated as an error. Don't change that behaviour: There is most often a
+reason for the warning that makes sense.
+
+Everything that is part of the public API of InitNG must be prefixed with
++initng_+. Basically, this means every variable or function whose symbol is
+exported, i.e. everything that is mentioned in a header file and not declared
+as +static+.
+
+Leave documentary comments. Please leave rather more than less comments. At
+least supply a *Doxygen* header on each function, at best in the corresponding
+header file where it is declared. Complex parts should also have a little
+explanation.
+
+Use blank lines generously. In general, place two blank lines between two
+functions. Blank lines are the most important tool a programmer has to
+organize his code: Use them wisely.
+
+InitNG's core set provides wrappers or a replacement for some of the common
+functions, e.g. +malloc()+. Please use them: They contain additional checks
+the are to prevent a programmer from common mistakes like not checking for
+return values. There are also modules for storing data in lists, stacks or
+trees or for reading into a buffer.
+
+As for the syntactic style, the following applies: A line breaks at char 78;
+indentation is done by 4 space characters (no tabs allowed).  Function
+definitions are written in one line, i.e. no GNU style placing of the return
+type in an extra line. Opening curly braces are to be put in a new line and
+not indendet, but only when defining a function: Otherwise they remain in the
+same line. If a statement grows to long for a line, break it at a meaningful
+point and indent the following line twice, i.e. 8 space characters. The
+follwing is an example that tries to cover as much of this as possible.
+
+    /*!
+     * This function does nothing meaningful.
+     */
+    void initng_foo (int i)
+    {
+        int *output = initng_malloc (sizeof (int));
+        *output = i;
+
+        if (i < 5 && i > 100
+                || i < 0 && i > -100) {
+            printf("This check makes no sense; but it is true.\n");
+        } else {
+            printf("This check makes no sense, and it evaluated false. "
+                    "God knows what this may be.\n");
+        }
+    }

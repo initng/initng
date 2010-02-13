@@ -41,10 +41,6 @@ DESTDIR ?= ;
 # Build defines. Don't add them as real parameters, just the define itself.
 # Jam figures out what compiler command line switch to use itself.
 DEFINES += HAVE_CONFIG_H _XOPEN_SOURCE=600 DEBUG ;
-DEFINES += DEVDIR='\"/dev\"' ETCDIR='\"$(sysconfdir)\"'
-    VARDIR='\"$(localstatedir)\"' INITNG_ROOT='\"$(sysconfdir)/initng\"'
-    INITNG_MODULE_DIR='\"$(libdir)/initng\"'
-    INITNG_CORE_BIN='\"$(sbindir)/initng\"' ;
 
 # Global C build and linker flags aside from CFLAGS passed to configure:
 CCFLAGS += -std=c99 -Wall -O2 ;
