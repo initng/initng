@@ -1,5 +1,0 @@
-#define PACKAGE_VERSION
-#define VERSION             PACKAGE_VERSION
-#define VERSION_NAME        "Bleeding Edge"
-#define RUNLEVEL_DEFAULT    "runlevel/default"
-#define RUNLEVEL_FAKE       "runlevel/fake-default"

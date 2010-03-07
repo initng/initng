@@ -2,3 +2,5 @@ config.h
 config.jam
 *.o
 *.so
+core/initng
+configure
