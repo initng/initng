@@ -1,7 +1,7 @@
 Hacking on InitNG
 =================
 Eric MSP Veith <eveith@wwweb-library.net>
-Version 0.3
+Version 0.4
 
 This file intends to give a short introduction to InitNG's sources and the
 build system. It will try to outline a few good practices and finally contains
@@ -18,8 +18,8 @@ pourpose of this text to give a lengthy introduction to both tools, this
 section will offer some advices on how to integrate new sources into the build
 system.
 
-*ACR* is a replacement for AutoConf. It provides a +configure+ script just
-like the latter, but does not resort to the complex *m4* macro language.
+ACR is a replacement for AutoConf. It provides a +configure+ script just
+like the latter, but does not resort to the complex m4 macro language.
 Instead, ACR is written purely in shell scripts. The syntax of the
 +configure.acr+ file is word-based and only constructed out of ACR's language,
 i.e. no embedded shell scripts as with AutoConf are allowed. Normally, one has
@@ -87,6 +87,9 @@ For ACR, the man page to configure.acr(5) will give enough information.
 Coding Style Guidelines
 -----------------------
 
+C Source Code
+~~~~~~~~~~~~~
+
 Please supply clean code. The minimum requirement for ``clean code'' is that
 it compiles without warnings. The warning flags passed to the compiler are
 defined in +Jamrules+ together with +-Werror+, which means that every warning
@@ -98,10 +101,22 @@ Everything that is part of the public API of InitNG must be prefixed with
 exported, i.e. everything that is mentioned in a header file and not declared
 as +static+.
 
-Leave documentary comments. Please leave rather more than less comments. At
+Write documentary comments. Please leave rather more than less comments. At
 least supply a *Doxygen* header on each function, at best in the corresponding
 header file where it is declared. Complex parts should also have a little
-explanation.
+explanation. Please don't use C99-style comments, but resort to the
+traditional style (+/* ... */+).
+
+	/**
+	 * <Short description>
+	 *
+	 * [@param <Param_1 description>]
+	 * [@param <Param_n description>]
+	 * [@return <return value description>]
+	 *
+	 * [Long description]
+	 * [@see <reference to other relevant function>]
+	 */
 
 Use blank lines generously. In general, place two blank lines between two
 functions. Blank lines are the most important tool a programmer has to
@@ -113,28 +128,126 @@ the are to prevent a programmer from common mistakes like not checking for
 return values. There are also modules for storing data in lists, stacks or
 trees or for reading into a buffer.
 
-As for the syntactic style, the following applies: A line breaks at char 78;
-indentation is done by 4 space characters (no tabs allowed).  Function
-definitions are written in one line, i.e. no GNU style placing of the return
-type in an extra line. Opening curly braces are to be put in a new line and
-not indendet, but only when defining a function: Otherwise they remain in the
-same line. If a statement grows to long for a line, break it at a meaningful
-point and indent the following line twice, i.e. 8 space characters. The
-follwing is an example that tries to cover as much of this as possible.
+A line breaks at char 78.
 
-    /*!
-     * This function does nothing meaningful.
-     */
-    void initng_foo (int i)
-    {
-        int *output = initng_malloc (sizeof (int));
-        *output = i;
+Indentation is done by a tab character with a width of 8. If you have to break
+a line -- although it's usually a sign of bad code flow if you have to, since
+you cram to much into one line and don't structurize enough -- indent the
+second line by two tabs, and split it before an operator:
 
-        if (i < 5 && i > 100
-                || i < 0 && i > -100) {
-            printf("This check makes no sense; but it is true.\n");
-        } else {
-            printf("This check makes no sense, and it evaluated false. "
-                    "God knows what this may be.\n");
-        }
-    }
+	int function_with_a_long_name(int before_break,
+			int after_break)
+	{
+		int ret = 0;
+		if(before_break << 2 & after_break << 4 == 0xfe
+				|| before_break << 1 == 0xff) {
+			ret = 0xfe + before_break << 1
+					- after_break << 4;
+		}
+		return ret;
+	}
+
+If you use indent, run it with these parameters: +indent -npro -kr -ts8 -i8
+-sob -l78 -ss -ncs+
+
+As you might have noticed, opening curly braces are placed on the same line as
+the statement, and the closing in the same column as the first char of the
+statement, except for function definitions, where one inserts a newline before
+the opening curly brace.
+
+Generally, function definitions are written in one line, i.e. no GNU style
+placing of the return type in an extra line. The defintion of a function
+starts in column 1.
+
+	/*!
+	 * This function does nothing meaningful.
+	 */
+	void initng_foo (int i)
+	{
+		int *output = initng_malloc (sizeof (int));
+		*output = i;
+
+		if (i < 5 && i > 100
+				|| i < 0 && i > -100) {
+			printf("This check makes no sense; "
+					"but it is true.\n");
+		} else {
+		        printf("This check makes no sense, "
+				"and it evaluated false. "
+				"God knows what this may be.\n");
+        	}
+	}
+
+Add curly braces to single line blocks to avoid accidentially mistakes. For
+the same reason, each statement belongs on a separate line.
+
+	if(foo) {
+		++foo;
+		bar;
+	}
+
+The braces the follow function calls and statements like +if+, +while+, and so
+on, do not have spaces around them. Similarly avoid unnecessary spaces after
+sigils (e.g., +&+ and +*+ for pointers). Most binary, however, operators with
+the exception of +.+ and +->+ want a space, though; also place one space
+character after a comma and before a curly brace:
+
+	initng_foo *b = NULL;
+	while(initng_func(a, *b, c, d)) {
+		initng_do_stuff(&a);
+		printf("%i\n", a.i);
+		b->foo = a.i + 1;
+	}
+	
+The +switch+ statement should be aligned this way:
+
+	switch (x) {
+	case Y:
+	case Z:
+	default:
+		break;
+	}
+
+Whenever the return value of a function signifies success or failure, use only
+0 for failure and 1 for success to make it possible to evaluate it in boolean
+context. If a more complex status indication is needed, resort to a
++errno+-style way and use the following convection:
+
+* x < 0 means error, with x beeing the error code,
+* x == 0 indicates success (don't confuse with the return code!), and
+* x > 0 adds a status to the success.
+
+InitNG Boot Scripts
+~~~~~~~~~~~~~~~~~~~
+
+Adhere to a POSIX style and avoid bashisms. This includes many forms of
+sophisticated variable expensions (use eval, expr, grep, sed, awk and the
+likes) and the use of Bash's internal +[[+ operator that does not call test.
+
+Like with the C code, use tab characters with 8 spaces width for indentation.
+
+Curly braces stand behind the function. Keep the +then+, +do+, etc. keywords
+on the same line:
+
+	function foo() {
+		if [ "$#" -gt 2 ]; then
+			echo "More than two!"
+		fi
+	}
+
+Be sure to use quotation marks whenever an external application is called.
+Also add curly braces to variables for clarification: +${var}+.
+
+Add @-marks around every call to a program to allow the preprocessor insert
+the full path. Don't let the @s surround the parameters to the binary!
+
+Be sure to leave no space between the hash sign (#) and the preprocessor
+directive, and don't indent the macros. In contrast, a regular shell script
+comment _must_ have a space character after the hash mark:
+
+	#if quux
+
+	# We're in quux mode, do stuff.
+	a=${b}
+
+	#endif
