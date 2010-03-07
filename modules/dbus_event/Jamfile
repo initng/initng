@@ -7,4 +7,4 @@ LINKFLAGS on moddbus_event.so += -fPIC -rdynamic
    $(DBUS_LDFLAGS) ;
 
 SharedLibrary libdbus_event.so : dbus_nge.c initng_dbusevent.c ;
-InstallBin moddbus_event.so : $(DESTDIR)/$(moddir) ;
+InstallBin $(DESTDIR)$(moddir) : libdbus_event.so ;

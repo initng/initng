@@ -5,6 +5,7 @@
 #define RUNLEVEL_FAKE       "runlevel/fake-default"
 #define DEVDIR              "/dev"
 #define ETCDIR              "@SYSCONFDIR@"
+#define VARDIR              "@LOCALSTATEDIR@"
 #define INITNG_ROOT         "@SYSCONFDIR@/initng"
 #define INITNG_MODULE_DIR   "@LIBDIR@/initng"
 #define INITNG_CORE_BIN     "@SBINDIR@/initng"

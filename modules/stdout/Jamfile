@@ -1,3 +1,3 @@
 SrcDir TOP modules stdout ;
 SharedLibrary libstdout.so : initng_stdout.c ;
-InstallBin $(DESTDOR)$(moddir) : libstdout.so ;
+InstallBin $(DESTDIR)$(moddir) : libstdout.so ;

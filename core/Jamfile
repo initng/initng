@@ -20,5 +20,5 @@ LINKFLAGS on initng = -rdynamic -fPIC
     -Wl,--no-whole-archive -ldl ;
 
 # Install
-InstallBin $(DESTDIR)/$(sbindir) : initng ;
-InstallLib $(DESTDIR)/$(libdir) : libinitng$(SUFLIB) ;
+InstallBin $(DESTDIR)$(sbindir) : initng ;
+InstallLib $(DESTDIR)$(libdir) : libinitng$(SUFLIB) ;
