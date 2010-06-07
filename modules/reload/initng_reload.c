@@ -244,8 +244,8 @@ static int read_file(const char *filename)
 				initng_list_add(&process->list,
 						&new_entry->processes.list);
 
-				D_("Added process type %i to %s\n",
-				   process->pt, new_entry->name);
+				D_("Added process type %s to %s\n",
+				   process->pt->name, new_entry->name);
 
 				pnr++;
 			}
@@ -438,8 +438,8 @@ static int read_file_v13(const char *filename)
 				initng_list_add(&process->list,
 						&new_entry->processes.list);
 
-				D_("Added process type %i to %s\n",
-				   process->pt, new_entry->name);
+				D_("Added process type %s to %s\n",
+				   process->pt->name, new_entry->name);
 
 				pnr++;
 			}

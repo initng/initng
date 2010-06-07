@@ -811,7 +811,7 @@ static void init_DAEMON_START_DEPS_MET(active_db_h * daemon)
 	/* F I N A L L Y   S T A R T */
 	switch (initng_execute_launch(daemon, &T_DAEMON, NULL)) {
 	case FALSE:
-		F_("Did not find a service->\"daemon\" entry to run!\n",
+		F_("Did not find a service->\"daemon\" entry for %s to run!\n",
 		   daemon->name);
 		initng_common_mark_service(daemon, &DAEMON_FAIL_START_LAUNCH);
 		return;
@@ -1011,7 +1011,7 @@ static void timeout_DAEMON_KILL(active_db_h * daemon)
 	F_("Service %s KILL_TIMEOUT of %i seconds reached! "
 	   "(%i seconds passed), sending another KILL signal.\n",
 	   daemon->name, DEFAULT_KILL_TIMEOUT,
-	   g.now.tv_sec - daemon->time_current_state.tv_sec);
+	   MS_DIFF(g.now, daemon->time_current_state));
 	kill_daemon(daemon, SIGKILL);
 
 	/* Dont be afraid to kill again */
@@ -1377,14 +1377,14 @@ static int check_respawn(active_db_h * service)
 	/* check if the service have respawn enabled */
 	if (!is(&RESPAWN, service)) {
 		D_("Service %s doesn't have RESPAWN flag set, won't "
-		   "respawn!\n");
+		   "respawn!\n", service->name);
 		return FALSE;
 	}
 
 	/* get times */
 	if (is(&INTERNAL_LAST_RESPAWN, service))
 		last = (time_t) get_int(&INTERNAL_LAST_RESPAWN, service);
-	D_("Now: %i , Last: %i\n", g.now.tv_sec, last);
+	D_("Now: %i , Last: %i\n", (int)g.now.tv_sec, (int)last);
 
 	/* get respawn_rate if set */
 	if (is(&RESPAWN_RATE, service)) {
@@ -1397,7 +1397,7 @@ static int check_respawn(active_db_h * service)
 		if ((g.now.tv_sec - last) < respawn_rate) {
 			W_("Won't respawn service %s, it was respawned %i "
 			   "seconds ago.\n", service->name,
-			   g.now.tv_sec - last);
+			   (int)(g.now.tv_sec - last));
 
 			initng_common_mark_service(service,
 						   &DAEMON_RESPAWN_RATE_EXCEEDED);

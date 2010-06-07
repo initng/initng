@@ -139,7 +139,7 @@ int main(int argc, char *argv[], char *env[])
 		    (g.now.tv_sec - last.tv_sec) < 0) {
 			D_(" Clock skew, time have changed over one hour, in "
 			   "one mainloop, compensating %i seconds.\n",
-			   (g.now.tv_sec - last.tv_sec));
+			   MS_DIFF(g.now, last));
 			initng_active_db_compensate_time(g.now.tv_sec -
 							 last.tv_sec);
 			initng_module_callers_compensate_time(g.now.tv_sec -

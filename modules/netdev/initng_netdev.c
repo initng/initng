@@ -162,7 +162,7 @@ static active_db_h *net_create(const char *name)
 
 	/* create a new */
 	if (!(netdev = initng_active_db_new(name))) {
-		F_("Failed to create %s\n");
+		F_("Failed to create %s\n", name);
 		return NULL;
 	}
 

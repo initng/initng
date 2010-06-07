@@ -622,7 +622,7 @@ static void init_SERVICE_START_DEPS_MET(active_db_h * service)
 	/* F I N A L L Y   S T A R T */
 	switch (initng_execute_launch(service, &T_START, NULL)) {
 	case FALSE:
-		F_("Did not find a start entry to run!\n", service->name);
+		F_("Did not find a start entry for %s to run!\n", service->name);
 		initng_common_mark_service(service,
 					   &SERVICE_FAIL_START_NONEXIST);
 		return;
@@ -829,7 +829,7 @@ static void handle_killed_start(active_db_h * service, process_h * process)
 	/* check so it did not segfault */
 
 	if (WTERMSIG(process->r_code) == 11) {
-		F_("Service %s process start SETGFAUTED!\n");
+		F_("Service %s process start SEGFAULTED!\n", service->name);
 		initng_common_mark_service(service, &SERVICE_FAIL_START_SIGNAL);
 		return;
 	}

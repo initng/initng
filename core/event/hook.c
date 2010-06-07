@@ -34,7 +34,7 @@ int initng_event_hook_register_real(const char *from_file, s_event_type * t,
 	assert(hook);
 	assert(t);
 
-	D_("\n\nAdding event hook type %i from file %s\n", t, from_file);
+	D_("\n\nAdding event hook type %s from file %s\n", t->name, from_file);
 
 	/* allocate space for new call */
 	new_call = initng_toolbox_calloc(1, sizeof(s_call));

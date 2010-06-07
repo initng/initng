@@ -394,7 +394,7 @@ static void print_system_state(s_event * event)
 	}
 
 	fflush(output);
-	D_("print_system_state(): new system state: %i\n", state);
+	D_("print_system_state(): new system state: %i\n", *state);
 }
 
 static void print_program_output(s_event * event)

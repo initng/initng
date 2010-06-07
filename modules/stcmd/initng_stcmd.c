@@ -598,13 +598,13 @@ static int cmd_run(char *arg)
 	/* search for a ':' char in arg */
 	runtype = strchr(arg, ':');
 	if (!runtype || runtype[0] != ':') {
-		W_("Bad format: --run \"%s\"\n");
+		W_("Bad format: --run \"%s\"\n", arg);
 		return FALSE;
 	}
 
 	/* if serv name is less then 2 chars */
 	if (runtype - arg < 3) {
-		W_("Bad format: --run \"%s\"\n");
+		W_("Bad format: --run \"%s\"\n", arg);
 		return FALSE;
 	}
 

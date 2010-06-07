@@ -98,7 +98,7 @@ int initng_active_db_percent_stopped(void)
 		ret = 100;
 	else if (down > 0) {
 		ret = 100 * down / (stopping + down);
-		D_("down/stopping: %f  percent: %i\n", down / stopping, ret);
+		D_("down/stopping: %f  percent: %i\n", (double)(down / stopping), ret);
 	}
 	return ret;
 }

@@ -95,7 +95,7 @@ int initng_handler_start_service(active_db_h * service_to_start)
 	 * this service have. */
 	if (initng_depend_start_deps(service_to_start) != TRUE) {
 		D_("Could not start %s, because a required dependency could "
-		   "not be found.\n");
+		   "not be found.\n", service_to_start->name);
 		return FALSE;
 	}
 

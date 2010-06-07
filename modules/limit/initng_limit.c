@@ -251,7 +251,7 @@ static int set_limit(s_entry * soft, s_entry * hard, active_db_h * service,
 		return -1;
 	}
 
-	D_("current: soft: %i, hard: %i\n", l.rlim_cur, l.rlim_max);
+	D_("current: soft: %i, hard: %i\n", (int)l.rlim_cur, (int)l.rlim_max);
 	/* if soft limit is set, get it */
 	if (si)
 		l.rlim_cur = (get_int(soft, service) * times);
@@ -264,7 +264,7 @@ static int set_limit(s_entry * soft, s_entry * hard, active_db_h * service,
 	if (l.rlim_cur > l.rlim_max)
 		l.rlim_max = l.rlim_cur;
 
-	D_("now: soft: %i, hard: %i\n", l.rlim_cur, l.rlim_max);
+	D_("now: soft: %i, hard: %i\n", (int)l.rlim_cur, (int)l.rlim_max);
 
 	/* set the limit and return status */
 	if (setrlimit(ltype, &l) != 0) {
