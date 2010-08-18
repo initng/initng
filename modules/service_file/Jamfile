@@ -3,8 +3,8 @@ SrcDir TOP modules service_file ;
 SharedLibrary libservice_file.so : initng_service_file.c ;
 InstallBin $(DESTDIR)$(moddir) : libservice_file.so ;
 
-Main ibin : bp.c ;
-InstallBin $(DESTDIR)$(libdir) : ibin ;
+Main bp : bp.c ;
+InstallBin $(DESTDIR)$(libdir)/ibin : bp ;
 
 Main runiscript : runiscript.c ;
 LinkLibraries runiscript : libinitng ;

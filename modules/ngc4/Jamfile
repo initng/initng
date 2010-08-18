@@ -4,7 +4,7 @@ InstallFile $(DESTDIR)$(includedir)/initng : libngcclient.h initng_ngc4.h ;
 
 SharedLibrary libngcclient.so.0 : libngcclient.c ;
 SharedLibrary libngc4.so : initng_ngc4.c ;
-InstallBin $(DESTDIR)$(libdir) : libngcclient.so libngc4.so ;
+InstallBin $(DESTDIR)$(moddir) : libngcclient.so libngc4.so ;
 
 Main ngc : ngc4.c ;
 NEEDLIBS on ngc += libngcclient.so.0 ;

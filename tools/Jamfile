@@ -12,4 +12,4 @@ Main sulogin : sulogin.c ;
 CCFLAGS on <$(SOURCE_GRIST)>sulogin$(SUFOBJ) += -D_GNU_SOURCE ;
 LINKLIBS on sulogin += -lcrypt ;
 
-InstallBin $(DESTDIR)$(sbindir) : itype killalli5 sulogin ;
+InstallBin $(DESTDIR)$(sbindir) : initng-segfault itype killalli5 sulogin ;
