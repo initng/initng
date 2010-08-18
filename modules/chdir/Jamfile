@@ -1,3 +1,3 @@
 SrcDir TOP modules chdir ;
-SharedLibrary libchdir.so : initng_chdir.c ;
-InstallBin $(DESTDIR)$(moddir) : libchdir.so ;
+SharedLibrary modchdir.so : initng_chdir.c ;
+InstallBin $(DESTDIR)$(moddir) : modchdir.so ;

@@ -1,3 +1,3 @@
 SrcDir TOP modules last ;
-SharedLibrary liblast.so : initng_last.c ;
-InstallBin $(DESTDIR)$(moddir) : liblast.so ;
+SharedLibrary modlast.so : initng_last.c ;
+InstallBin $(DESTDIR)$(moddir) : modlast.so ;

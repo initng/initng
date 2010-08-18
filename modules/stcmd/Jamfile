@@ -1,3 +1,3 @@
 SrcDir TOP modules stcmd ;
-SharedLibrary libstcmd.so : initng_stcmd.c ;
-InstallBin $(DESTDIR)$(moddir) : libstcmd.so ;
+SharedLibrary modstcmd.so : initng_stcmd.c ;
+InstallBin $(DESTDIR)$(moddir) : modstcmd.so ;

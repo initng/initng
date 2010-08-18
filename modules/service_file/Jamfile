@@ -1,7 +1,7 @@
 SrcDir TOP modules service_file ;
 
-SharedLibrary libservice_file.so : initng_service_file.c ;
-InstallBin $(DESTDIR)$(moddir) : libservice_file.so ;
+SharedLibrary modservice_file.so : initng_service_file.c ;
+InstallBin $(DESTDIR)$(moddir) : modservice_file.so ;
 
 Main bp : bp.c ;
 InstallBin $(DESTDIR)$(libdir)/ibin : bp ;
