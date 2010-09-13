@@ -12,7 +12,7 @@ Build System
 ------------
 
 InitNG is built using a combination of
-http://news.nopcode.org/pancake/acr.html[ACR] and
+http://nopcode.org/wk.php/Acr[ACR] and
 http://www.perforce.com/jam/jam.html[Perforce Jam]. While it is not the
 pourpose of this text to give a lengthy introduction to both tools, this
 section will offer some advices on how to integrate new sources into the build
