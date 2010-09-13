@@ -199,3 +199,16 @@ rule PkgConfigHdrs
        SubDirHdrs [ Match "-I([^ ]+)" : $(_flag) ] ;
     }
 }
+
+
+### PART 5: ACTIONS
+#
+# Overwrite some default actions.
+#
+
+# Needs to be overwritten because there are errors if a directory exists
+# already.
+actions MkDir1
+{
+    mkdir -p "$(<)"
+}
