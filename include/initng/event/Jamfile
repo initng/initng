@@ -1,0 +1,9 @@
+# Let Jam know that this is a sub directory.
+SrcDir TOP include initng event ;
+
+# Install
+InstallFile $(DESTDIR)$(includedir)/initng/event : event.h
+	types.h
+	hook.h
+	static_types.h
+	all.h ;

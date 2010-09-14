@@ -1,0 +1,37 @@
+# Let Jam know that this is a sub directory.
+SrcDir TOP include initng ;
+
+# Install
+InstallFile $(DESTDIR)$(includedir)/initng : misc.h
+	module.h
+	system_states.h
+	list.h
+	active_db.h
+	active_state.h
+	common.h
+	command.h
+	depend.h
+	error.h
+	execute.h
+	env.h
+	fork.h
+	handler.h
+	hash.h
+	interrupt.h
+	is_state.h
+	kill.h
+	main.h
+	io.h
+	module_callers.h
+	process_db.h
+	signal.h
+	string.h
+	data.h
+	toolbox.h
+	msg.h ;
+
+SubInclude TOP include initng event ;
+SubInclude TOP include initng config ;
+SubInclude TOP include initng service ;
+SubInclude TOP include initng module ;
+SubInclude TOP include initng static ;

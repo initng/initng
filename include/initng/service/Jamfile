@@ -1,0 +1,7 @@
+# Let Jam know that this is a sub directory.
+SrcDir TOP include initng service ;
+
+# Install
+InstallFile $(DESTDIR)$(includedir)/initng/service : type.h
+	data_type.h
+	all.h ;

@@ -1,0 +1,7 @@
+# Let Jam know that this is a sub directory.
+SrcDir TOP include initng config ;
+
+# Install
+InstallFile $(DESTDIR)$(includedir)/initng/config : opt.h
+	global.h
+	all.h ;

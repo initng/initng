@@ -3,5 +3,9 @@ SubDir TOP ;
 Clean clean : config.jam config.h ;
 
 SubInclude TOP core ;
-SubInclude TOP tools ; 
-SubInclude TOP modules ; 
+SubInclude TOP tools ;
+SubInclude TOP modules ;
+SubInclude TOP include ;
+
+# Install
+InstallFile $(DESTDIR)$(includedir) : initng-paths.h ;
