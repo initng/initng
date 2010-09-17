@@ -1,3 +1,4 @@
+(( package information ))
 PKGNAME InitNG
 CONTACT The InitNG developers ; initng-users@lists.sourceforge.net
 VERSION 0.7
@@ -6,6 +7,7 @@ ARG_DISABLE WITH_COLORS colors Globally and permanently disable colorized output
 ARG_ENABLE WITH_POSIXLY_IFILES posix-ifiles Force posixly correct iFiles ;
 ARG_ENABLE WITH_CHECK_RO check-ro Explicitly check for the root fs to be mounted read-only ;
 
+(( needed programs ))
 CHECK_PROGRAM! JAM jam
 
 LANG_C!
@@ -28,5 +30,8 @@ CHECK_INCLUDE sys/socket.h
 
 PKGCONFIG DBUS_CFLAGS DBUS_LDFLAGS dbus-1
 
-
+(( directories ))
 SUBDIRS ./config.jam ./config.h ./initng.pc ;
+
+(( final report about build arguments ))
+REPORT WITH_COLORS WITH_POSIXLY_IFILES WITH_CHECK_RO ;
