@@ -314,11 +314,13 @@ void sushell(struct passwd *pwd)
 	char home[128];
 	char *p;
 	char *sushell;
+	char *rvcwd; /* pseudo return value to suppress compiler warnings */
+	int rvchdir; /* pseudo return value to suppress compiler warnings */
 
 	/*
 	 *      Set directory and shell.
 	 */
-	(void)chdir(pwd->pw_dir);
+	rvchdir = chdir(pwd->pw_dir);
 	if ((p = getenv("SUSHELL")) != NULL)
 		sushell = p;
 	else if ((p = getenv("sushell")) != NULL)
@@ -338,7 +340,7 @@ void sushell(struct passwd *pwd)
 	/*
 	 *      Set some important environment variables.
 	 */
-	getcwd(home, sizeof(home));
+	rvcwd = getcwd(home, sizeof(home));
 	setenv("HOME", home, 1);
 	setenv("LOGNAME", "root", 1);
 	setenv("USER", "root", 1);
@@ -373,6 +375,7 @@ int main(int argc, char **argv)
 	int c, fd = -1;
 	int opt_e = 0;
 	pid_t pid, pgrp, ppgrp, ttypgrp;
+	int rvdup; /* pseudo return value to suppress compiler warnings */
 
 	/*
 	 *      See if we have a timeout flag.
@@ -441,8 +444,8 @@ int main(int argc, char **argv)
 				close(fd);
 				fd = open(tty, O_RDWR);
 				ioctl(0, TIOCSCTTY, (char *)1);
-				dup(fd);
-				dup(fd);
+				rvdup = dup(fd);
+				rvdup = dup(fd);
 			} else
 				close(fd);
 		}
