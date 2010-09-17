@@ -2,14 +2,16 @@ CFLAGS = @CFLAGS@ ;
 
 # Paths.
 prefix = @PREFIX@ ;
-bindir = @BINDIR@ ;
-sbindir = @SBINDIR@ ;
-libdir = @LIBDIR@ ;
-includedir = /usr@INCLUDEDIR@/libinitng-@VERSION@ ;
+bindir = /bin ;
+sbindir = /sbin ;
+libdir = /lib ;
+includedir = /usr/include/libinitng-@VERSION@ ;
 moddir = $(libdir)/initng ;
-mandir = @MANDIR@ ;
-sysconfdir = @SYSCONFDIR@ ;
-localstatedir = @LOCALSTATEDIR@ ;
+datadir = /usr/share ;
+mandir = $(datadir)/man ;
+docdir = $(datadir)/doc ;
+sysconfdir = /etc ;
+localstatedir = /var ;
 pkgconfigdir = /usr/lib/pkgconfig ;
 
 # Features
