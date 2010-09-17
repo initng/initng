@@ -1,0 +1,12 @@
+prefix=@PREFIX@
+exec_prefix=${prefix}
+libdir=@LIBDIR@
+includedir=@INCLUDEDIR@
+sysconfdir=@SYSCONFDIR@
+
+Name: libinitng
+Description: InitNG common componets library
+Version: @VERSION@
+URL: http://www.initng.org
+Libs: -L${libdir} -linitng
+Cflags: -I${includedir}

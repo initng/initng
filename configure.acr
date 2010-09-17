@@ -29,4 +29,4 @@ CHECK_INCLUDE sys/socket.h
 PKGCONFIG DBUS_CFLAGS DBUS_LDFLAGS dbus-1
 
 
-SUBDIRS ./config.jam ./config.h ;
+SUBDIRS ./config.jam ./config.h ./initng.pc ;

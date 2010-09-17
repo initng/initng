@@ -10,6 +10,7 @@ moddir = $(libdir)/initng ;
 mandir = @MANDIR@ ;
 sysconfdir = @SYSCONFDIR@ ;
 localstatedir = @LOCALSTATEDIR@ ;
+pkgconfigdir = /usr/lib/pkgconfig ;
 
 # Features
 WITH_COLORS = @WITH_COLORS@ ;

@@ -9,3 +9,4 @@ SubInclude TOP include ;
 
 # Install
 InstallFile $(DESTDIR)$(includedir) : initng-paths.h ;
+InstallFile $(DESTDIR)$(pkgconfigdir) : initng.pc ;
