@@ -13,3 +13,4 @@ CCFLAGS on <$(SOURCE_GRIST)>sulogin$(SUFOBJ) += -D_GNU_SOURCE ;
 LINKLIBS on sulogin += -lcrypt ;
 
 InstallBin $(DESTDIR)$(sbindir) : initng-segfault itype killalli5 sulogin ;
+InstallFile $(DESTDIR)$(sysconfdir)/initng : killall5-ignore ;
