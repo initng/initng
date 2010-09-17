@@ -1,0 +1,7 @@
+# Let Jam know that this is a sub directory.
+SrcDir TOP doc ;
+
+# Install
+InstallFile $(DESTDIR)$(datadir)/doc/initng : gentoo-chart.png initng-chart.png initng.txt ;
+
+SubInclude TOP doc man ;

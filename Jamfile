@@ -6,6 +6,7 @@ SubInclude TOP core ;
 SubInclude TOP tools ;
 SubInclude TOP modules ;
 SubInclude TOP include ;
+SubInclude TOP doc ;
 
 # Install
 InstallFile $(DESTDIR)$(includedir) : initng-paths.h ;

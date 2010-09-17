@@ -1,0 +1,5 @@
+# Let Jam know that this is a sub directory.
+SrcDir TOP doc man ;
+
+# Install
+InstallMan $(DESTDIR)$(mandir) : initng.8 ngc.8 ngdc.8 ;
