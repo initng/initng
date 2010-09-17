@@ -45,7 +45,7 @@
 #include "ansi_colors.h"
 
 #ifdef HAVE_NGE
-#include "../nge/libngeclient.h"
+#include "libngeclient.h"
 #endif
 
 char *socket_filename = (char *) SOCKET_4_FILENAME_REAL;
