@@ -41,7 +41,9 @@ Run 'acr' to generate configure files.
 
 # acr
 
-# ./configure --prefix=/
+Install InitNG without any prefix into the directory root.
+
+# ./configure --prefix=""
 
 # jam
 
