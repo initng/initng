@@ -45,6 +45,12 @@ Install InitNG without any prefix into the directory root.
 
 # ./configure --prefix=""
 
+You can enable/disable some features. To disable colored output type:
+
+# ./configure --prefix="" WITH_COLORS=0
+
+Run 'jam' to compile the source code.
+
 # jam
 
 Obtain root priveledges in the standard manner for your distribution, and run
