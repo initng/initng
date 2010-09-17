@@ -6,6 +6,13 @@ InstallBin $(DESTDIR)$(moddir) : modservice_file.so ;
 Main bp : bp.c ;
 InstallBin $(DESTDIR)$(libdir)/ibin : bp ;
 
+InstallLink iabort : $(DESTDIR)$(libdir)/ibin : bp ;
+InstallLink idone : $(DESTDIR)$(libdir)/ibin : bp ;
+InstallLink iexec : $(DESTDIR)$(libdir)/ibin : bp ;
+InstallLink iget : $(DESTDIR)$(libdir)/ibin : bp ;
+InstallLink iregister : $(DESTDIR)$(libdir)/ibin : bp ;
+InstallLink iset : $(DESTDIR)$(libdir)/ibin : bp ;
+
 Main runiscript : runiscript.c ;
 LinkLibraries runiscript : libinitng ;
 InstallBin $(DESTDIR)$(sbindir) : runiscript ;

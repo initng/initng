@@ -200,6 +200,18 @@ rule PkgConfigHdrs
     }
 }
 
+# Generates a soft link
+# USAGE: InstallLink LINK_NAME : DIRECTORY : TARGET ;
+# EXAMPLE: InstalLink foo : /tmp : bar ;
+#     -- Generates a link foo->bar in folder /tmp
+rule InstallLink
+{
+   TARGET on $(1) = $(3) ;
+   DIR on $(1) = $(2) ;
+   Depends install : $(1) ;
+
+   InstallLink1 $(1) ;
+}
 
 ### PART 5: ACTIONS
 #
@@ -211,4 +223,11 @@ rule PkgConfigHdrs
 actions MkDir1
 {
     mkdir -p "$(<)"
+}
+
+# Action for rule InstallLink
+actions InstallLink1
+{
+    cd $(DIR)
+    ln -sf $(TARGET) $(1)
 }
