@@ -2,6 +2,6 @@
 SrcDir TOP doc ;
 
 # Install
-InstallFile $(DESTDIR)$(datadir)/doc/initng : gentoo-chart.png initng-chart.png initng.txt ;
+InstallFile $(DESTDIR)$(docdir)/initng : gentoo-chart.png initng-chart.png initng.txt ;
 
 SubInclude TOP doc man ;
