@@ -5,6 +5,7 @@ Clean clean : config.jam config.h ;
 SubInclude TOP core ;
 SubInclude TOP tools ;
 SubInclude TOP modules ;
+SubInclude TOP preinit ;
 SubInclude TOP include ;
 SubInclude TOP doc ;
 
