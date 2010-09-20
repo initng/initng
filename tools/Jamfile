@@ -14,3 +14,4 @@ LINKLIBS on sulogin += -lcrypt ;
 
 InstallBin $(DESTDIR)$(sbindir) : initng-segfault itype killalli5 sulogin ;
 InstallFile $(DESTDIR)$(sysconfdir)/initng : killall5-ignore ;
+InstallLink pidof : $(DESTDIR)$(bindir) : $(DESTDIR)$(sbindir)/killalli5 ;
