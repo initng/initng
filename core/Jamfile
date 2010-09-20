@@ -21,4 +21,4 @@ LINKFLAGS on initng = -rdynamic -fPIC
 
 # Install
 InstallBin $(DESTDIR)$(sbindir) : initng ;
-InstallLib $(DESTDIR)$(libdir) : libinitng$(SUFLIB) ;
+#InstallLib $(DESTDIR)$(libdir) : libinitng$(SUFLIB) ;
