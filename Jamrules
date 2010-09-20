@@ -51,6 +51,8 @@ CCFLAGS += -Werror -Wmissing-prototypes -Wmissing-declarations
     -Wformat-security -Wsequence-point -Wundef -Wunused -Wcomment ;
 LINKFLAGS += -rdynamic -fPIC ;
 
+SUFLIB = ".so" ;
+
 
 ### PART 2: USER-CONFIGURABLES
 #

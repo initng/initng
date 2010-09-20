@@ -1,6 +1,6 @@
 SrcDir TOP preinit ;
 
 Main preinit : main.c ;
-LinkLibraries preinit : libinitng ;
+LinkLibraries preinit : libinitng$(SUFLIB) ;
 
 InstallBin $(DESTDIR)$(sbindir) : preinit ;

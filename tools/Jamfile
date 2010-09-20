@@ -1,10 +1,10 @@
 SrcDir TOP tools ;
 
 Main itype : itype.c ;
-LinkLibraries itype : libinitng ;
+LinkLibraries itype : libinitng$(SUFLIB) ;
 
 Main killalli5 : killalli5.c ;
-LinkLibraries killalli5 : libinitng ;
+LinkLibraries killalli5 : libinitng$(SUFLIB) ;
 
 Main mountpoint : mountpoint.c ;
 

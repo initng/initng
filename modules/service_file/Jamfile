@@ -14,5 +14,5 @@ InstallLink iregister : $(DESTDIR)$(libdir)/ibin : bp ;
 InstallLink iset : $(DESTDIR)$(libdir)/ibin : bp ;
 
 Main runiscript : runiscript.c ;
-LinkLibraries runiscript : libinitng ;
+LinkLibraries runiscript : libinitng$(SUFLIB) ;
 InstallBin $(DESTDIR)$(sbindir) : runiscript ;
