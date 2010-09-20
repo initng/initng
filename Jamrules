@@ -206,6 +206,8 @@ rule PkgConfigHdrs
 # USAGE: InstallLink LINK_NAME : DIRECTORY : TARGET ;
 # EXAMPLE: InstalLink foo : /tmp : bar ;
 #     -- Generates a link foo->bar in folder /tmp
+# EXAMPLE: InstalLink foo : /tmp : /bin/bar ;
+#     -- Generates a link foo->/bin/bar in folder /tmp
 rule InstallLink
 {
    TARGET on $(1) = $(3) ;
