@@ -7,7 +7,7 @@ $1() {
 }
 "
 
-export PATH="@LIB_INSTALL_DIR@/ibin:$PATH"
+export PATH="@LIBDIR@/ibin:$PATH"
 
 . "$SFILE"
 

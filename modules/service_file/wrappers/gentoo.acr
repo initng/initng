@@ -1,5 +1,5 @@
 #!/bin/sh
-export PATH="@LIB_INSTALL_DIR@/ibin:$PATH"
+export PATH="@LIBDIR@/ibin:$PATH"
 
 . /sbin/functions.sh
 [ -f "/etc/conf.d/$NAME" ] && . "/etc/conf.d/$NAME"

@@ -16,3 +16,5 @@ InstallLink iset : $(DESTDIR)$(libdir)/ibin : bp ;
 Main runiscript : runiscript.c ;
 LinkLibraries runiscript : libinitng$(SUFLIB) ;
 InstallBin $(DESTDIR)$(sbindir) : runiscript ;
+
+SubInclude TOP modules service_file wrappers ;
