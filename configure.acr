@@ -24,9 +24,12 @@ CHECK_INCLUDE unistd.h
 CHECK_INCLUDE inotify.h 
 CHECK_INCLUDE assert.h
 CHECK_INCLUDE poll.h
+CHECK_INCLUDE selinux/selinux.h
 CHECK_INCLUDE sys/wait.h
 CHECK_INCLUDE sys/select.h
 CHECK_INCLUDE sys/socket.h
+
+CHECK_FUNCTION selinux selinux_init_load_policy
 
 PKGCONFIG DBUS_CFLAGS DBUS_LDFLAGS dbus-1
 
