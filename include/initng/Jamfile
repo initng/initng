@@ -30,6 +30,14 @@ InstallFile $(DESTDIR)$(includedir)/initng : misc.h
 	toolbox.h
 	msg.h ;
 
+# Install all.h header files from this directory because from the
+# subdirectory there are problems with same target names 'all.h'
+InstallSubdirFile $(DESTDIR)$(includedir)/initng : config : all.h ;
+InstallSubdirFile $(DESTDIR)$(includedir)/initng : event : all.h ;
+InstallSubdirFile $(DESTDIR)$(includedir)/initng : module : all.h ;
+InstallSubdirFile $(DESTDIR)$(includedir)/initng : service : all.h ;
+InstallSubdirFile $(DESTDIR)$(includedir)/initng : static : all.h ;
+
 SubInclude TOP include initng event ;
 SubInclude TOP include initng config ;
 SubInclude TOP include initng service ;

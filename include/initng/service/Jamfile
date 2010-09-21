@@ -2,6 +2,4 @@
 SrcDir TOP include initng service ;
 
 # Install
-InstallFile $(DESTDIR)$(includedir)/initng/service : type.h
-	data_type.h
-	all.h ;
+InstallFile $(DESTDIR)$(includedir)/initng/service : type.h data_type.h ;

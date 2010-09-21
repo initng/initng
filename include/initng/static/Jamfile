@@ -2,7 +2,4 @@
 SrcDir TOP include initng static ;
 
 # Install
-InstallFile $(DESTDIR)$(includedir)/initng/static : all.h
-	data_id.h
-	service_types.h
-	states.h ;
+InstallFile $(DESTDIR)$(includedir)/initng/static : data_id.h service_types.h states.h ;

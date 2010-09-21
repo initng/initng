@@ -216,6 +216,21 @@ rule InstallLink
    InstallLink1 $(1) ;
 }
 
+# Install a file into a subdirectory
+# USAGE: InstallSubdirFile DIRECTORY : SUBDIR : FILENAME ;
+# EXAMPLE: InstallSubdirFile /tmp : foo : bar ;
+#     -- Installs file ./foo/bar into /tmp
+rule InstallSubdirFile
+{
+   # be sure subdirectory exists
+   MkDir1 "$(1)/$(2)" ;
+   # make file depend on subdirectory
+   Depends $(3) : "$(1)/$(2)" ;
+   Depends install : $(3) ;
+
+   InstallFile $(1) : "$(2)/$(3)" ;
+}
+
 ### PART 5: ACTIONS
 #
 # Overwrite some default actions.
