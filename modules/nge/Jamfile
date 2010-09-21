@@ -5,8 +5,8 @@ InstallFile $(DESTDIR)$(includedir)/initng : libngeclient.h initng_nge.h ;
 SharedLibrary libngeclient.so.0.0.0 : libngeclient.c ;
 InstallBin $(DESTDIR)$(libdir) : libngeclient.so.0.0.0 ;
 
-InstallLink libngeclient.so.0 : $(DESTDIR)$(libdir) : libngeclient.so.0.0.0 ;
-InstallLink libngeclient.so : $(DESTDIR)$(libdir) : libngeclient.so.0 ;
+InstallLink $(DESTDIR)$(libdir)/libngeclient.so.0 : $(DESTDIR)$(libdir) : libngeclient.so.0.0.0 ;
+InstallLink $(DESTDIR)$(libdir)/libngeclient.so : $(DESTDIR)$(libdir) : libngeclient.so.0 ;
 
 SharedLibrary modnge.so : initng_nge.c ;
 InstallBin $(DESTDIR)$(moddir) : modnge.so ;
