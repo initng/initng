@@ -43,11 +43,11 @@ Run 'acr' to generate configure files.
 
 Install InitNG without any prefix into the directory root.
 
-# ./configure
+# ./configure --prefix=""
 
 You can enable/disable some features. To disable colored output type:
 
-# ./configure WITH_COLORS=0
+# ./configure --prefix="" --disable-colors
 
 Run 'jam' to compile the source code.
 
