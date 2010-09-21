@@ -7,6 +7,7 @@ ARG_DISABLE WITH_COLORS colors Globally and permanently disable colorized output
 ARG_ENABLE WITH_POSIXLY_IFILES posix-ifiles Force posixly correct iFiles ;
 ARG_ENABLE WITH_CHECK_RO check-ro Explicitly check for the root fs to be mounted read-only ;
 ARG_ENABLE WITH_SELINUX with-selinux Enable use of SELinux ;
+ARG_ENABLE INSTALL_AS_INIT install_as_init Install initng as complete replacement for SysVInit ;
 
 (( needed programs ))
 CHECK_PROGRAM! JAM jam
@@ -53,5 +54,5 @@ SUBDIRS ./modules/service_file/wrappers/gentoo ;
 SUBDIRS ./modules/service_file/wrappers/sh ;
 
 (( final report about build arguments ))
-REPORT WITH_COLORS WITH_POSIXLY_IFILES WITH_CHECK_RO WITH_SELINUX ;
+REPORT INSTALL_AS_INIT WITH_COLORS WITH_POSIXLY_IFILES WITH_CHECK_RO WITH_SELINUX ;
 
