@@ -2,4 +2,4 @@
 SrcDir TOP include initng module ;
 
 # Install
-InstallFile $(DESTDIR)$(includedir)/initng/module : module.h load.h ;
+InstallFile $(DESTDIR)$(includedir)/initng/module : load.h ;

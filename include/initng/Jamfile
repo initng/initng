@@ -38,6 +38,9 @@ InstallSubdirFile $(DESTDIR)$(includedir)/initng : module : all.h ;
 InstallSubdirFile $(DESTDIR)$(includedir)/initng : service : all.h ;
 InstallSubdirFile $(DESTDIR)$(includedir)/initng : static : all.h ;
 
+# same for module.h
+InstallSubdirFile $(DESTDIR)$(includedir)/initng : module : module.h ;
+
 SubInclude TOP include initng event ;
 SubInclude TOP include initng config ;
 SubInclude TOP include initng service ;
