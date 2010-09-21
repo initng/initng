@@ -1,0 +1,4 @@
+SrcDir TOP modules service_file wrappers ;
+
+# Install
+InstallShell $(DESTDIR)$(libdir)/initng/wrappers : default gentoo sh ;
