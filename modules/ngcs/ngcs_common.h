@@ -38,7 +38,7 @@
 
 /*! \brief Counted string
  *
- *  Represents a string (not neccesarily null-terminated). The actual data is 
+ *  Represents a string (not neccesarily null-terminated). The actual data is
  *  the contents of the string.
  */
 #define NGCS_TYPE_STRING 2
@@ -60,7 +60,7 @@
 
 /*! \brief Compound data structure
  *
- *  The associated data is a data structure. It consists of a sequence of 
+ *  The associated data is a data structure. It consists of a sequence of
  *  entries, each made up of two ints (native byte order) corresponding to the
  *  data type and length of data, followed by the actual data.
  */
@@ -68,7 +68,7 @@
 
 /*! \brief Boolean var
  *
- * Like an integer, but zero is interpreted as true and non-zero as false 
+ * Like an integer, but zero is interpreted as true and non-zero as false
  */
 #define NGCS_TYPE_BOOL 7
 
@@ -104,7 +104,7 @@ struct ngcs_chan_s {
 	/*! \brief A function called when data is received on the channel */
 	void (*gotdata)(ngcs_chan *, int type, int len, char *data);
 
-	/*! \brief A function called when the channel is closed (possibly at 
+	/*! \brief A function called when the channel is closed (possibly at
 	   connection termination) */
 	void (*onclose)(ngcs_chan *);
 	/*! \brief A function called before the channel is freed */
@@ -175,7 +175,7 @@ int ngcs_recvall(int sock, void *buf, int len);
  *  (See the definitions of the NGCS_TYPE constants for details of exactly what
  *  is expected with each one). Normally, you will use one of the wrappers
  *  around this rather than using it directly.
- * 
+ *
  *  \param sock the socket on which the message is sent
  *  \param chan the channel number the message is marked with
  *  \param type the data type of the message (typically one of the NGCS_TYPE
@@ -191,7 +191,7 @@ int ngcs_sendmsg(int sock, int chan, int type, int len, const char *data);
 /*! \brief Receives a raw ngcs message from the specified socket
  *
  * This function reads one raw ngcs message from the specified socket,
- * allocating the neccesary memory to hold its contents (which must be 
+ * allocating the neccesary memory to hold its contents (which must be
  * free()d by the caller). Normally, you won't use this.
  *
  * \param sock the socket from which the message should be read
@@ -200,7 +200,7 @@ int ngcs_sendmsg(int sock, int chan, int type, int len, const char *data);
  * \param type a pointer to a location where the data type of the message
  *        should be stored
  * \param len a pointer to a location where the length of the message body (in bytes)
- *        should be stored. On return, *len may be less than zero, in which case 
+ *        should be stored. On return, *len may be less than zero, in which case
  *        *data is set to NULL
  * \param data a location where a pointer to the message body is stored. *data is
  *        valid on return if ngcs_recvmsg() succeeded with *len>=0, and in this case
@@ -211,7 +211,7 @@ int ngcs_recvmsg(int sock, int *chan, int *type, int *len, char **data);
 
 
 /*! \brief Pack an ngcs stucture for transmission
- * 
+ *
  * This function packs a sequence of items into a buffer, which can be transmitted
  * down a socket or otherwise transferred, then unpacked by ngcs_unpack()
  * The resulting packed data strcuture should be transmitted marked as type
@@ -236,7 +236,7 @@ int ngcs_unpack_one(int type, int len, const char *data, ngcs_data *res);
  *
  *  This is the reverse of ngcs_pack() - given packed data representing a
  *  structure, it creates an array of ngcs_data structures representing the
- *  contents of the structure. If you receive data marked as type 
+ *  contents of the structure. If you receive data marked as type
  *  NGCS_TYPE_STRUCT, you should be able to unpack it using this function.
  *
  *  Note that this function allocates memory, which you must call
@@ -254,7 +254,7 @@ int ngcs_unpack(const char *data, int len, ngcs_data **res);
 void ngcs_free_unpack_one(ngcs_data *res);
 
 /*! \brief Frees the memory allocated by ngcs_unpack()
- *  
+ *
  *  Once you're done with the results of ngcs_unpack(), you should
  *  call this method to free the memory allocated by it.
  *
@@ -282,7 +282,7 @@ ngcs_conn *ngcs_conn_from_fd(int fd, void *userdata,
 													int have_pending_writes));
 
 /*! \brief Registers a channel handler on the specified connection
- * 
+ *
  * Registers a channel handler for the specified channel number on the
  * connection. If more than one channel handler is registered on the same
  * connection for th same channel number, the results are undefined.
@@ -290,14 +290,14 @@ ngcs_conn *ngcs_conn_from_fd(int fd, void *userdata,
  * \param conn the connection to register a channel handler on
  * \param chanid the channel number the handler is for
  * \param gotdata  A function called when data is received on the channel.
- *                 May be NULL, in which case received data is ignored 
+ *                 May be NULL, in which case received data is ignored
  * \param chanclose A function called when the channel is closed.
  *                  May call ngcs_chan_free() on the channel, but may not send messages on it.
- *                  If you want to free the channel as soon as it closes, you may set this to 
+ *                  If you want to free the channel as soon as it closes, you may set this to
  *                  ngcs_chan_free.
  * \param chanfree A function called when the channel is freed. Should clean
  *                 up any associated data. May be NULL if you don't care
- * \return the ngcs_chan structure associated with the new channel (don't 
+ * \return the ngcs_chan structure associated with the new channel (don't
  *         free it), or NULL on failure
  */
 ngcs_chan *ngcs_chan_reg(ngcs_conn * conn, int chanid,
@@ -334,7 +334,7 @@ int ngcs_conn_has_pending_writes(ngcs_conn *conn);
 
 /*! \brief Closes a connection
  *
- * Closes a connection, but does not free any associated data structures. 
+ * Closes a connection, but does not free any associated data structures.
  * The close_hook for the connection is called, if there is one,
  * as are any ngcs_chan.free hooks associated with channels on it.
  *
@@ -355,13 +355,13 @@ void ngcs_conn_free(ngcs_conn *conn);
 
 /*! \brief Send a message on the specified channel
  *
- * This command sends a raw ngcs message on the specified channel. It's a 
+ * This command sends a raw ngcs message on the specified channel. It's a
  * wrapper around ngcs_sendmsg() which maintains internal state.
  *
  * \param chan the channel on which to send the data
  * \param type the data type of the message
  * \param len  the length (in bytes) of the data to send
- * \param data the actual data to send 
+ * \param data the actual data to send
  * \return Zero on success, non-zero on failure
  * \sa ngcs_sendmsg()
  */

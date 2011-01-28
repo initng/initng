@@ -1,6 +1,6 @@
           name : syslog
         author : Jimmy Wennlund <jimmy.wennlund@gmail.com>
-  contributors : 
-      commands : 
-       options : 
+  contributors :
+      commands :
+       options :
    description : This module outputs events and process output to syslogd.

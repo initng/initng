@@ -1,6 +1,6 @@
           name : chdir
         author : Jimmy Wennlund <jimmy.wennlund@gmail.com>
-  contributors : 
-      commands : 
+  contributors :
+      commands :
        options : chdir
    description : Change working directory before launch code is executed.

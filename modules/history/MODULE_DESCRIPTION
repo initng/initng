@@ -1,7 +1,7 @@
           name : history
         author : Jimmy Wennlund <jimmy.wennlund@gmail.com>
-  contributors : 
-      commands : 
+  contributors :
+      commands :
        options : log, show_history
    description : This file opens a history database, storing all events,
                  process output and state changes in memory.  This module

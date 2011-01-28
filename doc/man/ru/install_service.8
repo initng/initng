@@ -2,18 +2,18 @@
 .SH "ИМЯ"
 install_service \- устанавливает \fIinitng\fR файлы (.ii)
 .SH "СИНТАКСИС"
-\fBinstall_service\fR \fI\-\-in\fR|\fI\-i\fR [\fI\-\-out\fR|\fI\-o\fR] [\fI\-\-dist\fR|\fI\-d\fR] 
+\fBinstall_service\fR \fI\-\-in\fR|\fI\-i\fR [\fI\-\-out\fR|\fI\-o\fR] [\fI\-\-dist\fR|\fI\-d\fR]
 .SH "ОПИСАНИЕ"
-\fBinstall_service\fR делает грамматический разбор файлов (обычно это .ii файлы) 
+\fBinstall_service\fR делает грамматический разбор файлов (обычно это .ii файлы)
 и устанавливает дистрибутивно-зависимые значения.
 .SH "ОПЦИИ"
-.TP 
+.TP
 \fB\-\-in, \-i\fR
 Установить файл который должен быть обработан.
-.TP 
+.TP
 \fB\-\-out, \-o\fR
 Установить файл в котором нужно сохранять вывод. Если эта опция не определена вывод направляется на stdout.
-.TP 
+.TP
 \fB\-\-dist, \-d\fR
 Установить дистрибутив для которого вы хотите установить файл (например: debian, gentoo, fedora).
 Если эта опция не установлена, то \fIinstall_service\fR пытается его угадать сам.

@@ -1,7 +1,7 @@
           name : stdout
         author : Neuron <aagaande@gmail.com>
   contributors : Jimmy Wennlund <jimmy.wennlund@gmail.com>
-      commands : 
+      commands :
        options : stdout, stderr, stdall, stdin
    description : This module redirects the standard input/output and/or
                  standard error to a file, socket or pipe before launching.

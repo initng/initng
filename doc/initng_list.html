@@ -1,35 +1,35 @@
-<html><head>        
+<html><head>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 
 
-<meta name="description" content="This is a brief note on how to use Linux kernel's linked list in your own applications. Concepts behind the implementation of the list and some examples on how we can use it to create new data structures are also covered">         
+<meta name="description" content="This is a brief note on how to use Linux kernel's linked list in your own applications. Concepts behind the implementation of the list and some examples on how we can use it to create new data structures are also covered">
 <meta name="keywords" content="circular link list, Linux kernel link list, simple link list in C, etc."><title>[Linux Kernel Linked List Explained]</title></head>
-<body bgcolor="#ffffff">         
-<br><br>        
+<body bgcolor="#ffffff">
+<br><br>
 
-<div align="center">         
-  <center>         
-  <table border="0" cellpadding="0" cellspacing="1" width="50%">         
-    <tbody><tr>         
-      <td align="center" valign="top"></td>         
-      <td align="center" valign="top" width="0"><strong>/<a href="http://vip.poly.edu/kulesh/" title="/home/">home</a>/</strong></td>         
+<div align="center">
+  <center>
+  <table border="0" cellpadding="0" cellspacing="1" width="50%">
+    <tbody><tr>
+      <td align="center" valign="top"></td>
+      <td align="center" valign="top" width="0"><strong>/<a href="http://vip.poly.edu/kulesh/" title="/home/">home</a>/</strong></td>
       <td align="center" valign="top" width="0"><strong>/<a href="http://vip.poly.edu/kulesh/research/" title="/research/">research</a>/</strong></td>
-      <td align="center" valign="top" width="0"><strong>/<a href="http://vip.poly.edu/kulesh/stuff/" title="/stuff/">stuff</a>/</strong></td>         
-      <td align="center" valign="top"></td>         
-    </tr>         
-  </tbody></table>         
-  </center>         
-</div>         
+      <td align="center" valign="top" width="0"><strong>/<a href="http://vip.poly.edu/kulesh/stuff/" title="/stuff/">stuff</a>/</strong></td>
+      <td align="center" valign="top"></td>
+    </tr>
+  </tbody></table>
+  </center>
+</div>
 
 <hr color="#000000" noshade="noshade" size="1" width="80%">
 
-<div align="center">         
-  <center>         
-  <table cellpadding="0" cellspacing="1" width="75%">         
-    <tbody><tr>         
-      <td>         
-         
-<!--stuff that matters-->         
+<div align="center">
+  <center>
+  <table cellpadding="0" cellspacing="1" width="75%">
+    <tbody><tr>
+      <td>
+
+<!--stuff that matters-->
 
 
 
@@ -42,18 +42,18 @@
 <h3><u>Introduction:</u></h3>
 Linux kernel is mostly written in the C language. Unlike many other languages C does not have
 a good collection of data structures built into it or supported by a collection of standard libraries.
-Therefore, you're probably excited to hear that you can borrow a good implementation of a 
-circularly-linked list in C from the Linux kernel source tree. 
+Therefore, you're probably excited to hear that you can borrow a good implementation of a
+circularly-linked list in C from the Linux kernel source tree.
 
 <br><br>
 The file <tt>include/linux/list.h</tt>
 in the source tree implements a type oblivious, easy-to-use, circularly-linked list in the C
 language. The implementation is efficient and portable-- otherwise it would not have made it
-into the kernel. Whenever someone needs a list in the Linux kernel they rely on this 
-implementation to strung up any data structure they have. With very little modifications 
+into the kernel. Whenever someone needs a list in the Linux kernel they rely on this
+implementation to strung up any data structure they have. With very little modifications
 (removing hardware prefetching of list items) we can also use this list in our applications.
 A usable version of this file is available <a href="http://vip.poly.edu/kulesh/stuff/src/klist/list.h" title="Linux kernel linked list">
-here for download</a>. 
+here for download</a>.
 <br><br>
 
 Some of the advantages of using this list are:
@@ -68,23 +68,23 @@ is very portable. Otherwise it would not have made it into the kernel source tre
 </li>
 
 <li><strong>Easy to Use:</strong><br>
-Since the list is type oblivious same functions are used to initialize, access, 
+Since the list is type oblivious same functions are used to initialize, access,
 and traverse any list of items strung together using this list implementation.
 </li>
 
 <li><strong>Readable:</strong><br>
-The macros and inlined functions of the list implementation makes the resulting 
+The macros and inlined functions of the list implementation makes the resulting
 code very elegant and readable.
 </li>
 
 <li><strong>Saves Time:</strong><br>
-Stops you from reinventing the wheel. Using the list really saves a lot of 
+Stops you from reinventing the wheel. Using the list really saves a lot of
 debugging time and repetitively creating lists for every data structure
 you need to link.
 </li>
 </ol>
-Linux implementation of the linked list is different from the many 
-<a href="http://en.wikipedia.org/wiki/Linked_list" title="Linked list: From Wikipedia, the free encyclopedia.">linked list</a> 
+Linux implementation of the linked list is different from the many
+<a href="http://en.wikipedia.org/wiki/Linked_list" title="Linked list: From Wikipedia, the free encyclopedia.">linked list</a>
 implementations you might have seen. Usually a linked list <em>contains</em> the items that are to be linked. For example:
 <pre>struct my_list{
 	void *myitem;
@@ -136,16 +136,16 @@ While we are at this, kernel's list structure is declared as follows in <tt>incl
 	struct list_head *prev;
 	}
 </pre>
-Having said that this is probably a good time to delve into the details. 
-First let us see how we can use this data structure in our programs. Then, 
+Having said that this is probably a good time to delve into the details.
+First let us see how we can use this data structure in our programs. Then,
 we will see how the data structure actually works.
 
 <br> <br>
 
 <h3><u>Using the List:</u></h3>
-I think the best way to get familiar with the list functions is to simply scan 
+I think the best way to get familiar with the list functions is to simply scan
 <a href="http://vip.poly.edu/kulesh/stuff/src/klist/list.h">the file</a> for them.
-The file is well commented so there should not be any trouble understanding what is available to 
+The file is well commented so there should not be any trouble understanding what is available to
 a user.<br><br>
 
 Here is an example of creating, adding, deleting, and traversing the list. You can download the source
@@ -179,10 +179,10 @@ int main(int argc, char **argv){
 	for(i=5; i!=0; --i){
 		tmp= (struct kool_list *)malloc(sizeof(struct kool_list));
 		
-		/* INIT_LIST_HEAD(&amp;tmp-&gt;list); 
+		/* INIT_LIST_HEAD(&amp;tmp-&gt;list);
 		 *
 		 * this initializes a dynamically allocated list_head. we
-		 * you can omit this if subsequent call is add_list() or 
+		 * you can omit this if subsequent call is add_list() or
 		 * anything along that line because the next, prev
 		 * fields get initialized in those functions.
 		 */
@@ -203,7 +203,7 @@ int main(int argc, char **argv){
 	 */
 
 
-	/* list_for_each() is a macro for a for loop. 
+	/* list_for_each() is a macro for a for loop.
 	 * first parameter is used as the counter in for loop. in other words, inside the
 	 * loop it points to the current item's list_head.
 	 * second parameter is the pointer to the list. it is not manipulated by the macro.
@@ -211,9 +211,9 @@ int main(int argc, char **argv){
 	printf("traversing the list using list_for_each()\n");
 	list_for_each(pos, &amp;mylist.list){
 
-		/* at this point: pos-&gt;next points to the next item's 'list' variable and 
-		 * pos-&gt;prev points to the previous item's 'list' variable. Here item is 
-		 * of type struct kool_list. But we need to access the item itself not the 
+		/* at this point: pos-&gt;next points to the next item's 'list' variable and
+		 * pos-&gt;prev points to the previous item's 'list' variable. Here item is
+		 * of type struct kool_list. But we need to access the item itself not the
 		 * variable 'list' in the item! macro list_entry() does just that. See "How
 		 * does this work?" below for an explanation of how this is done.
 		 */
@@ -244,8 +244,8 @@ int main(int argc, char **argv){
 	
 
 	/* now let's be good and free the kool_list items. since we will be removing items
-	 * off the list using list_del() we need to use a safer version of the list_for_each() 
-	 * macro aptly named list_for_each_safe(). Note that you MUST use this macro if the loop 
+	 * off the list using list_del() we need to use a safer version of the list_for_each()
+	 * macro aptly named list_for_each_safe(). Note that you MUST use this macro if the loop
 	 * involves deletions of items (or moving items from one list to another).
 	 */
 	printf("deleting the list using list_for_each_safe()\n");
@@ -282,7 +282,7 @@ data structure the list_head is (offset of list_head). Then, simply
 deduct the list_head's offset from the actual pointer passed to the
 macro.
 <br><br>
-Now the question is how can we compute the offset of an element in a structure? Suppose you have a data structure <tt>struct foo_bar</tt> and you want to find the offset of element <tt>boo</tt> in it, this is how you do it: 
+Now the question is how can we compute the offset of an element in a structure? Suppose you have a data structure <tt>struct foo_bar</tt> and you want to find the offset of element <tt>boo</tt> in it, this is how you do it:
 <pre>(unsigned long)(&amp;((struct foo_bar *)0)-&gt;boo)
 </pre>
 
@@ -352,15 +352,15 @@ address and offset of tmp-&gt;boo= 0xbfffed00
 
 
 
-         
-<!--stuff ends here -->         
-         
-</td>         
-    </tr>         
-  </tbody></table>         
-  </center>         
-</div>         
-         
+
+<!--stuff ends here -->
+
+</td>
+    </tr>
+  </tbody></table>
+  </center>
+</div>
+
 
 <hr color="#000000" noshade="noshade" size="1" width="80%">
 

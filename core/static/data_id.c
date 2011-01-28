@@ -24,7 +24,7 @@
 /*
  * Here is where we define, the default options, and
  * relate to, by pointers
- * 
+ *
  * Description:
  * { "name_of_opt", TYPE_OF_OPT, STRING_LEN_OF("name_of_opt") }
  */

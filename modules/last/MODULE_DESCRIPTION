@@ -1,7 +1,7 @@
           name : last
         author : Jimmy Wennlund <jimmy.wennlund@gmail.com>
-  contributors : 
-      commands : 
+  contributors :
+      commands :
        options : last
    description : If last keyword is set for a service, this module makes sure
                  all other services are started before this service.

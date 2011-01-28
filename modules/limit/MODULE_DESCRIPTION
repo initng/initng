@@ -1,7 +1,7 @@
           name : limit
         author : Jimmy Wennlund <jimmy.wennlund@gmail.com>
-  contributors : 
-      commands : 
+  contributors :
+      commands :
        options : rlimit_as_soft, rlimit_as_hard, rlimit_core_soft,
                  rlimit_core_hard, rlimit_cpu_soft, rlimit_cpu_hard,
                  rlimit_data_soft, rlimit_data_hard, rlimit_fsize_soft,

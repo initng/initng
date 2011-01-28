@@ -1,8 +1,8 @@
           name : unneeded
         author : Jimmy Wennlund <jimmy.wennlund@gmail.com>
-  contributors : 
+  contributors :
       commands : stop_unneeded
-       options : 
+       options :
    description : This simple module tries to find all services that nothing
                  depends on and shut them down, good for cleaning the system
                  out of manually started services.

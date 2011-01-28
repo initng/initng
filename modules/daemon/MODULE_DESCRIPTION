@@ -1,7 +1,7 @@
           name : daemon
         author : Jimmy Wennlund <jimmy.wennlund@gmail.com>
-  contributors : 
-      commands : 
+  contributors :
+      commands :
   service_type : daemon
  process_types : daemon, kill
        options : pid_of, pid_file, forks, respawn, respawn_pause, respawn_rate,

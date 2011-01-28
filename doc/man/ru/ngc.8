@@ -2,82 +2,82 @@
 .SH "ИМЯ"
 ngc \- Следующее Поколение init Control.
 .SH "СИНТАКСИС"
-\fBngc\fR \-[\fIdfgijkopAabrRsuwz\fR] \fIservice\fR 
-.br 
+\fBngc\fR \-[\fIdfgijkopAabrRsuwz\fR] \fIservice\fR
+.br
 \fBngc\fR \-[\fIhlmnqvxy\fR]
 .SH "ОПИСАНИЕ"
 ngc используется для контроля/запуска/остаовки служб управляемых initng.
 .SH "ОПЦИИ"
 Опции использующие имя \fIслужбы\fR в качестве параметра:
-.TP 
+.TP
 \fB\-d\fR
 Остановить службу.
-.TP 
+.TP
 \fB\-f\fR
 Найти отцовский просесс службы.
-.TP 
+.TP
 \fB\-g\fR
 Показать PID службы.
-.TP 
+.TP
 \fB\-j\fR
 Остановить все службы, и запустить уровень запуска или службу.
 .TP
 \fB\-0\fR
 Остановить систему.
-.TP 
+.TP
 \fB\-6\fR
 Перезагрузить систему.
-.TP 
+.TP
 \fB\-r\fR
 Перезапустить службу.
-.TP 
+.TP
 \fB\-R\fR
 Перезагрузить данные службы с диска.
-.TP 
+.TP
 \fB\-u\fR
 Запустить службу.
-.TP 
+.TP
 \fB\-z\fR
 Пометить службу остановленной и удалённой из активных служб.\fB
 
-.PP 
+.PP
 Опции без дополнительных параметров:
-.TP 
+.TP
 \fB\-h\fR
 Показать полную справку.
-.TP 
+.TP
 \fB\-l\fR
 Показать последнюю историю запуска/остановки служб.
-.TP 
+.TP
 \fB\-m\fR
 Список всех загруженных модулей.
-.TP 
+.TP
 \fB\-n\fR
 Показать сколько процентов системы "поднято".
-.TP 
-.TP 
+.TP
+.TP
 \fB\-q\fR
 Убить initng (ПОВЕСИТЬ СИСТЕМУ).
-.TP 
+.TP
 \fB\-s\fR
 Список всех активных процессов.
-.TP 
+.TP
 \fB\-v\fR
 Включить более подробный вывод.
-.TP 
+.TP
 \fB\-w\fR
 Выгрузить модуль из Initng.
-.TP 
+.TP
 \fB\-x\fR
 Остановить и перезапустить все службы (горячая перезагрузка).
-.TP 
+.TP
 \fB\-z\fR
 Остановить все ненужные службы.
 .SH "ПРИМЕРЫ"
 \fBngc \-u daemon/gdm\fR -- запустить gdm.
-.br 
+.br
 \fBngc \-d daemon/gdm\fR -- остановить gdm.
-.br 
+.br
 What is tty2's PID? \fBngc \-g daemon/agetty/tty2\fR
 .SH "СМ. ТАКЖЕ"
 .BR ngc(8),
@@ -87,9 +87,9 @@ What is tty2's PID? \fBngc \-g daemon/agetty/tty2\fR
 .BR install_service(8),
 .BR system_off(8).
 .SH "АВТОРЫ"
-initng был написан Джимми Веннланд (Jimmy Wennlund) <jimmy.wennlund@gmail.com> 
+initng был написан Джимми Веннланд (Jimmy Wennlund) <jimmy.wennlund@gmail.com>
 и может быть найден на http://www.initng.org/.
-.PP 
+.PP
 Эта страничка была написана Армен Беррес (Armin Berres) <a.berres@web.de> и основана на файле readme написанном
 Патриком Боенке (Patrick Boehnke).
 .PP

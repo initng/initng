@@ -60,17 +60,17 @@ initng (0.6.2-1) experimental; urgency=low
 
   * New upstream release. Highlights since the last Debian release:
     - Completed support for cmake
-    - Filecache updates: Initng won't read an i file over and over 
+    - Filecache updates: Initng won't read an i file over and over
       again for each entry in it
     - "ngc -u /etc/full/path/ifile.i" works now
     - Fixed segfault from DBus plugin
     - Initng data storage backend rewritten
-    - found and fixed a lot of memoryholes 
+    - found and fixed a lot of memoryholes
     - Cpu usage has been reduced
     - Hot reload issues fixed
     - lots of bugfixes
   * use cmake instead of autotools
-  * copy system.runlevel to system.virtual, if system.virtual doesn't 
+  * copy system.runlevel to system.virtual, if system.virtual doesn't
     exist yet
 
  -- Armin Berres <a.berres@onlinehome.de>  Mon, 24 Apr 2006 15:13:56 +0200
@@ -96,7 +96,7 @@ initng (0.5.4-1) experimental; urgency=low
   * don't use things from /usr in early stage (closes #350567)
   * correct advice for lilo users in manpage (closes #328688)
   * no more wrong examples in the ngc.8 manpage (closes #325018)
-  
+
  -- Armin Berres <a.berres@onlinehome.de>  Wed, 22 Feb 2006 21:23:00 +0100
 
 initng (0.5.3-1) experimental; urgency=low
@@ -246,12 +246,12 @@ initng (0.3.4-1) experimental; urgency=low
     of bash as default shell
   * Package is now managed via svn
   * all the changes in the source are done via dpatch
-   
+
  -- Armin Berres <a.berres@onlinehome.de>  Fri, 28 Oct 2005 20:25:48 +0200
 
 initng (0.3.3-2) experimental; urgency=low
 
-  * Fixed a typo in dbus.ii 
+  * Fixed a typo in dbus.ii
 
  -- Armin Berres <a.berres@onlinehome.de>  Thu, 13 Oct 2005 11:18:05 +0200
 
@@ -284,7 +284,7 @@ initng (0.3.1-1) experimental; urgency=low
     directly to syslogd, if syslogd is not started they are buffered in
     initng, and flushed so that no dbug msgs is missed.
   * Lots of bugfixing all over
-  
+
  -- Armin Berres <a.berres@onlinehome.de>  Wed,  5 Oct 2005 12:39:15 +0200
 
 initng (0.3.0-1) experimental; urgency=low
@@ -298,7 +298,7 @@ initng (0.3.0-1) experimental; urgency=low
 initng (0.2.5-1) experimental; urgency=low
 
   * New upstream release
-  
+
  -- Armin Berres <a.berres@onlinehome.de>  Mon, 26 Sep 2005 13:59:01 +0200
 
 initng (0.2.4-1) experimental; urgency=low
@@ -310,7 +310,7 @@ initng (0.2.4-1) experimental; urgency=low
 
 initng (0.2.3-2) experimental; urgency=low
 
-  * Fix postinst 
+  * Fix postinst
 
  -- Armin Berres <a.berres@onlinehome.de>  Sun, 25 Sep 2005 18:31:42 +0200
 
@@ -344,7 +344,7 @@ initng (0.1.9-1) experimental; urgency=low
   * Run discover and start klogd during boot
   * Create /dev/MAKEDEV during boot (closes: 324836)
   * Fix examples section in manpage (closes: 325018)
-  
+
  -- Armin Berres <a.berres@onlinehome.de>  Sun, 21 Aug 2005 12:11:37 +0200
 
 initng (0.1.8-1) experimental; urgency=low
@@ -373,7 +373,7 @@ initng (0.1.6-1) experimental; urgency=low
 
   * New upstream release
   * Run /sbin/gen_system_runlevel.sh during postinst
-  
+
  -- Armin Berres <a.berres@onlinehome.de>  Fri, 29 Jul 2005 14:03:54 +0200
 
 initng (0.1.5-1) experimental; urgency=low
@@ -385,7 +385,7 @@ initng (0.1.5-1) experimental; urgency=low
 initng (0.1.4-1) experimental; urgency=low
 
   * Initial release
-  
+
  -- Armin Berres <a.berres@onlinehome.de>  Sun, 17 Jul 2005 21:43:04 +0200
- 
+
 

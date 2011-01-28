@@ -89,7 +89,7 @@ class AsyncConnect:
     def send_cmd(self, cmd, callback):
         self._pending_req.append(callback)
         self.send(0, cmd)
-    
+
     def send(self, chan, msg):
         if isinstance(msg, NgcsEOF):
             assert msg.val < 0
@@ -98,7 +98,7 @@ class AsyncConnect:
             msg = ngcs_pack(msg)
             self._sendbuf += struct.pack("@iii",chan,msg.typecode,len(msg.data)) + msg.data
         self.try_send()
-        
+
     def try_send(self):
         try:
             ret = self.sock.send(self._sendbuf)
@@ -132,7 +132,7 @@ class AsyncConnect:
                     raise
             if len(ret) == 0: break
             self._recvbuf += ret
-            
+
         while True:
             if self._head == None:
                 if len(self._recvbuf) < 3*SIZEOF_INT: break
@@ -197,7 +197,7 @@ class _NgcsCmd:
                              (self._txt, resp.data))
         else:
             sys.stderr.write("FAILED " + self._txt + ": unexpected response\n")
-            self._cmds.fail(); return            
+            self._cmds.fail(); return
 
 class _NgcsSimpleCmd(_NgcsCmd):
     def __init__(self, cmds, cmd, arg = None):
@@ -206,7 +206,7 @@ class _NgcsSimpleCmd(_NgcsCmd):
         else:
             rcmd = (cmd,arg); txt = cmd + " " + arg
         _NgcsCmd.__init__(self, cmds, rcmd, txt)
-    
+
     def _resp_cb(self, resp):
         self._cmds.rem(self)
         if isinstance(resp, NgcsEOF):
@@ -238,7 +238,7 @@ class _NgcsSimpleCmd(_NgcsCmd):
         else:
             self._cmds.fail();
             sys.stdout.write("ERROR %s: got unhandled data %s\n", repr(resp))
-             
+
 
 class _NgcsEWatchCmd (_NgcsCmd):
     def __init__(self, cmds):
@@ -272,11 +272,11 @@ class _NgcsEWatchCmd (_NgcsCmd):
             self._cmds.fail(); self._cmds.rem(self);
             self._cmds.conn.close_channel(self._chan);
             return
-        
+
         (mt, file, func, line, msg) = data
         # FIXME - should display/filter severity
         sys.stdout.write('%s:%i %s(): %s' % (file, line, func, msg))
-    
+
 class _NgcsStartStopCmd (_NgcsCmd):
     def __init__(self, cmds, cmd, svc):
         _NgcsCmd.__init__(self, cmds, self._get_real_cmd(cmd,svc), cmd + " " + str(svc))
@@ -340,22 +340,22 @@ class _NgcsStatusCmd(_NgcsStartStopCmd):
 ----------------------------------------------------------------
 """)
             for s in self._stats:
-                t = localtime(s[3][0]); 
+                t = localtime(s[3][0]);
                 sys.stdout.write("%.2i:%.2i:%.2i %-37s : %s\n" %
                                  ( t.tm_hour, t.tm_min, t.tm_sec, s[0], s[2][0] ))
             self._done(); return
             sys.stdout.write("\n")
-        
+
         if not isinstance(data, TupleType) or len(data) < 2 or not isinstance(data[0], str):
             return
         self._stats.append(data)
-        
-        
+
+
 
 class _NgcsStartCmd(_NgcsStartStopCmd):
     def __init__(self, cmds, svc):
         _NgcsStartStopCmd.__init__(self, cmds, "start", svc)
-        
+
     def _state_check(self, state):
         if state[1] == IS_STARTING:
             pass
@@ -369,7 +369,7 @@ class _NgcsStartCmd(_NgcsStartStopCmd):
 class _NgcsStopCmd(_NgcsStartStopCmd):
     def __init__(self, cmds, svc):
         _NgcsStartStopCmd.__init__(self, cmds, "stop", svc)
-        
+
     def _state_check(self, state):
         if state[1] == IS_STOPPING:
             pass
@@ -379,7 +379,7 @@ class _NgcsStopCmd(_NgcsStartStopCmd):
         elif self._rtmark:
             sys.stderr.write("Service %s failed to stop (%s)\n" % (self._svc, state[0]))
             self._done(); self._cmds.fail()
-       
+
 def connect():
     global sock;
     sock = socket.socket(socket.AF_UNIX,socket.SOCK_STREAM)
@@ -442,12 +442,12 @@ def ngcs_unpack(data):
         return tuple(out)
     else:
         return data
-        
+
 def ngcs_recv():
     (chan, type, l) = struct.unpack("@iii",recvall(3*SIZEOF_INT))
     if l < 0:
         return (chan, NgcsEOF(l))
-    return (chan, NgcsData(type, recvall(l)))    
+    return (chan, NgcsData(type, recvall(l)))
 
 def recvall(amt):
     buf = ""
@@ -470,7 +470,7 @@ def _main():
             cmdargs.append(a)
     if cmd != None:
         cmdlist.append((cmd, cmdargs))
-        
+
     conn = AsyncConnect()
     wcmds = _NgcsCmds(conn)
     for c in cmdlist:

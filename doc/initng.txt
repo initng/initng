@@ -26,7 +26,7 @@ README and INSTALLATION files for the most up to date information
 
 For those of you that would like to use portage:
 
-    ACCEPT_KEYWORDS="~ARCH" emerge initng 
+    ACCEPT_KEYWORDS="~ARCH" emerge initng
 
 (Please note you need to replace ~ARCH with your architecture ex: ~x86 ~ppc and
 others).
@@ -34,7 +34,7 @@ others).
 If you want the latest version and have subversion installed:
 
     # svn checkout http://jw.dyndns.org/initng/svn/initng/trunk initng
-    # cd initng 
+    # cd initng
     # ./autogen.sh
     # ./configure
     # make install

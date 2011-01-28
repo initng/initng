@@ -1,9 +1,9 @@
           name : debug_commands
         author : Jimmy Wennlund <jimmy.wennlund@gmail.com>
-  contributors : 
+  contributors :
       commands : list_filedescriptors, quit, print_service_db, print_active_db
                  verbose, add_verbose, del_verbose.
-       options : 
+       options :
    description : This module contains commands usable when writing scripts or
                  developing with initng (running in debug mode, etc).  These
                  tools can cause no harm to a system other than memory

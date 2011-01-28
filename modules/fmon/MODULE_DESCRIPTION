@@ -1,7 +1,7 @@
           name : fmon
         author : Jimmy Wennlund <jimmy.wennlund@gmail.com>
-  contributors : 
-      commands : 
-       options : 
+  contributors :
+      commands :
+       options :
    description : If modules, initng, or any .i file used is changed, this
                  module makes sure initng will notice.

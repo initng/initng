@@ -11,7 +11,7 @@
   else
     confflags += --build $(DEB_BUILD_GNU_TYPE) --host $(DEB_HOST_GNU_TYPE)
    endif
-     
+
 
   CFLAGS = -Wall -g
 
@@ -22,7 +22,7 @@
   endif
 
 configure: patch configure-stamp
-configure-stamp: 
+configure-stamp:
 	dh_testdir
 	
 	# Add here commands to configure the package.
@@ -53,7 +53,7 @@ cleanunpatched:
 install: build
 	dh_testdir
 	dh_testroot
-	dh_clean -k 
+	dh_clean -k
 	dh_installdirs
 
 	# Add here commands to install the package into debian/tmp.
@@ -61,7 +61,7 @@ install: build
 
 	#Install lintian override file
 	#install -m 644 debian/initng.lintian-override $(CURDIR)/debian/initng/usr/share/lintian/overrides/initng
-        
+
 # Build architecture-independent files here.
 binary-indep: build install
 # We have nothing to do by default.

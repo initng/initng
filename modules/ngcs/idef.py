@@ -42,11 +42,11 @@ def mkmarshaler(name, members,sname=None):
 #elif len(m) == 3
 #exec n = 's->' + m[2]
 #else
-#exec  raise Exception, "Bad structure specifier"        
+#exec  raise Exception, "Bad structure specifier"
 #endif
         if(buf)
         {
-#if m[0] == "string"        
+#if m[0] == "string"
             *(int*)buf = NGCS_TYPE_STRING;
 #else
             *(int*)buf = NGCS_TYPE_BLOB;
@@ -61,7 +61,7 @@ def mkmarshaler(name, members,sname=None):
     {
         if(buf)
         {
-            *(int*)buf = NGCS_TYPE_NULL; 
+            *(int*)buf = NGCS_TYPE_NULL;
             *(int*)(buf+sizeof(int)) = 0;
             buf += 2*sizeof(int);
         }
@@ -117,7 +117,7 @@ def mkmarshaler(name, members,sname=None):
     }
     else if(buf)
     {
-        *(int*)buf = NGCS_TYPE_NULL; 
+        *(int*)buf = NGCS_TYPE_NULL;
         *(int*)(buf+sizeof(int)) = 0;
         buf += 2*sizeof(int);
         len += 2*sizeof(int);
@@ -151,7 +151,7 @@ def mkunmarshaler(name, members,sname=None):
     for m in members:
         l['m'] = m
         process_str += process("""
-#if m[0] 
+#if m[0]
 #if m[0] in ("string","int","long","blob")
 #if m[0] == "string" and len(m) == 2
     if(dat[@cnt@].type == NGCS_TYPE_NULL)
@@ -223,7 +223,7 @@ def mkunmarshaler(name, members,sname=None):
     }
 #else
 #exec raise Exception, "Bad structure specifier"
-#endif 
+#endif
 #exec cnt += 1
 #elif m[0] == "ignore"
 #elif m[0] == "ignore*"
@@ -240,7 +240,7 @@ def mkunmarshaler(name, members,sname=None):
         if(s->@m[1]@ == NULL)
         {
             @free@
-            ngcs_free_unpack(acnt, dat); return -1;            
+            ngcs_free_unpack(acnt, dat); return -1;
         }
         ret = ngcs_unmarshal_@typename@(s->@m[1]@, dat[@cnt@].len,  dat[@cnt@].d.p);
         if(ret)
@@ -248,7 +248,7 @@ def mkunmarshaler(name, members,sname=None):
             @free@ free(s->@m[1]@);
             ngcs_free_unpack(acnt, dat); return -1;
         }
-        
+
     }
     else
     {
@@ -281,7 +281,7 @@ def mkunmarshaler(name, members,sname=None):
     decstr += "void ngcs_free_" + name + "(" + sname + "* s);\n"
     freestr = ("void ngcs_free_" + name + "(" + sname + "* s)\n{\n    " +
                l['free']+"\n}\n\n")
-    
+
     return (decstr, initstr+"\n"+ process(up_str,l)+process_str+"}\n\n"+
             freestr)
 
@@ -297,7 +297,7 @@ _comment_re = re.compile(r"^\s*(?:#|//).*$")
 _cmd_re = re.compile(r"^\s*#(if|elif|else|endif|exec)(?:\s+(\S.*?))?\s*$")
 def process(s, l):
     prevs = ""
-    stk = [ ] # list of [ active process_else ] 
+    stk = [ ] # list of [ active process_else ]
     while s != prevs:
         prevs = s; outs = ""
         while s != "":
@@ -374,7 +374,7 @@ def build(fname, outfname=None):
         if m != None:
             outfname = m.group(1)
     hfile = file(outfname+".h","w")
-    cfile = file(outfname+".c","w")    
+    cfile = file(outfname+".c","w")
     hfile.write("/* Automagically generated - do not modify */\n\n")
     hfile.write('#include "ngcs_common.h"\n')
     cfile.write("/* Automagically generated - do not modify */\n\n")
@@ -406,18 +406,18 @@ def build(fname, outfname=None):
                 cfile.write(l)
         elif state == "head":
             if _head_end_re.search(l):
-                state = None 
+                state = None
             else:
                 hfile.write(l)
         elif state == "marshal":
             if _marshal_end_re.search(l):
                 if not ("nomarshaler" in flags):
                     (decl,defn) = mkmarshaler(funcname,data,sname)
-                    hfile.write(decl); cfile.write(defn);                
+                    hfile.write(decl); cfile.write(defn);
                 if not ("nounmarshaler" in flags):
                     (decl,defn) = mkunmarshaler(funcname,data,sname)
-                    hfile.write(decl); cfile.write(defn);                
-                state = None 
+                    hfile.write(decl); cfile.write(defn);
+                state = None
             elif _comment_re.search(l):
                 pass
             else:
@@ -425,7 +425,7 @@ def build(fname, outfname=None):
                 if len(tmp) > 0:
                     data.append(tmp)
     cfile.close(); hfile.close(); infile.close()
-    
+
 if __name__=="__main__":
     if len(sys.argv) >= 3:
         build(sys.argv[1], sys.argv[2])

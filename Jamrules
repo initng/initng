@@ -97,7 +97,7 @@ rule MainFromSubdirs
 rule ObjectsFromSubdir
 {
     local _sources _objects _subdir ;
-    
+
     for _subdir in $(<)
     {
         # Get all source files
@@ -128,7 +128,7 @@ rule ModuleFromSubdir
 
     CCFLAGS on $(_lib) += -fPIC -rdynamic ;
     LINKFLAGS on $(_lib) += -shared -Wl,-soname,$(_lib)
-        -Wl,--whole-archive [ FDirName $(TOP) core libinitng$(SUFLIB) ] 
+        -Wl,--whole-archive [ FDirName $(TOP) core libinitng$(SUFLIB) ]
         -Wl,--no-whole-archive -ldl ;
     MainFromObjects $(_lib).so : $(_obj) ;
 
@@ -185,7 +185,7 @@ rule SrcDir
 }
 
 
-# Adds the headers from pkg-config output using the SubDirHdrs rule. 
+# Adds the headers from pkg-config output using the SubDirHdrs rule.
 # Gets passed the prefix name of the variable used for pkg-config CFLAGS,
 # extracts all header definitions and runs "SubDirHdrs" for each.
 # USAGE: PkgConfigHdrs PREFIX

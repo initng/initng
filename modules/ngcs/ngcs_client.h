@@ -98,7 +98,7 @@ ngcs_svc_evt_hook *ngcs_start_stop(ngcs_cli_conn * cconn, const char *cmd,
                                    void *userdata);
 
 #if 0
-/* Note that these should only be used on connections returned 
+/* Note that these should only be used on connections returned
    by ... */
 int ngcs_cmd(ngcs_conn *conn, int argc, ngcs_data *argv, ngcs_data *ret);
 int ngcs_short_cmd(ngcs_conn *conn, char cmd, char *arg, ngcs_data *ret);

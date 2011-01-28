@@ -38,7 +38,7 @@ typedef enum {
 } e_com_type;
 
 /*
- * This defines how visible the command is 
+ * This defines how visible the command is
  * for the external user.
  */
 typedef enum {
@@ -49,7 +49,7 @@ typedef enum {
 } e_opt_vissible;
 
 /*
- * Defines if command requires an option or not 
+ * Defines if command requires an option or not
  */
 typedef enum {
 	NO_OPT = 0,		/* Command uses no option ever */

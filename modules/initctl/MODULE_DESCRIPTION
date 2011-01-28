@@ -1,8 +1,8 @@
           name : initctl
         author : Jimmy Wennlund <jimmy.wennlund@gmail.com>
-  contributors : 
-      commands : 
-       options : 
+  contributors :
+      commands :
+       options :
    description : This module is an emulation layer for sysvinit 'halt', 'reboot'
                  and 'tellinit' commands, so initng will also react to them.
                  If you dont have sysvinit installed this module is completely

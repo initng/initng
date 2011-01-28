@@ -110,7 +110,7 @@ void initng_signal_enable(void)
 	sigaction(SIGPIPE, &sa, 0);	/* sigpipe, module actions */
 }
 
-/* 
+/*
  * Disable signals, called when initng are exiting.
  * sometimes, we don't want to be disturbed with signals.
  */

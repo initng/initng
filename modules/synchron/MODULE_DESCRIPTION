@@ -1,7 +1,7 @@
           name : syncron
         author : Neuron <aagaande@gmail.com>
   contributors : Jimmy Wennlund <jimmy.wennlund@gmail.com>
-      commands : 
+      commands :
        options : syncron
   cmd_line_opt : synchronously
    description : If syncron or synchronously is set, initng will make sure that

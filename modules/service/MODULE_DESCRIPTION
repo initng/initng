@@ -1,7 +1,7 @@
           name : service
         author : Jimmy Wennlund <jimmy.wennlund@gmail.com>
-  contributors : 
-      commands : 
+  contributors :
+      commands :
        options : start_timeout, stop_timeout, never_kill, start_fail_ok,
                  stop_fail_ok
  service_types : service

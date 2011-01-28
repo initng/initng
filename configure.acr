@@ -14,16 +14,16 @@ CHECK_PROGRAM! JAM jam
 
 LANG_C!
 
-CHECK_INCLUDE stdlib.h 
-CHECK_INCLUDE stdio.h 
-CHECK_INCLUDE stdbool.h 
-CHECK_INCLUDE stdarg.h 
-CHECK_INCLUDE stddef.h 
-CHECK_INCLUDE stdint.h 
-CHECK_INCLUDE string.h 
-CHECK_INCLUDE time.h 
-CHECK_INCLUDE unistd.h 
-CHECK_INCLUDE inotify.h 
+CHECK_INCLUDE stdlib.h
+CHECK_INCLUDE stdio.h
+CHECK_INCLUDE stdbool.h
+CHECK_INCLUDE stdarg.h
+CHECK_INCLUDE stddef.h
+CHECK_INCLUDE stdint.h
+CHECK_INCLUDE string.h
+CHECK_INCLUDE time.h
+CHECK_INCLUDE unistd.h
+CHECK_INCLUDE inotify.h
 CHECK_INCLUDE assert.h
 CHECK_INCLUDE poll.h
 CHECK_INCLUDE selinux/selinux.h
