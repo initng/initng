@@ -35,39 +35,116 @@
 
 #include <initng.h>
 
-
-pid_t initng_fork(active_db_h * service, process_h * process)
+inline static void pipes_create(process_h *process)
 {
-	/* This is the real service kicker */
-	pid_t pid_fork;		/* pid got from fork() */
-	int try_count = 0;	/* Count tryings */
-	pipe_h *current_pipe = NULL;	/* used while walking */
+	pipe_h *pipe = NULL;
 
-	assert(service);
-	assert(process);
-
-	/* Create all pipes */
-	while_pipes(current_pipe, process) {
-		if (current_pipe->dir == IN_AND_OUT_PIPE) {
+	while_pipes(pipe, process) {
+		if (pipe->dir == IN_AND_OUT_PIPE) {
 			/* create an two directional pipe with socketpair */
 			if (socketpair(AF_UNIX, SOCK_STREAM, 0,
-				       current_pipe->pipe) < 0) {
+				       pipe->pipe) < 0) {
 				F_("Fail call socketpair: \"%s\"\n",
 				   strerror(errno));
 				return -1;
 			}
 		} else {
 			/* create an one directional pipe with pipe */
-			if (pipe(current_pipe->pipe) != 0) {
+			if (pipe(pipe->pipe) != 0) {
 				F_("Failed adding pipe ! %s\n",
 				   strerror(errno));
 				return -1;
 			}
 		}
 	}
+}
 
-	/* reset, used for walking later */
-	current_pipe = NULL;
+/**
+ * Walk all pipes and close all remote sides of pipes
+ */
+inline static void pipes_close_remote_side(process_h *process)
+{
+	pipe_h *pipe = NULL;
+
+	while_pipes(pipe, process) {
+		switch (pipe->dir) {
+		case OUT_PIPE:
+		case BUFFERED_OUT_PIPE:
+			if (pipe->pipe[1] > 0)
+				close(pipe->pipe[1]);
+			pipe->pipe[1] = -1;
+			break;
+
+		case IN_PIPE:
+		case IN_AND_OUT_PIPE:
+			/* close the OUTPUT end */
+			/* in an unidirectional pipe, pipe[0] is fork,
+			 * and pipe[1] is parent */
+			if (pipe->pipe[0] > 0)
+				close(pipe->pipe[0]);
+			pipe->pipe[0] = -1;
+			break;
+		}
+	}
+}
+
+
+/**
+ * set up file descriptors, for local fork, a fork in initng, should now receive
+ * any input, but stdout & stderr, should be sent to process->out_pipe[], that
+ * is set up by pipe() #man 2 pipe [0] for reading, and [1] for writing, as the
+ * pipe is for sending output FROM the fork, to initng for handle, the input
+ * part should be closed here, the other are mapped to STDOUT and STDERR.
+ */
+inline static void pipes_setup_local_side(process_h *process)
+{
+	pipe_h *pipe = NULL;
+
+	/* walk thru all the added pipes */
+	while_pipes(pipe, process) {
+		int i;
+
+		/* for every target */
+		for (i = 0; pipe->targets[i] > 0 && i < MAX_TARGETS; i++) {
+			/* close any conflicting one */
+			close(pipe->targets[i]);
+
+			switch(pipe->dir) {
+			case OUT_PIPE:
+			case BUFFERED_OUT_PIPE:
+				/* duplicate the new target right */
+				dup2(pipe->pipe[1], pipe->targets[i]);
+				break;
+			case IN_PIPE:
+			case IN_AND_OUT_PIPE:
+				/* duplicate the input pipe instead */
+				/* in a unidirectional socket, there is pipe[0]
+				   that is used in the child */
+				dup2(pipe->pipe[0], pipe->targets[i]);
+				break;
+			}
+
+
+			/* IMPORTANT: Tell the os not to close the new target on
+			   execve */
+			fcntl(pipe->targets[i], F_SETFD, 0);
+		}
+	}
+}
+
+
+
+pid_t initng_fork(active_db_h * service, process_h * process)
+{
+	/* This is the real service kicker */
+	pid_t pid_fork;		/* pid got from fork() */
+	int try_count = 0;	/* Count tryings */
+
+	assert(service);
+	assert(process);
+
+	/* Create all pipes */
+	pipes_create(process);
 
 	/* Try to fork 30 times */
 	while ((pid_fork = fork()) == -1) {
@@ -96,52 +173,7 @@ pid_t initng_fork(active_db_h * service, process_h * process)
 		setsid();	/* Run a program in a new
 				 * session ??? */
 
-		/*
-		 * set up file descriptors, for local fork,
-		 * a fork in initng, should now receive any input, but stdout & stderr, should be sent
-		 * to process->out_pipe[], that is set up by pipe() #man 2 pipe
-		 * [0] for reading, and [1] for writing, as the pipe is for sending output
-		 * FROM the fork, to initng for handle, the input part should be closed here,
-		 * the other are mapped to STDOUT and STDERR.
-		 */
-
-		/* walk thru all the added pipes */
-		while_pipes(current_pipe, process) {
-			int i;
-
-			/* for every target */
-			for (i = 0; current_pipe->targets[i] > 0 &&
-			     i < MAX_TARGETS; i++) {
-				/* close any conflicting one */
-				close(current_pipe->targets[i]);
-
-				if (current_pipe->dir == OUT_PIPE ||
-				    current_pipe->dir ==
-				    BUFFERED_OUT_PIPE) {
-					/* duplicate the new target right */
-					dup2(current_pipe->pipe[1],
-					     current_pipe->targets[i]);
-				} else if (current_pipe->dir == IN_PIPE) {
-					/* duplicate the input pipe
-					 * instead */
-					dup2(current_pipe->pipe[0],
-					     current_pipe->targets[i]);
-				} else if (current_pipe->dir ==
-					   IN_AND_OUT_PIPE) {
-					/* in a unidirectional socket,
-					 * there is pipe[0] that is
-					 * used in the child */
-					dup2(current_pipe->pipe[0],
-					     current_pipe->targets[i]);
-				} else
-					continue;
-
-				/* IMPORTANT Tell the os not to close
-				 * the new target on execve */
-				fcntl(current_pipe->targets[i],
-				      F_SETFD, 0);
-			}
-		}
+		pipes_setup_local_side(process);
 
 		/* TODO, what does this do? */
 		/* run this in foreground on fd 0 */
@@ -152,26 +184,7 @@ pid_t initng_fork(active_db_h * service, process_h * process)
 		struct timespec nap = { 0, ALL_NANOSLEEP };
 		nanosleep(&nap, NULL);
 	} else {
-		/* walk all pipes and close all remote sides of pipes */
-		while_pipes(current_pipe, process) {
-			if (current_pipe->dir == OUT_PIPE ||
-			    current_pipe->dir == BUFFERED_OUT_PIPE) {
-				if (current_pipe->pipe[1] > 0)
-					close(current_pipe->pipe[1]);
-				current_pipe->pipe[1] = -1;
-			} else if (current_pipe->dir == IN_PIPE) {
-				/* close the OUTPUT end */
-				if (current_pipe->pipe[0] > 0)
-					close(current_pipe->pipe[0]);
-				current_pipe->pipe[0] = -1;
-			} else if (current_pipe->dir == IN_AND_OUT_PIPE) {
-				/* in an unidirectional pipe, pipe[0] is fork,
-				 * and pipe[1] is parent */
-				if (current_pipe->pipe[0] > 0)
-					close(current_pipe->pipe[0]);
-				current_pipe->pipe[0] = -1;
-			}
-		}
+		pipes_close_remote_side(process);
 
 		/* set process->pid if lucky */
 		if (pid_fork > 0)
