@@ -37,24 +37,19 @@
  * Counts the number of services currently on a given state, or
  * if the parameter is NULL, counts all services.
  */
-int initng_active_db_count(a_state_h * current_state_to_count)
+int initng_active_db_count(a_state_h * state_to_count)
 {
 	int counter = 0;	/* actives counter */
 	active_db_h *current = NULL;
 
 	/* ok, go COUNT ALL */
-	if (!current_state_to_count) {
+	if (!state_to_count) {
 		/* ok, go through all */
 		while_active_db(current) {
 			assert(current->name);
 
-			/* count almost all */
-
-			/* but not failed services */
-			if (IS_FAILED(current))
-				continue;
-			/* and not stopped */
-			if (IS_DOWN(current))
+			/* don't count failed and stopped */
+			if (IS_FAILED(current) || IS_DOWN(current))
 				continue;
 
 			counter++;
@@ -67,7 +62,7 @@ int initng_active_db_count(a_state_h * current_state_to_count)
 	while_active_db(current) {
 		assert(current->name);
 		/* check if this is the status to count */
-		if (current->current_state == current_state_to_count)
+		if (current->current_state == state_to_count)
 			counter++;
 	}
 	/* return counter */
