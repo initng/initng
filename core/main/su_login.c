@@ -35,7 +35,8 @@
 
 static int local_sulogin_count = 0;
 
-#define TRY_TIMES 2
+#define TRY_TIMES 3
+
 /*
  *  Launch sulogin and wait it for finish
  */
