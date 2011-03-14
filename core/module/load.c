@@ -170,8 +170,8 @@ m_h *initng_module_load(const char *module)
 		while (i > 1 && module[i - 1] != '/')
 			i--;
 
-		/* libsyslog.so -->> syslog.so */
-		if (strncmp("lib", &module[i], 3) == 0)
+		/* modsyslog.so -->> syslog.so */
+		if (strncmp("mod", &module[i], 3) == 0)
 			i += 3;
 
 		/* now set module_name */
@@ -201,7 +201,7 @@ m_h *initng_module_load(const char *module)
 							    +
 							    strlen(module_name)
 							    + 30);
-		strcpy(module_path, INITNG_MODULE_DIR "/lib");
+		strcpy(module_path, INITNG_MODULE_DIR "/mod");
 		strcat(module_path, module_name);
 		strcat(module_path, ".so");
 	}
