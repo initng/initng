@@ -33,11 +33,11 @@ void initng_main_sys_state_services_loaded(void);
 
 int initng_main_ready_to_quit(void);
 void initng_main_when_out(void);
-void initng_main_su_login(void);
+void initng_main_su_login(void) __attribute__((noreturn));
 void initng_main_start_extra_services(void);
 int initng_main_blacklist_add(const char *sname);
 
-void initng_main_segfault(void);
+void initng_main_segfault(void) __attribute__((noreturn));
 
 void initng_main_set_runlevel(const char *runlevel);
 
