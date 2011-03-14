@@ -75,10 +75,7 @@ void initng_main_su_login(void)
 			       (char **)sulogin_env);
 
 			printf("Unable to execute /sbin/sulogin!\n");
-			_exit(1);
-		}
-
-		if (sulogin_pid > 0) {
+		} else if (sulogin_pid > 0) {
 			do {
 				sulogin_pid = waitpid(sulogin_pid, &status,
 						      WUNTRACED);
@@ -86,13 +83,9 @@ void initng_main_su_login(void)
 
 			/* increase the sulogin_count */
 			local_sulogin_count++;
-			return;
 		}
 	}
 
 	/* else run segfault script */
 	initng_main_segfault();
-
-	/* newer get here */
-	_exit(1);
 }
