@@ -78,7 +78,7 @@ int grab_out(void *me)
 {
 	int n;
 
-	if (me == NULL || last_out != me) {
+	if (!me || last_out != me) {
 		for (n = 0; n < need_nl; n++)
 			putchar('\n');
 		last_out = me;
@@ -287,7 +287,7 @@ void docmd(char *cmd, char *arg)
 	ngcs_data dat[2];
 	cmd_res *res = malloc(sizeof(cmd_res));
 
-	if (res == NULL) {
+	if (!res) {
 		printf(C_ERROR "Malloc failed\n" C_OFF);
 		exit(2);
 	}
@@ -301,12 +301,11 @@ void docmd(char *cmd, char *arg)
 		res->d.svc_watch.in_present = 0;
 		res->d.svc_watch.got_svcs = 0;
 		res->d.svc_watch.mode = WATCH_NORMAL;
-		if (ngcs_watch_service(cconn, arg, NGCS_WATCH_OUTPUT |
-				       NGCS_WATCH_STATUS, svc_watch_cb, res)
-		    == NULL) {
+		if (!ngcs_watch_service(cconn, arg, NGCS_WATCH_OUTPUT |
+				       NGCS_WATCH_STATUS, svc_watch_cb, res)) {
 			grab_out(NULL);
 			printf(C_ERROR "Couldn't send command %s %s\n" C_OFF,
-			       cmd, (arg == NULL ? "" : arg));
+			       cmd, (!arg ? "" : arg));
 			failed = 1;
 			free(res);
 			return;
@@ -318,11 +317,11 @@ void docmd(char *cmd, char *arg)
 		res->d.svc_watch.in_present = 0;
 		res->d.svc_watch.got_svcs = 0;
 		res->d.svc_watch.mode = WATCH_STATUS;
-		if (ngcs_watch_service(cconn, arg, NGCS_CURRENT_STATUS,
-				       svc_watch_cb, res) == NULL) {
+		if (!ngcs_watch_service(cconn, arg, NGCS_CURRENT_STATUS,
+				       svc_watch_cb, res)) {
 			grab_out(NULL);
 			printf(C_ERROR "Couldn't send command %s %s\n" C_OFF,
-			       cmd, (arg == NULL ? "" : arg));
+			       cmd, (!arg ? "" : arg));
 			failed = 1;
 			free(res);
 			return;
@@ -338,7 +337,7 @@ void docmd(char *cmd, char *arg)
 		    NULL) {
 			grab_out(NULL);
 			printf(C_ERROR "Couldn't send command %s %s\n" C_OFF,
-			       cmd, (arg == NULL ? "" : arg));
+			       cmd, (!arg ? "" : arg));
 			failed = 1;
 			free(res);
 			return;
@@ -354,7 +353,7 @@ void docmd(char *cmd, char *arg)
 		    NULL) {
 			grab_out(NULL);
 			printf(C_ERROR "Couldn't send command %s %s\n" C_OFF,
-			       cmd, (arg == NULL ? "" : arg));
+			       cmd, (!arg ? "" : arg));
 			failed = 1;
 			free(res);
 			return;
@@ -372,11 +371,10 @@ void docmd(char *cmd, char *arg)
 	dat[1].len = -1;
 	dat[1].d.s = arg;
 
-	if (ngcs_cmd_async(cconn, (arg == NULL ? 1 : 2), dat, resp_handler,
-			   res)) {
+	if (ngcs_cmd_async(cconn, (!arg ? 1 : 2), dat, resp_handler, res)) {
 		grab_out(NULL);
 		printf(C_ERROR "Couldn't send command %s %s\n" C_OFF, cmd,
-		       (arg == NULL ? "" : arg));
+		       (!arg ? "" : arg));
 		failed = 1;
 		free(res);
 		return;
@@ -392,10 +390,10 @@ void resp_handler(ngcs_cli_conn * cconn, void *userdata, ngcs_data * ret)
 
 	assert(res);
 
-	if (ret == NULL || ret->len < 0) {
+	if (!ret || ret->len < 0) {
 		grab_out(NULL);
 		printf(C_ERROR "Didn't get response for command %s %s\n"
-		       C_OFF, res->cmd, (res->arg == NULL ? "" : res->arg));
+		       C_OFF, res->cmd, (!res->arg ? "" : res->arg));
 		failed = 1;
 	} else {
 		switch (ret->type) {
@@ -403,27 +401,27 @@ void resp_handler(ngcs_cli_conn * cconn, void *userdata, ngcs_data * ret)
 			maybe_grab_out(NULL);
 			maybe_printf("%s %s returned " C_FG_BLUE
 				     "nothing" C_OFF "\n", res->cmd,
-				     (res->arg == NULL ? "" : res->arg));
+				     (!res->arg ? "" : res->arg));
 			break;
 
 		case NGCS_TYPE_INT:
 			maybe_grab_out(NULL);
 			maybe_printf("%s %s returned %i\n", res->cmd,
-				     (res->arg == NULL ? "" :
+				     (!res->arg ? "" :
 				      res->arg), ret->d.i);
 			break;
 
 		case NGCS_TYPE_LONG:
 			maybe_grab_out(NULL);
 			maybe_printf("%s %s returned %li\n", res->cmd,
-				     (res->arg == NULL ? "" :
+				     (!res->arg ? "" :
 				      res->arg), ret->d.l);
 			break;
 
 		case NGCS_TYPE_BOOL:
 			maybe_grab_out(NULL);
 			maybe_printf("%s %s returned %s\n", res->cmd,
-				     (res->arg == NULL ? "" :
+				     (!res->arg ? "" :
 				      res->arg), (ret->d.i ? "TRUE" : "FALSE"));
 
 			if (!ret->d.i)
@@ -433,7 +431,7 @@ void resp_handler(ngcs_cli_conn * cconn, void *userdata, ngcs_data * ret)
 		case NGCS_TYPE_ERROR:
 			grab_out(NULL);
 			printf(C_ERROR "%s %s failed: %s\n" C_OFF,
-			       res->cmd, (res->arg == NULL ? "" :
+			       res->cmd, (!res->arg ? "" :
 					  res->arg), ret->d.s);
 			failed = 1;
 			break;
@@ -515,7 +513,7 @@ int main(int argc, char *argv[])
 	cconn = ngcs_client_connect((debug ? NGCS_CLIENT_CONN_TEST : 0),
 				    NULL, NULL, NULL);
 
-	if (cconn == NULL) {
+	if (!cconn) {
 		printf(C_ERROR "Could not connect to InitNG" C_OFF "\n");
 		exit(2);
 	}

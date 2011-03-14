@@ -60,7 +60,7 @@ char **initng_env_new(active_db_h * s)
 	assert(s);
 
 	/* Better safe than sorry... */
-	if (s && s->name == NULL)
+	if (s && !s->name)
 		s->name = initng_toolbox_strdup("unknown");
 
 	/*

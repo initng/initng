@@ -147,7 +147,7 @@ static dbus_bool_t add_dbus_watch(DBusWatch * watch, void *data)
 	initng_dbus_watch *w =
 	    initng_toolbox_calloc(1, sizeof(initng_dbus_watch));
 
-	if (w == NULL) {
+	if (!w) {
 		printf("Memory allocation failed\n");
 		return FALSE;
 	}
@@ -169,7 +169,7 @@ static void rem_dbus_watch(DBusWatch * watch, void *data)
 {
 	/*   initng_dbus_watch *w = dbus_watch_get_data(watch);
 
-	   if(w != NULL) free_dbus_watch_data(w); */
+	   if(w) free_dbus_watch_data(w); */
 }
 
 static void toggled_dbus_watch(DBusWatch * watch, void *data)
@@ -237,7 +237,7 @@ static void astatus_change(s_event * event)
 	int is = service->current_state->is;
 	const char *state_name = service->current_state->name;
 
-	if (conn == NULL)
+	if (!conn)
 		return;
 
 	D_("Sending signal with value \"%.10s\" %i \"%.10s\"\n", service_name,
@@ -245,7 +245,7 @@ static void astatus_change(s_event * event)
 
 	/* create a signal & check for errors */
 	msg = dbus_message_new_signal(OBJECT, INTERFACE, "astatus_change");
-	if (NULL == msg) {
+	if (!msg) {
 		F_("Unable to create ne dbus signal\n");
 		return;
 	}
@@ -282,12 +282,12 @@ static void system_state_change(s_event * event)
 
 	state = (e_is) event->data;
 
-	if (conn == NULL)
+	if (!conn)
 		return;
 
 	/* create a signal & check for errors */
 	msg = dbus_message_new_signal(OBJECT, INTERFACE, "system_state_change");
-	if (NULL == msg) {
+	if (!msg) {
 		F_("Unable to create new dbus signal\n");
 		return;
 	}
@@ -328,14 +328,14 @@ static void system_pipe_watchers(s_event * event)
 
 	char output[100];	//used for ? needs fix
 
-	if (conn == NULL) {
+	if (!conn) {
 		event->status = HANDLED;
 		return;
 	}
 
 	/* create a signal & check for errors */
 	msg = dbus_message_new_signal(OBJECT, INTERFACE, "system_output");
-	if (NULL == msg) {
+	if (!msg) {
 		F_("Unable to create new dbus signal\n");
 		event->status = HANDLED;
 		return;
@@ -379,12 +379,12 @@ static void print_error(s_event * event)
 	data = event->data;
 	va_copy(va, data->arg);
 
-	if (conn == NULL)
+	if (!conn)
 		return;
 
 	/* create a signal & check for errors */
 	msg = dbus_message_new_signal(OBJECT, INTERFACE, "print_error");
-	if (NULL == msg) {
+	if (!msg) {
 		F_("Unable to create new dbus signal\n");
 		return;
 	}
@@ -460,7 +460,7 @@ static int connect_to_dbus(void)
 		dbus_error_free(&err);
 	}
 
-	if (conn == NULL)
+	if (!conn)
 		return FALSE;
 
 	dbus_connection_set_watch_functions(conn, add_dbus_watch,
@@ -506,7 +506,7 @@ int module_init(void)
 
 void module_unload(void)
 {
-	if (conn != NULL) {
+	if (conn) {
 		dbus_connection_close(conn);
 		conn = NULL;
 	}

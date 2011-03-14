@@ -79,7 +79,8 @@ static void check_syncronicly_service(s_event * event)
 	if (!resolv_SSR())
 		return;
 
-	if ((service_syncron = get_string(&SYNCRON, service)) == NULL)
+	service_syncron = get_string(&SYNCRON, service);
+	if (!service_syncron)
 		return;
 
 	while_active_db_safe(current, q) {
@@ -90,7 +91,7 @@ static void check_syncronicly_service(s_event * event)
 		/* If this service has the start process running */
 		if (IS_MARK(current, SERVICE_START_RUN)) {
 			current_syncron = get_string(&SYNCRON, current);
-			if (current_syncron != NULL) {
+			if (current_syncron) {
 				if (strcmp(service_syncron,
 					   current_syncron) == 0) {
 					D_("Service %s has to wait for %s\n",

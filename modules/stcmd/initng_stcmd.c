@@ -440,7 +440,7 @@ static int cmd_load_module(char *arg)
 		return FALSE;
 
 	/* load the module */
-	if (initng_module_load(arg) == NULL)
+	if (!initng_module_load(arg))
 		return FALSE;
 
 	return TRUE;

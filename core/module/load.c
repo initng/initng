@@ -51,13 +51,14 @@ m_h *initng_module_open(const char *module_path, const char *module_name)
 {
 	struct stat st;
 	const char *errmsg;
-	m_h *m = NULL;
+	m_h *m;
 
-	assert(module_path != NULL);
-	assert(module_name != NULL);
+	assert(module_path);
+	assert(module_name);
 
 	/* allocate, the new module info struct */
-	if (!(m = (m_h *) initng_toolbox_calloc(1, sizeof(m_h)))) {
+	m = (m_h *) initng_toolbox_calloc(1, sizeof(m_h));
+	if (!m) {
 		F_("Unable to allocate memory, for new module "
 		   "description.\n");
 		return NULL;
@@ -73,14 +74,17 @@ m_h *initng_module_open(const char *module_path, const char *module_name)
 		return NULL;
 	}
 
+	/* clear any existing error */
+	dlerror();
+
 	/* open module */
-	dlerror();		/* clear any existing error */
 	m->dlhandle = dlopen(module_path, RTLD_LAZY);
+
 	/*
 	 * this breaks ngc2 on my testbox - neuron :
 	 * g.modules[i].module = dlopen(module_name, RTLD_NOW | RTLD_GLOBAL);
 	 * */
-	if (m->dlhandle == NULL) {
+	if (!m->dlhandle) {
 		F_("Error opening module %s; %s\n", module_name, dlerror());
 		free(m);
 		return NULL;
@@ -124,7 +128,7 @@ error:
  */
 void initng_module_close_and_free(m_h * m)
 {
-	assert(m != NULL);
+	assert(m);
 
 	free(m->name);
 	free(m->path);
@@ -149,7 +153,7 @@ m_h *initng_module_load(const char *module)
 	char *module_name = NULL;
 	m_h *new_m;
 
-	assert(module != NULL);
+	assert(module);
 
 	/* if its a full path starting with / and contains .so */
 	if (module[0] == '/' && strstr(module, ".so")) {

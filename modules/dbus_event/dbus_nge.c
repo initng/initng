@@ -29,7 +29,7 @@ int main(int argc, char **argv)
 		dbus_error_free(&err);
 	}
 
-	if (NULL == conn)
+	if (!conn)
 		exit(1);
 
 	/* request our name on the bus and check for errors */
@@ -59,7 +59,7 @@ int main(int argc, char **argv)
 		msg = dbus_connection_pop_message(conn);
 
 		/* loop again if we haven't read a message */
-		if (NULL == msg) {
+		if (!msg) {
 			sleep(1);
 			continue;
 		}

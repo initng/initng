@@ -225,7 +225,7 @@ static void service_status_watch(s_event * event)
 	len = ngcs_marshal_active_db_h(service, NULL);
 	initng_list_foreach_rev_safe(watch, nextwatch, &watches.list, list) {
 		if ((watch->flags & NGCS_WATCH_STATUS) &&
-		    (watch->name == NULL ||
+		    (!watch->name ||
 		     strcmp(watch->name, service->name) == 0)) {
 			if (!buf) {
 				buf = initng_toolbox_calloc(1, len);
@@ -251,7 +251,7 @@ static int ngcs_watch_initial(ngcs_watch * watch)
 
 		current = NULL;
 		while_active_db(current) {
-			if (watch->name == NULL ||
+			if (!watch->name ||
 			    strcmp(watch->name, current->name) == 0) {
 				int len = 0;
 				char *buf = NULL;
@@ -306,7 +306,7 @@ static void service_output_watch(s_event * event)
 
 	initng_list_foreach_rev_safe(watch, nextwatch, &watches.list, list) {
 		if ((watch->flags & NGCS_WATCH_OUTPUT) &&
-		    (watch->name == NULL ||
+		    (!watch->name ||
 		     strcmp(watch->name, data->service->name) == 0)) {
 			if (!buf) {
 				len = ngcs_pack(dat, 2, NULL);

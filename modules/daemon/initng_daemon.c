@@ -1160,7 +1160,7 @@ static pid_t pid_of(const char *name)
 		return (-1);
 
 	/* Walk through the directory. */
-	while ((d = readdir(dir)) != NULL) {
+	while (d = readdir(dir)) {
 		char buf[BUFF_SIZE + 1];	/* Will contain a fixed string
 						 * like "/proc/12232/stat" */
 		char *s = NULL;	/* Temporary pointer when
@@ -1186,7 +1186,7 @@ static pid_t pid_of(const char *name)
 		}
 
 		/* fetch the full stat file, or fail */
-		if (fgets(buf, BUFF_SIZE, fp) == NULL) {
+		if (!fgets(buf, BUFF_SIZE, fp)) {
 			fclose(fp);
 			continue;
 		}

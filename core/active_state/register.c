@@ -34,7 +34,7 @@ int initng_active_state_register(a_state_h * state)
 	assert(state);
 
 	/* look for duplicates */
-	if (initng_active_state_find(state->name) != NULL) {
+	if (initng_active_state_find(state->name)) {
 		F_("There exists a state with this state_name (%s) already, "
 		   "please check this!\n", state->name);
 		return FALSE;

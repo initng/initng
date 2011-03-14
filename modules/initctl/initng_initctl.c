@@ -314,7 +314,7 @@ static void makeutmp(int runlevel)
 	utmp.ut_pid = ('#' << 8) + runlevel + '0';
 	time(&t);
 	utmp.ut_time = (int)t;
-	if (pututline(&utmp) == NULL) {
+	if (!pututline(&utmp)) {
 		F_("pututline failed\n");
 		endutent();
 		return;

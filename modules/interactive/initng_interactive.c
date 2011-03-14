@@ -63,7 +63,7 @@ static void interactive_STARTING(s_event * event)
 
 	fprintf(stderr, "Start service %s, (Y/n/a):", service->name);
 	/* HACK: ignore read errors by assuming 'n' */
-	if (fgets(asw, 9, stdin) == NULL)
+	if (!fgets(asw, 9, stdin))
 		asw[0] = 'n';
 
 	/* if it is true, then its ok to launch service */
@@ -98,7 +98,7 @@ static void interactive_STOP_MARKED(s_event * event)
 
 	fprintf(stderr, "Stop service %s, (Y/n/a):", service->name);
 	/* HACK: ignore read errors by assuming 'n' */
-	if (fgets(asw, 9, stdin) == NULL)
+	if (!fgets(asw, 9, stdin))
 		asw[0] = 'n';
 
 	if (asw[0] == 'y' || asw[0] == 'Y')

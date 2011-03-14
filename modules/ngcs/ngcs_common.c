@@ -85,7 +85,7 @@ int ngcs_recvmsg(int sock, int *chan, int *type, int *len, char **data)
 
 	*data = malloc(*len);
 
-	if (*data == NULL)
+	if (!*data)
 		return 1;
 
 	if (ngcs_recvall(sock, *data, *len))
@@ -312,7 +312,7 @@ ngcs_conn *ngcs_conn_from_fd(int fd, void *userdata,
 
 	conn = malloc(sizeof(ngcs_conn));
 
-	if (conn == NULL)
+	if (!conn)
 		return NULL;
 
 	/* FIXME - should set non-blocking and use buffering */
@@ -338,7 +338,7 @@ ngcs_conn *ngcs_conn_from_fd(int fd, void *userdata,
 	conn->wrbuflen = 1024;
 	conn->wrbuf = malloc(conn->wrbuflen);
 
-	if (conn->wrbuf == NULL) {
+	if (!conn->wrbuf) {
 		free(conn);
 		return NULL;
 	}
@@ -367,7 +367,7 @@ static int ngcs_conn_send(ngcs_conn * conn, int chan, int type, int len,
 		/* FIXME - there are better allocation strategies */
 		char *newbuf = realloc(conn->wrbuf, conn->towrite + total_len);
 
-		if (newbuf == NULL)
+		if (!newbuf)
 			return 1;
 
 		conn->wrbuf = newbuf;
@@ -640,7 +640,7 @@ int ngcs_chan_read_msg(ngcs_chan * chan, int *type, int *len, char **data)
 		}
 
 		it = malloc(sizeof(ngcs_incoming));
-		if (it == NULL) {
+		if (!it) {
 			ngcs_conn_close(chan->conn);
 			return 1;
 		}

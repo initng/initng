@@ -76,7 +76,7 @@ int module_is_loaded(const char *module_name)
 {
 	m_h *m = NULL;
 
-	assert(module_name != NULL);
+	assert(module_name);
 
 	while_module_db(m) {
 		if (strcmp(m->name, module_name) == 0)
@@ -93,7 +93,7 @@ int module_needs_are_loaded(const m_h * m)
 {
 	const char **needs;
 
-	assert(m != NULL);
+	assert(m);
 
 	for (needs = m->modinfo->deps; *needs; needs++) {
 		if (!module_is_loaded(*needs)) {
@@ -116,7 +116,7 @@ int module_is_needed(const char *module_name)
 	m_h *m = NULL;
 	int retval = FALSE;
 
-	assert(module_name != NULL);
+	assert(module_name);
 
 	while_module_db(m) {
 		/* if not this module, have needs set, continue.. */
@@ -124,7 +124,7 @@ int module_is_needed(const char *module_name)
 			continue;
 		needs = m->modinfo->deps;
 
-		while (*needs != NULL) {
+		while (*needs) {
 			if (strcmp(module_name, *needs) == 0) {
 				F_("Module \"%s\" needed by \"%s\"\n",
 				   module_name, m->name);

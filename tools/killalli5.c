@@ -107,7 +107,8 @@ static void *xmalloc(int bytes)
 {
 	void *p;
 
-	if ((p = malloc(bytes)) == NULL) {
+	p = malloc(bytes);
+	if (!p) {
 		if (sent_sigstop)
 			kill(-1, SIGCONT);
 		nsyslog(LOG_ERR, "out of memory");
@@ -200,7 +201,8 @@ static int readproc(void)
 	int pid, f;
 
 	/* Open the /proc directory. */
-	if ((dir = opendir("/proc")) == NULL) {
+	dir = opendir("/proc");
+	if (!dir) {
 		nsyslog(LOG_ERR, "cannot opendir(/proc)");
 		return -1;
 	}
@@ -216,7 +218,7 @@ static int readproc(void)
 	plist = NULL;
 
 	/* Walk through the directory. */
-	while ((d = readdir(dir)) != NULL) {
+	while (d = readdir(dir)) {
 
 		/* See if this is a process */
 		if ((pid = atoi(d->d_name)) == 0)
@@ -230,8 +232,8 @@ static int readproc(void)
 		snprintf(path, sizeof(path), "/proc/%s/stat", d->d_name);
 
 		/* Read SID & statname from it. */
-		if ((fp = fopen(path, "r")) != NULL &&
-		    fgets(buf, sizeof buf, fp) != NULL) {
+		fp = fopen(path, "r");
+		if (fp && fgets(buf, sizeof buf, fp)) {
 			/* See if name starts with '(' */
 			s = buf;
 			while (*s != ' ')
@@ -240,7 +242,7 @@ static int readproc(void)
 			if (*s == '(') {
 				/* Read program name. */
 				q = strrchr(buf, ')');
-				if (q == NULL) {
+				if (!q) {
 					p->sid = 0;
 					nsyslog(LOG_ERR,
 						"can't get program name from %s\n",
@@ -277,7 +279,7 @@ static int readproc(void)
 				p->kernel = 1;
 			fclose(fp);
 		} else {
-			if (fp != NULL)
+			if (fp)
 				fclose(fp);
 			/* Process disappeared.. */
 			free(p);
@@ -285,7 +287,8 @@ static int readproc(void)
 		}
 
 		snprintf(path, sizeof(path), "/proc/%s/cmdline", d->d_name);
-		if ((fp = fopen(path, "r")) != NULL) {
+		fp = fopen(path, "r");
+		if (fp) {
 
 			/* Now read argv[0] */
 			f = readarg(fp, buf, sizeof(buf));
@@ -298,7 +301,7 @@ static int readproc(void)
 
 				/* Get a pointer to the basename. */
 				p->argv0base = strrchr(p->argv0, '/');
-				if (p->argv0base != NULL)
+				if (p->argv0base)
 					p->argv0base++;
 				else
 					p->argv0base = p->argv0;
@@ -316,7 +319,7 @@ static int readproc(void)
 
 				/* Get a pointer to the basename. */
 				p->argv1base = strrchr(p->argv1, '/');
-				if (p->argv1base != NULL)
+				if (p->argv1base)
 					p->argv1base++;
 				else
 					p->argv1base = p->argv1;
@@ -356,7 +359,7 @@ static PIDQ_HEAD *init_pid_q(PIDQ_HEAD * q)
 
 static int empty_q(PIDQ_HEAD * q)
 {
-	return (q->head == NULL);
+	return !q->head;
 }
 
 static int add_pid_to_q(PIDQ_HEAD * q, PROC * p)
@@ -409,7 +412,8 @@ static PIDQ_HEAD *pidof(char *prog)
 		dostat++;
 
 	/* Get basename of program. */
-	if ((s = strrchr(prog, '/')) == NULL)
+	s = strrchr(prog, '/');
+	if (!s)
 		s = prog;
 	else
 		s++;
@@ -448,8 +452,8 @@ static PIDQ_HEAD *pidof(char *prog)
 			 *      used setproctitle so try statname.
 			 */
 			if (strlen(s) <= STATNAMELEN &&
-			    (p->argv0 == NULL ||
-			     p->argv0[0] == 0 || strchr(p->argv0, ' '))) {
+			    (!p->argv0 || p->argv0[0] == 0
+			     || strchr(p->argv0, ' '))) {
 				ok += (strcmp(p->statname, s) == 0);
 			}
 			if (ok)
@@ -477,7 +481,7 @@ static void nsyslog(int pri, const char *fmt, ...)
 
 	va_start(args, fmt);
 
-	if (ttyname(0) == NULL) {
+	if (!ttyname(0)) {
 // FIXME : vsyslog isn't standard
 //		vsyslog(pri, fmt, args);
 	} else {
@@ -551,7 +555,8 @@ static int main_pidof(int argc, char **argv)
 	/* Print out process-ID's one by one. */
 	readproc();
 	for (f = 0; f < argc; f++) {
-		if ((q = pidof(argv[f])) != NULL) {
+		q = pidof(argv[f]);
+		if (q) {
 			spid = 0;
 			while ((p = get_next_from_pid_q(q))) {
 				if (flags & PIDOF_OMIT) {
@@ -591,7 +596,8 @@ int main(int argc, char **argv)
 	int sig = SIGKILL;
 
 	/* Get program name. */
-	if ((progname = strrchr(argv[0], '/')) == NULL)
+	progname = strrchr(argv[0], '/');
+	if (!progname)
 		progname = argv[0];
 	else
 		progname++;

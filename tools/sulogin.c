@@ -189,7 +189,8 @@ struct passwd *getrootpwent(int try_manually)
 	pwd.pw_uid = 0;
 	pwd.pw_gid = 0;
 
-	if ((fp = fopen(F_PASSWD, "r")) == NULL) {
+	fp = fopen(F_PASSWD, "r");
+	if (!fp) {
 		perror(F_PASSWD);
 		return &pwd;
 	}
@@ -197,7 +198,7 @@ struct passwd *getrootpwent(int try_manually)
 	/*
 	 *      Find root in the password file.
 	 */
-	while ((p = fgets(line, 256, fp)) != NULL) {
+	while (p = fgets(line, 256, fp)) {
 		if (strncmp(line, "root:", 5) != 0)
 			continue;
 		p += 5;
@@ -216,7 +217,7 @@ struct passwd *getrootpwent(int try_manually)
 	 *      If the encrypted password is valid
 	 *      or not found, return.
 	 */
-	if (p == NULL) {
+	if (!p) {
 		fprintf(stderr, "%s: no entry for root\n", F_PASSWD);
 		return &pwd;
 	}
@@ -228,11 +229,12 @@ struct passwd *getrootpwent(int try_manually)
 	 *      shadow password, try it.
 	 */
 	strcpy(pwd.pw_passwd, "");
-	if ((fp = fopen(F_SHADOW, "r")) == NULL) {
+	fp = fopen(F_SHADOW, "r");
+	if (!fp) {
 		fprintf(stderr, "%s: root password garbled\n", F_PASSWD);
 		return &pwd;
 	}
-	while ((p = fgets(sline, 256, fp)) != NULL) {
+	while (p = fgets(sline, 256, fp)) {
 		if (strncmp(sline, "root:", 5) != 0)
 			continue;
 		p += 5;
@@ -245,7 +247,7 @@ struct passwd *getrootpwent(int try_manually)
 	 *      If the password is still invalid,
 	 *      NULL it, and return.
 	 */
-	if (p == NULL) {
+	if (!p) {
 		fprintf(stderr, "%s: no entry for root\n", F_SHADOW);
 		strcpy(pwd.pw_passwd, "");
 	}
@@ -321,16 +323,16 @@ void sushell(struct passwd *pwd)
 	 *      Set directory and shell.
 	 */
 	rvchdir = chdir(pwd->pw_dir);
-	if ((p = getenv("SUSHELL")) != NULL)
+	if (p = getenv("SUSHELL"))
 		sushell = p;
-	else if ((p = getenv("sushell")) != NULL)
+	else if (p = getenv("sushell"))
 		sushell = p;
-	else {
-		if (pwd->pw_shell[0])
-			sushell = pwd->pw_shell;
-		else
-			sushell = strdup(BINSH);
+	else if (pwd->pw_shell[0]) {
+		sushell = pwd->pw_shell;
+	} else {
+		sushell = strdup(BINSH);
 	}
+
 	if ((p = strrchr(sushell, '/')) == NULL)
 		p = sushell;
 	else
@@ -454,7 +456,8 @@ int main(int argc, char **argv)
 	/*
 	 *      Get the root password.
 	 */
-	if ((pwd = getrootpwent(opt_e)) == NULL) {
+	pwd = getrootpwent(opt_e);
+	if (!pwd) {
 		fprintf(stderr, "sulogin: cannot open password database!\n");
 		sleep(2);
 	}
@@ -463,7 +466,8 @@ int main(int argc, char **argv)
 	 *      Ask for the password.
 	 */
 	while (pwd) {
-		if ((p = getpasswd(pwd->pw_passwd)) == NULL)
+		p = getpasswd(pwd->pw_passwd);
+		if (!p)
 			break;
 		if (pwd->pw_passwd[0] == 0 ||
 		    strcmp(crypt(p, pwd->pw_passwd), pwd->pw_passwd) == 0)

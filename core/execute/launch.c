@@ -44,7 +44,7 @@ int initng_execute_launch(active_db_h * service, ptype_h * type,
 
 	/* Try to get the current one */
 	process = initng_process_db_get(type, service);
-	if (process != NULL) {
+	if (process) {
 		F_("There exists an \"%s\" process in \"%s\" already.\n",
 		   process->pt->name, service->name);
 		/* assert(NULL); */

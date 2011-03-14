@@ -85,7 +85,8 @@ void hard(h_then t)
 	}
 
 	/* check so that / is mounted read only, by trying to open a file */
-	if ((test = fopen("/initng_write_testfile", "w")) != NULL) {
+	test = fopen("/initng_write_testfile", "w");
+	if (test) {
 		fclose(test);
 		unlink("/initng_write_testfile");
 		F_("/ IS NOT REMOUNTED READ-ONLY, WON'T REBOOT/HALT BECAUSE THE FILE SYSTEM CAN BREAK!\n");

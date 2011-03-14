@@ -34,7 +34,8 @@ void *initng_toolbox_calloc(size_t nmemb, size_t size)
 
 	/*D_("function %s() line %i allocating %i bytes\n", func, line,
 	   nmemb * size); */
-	while ((alloced = calloc(nmemb, size)) == NULL) {
+
+	while (!(alloced = calloc(nmemb, size))) {
 		F_("Out of memory, trying again in 1 second\n");
 		sleep(1);
 	}
@@ -47,7 +48,7 @@ void *initng_toolbox_realloc(void *ptr, size_t size)
 {
 	void *alloced;
 
-	while ((alloced = realloc(ptr, size)) == NULL) {
+	while (!(alloced = realloc(ptr, size))) {
 		F_("Out of memory, trying again in 1 second\n");
 		sleep(1);
 	}
@@ -60,7 +61,7 @@ char *initng_toolbox_strdup(const char *s)
 {
 	char *alloced;
 
-	while ((alloced = strdup(s)) == NULL) {
+	while (!(alloced = strdup(s))) {
 		F_("Out of memory, trying again in 1 second\n");
 		sleep(1);
 	}

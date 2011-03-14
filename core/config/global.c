@@ -69,7 +69,7 @@ void initng_config_global_new(int argc, char *argv[], char *env[])
 		g.maxproclen += strlen(argv[i]) + 1;
 	}
 
-	for (i = 0; env[i] != NULL; i++) {
+	for (i = 0; env[i]; i++) {
 		g.maxproclen += strlen(env[i]) + 1;
 	}
 

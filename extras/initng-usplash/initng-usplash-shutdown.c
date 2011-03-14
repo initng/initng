@@ -297,7 +297,7 @@ int main(int argc, char *argv[])
 	/* FROM HERE, IS run in a fork. */
 
 	/* open correct socket */
-	while (c == NULL) {
+	while (!c) {
 		/* reset error every time, or you get an can not connect to socket */
 		ngeclient_error = NULL;
 		c = ngeclient_connect(NGE_REAL);

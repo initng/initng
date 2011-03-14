@@ -132,7 +132,7 @@ void options_parse_args(char **argv)
 	int i;
 	char *opt;
 
-	for (i = 0; argv[i] != NULL; i++) {
+	for (i = 0; argv[i]; i++) {
 		opt = argv[i];
 
 		/* don't parse options starting with an '+' */
@@ -163,7 +163,8 @@ int options_parse_file(const char *file)
 	FILE *f;
 	char tmp[BUF_LEN + 1];
 
-	if ((f = fopen(file, "r")) == NULL) {
+	f = fopen(file, "r");
+	if (!f) {
 		F_("Failed opening configuration file '%s'", file);
 		return -1;
 	}

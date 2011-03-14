@@ -35,7 +35,7 @@
  */
 static void unload(m_h * module)
 {
-	assert(module != NULL);
+	assert(module);
 
 	/* run the unload hook */
 	(*module->modinfo->unload)();
@@ -49,7 +49,7 @@ int initng_module_unload_named(const char *name)
 {
 	m_h *m = NULL;
 
-	assert(name != NULL);
+	assert(name);
 
 	D_("initng_module_unload_named(%s);\n", name);
 

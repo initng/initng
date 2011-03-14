@@ -252,7 +252,7 @@ void accepted_client(f_module_h * from, e_fdw what)
 		D_("read socket open, now setting options\n");
 		conn = (ngcs_svr_conn *)
 		    initng_toolbox_calloc(1, sizeof(ngcs_svr_conn));
-		if (conn == NULL) {
+		if (!conn) {
 			F_("Couldn't allocate ngcs_svr_conn!");
 			close(newsock);
 			return;
@@ -260,7 +260,7 @@ void accepted_client(f_module_h * from, e_fdw what)
 
 		conn->conn = ngcs_conn_from_fd(newsock, conn, handle_close,
 					       pollmode_hook);
-		if (conn->conn == NULL) {
+		if (!conn->conn) {
 			F_("Couldn't allocate ngcs_conn!");
 			close(newsock);
 			free(conn);
@@ -269,7 +269,7 @@ void accepted_client(f_module_h * from, e_fdw what)
 
 		chan0 = ngcs_chan_reg(conn->conn, 0, &handle_chan0,
 				      &ngcs_chan_del, NULL);
-		if (chan0 == NULL) {
+		if (!chan0) {
 			F_("Couldn't register channel 0!");
 			ngcs_conn_free(conn->conn);
 			free(conn);
@@ -366,7 +366,7 @@ static void handle_chan0(ngcs_chan * chan, int type, int len, char *data)
 
 	/* run the associated command */
 	while_ngcs_cmds(cmd) {
-		if (cmd->name != NULL &&
+		if (cmd->name &&
 		    strcmp(cmd->name, req.argv[0].d.s) == 0) {
 			cmd->func(&req);
 			if (!req.sent_resp_flag) {
@@ -382,7 +382,7 @@ static void handle_chan0(ngcs_chan * chan, int type, int len, char *data)
 
 	/* Command handlers which do multiple commands - TODO document this */
 	while_ngcs_cmds(cmd) {
-		if (cmd->name == NULL) {
+		if (!cmd->name) {
 			cmd->func(&req);
 			if (req.sent_resp_flag) {
 				ngcs_free_unpack(req.argc, req.argv);
@@ -425,7 +425,7 @@ static void ngcs_cmd_compat(ngcs_request * req)
 		}
 	}
 
-	if (cmd == NULL)
+	if (!cmd)
 		return;
 
 	if (req->argc > 2) {

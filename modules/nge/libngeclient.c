@@ -607,12 +607,12 @@ nge_event *get_next_event(nge_connection * c, int block)
 
 	/* If there was no in buffer from the qick or old polls, do the long
 	 * poll. */
-	if (c->read_buffer == NULL || c->read_buffer_len < 1) {
+	if (!c->read_buffer || c->read_buffer_len < 1) {
 		ngeclient_poll_for_input(c, block);
 	}
 
 	/* check that its anything there after the long poll */
-	if (c->read_buffer == NULL || c->read_buffer_len < 1) {
+	if (!c->read_buffer || c->read_buffer_len < 1) {
 		return NULL;
 	}
 

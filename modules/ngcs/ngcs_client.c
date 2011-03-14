@@ -64,7 +64,7 @@ void ngcs_client_free_svc_watch(ngcs_svc_evt_hook * hook)
 	ngcs_svc_evt event;
 
 	assert(hook);
-	if (hook->chan != NULL) {
+	if (hook->chan) {
 		ngcs_chan_del(hook->chan);
 	} else {
 		event.type = NGCS_SVC_EVT_END;
@@ -80,9 +80,9 @@ static void handle_svc_event_req(ngcs_cli_conn * cconn, void *userdata,
 	ngcs_svc_evt_hook *hook = userdata;
 	ngcs_svc_evt event;
 
-	assert(hook != NULL);
+	assert(hook);
 
-	if (ret == NULL || ret->len < 0 || ret->type != NGCS_TYPE_INT) {
+	if (!ret || ret->len < 0 || ret->type != NGCS_TYPE_INT) {
 		/* FIXME - better error handling? */
 		ngcs_client_free_svc_watch(hook);
 		return;
@@ -91,7 +91,7 @@ static void handle_svc_event_req(ngcs_cli_conn * cconn, void *userdata,
 	hook->chan = ngcs_chan_reg(cconn->conn, ret->d.i, svc_status_gotdata,
 				   ngcs_chan_del, svc_status_end);
 
-	if (hook->chan == NULL) {
+	if (!hook->chan) {
 		ngcs_client_free_svc_watch(hook);
 		return;
 	}
@@ -110,7 +110,7 @@ static void svc_status_gotdata(ngcs_chan * chan, int type, int len, char *data)
 	ngcs_data *s;
 	int cnt;
 
-	assert(hook != NULL);
+	assert(hook);
 
 	if (len < 0)
 		return;
@@ -159,7 +159,7 @@ static void svc_status_end(ngcs_chan * chan)
 {
 	ngcs_svc_evt_hook *hook = chan->userdata;
 
-	assert(hook != NULL);
+	assert(hook);
 
 	hook->chan = NULL;
 	ngcs_client_free_svc_watch(hook);
@@ -191,7 +191,7 @@ ngcs_cli_conn *ngcs_client_connect(e_ngcs_cli_connflags flags, void *userdata,
 	}
 
 	cconn = malloc(sizeof(ngcs_cli_conn));
-	if (cconn == NULL) {
+	if (!cconn) {
 		close(sock);
 		return NULL;
 	}
@@ -199,7 +199,7 @@ ngcs_cli_conn *ngcs_client_connect(e_ngcs_cli_connflags flags, void *userdata,
 	cconn->conn = ngcs_conn_from_fd(sock, cconn, ngcs_client_close_hook,
 					pollmode_hook_fixup);
 
-	if (cconn->conn == NULL) {
+	if (!cconn->conn) {
 		free(cconn);
 		close(sock);
 		return NULL;
@@ -215,7 +215,7 @@ ngcs_cli_conn *ngcs_client_connect(e_ngcs_cli_connflags flags, void *userdata,
 	cconn->chan0 = ngcs_chan_reg(cconn->conn, 0, chan0_gotdata,
 				     chan0_close, NULL);
 
-	if (cconn->chan0 == NULL) {
+	if (!cconn->chan0) {
 		ngcs_conn_close(cconn->conn);
 		return NULL;
 	}
@@ -228,7 +228,7 @@ ngcs_cli_conn *ngcs_client_connect(e_ngcs_cli_connflags flags, void *userdata,
 
 void ngcs_client_free(ngcs_cli_conn * cconn)
 {
-	if (cconn->conn != NULL) {
+	if (cconn->conn) {
 		ngcs_conn_free(cconn->conn);
 	}
 
@@ -238,12 +238,12 @@ void ngcs_client_free(ngcs_cli_conn * cconn)
 
 int ngcs_client_conn_is_closed(ngcs_cli_conn * cconn)
 {
-	return cconn->conn == NULL;
+	return !cconn->conn;
 }
 
 int ngcs_client_conn_has_pending_writes(ngcs_cli_conn * cconn)
 {
-	return (cconn->conn != NULL &&
+	return (cconn->conn &&
 		ngcs_conn_has_pending_writes(cconn->conn));
 }
 
@@ -269,7 +269,7 @@ static void ngcs_client_close_hook(ngcs_conn * conn)
 {
 	ngcs_cli_conn *cconn = conn->userdata;
 
-	if (cconn->onclose != NULL)
+	if (cconn->onclose)
 		cconn->onclose(cconn);
 
 	cconn->conn = NULL;
@@ -319,7 +319,7 @@ void ngcs_client_dispatch(ngcs_cli_conn * cconn)
 {
 	ngcs_cli_req *req, *next;
 
-	if (cconn->conn != NULL)
+	if (cconn->conn)
 		ngcs_conn_dispatch(cconn->conn);
 
 	initng_list_foreach_safe(req, next, &cconn->resps.list, list) {
@@ -334,7 +334,7 @@ void ngcs_client_dispatch(ngcs_cli_conn * cconn)
 
 int ngcs_client_get_fd(ngcs_cli_conn * cconn)
 {
-	assert(cconn->conn != NULL);
+	assert(cconn->conn);
 	return cconn->conn->fd;
 }
 
@@ -342,7 +342,7 @@ void ngcs_client_data_ready(ngcs_cli_conn * cconn)
 {
 	ngcs_client_dispatch(cconn);
 
-	if (cconn->conn != NULL)
+	if (cconn->conn)
 		ngcs_conn_data_ready(cconn->conn);
 
 	ngcs_client_dispatch(cconn);
@@ -350,7 +350,7 @@ void ngcs_client_data_ready(ngcs_cli_conn * cconn)
 
 void ngcs_client_write_ready(ngcs_cli_conn * cconn)
 {
-	if (cconn->conn != NULL)
+	if (cconn->conn)
 		ngcs_conn_write_ready(cconn->conn);
 }
 
@@ -363,7 +363,7 @@ int ngcs_cmd_async(ngcs_cli_conn * cconn, int argc, ngcs_data * argv,
 	ngcs_cli_req *req;
 
 	assert(cconn);
-	if (cconn->chan0 == NULL)
+	if (!cconn->chan0)
 		return 1;
 
 	len = ngcs_pack(argv, argc, NULL);
@@ -371,7 +371,7 @@ int ngcs_cmd_async(ngcs_cli_conn * cconn, int argc, ngcs_data * argv,
 		return -1;
 
 	buf = malloc(len);
-	if (buf == NULL)
+	if (!buf)
 		return 1;
 
 	len = ngcs_pack(argv, argc, buf);
@@ -381,7 +381,7 @@ int ngcs_cmd_async(ngcs_cli_conn * cconn, int argc, ngcs_data * argv,
 	}
 
 	req = malloc(sizeof(ngcs_cli_req));
-	if (req == NULL) {
+	if (!req) {
 		free(buf);
 		return 1;
 	}
@@ -414,7 +414,7 @@ ngcs_svc_evt_hook *ngcs_svc_event_cmd(ngcs_cli_conn * cconn, int argc,
 	assert(cconn);
 	assert(handler);
 
-	if (hook == NULL)
+	if (!hook)
 		return NULL;
 
 	hook->chan = NULL;
@@ -444,7 +444,7 @@ ngcs_svc_evt_hook *ngcs_watch_service(ngcs_cli_conn * cconn, char *svc,
 	args[1].type = NGCS_TYPE_INT;
 	args[1].d.i = flags;
 
-	if (svc == NULL) {
+	if (!svc) {
 		args[2].type = NGCS_TYPE_NULL;
 		args[2].len = 0;
 	} else {
@@ -488,7 +488,7 @@ int ngcs_cmd(ngcs_conn * conn, int argc, ngcs_data * argv, ngcs_data * ret)
 		return 1;
 
 	buf = malloc(len);
-	if (buf == NULL)
+	if (!buf)
 		return 1;
 
 	len = ngcs_pack(argv, argc, buf);

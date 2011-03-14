@@ -32,8 +32,8 @@ void setup_selinux(void)
 	/* load selinux policy */
 	FILE *tmp_f;
 
-	if ((tmp_f = fopen("/selinux/enforce", "r")) == NULL &&
-	    getenv("SELINUX_INIT") == NULL) {
+	tmp_f = fopen("/selinux/enforce", "r");
+	if (!tmp_f && !getenv("SELINUX_INIT")) {
 		int enforce = -1;
 		putenv("SELINUX_INIT=YES");
 		if (selinux_init_load_policy(&enforce) != 0 && enforce > 0) {
