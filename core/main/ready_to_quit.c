@@ -38,12 +38,8 @@ int initng_main_ready_to_quit(void)
 
 	/* If the last process has died, quit initng */
 	while_active_db(current) {
-		/* Don't check with failed services */
-		if (IS_FAILED(current))
-			continue;
-
-		/* if its down, its nothing to count on */
-		if (IS_DOWN(current))
+		/* Don't check with failed or down services */
+		if (IS_FAILED(current) || IS_DOWN(current))
 			continue;
 
 		/*

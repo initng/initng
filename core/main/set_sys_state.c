@@ -43,5 +43,4 @@ void initng_main_set_sys_state(h_sys_state state)
 	/* execute all functions in modules that want to
 	 * be executed when system state change occurs. */
 	initng_module_callers_system_changed(state);
-	return;
 }
