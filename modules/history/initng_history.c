@@ -411,13 +411,12 @@ static void fetch_output(s_event * event)
 	s_event_buffer_watcher_data *data;
 	history_h *tmp_e = NULL;
 
+	S_;
 	assert(event->event_type == &EVENT_BUFFER_WATCHER);
 	assert(event->data);
 
 	data = event->data;
 	assert(data->buffer_pos);
-
-	D_("fetch_output()\n");
 
 	/* allocate space for data */
 	if (!(tmp_e = (history_h *)

@@ -63,7 +63,7 @@ void initng_signal_enable(void)
 {
 	int i;
 
-	D_("enable_signals();\n");
+	S_;
 
 	/* clear interrupt cache */
 	/* TODO FIGUREITOUT - Catch signals */
@@ -116,7 +116,7 @@ void initng_signal_enable(void)
  */
 void initng_signal_disable(void)
 {
-	D_("disable_signals();\n");
+	S_;
 
 	/* create a signal set */
 	sigemptyset(&sa.sa_mask);

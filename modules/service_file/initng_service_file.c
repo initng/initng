@@ -216,7 +216,7 @@ static void bp_handle_client(int fd)
 	bp_rep rep;
 	int r;
 
-	D_("Got connection\n");
+	S_;
 	memset(&req, 0, sizeof(bp_req));
 	memset(&rep, 0, sizeof(bp_rep));
 
@@ -606,7 +606,7 @@ void bp_incoming(f_module_h * from, e_fdw what)
 	if (from != &bpf)
 		return;
 
-	D_("bp_incoming();\n");
+	S_;
 	/* we try to fix socket after every service start
 	   if it fails here chances are a user screwed it
 	   up, and we shouldn't manually try to fix anything. */

@@ -31,7 +31,7 @@
 
 void initng_main_exit(int i)
 {
-	D_("exit_initng();\n");
+	S_;
 
 	/* First set the system state to exit */
 	initng_main_set_sys_state(STATE_EXIT);

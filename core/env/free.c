@@ -37,9 +37,11 @@ void initng_env_free(char **tf)
 {
 	int i = 0;
 
-	D_("free_environ();\n");
+	S_;
 	assert(tf);
+
 	for (i = 0; tf[i]; tf++)
 		free(tf[i]);
+
 	free(tf);
 }
