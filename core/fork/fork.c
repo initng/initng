@@ -37,19 +37,19 @@
 
 inline static void pipes_create(process_h *process)
 {
-	pipe_h *pipe = NULL;
+	pipe_h *current_pipe = NULL;
 
-	while_pipes(pipe, process) {
-		if (pipe->dir == IN_AND_OUT_PIPE) {
+	while_pipes(current_pipe, process) {
+		if (current_pipe->dir == IN_AND_OUT_PIPE) {
 			/* create an two directional pipe with socketpair */
 			if (socketpair(AF_UNIX, SOCK_STREAM, 0,
-				       pipe->pipe) < 0) {
+				       current_pipe->pipe) < 0) {
 				F_("Fail call socketpair: \"%s\"\n",
 				   strerror(errno));
 			}
 		} else {
 			/* create an one directional pipe with pipe */
-			if (pipe(pipe->pipe) != 0) {
+			if (pipe(current_pipe->pipe) != 0) {
 				F_("Failed adding pipe ! %s\n",
 				   strerror(errno));
 			}
