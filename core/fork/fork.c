@@ -82,6 +82,8 @@ inline static void pipes_close_remote_side(process_h *process)
 				close(pipe->pipe[0]);
 			pipe->pipe[0] = -1;
 			break;
+		case UNKNOWN_PIPE:
+			break;
 		}
 	}
 }
@@ -119,6 +121,8 @@ inline static void pipes_setup_local_side(process_h *process)
 				/* in a unidirectional socket, there is pipe[0]
 				   that is used in the child */
 				dup2(pipe->pipe[0], pipe->targets[i]);
+				break;
+			case UNKNOWN_PIPE:
 				break;
 			}
 
