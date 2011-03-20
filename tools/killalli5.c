@@ -218,7 +218,7 @@ static int readproc(void)
 	plist = NULL;
 
 	/* Walk through the directory. */
-	while (d = readdir(dir)) {
+	while ((d = readdir(dir))) {
 
 		/* See if this is a process */
 		if ((pid = atoi(d->d_name)) == 0)

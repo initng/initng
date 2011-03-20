@@ -1160,7 +1160,7 @@ static pid_t pid_of(const char *name)
 		return (-1);
 
 	/* Walk through the directory. */
-	while (d = readdir(dir)) {
+	while ((d = readdir(dir))) {
 		char buf[BUFF_SIZE + 1];	/* Will contain a fixed string
 						 * like "/proc/12232/stat" */
 		char *s = NULL;	/* Temporary pointer when
