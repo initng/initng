@@ -46,14 +46,12 @@ inline static void pipes_create(process_h *process)
 				       pipe->pipe) < 0) {
 				F_("Fail call socketpair: \"%s\"\n",
 				   strerror(errno));
-				return -1;
 			}
 		} else {
 			/* create an one directional pipe with pipe */
 			if (pipe(pipe->pipe) != 0) {
 				F_("Failed adding pipe ! %s\n",
 				   strerror(errno));
-				return -1;
 			}
 		}
 	}
