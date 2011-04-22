@@ -197,7 +197,8 @@ static void check_cpu_idle(s_event * event)
 
 	service = event->data;
 
-	if ((value = get_int(&WAIT_FOR_CPU_COUNT, service)) > 0) {
+	value = get_int(&WAIT_FOR_CPU_COUNT, service);
+	if (value > 0) {
 		if (is_cpu_idle(value) < TRUE) {
 			event->status = FAILED;
 			return;

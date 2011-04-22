@@ -40,7 +40,8 @@ active_db_h *initng_handler_start_new_service_named(const char *service)
 	assert(service);
 
 	/* Try to find it */
-	if ((to_load = initng_active_db_find_by_name(service))) {
+	to_load = initng_active_db_find_by_name(service);
+	if (to_load) {
 		if (!IS_DOWN(to_load)) {
 			D_("Service %s exits already, and is not stopped!\n",
 			   to_load->name);
@@ -54,7 +55,8 @@ active_db_h *initng_handler_start_new_service_named(const char *service)
 	}
 
 	/* get from hook */
-	if ((to_load = initng_module_active_new(service)))
+	to_load = initng_module_active_new(service);
+	if (to_load)
 		return to_load;
 
 	/* the function calling this function will print out an error */

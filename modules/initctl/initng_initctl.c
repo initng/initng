@@ -153,8 +153,9 @@ static int initctl_control_open(void)
 
 	/* If the pipe isn't open, try to open it. */
 	if (pipe_fd.fds < 3) {
-		/* it the file descriptor has to be over 2 to be valid */
-		if ((pipe_fd.fds = open(INIT_FIFO, O_RDWR | O_NONBLOCK)) < 3)
+		/* the file descriptor has to be over 2 to be valid */
+		pipe_fd.fds = open(INIT_FIFO, O_RDWR | O_NONBLOCK);
+		if (pipe_fd.fds < 3)
 			return FALSE;
 
 		D_("Opened on fd %i\n", pipe_fd.fds);

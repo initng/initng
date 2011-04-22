@@ -246,7 +246,8 @@ void accepted_client(f_module_h * from, e_fdw what)
 	}
 
 	/* create a new socket, for reading */
-	if ((newsock = accept(fdh.fds, NULL, NULL)) > 0) {
+	newsock = accept(fdh.fds, NULL, NULL);
+	if (newsock > 0) {
 		initng_io_set_cloexec(newsock);
 
 		D_("read socket open, now setting options\n");

@@ -39,7 +39,9 @@ int initng_depend_start_deps(active_db_h * service)
 	D_("initng_depend_start_deps(%s);\n", service->name);
 #endif
 
-	/* walk all possible entrys, use get_next with NULL becouse we want both REQUIRE and NEED */
+	/* walk all possible entrys, use get_next with NULL becouse we want
+	 * both REQUIRE and NEED
+	 */
 	while ((current = get_next(NULL, service, current))) {
 		/* only intreseted in two types */
 		if (current->type != &REQUIRE && current->type != &NEED)
@@ -55,7 +57,8 @@ int initng_depend_start_deps(active_db_h * service)
 		   current->t.s);
 
 		/* look if it exits already */
-		if ((dep = initng_active_db_find_by_name(current->t.s))) {
+		dep = initng_active_db_find_by_name(current->t.s);
+		if (dep) {
 			D_("No need to LOAD \"%s\" == \"%s\", state %s it is "
 			   "already loaded!\n", current->t.s, dep->name,
 			   dep->current_state->name);

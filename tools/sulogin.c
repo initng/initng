@@ -170,8 +170,8 @@ struct passwd *getrootpwent(int try_manually)
 	 *      First, we try to get the password the standard
 	 *      way using normal library calls.
 	 */
-	if ((pw = getpwnam("root")) &&
-	    !strcmp(pw->pw_passwd, "x") && (spw = getspnam("root")))
+	pw = getpwnam("root");
+	if (pw && !strcmp(pw->pw_passwd, "x") && (spw = getspnam("root")))
 		pw->pw_passwd = spw->sp_pwdp;
 	if (pw || !try_manually)
 		return pw;
@@ -333,7 +333,8 @@ void sushell(struct passwd *pwd)
 		sushell = strdup(BINSH);
 	}
 
-	if ((p = strrchr(sushell, '/')) == NULL)
+	p = strrchr(sushell, '/');
+	if (p == NULL)
 		p = sushell;
 	else
 		p++;
@@ -414,7 +415,8 @@ int main(int argc, char **argv)
 	if (optind < argc)
 		tty = argv[optind];
 	if (tty) {
-		if ((fd = open(tty, O_RDWR)) < 0) {
+		fd = open(tty, O_RDWR);
+		if (fd < 0) {
 			perror(tty);
 		} else if (!isatty(fd)) {
 			fprintf(stderr, "%s: not a tty\n", tty);

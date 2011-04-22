@@ -73,7 +73,8 @@ static void program_output(s_event * event)
 	}
 
 	/* open the file */
-	if ((fd = open(filename, O_WRONLY | O_CREAT | O_APPEND, 0644)) < 1) {
+	fd = open(filename, O_WRONLY | O_CREAT | O_APPEND, 0644);
+	if (fd < 1) {
 		F_("Error opening %s, err : %s\n", filename, strerror(errno));
 		return;
 	}

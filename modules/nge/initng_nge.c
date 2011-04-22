@@ -270,8 +270,10 @@ void event_acceptor(f_module_h * from, e_fdw what)
 					   &handle_killed);
 		is_active = TRUE;
 	}
+
 	/* create a new socket, for reading */
-	if ((listeners[lis] = accept(io_event_acceptor.fds, NULL, NULL)) < 1) {
+	listeners[lis] = accept(io_event_acceptor.fds, NULL, NULL);
+	if (listeners[lis] < 1) {
 		F_("Failed to accept listener!\n");
 		return;
 	}

@@ -138,7 +138,8 @@ static int mount_proc(void)
 	if (stat("/proc/version", &st) < 0 && errno == ENOENT) {
 
 		/* It's not there, so mount it. */
-		if ((pid = fork()) < 0) {
+		pid = fork();
+		if (pid < 0) {
 			nsyslog(LOG_ERR, "cannot fork");
 			exit(1);
 		}
@@ -221,7 +222,8 @@ static int readproc(void)
 	while ((d = readdir(dir))) {
 
 		/* See if this is a process */
-		if ((pid = atoi(d->d_name)) == 0)
+		pid = atoi(d->d_name);
+		if (pid == 0)
 			continue;
 
 		/* Get a PROC struct . */
@@ -613,9 +615,12 @@ int main(int argc, char **argv)
 	if (argc > 1) {
 		if (argc != 2)
 			usage();
+
 		if (argv[1][0] == '-')
 			(argv[1])++;
-		if ((sig = atoi(argv[1])) <= 0 || sig > 31)
+
+		sig = atoi(argv[1]);
+		if (sig <= 0 || sig > 31)
 			usage();
 	}
 

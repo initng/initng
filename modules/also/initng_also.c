@@ -66,7 +66,8 @@ static void service_state(s_event * event)
 		s_data *itt = NULL;
 
 		while ((tmp = get_next_string(&ALSO_START, service, &itt))) {
-			if ((current = initng_active_db_find_by_name(tmp))) {
+			current = initng_active_db_find_by_name(tmp);
+			if (current) {
 				if (!initng_handler_start_service(current)) {
 					F_("Failed to also_start %s.\n", tmp);
 					continue;
@@ -94,7 +95,8 @@ static void service_state(s_event * event)
 		s_data *itt = NULL;
 
 		while ((tmp = get_next_string(&ALSO_STOP, service, &itt))) {
-			if ((current = initng_active_db_find_by_name(tmp))) {
+			current = initng_active_db_find_by_name(tmp);
+			if (current) {
 				/* Tell this verbose */
 				D_("service %s also stops %s\n",
 				   service->name, tmp);

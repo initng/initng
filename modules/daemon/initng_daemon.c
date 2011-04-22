@@ -928,7 +928,8 @@ static void timeout_DAEMON_WAIT_FOR_PID_FILE(active_db_h * s)
 		kill_daemon(s, SIGKILL);
 
 		/* Free the process if found */
-		if ((process = initng_process_db_get(&T_DAEMON, s))) {
+		process = initng_process_db_get(&T_DAEMON, s);
+		if (process) {
 			initng_process_db_free(process);
 		}
 
@@ -1171,7 +1172,8 @@ static pid_t pid_of(const char *name)
 				 * return */
 
 		/* Make sure this dirname is a number == pid */
-		if ((pid = atoi(d->d_name)) <= 0)
+		pid = atoi(d->d_name);
+		if (pid <= 0)
 			continue;
 
 		/* Fix a string, that matches the full path of the stat

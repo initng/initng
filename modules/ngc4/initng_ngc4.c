@@ -343,18 +343,16 @@ static void handle_client(int fd)
 			result->payload = sizeof(int);
 
 			/* send the result */
-			if ((sent = send(fd, result,
-					 sizeof(result_desc), 0)) !=
-			    sizeof(result_desc)) {
+			sent = send(fd, result, sizeof(result_desc), 0);
+			if (sent != sizeof(result_desc)) {
 				F_("failed to send result, sent: %i of %i.\n",
 				   sent, sizeof(result_desc));
-
 				break;
 			}
 
 			/* send the payload */
-			if ((sent = send(fd, &ret, result->payload, 0)) !=
-			    (signed)result->payload) {
+			sent = send(fd, &ret, result->payload, 0);
+			if (sent != (signed)result->payload) {
 				F_("Could not send complete payload, "
 				   "sent %i of %i.", sent, result->payload);
 			}
@@ -380,8 +378,8 @@ static void handle_client(int fd)
 			result->payload = strlen(send_buf);
 
 			/* send the result */
-			if ((sent = send(fd, result, sizeof(result_desc), 0))
-			    != sizeof(result_desc)) {
+			sent = send(fd, result, sizeof(result_desc), 0);
+			if (sent != sizeof(result_desc)) {
 				F_("failed to send result, sent: %i of %i.\n",
 				   sent, sizeof(result_desc));
 
@@ -390,8 +388,8 @@ static void handle_client(int fd)
 			}
 
 			/* send the payload */
-			if ((sent = send(fd, send_buf, result->payload, 0)) !=
-			    (signed)result->payload) {
+			sent = send(fd, send_buf, result->payload, 0);
+			if (sent != (signed)result->payload) {
 				F_("Could not send complete payload, "
 				   "sent %i of %i.", sent, result->payload);
 
@@ -418,8 +416,8 @@ static void handle_client(int fd)
 			result->payload = 0;
 
 			/* sent result */
-			if ((sent = send(fd, result, sizeof(result_desc), 0))
-			    != sizeof(result_desc)) {
+			sent = send(fd, result, sizeof(result_desc), 0);
+			if (sent != sizeof(result_desc)) {
 				F_("failed to send result, sent: %i of %i.\n",
 				   sent, sizeof(result_desc));
 			}
@@ -452,8 +450,8 @@ static void handle_client(int fd)
 			result->payload = payload.s;
 
 			/* send the result */
-			if ((sent = send(fd, result, sizeof(result_desc), 0))
-			    != sizeof(result_desc)) {
+			sent = send(fd, result, sizeof(result_desc), 0);
+			if (sent != sizeof(result_desc)) {
 				F_("failed to send result, sent: %i of %i.\n",
 				   sent, sizeof(result_desc));
 
@@ -468,8 +466,8 @@ static void handle_client(int fd)
 			/* send the payload */
 			D_("Sending a payload of %i bytes.\n", result->payload);
 
-			if ((sent = send(fd, payload.p, result->payload, 0))
-			    != (signed)result->payload) {
+			sent = send(fd, payload.p, result->payload, 0);
+			if (sent != (signed)result->payload) {
 				F_("Could not send complete payload, "
 				   "sent %i of %i.", sent, result->payload);
 
@@ -485,8 +483,9 @@ static void handle_client(int fd)
 	case COMMAND_FAIL:
 		/* return FAIL header respond */
 		result->s = S_INVALID_TYPE;
-		if ((sent = send(fd, result, sizeof(result_desc), 0)) !=
-		    (signed)sizeof(result_desc)) {
+
+		sent = send(fd, result, sizeof(result_desc), 0);
+		if (sent != (signed)sizeof(result_desc)) {
 			F_("failed to send result, sent: %i of %i.\n", sent,
 			   sizeof(result_desc));
 			break;
@@ -529,7 +528,8 @@ void accepted_client(f_module_h * from, e_fdw what)
 	}
 
 	/* create a new socket, for reading */
-	if ((newsock = accept(fdh.fds, NULL, NULL)) > 0) {
+	newsock = accept(fdh.fds, NULL, NULL);
+	if (newsock > 0) {
 		/* read the data, by the handle_client function */
 		handle_client(newsock);
 
@@ -607,9 +607,9 @@ static int sendping()
 	accepted_client(&fdh, IOW_READ);
 
 	D_("Reading PONG..\n");
-	if ((read(client, &result, sizeof(result_desc)) <
-	     (signed)sizeof(result_desc)) || result.c != 'Y' ||
-	    result.s != S_TRUE) {
+	if ((read(client, &result, sizeof(result_desc))
+	    < (signed)sizeof(result_desc)) || result.c != 'Y'
+	    || result.s != S_TRUE) {
 		F_("Unable to receive PONG!\n");
 		close(client);
 		return FALSE;

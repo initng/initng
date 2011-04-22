@@ -620,7 +620,8 @@ void bp_incoming(f_module_h * from, e_fdw what)
 	}
 
 	/* create a new socket, for reading */
-	if ((newsock = accept(bpf.fds, NULL, NULL)) > 0) {
+	newsock = accept(bpf.fds, NULL, NULL);
+	if (newsock > 0) {
 		/* read the data, by the handle_client function */
 		bp_handle_client(newsock);
 

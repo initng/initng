@@ -134,7 +134,8 @@ reply *ngcclient_send_command(const char *path, const char c, const char *l,
 	/*print_out("Sending: %c, %s, %s\n", c, l ,o); */
 
 	/* open the socket two way to initng */
-	if ((sock = ngcclient_open_socket(path)) < 1) {
+	sock = ngcclient_open_socket(path);
+	if (sock < 1) {
 		/*
 		 * Set in ngcclient_open_socket()
 		 * ngcclient_error="Socket is not open, or failed to open!";

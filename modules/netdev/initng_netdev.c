@@ -184,7 +184,8 @@ static active_db_h *find_or_create(const char *name)
 	active_db_h *netdev = NULL;
 
 	/* first try find */
-	if ((netdev = initng_active_db_find_by_name(name))) {
+	netdev = initng_active_db_find_by_name(name);
+	if (netdev) {
 		if (netdev->type == &NETDEV)
 			return netdev;
 		else

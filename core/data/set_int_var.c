@@ -52,7 +52,8 @@ void initng_data_set_int_var(s_entry * type, char *vn, data_head * d, int value)
 	}
 
 	/* check the db, for an current entry to overwrite */
-	if ((current = initng_data_get_next_var(type, vn, d, NULL))) {
+	current = initng_data_get_next_var(type, vn, d, NULL);
+	if (current) {
 		current->t.i = value;
 		return;
 	}

@@ -56,7 +56,8 @@ void initng_data_set_string_var(s_entry * type, char *vn, data_head * d,
 	}
 
 	/* check the db, for an current entry to overwrite */
-	if ((current = initng_data_get_next_var(type, vn, d, NULL))) {
+	current = initng_data_get_next_var(type, vn, d, NULL);
+	if (current) {
 		free(current->t.s);
 		free(vn);
 		current->t.s = string;
