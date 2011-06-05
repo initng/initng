@@ -126,10 +126,9 @@ static void initng_reload(void)
 	/* get the command */
 	s_command *reload = initng_command_find_by_command_id('c');
 
-	/* if found */
-	if (reload && reload->u.void_command_call) {
-		/* execute */
-		(*reload->u.void_command_call) (NULL);
+	/* execute if found */
+	if (reload && reload->u.int_command_call) {
+		(*reload->u.int_command_call)(NULL);
 	}
 }
 

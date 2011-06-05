@@ -329,8 +329,8 @@ static void initng_reload(void)
 {
 	s_command *reload = initng_command_find_by_command_id('c');
 
-	if (reload && reload->u.void_command_call) {
-		(*reload->u.void_command_call) (NULL);
+	if (reload && reload->u.int_command_call) {
+		(*reload->u.int_command_call)(NULL);
 	}
 }
 

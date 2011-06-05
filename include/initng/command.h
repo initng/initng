@@ -31,7 +31,6 @@
 typedef enum {
 	COMMAND_FAIL = 0,
 	PAYLOAD_COMMAND = 1,
-	VOID_COMMAND = 2,
 	INT_COMMAND = 3,
 	TRUE_OR_FALSE_COMMAND = 4,
 	STRING_COMMAND = 5,
@@ -89,8 +88,6 @@ typedef struct {
 	 * that is the command we call
 	 */
 	union {
-		void (*void_command_call) (void *data);
-		void (*void_command_void_call) (void);
 		int (*int_command_call) (void *data);
 		int (*int_command_void_call) (void);
 		char *(*string_command_call) (void *data);
@@ -124,7 +121,7 @@ s_command *initng_command_find_by_command_string(char *name);
 /* walk */
 #define while_command_db(current) \
 	initng_list_foreach_rev(current, &g.command_db.list, list)
-	
+
 #define while_command_db_safe(current, safe) \
 	initng_list_foreach_rev_safe(current, safe, &g.command_db.list, list)
 

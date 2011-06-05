@@ -350,10 +350,6 @@ char *ngcclient_reply_to_string(reply * rep, int ansi)
 		}
 		break;
 
-	case VOID_COMMAND:
-		string = strdup("Command succeded without reply.");
-		break;
-
 	case COMMAND_FAIL:
 		string = strdup("Command replied a failure.");
 		break;

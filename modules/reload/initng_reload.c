@@ -48,13 +48,13 @@ const struct initng_module initng_module = {
 
 static int write_file(const char *filename);
 static int read_file(const char *filename);
-static void cmd_fast_reload(char *arg);
+static int cmd_fast_reload(char *arg);
 
 
 s_command FAST_RELOAD = {
 	.id = 'c',
 	.long_id = "hot_reload",
-	.com_type = VOID_COMMAND,
+	.com_type = TRUE_OR_FALSE_COMMAND,
 	.opt_visible = STANDARD_COMMAND,
 	.opt_type = NO_OPT,
 	.u = {(void *)&cmd_fast_reload},
@@ -95,7 +95,7 @@ static int fd_used_by_service(int fd)
 }
 #endif
 
-static void cmd_fast_reload(char *arg)
+static int cmd_fast_reload(char *arg)
 {
 	(void)arg;
 	int retval;
@@ -117,6 +117,8 @@ static void cmd_fast_reload(char *arg)
 		else
 			F_("dump_state failed!\n");
 	}
+
+	return TRUE;
 }
 
 /* FIXME - not all errors are detected, in some cases success could be

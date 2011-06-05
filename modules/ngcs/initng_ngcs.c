@@ -462,12 +462,6 @@ static void ngcs_cmd_compat(ngcs_request * req)
 				   sizeof(int), (char *)&ret);
 		break;
 
-	case VOID_COMMAND:
-		assert(cmd->u.void_command_call);
-		cmd->u.void_command_call(arg);
-		ngcs_send_response(req, NGCS_TYPE_NULL, 0, NULL);
-		break;
-
 	case STRING_COMMAND:
 		assert(cmd->u.string_command_call);
 		sret = cmd->u.string_command_call(arg);

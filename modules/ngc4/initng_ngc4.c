@@ -178,9 +178,9 @@ static void initng_reload(void)
 	 * ngc -c  is the reload command
 	 */
 	reload = initng_command_find_by_command_id('c');
-	if (reload && reload->u.void_command_call) {
+	if (reload && reload->u.int_command_call) {
 		/* call the reload call in that s_command */
-		(*reload->u.void_command_call) (NULL);
+		(*reload->u.int_command_call)(NULL);
 	}
 }
 
@@ -249,7 +249,7 @@ static void handle_client(int fd)
 	/* ping check : */
 	if (header.c == 'X') {
 		result->c = 'Y';
-		result->t = VOID_COMMAND;
+		result->t = TRUE_OR_FALSE_COMMAND;
 		result->s = S_TRUE;
 		result->payload = 0;
 		D_("Ping received, sending pong\n");
@@ -401,28 +401,6 @@ static void handle_client(int fd)
 			free(send_buf);
 			break;
 		}
-
-	case VOID_COMMAND:
-		{
-			assert(tmp_cmd->u.void_command_call);
-			D_("Calling a void command!\n");
-
-			/* execute command */
-			(*tmp_cmd->u.void_command_call) ((char *)header_data);
-
-			/* write an header respond */
-			result->s = S_TRUE;
-			/* unknown payload size here, TODO FIX THIS */
-			result->payload = 0;
-
-			/* sent result */
-			sent = send(fd, result, sizeof(result_desc), 0);
-			if (sent != sizeof(result_desc)) {
-				F_("failed to send result, sent: %i of %i.\n",
-				   sent, sizeof(result_desc));
-			}
-		}
-		break;
 
 	case PAYLOAD_COMMAND:
 		{

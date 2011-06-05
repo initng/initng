@@ -37,12 +37,10 @@ int initng_command_execute_arg(char cid, char *arg)
 	/* check so its a INT_COMMAND */
 	switch (cmd->com_type) {
 	case INT_COMMAND:
-	case VOID_COMMAND:
 	case TRUE_OR_FALSE_COMMAND:
 		break;
 	default:
-		W_("Command %c is not an INT_COMMAND, VOID_COMMAND or "
-		   "TRUE_OR_FALSE_COMMAND.\n", cid);
+		W_("Command %c is not an INT_COMMAND or TRUE_OR_FALSE_COMMAND.\n", cid);
 		return FALSE;
 	}
 
@@ -62,21 +60,9 @@ int initng_command_execute_arg(char cid, char *arg)
 		return FALSE;
 	}
 
-	/* now start executing */
-	if (cmd->com_type == INT_COMMAND ||
-	    cmd->com_type == TRUE_OR_FALSE_COMMAND) {
-		/* execute the command */
-		if (arg)
-			return ((*cmd->u.int_command_call) (arg));
-		/* else */
-		return ((*cmd->u.int_command_void_call) ());
-	}
-
-	/* else its a VOID command, that wont give us any to return. */
 	/* execute the command */
 	if (arg)
-		(*cmd->u.void_command_call) (arg);
-	else
-		(*cmd->u.void_command_void_call) ();
-	return TRUE;
+		return ((*cmd->u.int_command_call) (arg));
+	/* else */
+	return ((*cmd->u.int_command_void_call) ());
 }
