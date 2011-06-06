@@ -25,7 +25,7 @@
 #define SOCKET_4_ROOTPATH      DEVDIR "/initng/"
 #define SOCKET_4_FILENAME_REAL SOCKET_4_ROOTPATH "initng-4"
 
-#define PROTOCOL_4_VERSION 9
+#define PROTOCOL_4_VERSION 10
 
 typedef enum {
 	NO_PAYLOAD	= 0,
