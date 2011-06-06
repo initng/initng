@@ -22,7 +22,7 @@
 
 
 #define SERVICE_FILE_VERSION 1
-#define SOCKET_PATH DEVDIR "/initng/bp"
+#define SOCKET_PATH CTLDIR "/bp"
 
 /* incoming type */
 typedef enum {

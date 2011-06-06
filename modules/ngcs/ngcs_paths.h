@@ -21,7 +21,7 @@
 #ifndef NGCS_PATHS_H
 #define NGCS_PATHS_H
 
-#define SOCKET_ROOTPATH      DEVDIR "/initng/"
-#define SOCKET_FILENAME_REAL SOCKET_ROOTPATH "initng.ngcs"
-#define SOCKET_FILENAME_TEST SOCKET_ROOTPATH "initng-test.ngcs"
+#define SOCKET_FILENAME_REAL CTLDIR "/ngcs"
+#define SOCKET_FILENAME_TEST CTLDIR "/ngcs-test"
+
 #endif

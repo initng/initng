@@ -599,30 +599,7 @@ static int open_socket()
 	/* int flags; */
 	struct sockaddr_un serv_sockname;
 
-	D_("Creating " SOCKET_ROOTPATH " dir\n");
-
 	closesock();
-
-	/* Make /dev/initng if it doesn't exist (try either way) */
-	if (mkdir(SOCKET_ROOTPATH, S_IRUSR | S_IWUSR | S_IXUSR) == -1 &&
-	    errno != EEXIST) {
-		if (errno != EROFS) {
-			F_("Could not create " SOCKET_ROOTPATH " : %s, may "
-			   "be / fs not mounted read-write yet?, will retry "
-			   "until I succeed.\n", strerror(errno));
-		}
-		return FALSE;
-	}
-
-	/* chmod root path for root use only */
-	if (chmod(SOCKET_ROOTPATH, S_IRUSR | S_IWUSR | S_IXUSR) == -1) {
-		/* path doesn't exist, we don't have /dev yet. */
-		if (errno == ENOENT || errno == EROFS)
-			return FALSE;
-
-		F_("CRITICAL, failed to chmod %s, THIS IS A SECURITY "
-		   "PROBLEM.\n", SOCKET_ROOTPATH);
-	}
 
 	/* Create the socket. */
 	fdh.fds = socket(PF_UNIX, SOCK_STREAM, 0);

@@ -20,8 +20,7 @@
 /* FIXME: We need some restructuring here - file copied from modules/nge
  * for jam compatibility */
 
-#define NGE_PREFIX DEVDIR	"/initng/"
-#define NGE_REAL NGE_PREFIX	"nge"
-#define NGE_TEST NGE_PREFIX	"nge-test"
+#define NGE_REAL	CTLDIR "/nge"
+#define NGE_TEST	CTLDIR "/nge-test"
 
-#define NGE_VERSION		6
+#define NGE_VERSION	6

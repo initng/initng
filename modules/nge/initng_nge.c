@@ -373,28 +373,6 @@ static int open_initiator_socket(void)
 	/* Close the iniztiator */
 	close_initiator_socket();
 
-	/* Make NGE_PREFIX (/dev/initng) if it doesn't exist
-	 * (try either way) */
-	if (mkdir(NGE_PREFIX, S_IRUSR | S_IWUSR | S_IXUSR) == -1 &&
-	    errno != EEXIST) {
-		if (errno != EROFS) {
-			F_("Could not create " NGE_PREFIX " : %s, may be / "
-			   "fs not mounted read-write yet?, will retry until "
-			   "I succeed.\n", strerror(errno));
-		}
-		return FALSE;
-	}
-
-	/* chmod root path for root use only */
-	if (chmod(NGE_PREFIX, S_IRUSR | S_IWUSR | S_IXUSR) == -1) {
-		/* path doesn't exist, we don't have /dev yet. */
-		if (errno == ENOENT || errno == EROFS)
-			return FALSE;
-
-		F_("CRITICAL, failed to chmod %s, THIS IS A SECURITY "
-		   "PROBLEM.\n", NGE_PREFIX);
-	}
-
 	/* Create the socket. */
 	io_event_acceptor.fds = socket(PF_UNIX, SOCK_STREAM, 0);
 	if (io_event_acceptor.fds < 1) {

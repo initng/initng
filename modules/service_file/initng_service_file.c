@@ -70,8 +70,6 @@ static void bp_abort(bp_rep * rep, const char *service);
 
 static void handle_killed(active_db_h * service, process_h * process);
 
-#define SOCKET_4_ROOTPATH DEVDIR "/initng"
-
 a_state_h PARSING = {
 	.name = "PARSING",
 	.description = "This is service is parsing by service_file.",
@@ -648,31 +646,7 @@ static int bp_open_socket()
 	/*    int flags; */
 	struct sockaddr_un serv_sockname;
 
-	D_("Creating " SOCKET_4_ROOTPATH " dir\n");
-
 	bp_closesock();
-
-	/* Make /dev/initng if it doesn't exist (try either way) */
-	if (mkdir(SOCKET_4_ROOTPATH, S_IRUSR | S_IWUSR | S_IXUSR) == -1
-	    && errno != EEXIST) {
-		if (errno != EROFS) {
-			F_("Could not create " SOCKET_4_ROOTPATH
-			   " : %s, may be / fs not mounted read-write yet?, "
-			   "will retry until I succeed.\n", strerror(errno));
-		}
-
-		return FALSE;
-	}
-
-	/* chmod root path for root use only */
-	if (chmod(SOCKET_4_ROOTPATH, S_IRUSR | S_IWUSR | S_IXUSR) == -1) {
-		/* path doesn't exist, we don't have /dev yet. */
-		if (errno == ENOENT || errno == EROFS)
-			return FALSE;
-
-		F_("CRITICAL, failed to chmod %s, THIS IS A SECURITY "
-		   "PROBLEM.\n", SOCKET_4_ROOTPATH);
-	}
 
 	/* Create the socket. */
 	bpf.fds = socket(PF_UNIX, SOCK_STREAM, 0);
