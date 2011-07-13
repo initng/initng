@@ -10,7 +10,7 @@ To compile initng, you will need CMake version 2.6.0 or later.
 
 SYSTEM REQUIREMENTS
 ===================
-* A computer running linux (support for BSD-based operating systems is under
+* A computer running GNU/Linux (support for BSD-based operating systems is under
 development) on one of the following architectures: alpha, amd64, hppa, i386,
 ia64, m68k, mips, mipsel, ppc, sparc. (others may or may not work).
 * GNU GCC 3.4.x, 4.0.x to 4.5.x
