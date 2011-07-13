@@ -12,8 +12,6 @@ InstallFile $(DESTDIR)$(sysconfdir)/initng : killall5-ignore ;
 
 if $(INSTALL_AS_INIT) = 1
 {
-    Main mountpoint : mountpoint.c ;
-
     Main sulogin : sulogin.c ;
     CCFLAGS on <$(SOURCE_GRIST)>sulogin$(SUFOBJ) += -D_GNU_SOURCE ;
     LINKLIBS on sulogin += -lcrypt ;

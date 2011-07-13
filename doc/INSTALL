@@ -19,6 +19,12 @@ ia64, m68k, mips, mipsel, ppc, sparc. (others may or may not work).
 * ncurses development libs (optional)
 
 
+Run-time dependencies (for initng-scripts)
+------------------------------------------
+GNU/Linux:
+* util-linux compiled with --enable-mountpoint.
+
+
 COMPILING INITNG
 ================
 To avoid any potential problems during compilation, you need to create a
