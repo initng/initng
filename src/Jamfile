@@ -1,5 +1,5 @@
 # Let Jam know that this is a sub directory.
-SrcDir TOP core ;
+SrcDir TOP src ;
 
 # Directories that contain sources for libinitng:
 LIBINITNG_SRC_DIRS = hash active_db module event process_db service string

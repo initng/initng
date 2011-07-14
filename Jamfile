@@ -2,7 +2,7 @@ SubDir TOP ;
 
 Clean clean : config.jam config.h ;
 
-SubInclude TOP core ;
+SubInclude TOP src ;
 SubInclude TOP tools ;
 SubInclude TOP modules ;
 SubInclude TOP preinit ;
