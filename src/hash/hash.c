@@ -24,11 +24,11 @@
 
 hash_t initng_hash_str(cost char *key)
 {
-	return initng_hash(key, strlen(key))
+	return initng_hash_buf(key, strlen(key))
 }
 
 /* Jenkins One-at-a-time hash */
-hash_t initng_hash(const char *key, size_t len)
+hash_t initng_hash_buf(const char *key, size_t len)
 {
 	hash_t hash = 0;
 
