@@ -22,6 +22,28 @@
 #include <sys/types.h>
 #include <stdint.h>
 
+#if defined(__x86_64__)
+#define FNV_INIT  0xcbf29ce484222325
+#define FNV_PRIME 0x100000001b3
+#else
+#define FNV_INIT  0x811c9dc5
+#define FNV_PRIME 0x1000193
+#endif
+
+/**
+ * Perform a pass of the FNV-1a hash.
+ *
+ * @param hval    current hash value
+ * @param octet   next octet to hash
+ * @return        new hash value
+ */
+inline static hash_t fnv_pass(hash_t hval, char octet)
+{
+	hval ^= (hash_t) octet;
+	hval *= FNV_PRIME;
+	return hval;
+}
+
 /**
  * Perform a hash on a string.
  *
@@ -30,7 +52,13 @@
  */
 hash_t initng_hash_str(cost char *str)
 {
-	return initng_hash_buf(key, strlen(key))
+	hash_t hval = FNV_INIT;
+
+	while (*str) {
+		hval = fnv_pass(hval, *str++);
+	}
+
+	return hval;
 }
 
 /**
@@ -42,17 +70,12 @@ hash_t initng_hash_str(cost char *str)
  */
 hash_t initng_hash_buf(const char *buf, size_t len)
 {
-	hash_t hash = 0;
+	hash_t hval = FNV_INIT;
+	const char *be = buf + len;
 
-	while (len--) {
-		hash += *key++;
-		hash += hash << 10;
-		hash += hash >>  6;
+	while (buf < be) {
+		hval = fnv_pass(hval, *buf++);
 	}
 
-	hash += hash <<  3;
-	hash ^= hash >> 11;
-	hash += hash << 15;
-
-	return hash;
+	return hval;
 }

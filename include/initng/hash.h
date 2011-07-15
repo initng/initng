@@ -24,7 +24,11 @@
 #include <stdint.h>
 #include <unistd.h>
 
+#if defined(__x86_64__)
+typedef uint64_t hash_t;
+#else
 typedef uint32_t hash_t;
+#endif
 
 hash_t initng_hash_buf(const char *buf, size_t len);
 hash_t initng_hash_str(const char *str);
