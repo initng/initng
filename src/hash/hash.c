@@ -50,7 +50,7 @@ inline static hash_t fnv_pass(hash_t hval, char octet)
  * @param str   start of buffer to hash
  * @return      hash
  */
-hash_t initng_hash_str(cost char *str)
+hash_t initng_hash_str(const char *str)
 {
 	hash_t hval = FNV_INIT;
 
