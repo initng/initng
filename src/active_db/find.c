@@ -42,7 +42,7 @@ active_db_h * initng_active_db_find_by_name(const char *service)
 
 	assert(service);
 
-	hash_t hash = initng_hash(service, strlen(service));
+	hash_t hash = initng_hash_str(service);
 
 	/* first, search for an exact match */
 	while_active_db(current) {

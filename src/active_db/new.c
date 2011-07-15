@@ -74,7 +74,7 @@ active_db_h *initng_active_db_new(const char *name)
 	/* reset alarm */
 	new_active->alarm = 0;
 
-	new_active->name_hash = initng_hash(name, strlen(name));
+	new_active->name_hash = initng_hash_str(name);
 
 	/* return the newly created active_db_h */
 	return new_active;
