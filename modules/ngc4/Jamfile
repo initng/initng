@@ -14,7 +14,7 @@ InstallBin $(DESTDIR)$(moddir) : modngc4.so ;
 Main ngc : ngc4.c ;
 NEEDLIBS on ngc += libngcclient.so.0.0.0 ;
 LINKFLAGS on ngc +=
-	-Wl,--whole-archive [ FDirName $(TOP) core libinitng$(SUFLIB) ]
+	-Wl,--whole-archive [ FDirName $(TOP) src libinitng$(SUFLIB) ]
 	-Wl,--no-whole-archive -ldl ;
 InstallBin $(DESTDIR)$(sbindir) : ngc ;
 
