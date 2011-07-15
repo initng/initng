@@ -1,6 +1,9 @@
 config.h
 config.jam
+*.a
 *.o
 *.so
+*.so.*
 src/initng
 configure
+initng.pc
