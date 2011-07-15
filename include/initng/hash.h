@@ -26,7 +26,7 @@
 
 typedef uint32_t hash_t;
 
-hash_t initng_hash_buf(const char *key, size_t len);
-hash_t initng_hash_str(const char *key);
+hash_t initng_hash_buf(const char *buf, size_t len);
+hash_t initng_hash_str(const char *str);
 
 #endif

@@ -22,13 +22,25 @@
 #include <sys/types.h>
 #include <stdint.h>
 
-hash_t initng_hash_str(cost char *key)
+/**
+ * Perform a hash on a string.
+ *
+ * @param str   start of buffer to hash
+ * @return      hash
+ */
+hash_t initng_hash_str(cost char *str)
 {
 	return initng_hash_buf(key, strlen(key))
 }
 
-/* Jenkins One-at-a-time hash */
-hash_t initng_hash_buf(const char *key, size_t len)
+/**
+ * Perform a hash on a buffer.
+ *
+ * @param buf   start of buffer to hash
+ * @param len   length of buffer in octets
+ * @return      hash
+ */
+hash_t initng_hash_buf(const char *buf, size_t len)
 {
 	hash_t hash = 0;
 
