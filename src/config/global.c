@@ -35,8 +35,6 @@ s_global g;
  */
 void initng_config_global_new(int argc, char *argv[], char *env[])
 {
-	int i;
-
 	assert(argv);
 	assert(env);
 
@@ -46,14 +44,12 @@ void initng_config_global_new(int argc, char *argv[], char *env[])
 	/* we want to keep a copy of the arguments passed to us, this will be
 	 * overwritten by set_title()
 	 */
-	g.Argc = argc;
 	g.Argv0 = argv[0];
 	g.Argv = (char **)initng_toolbox_calloc(argc + 1, sizeof(char *));
 	assert(g.Argv);
 
-	for (i = 0; i < argc; i++) {
+	for (int i = 0; i < argc; i++) {
 		g.Argv[i] = initng_toolbox_strdup(argv[i]);
-		assert(g.Argv[i]);
 	}
 	g.Argv[argc] = NULL;
 
@@ -65,12 +61,12 @@ void initng_config_global_new(int argc, char *argv[], char *env[])
 	 */
 	g.maxproclen = 0;
 
-	for (i = 0; i < argc; i++) {
-		g.maxproclen += strlen(argv[i]) + 1;
+	for (char **p = argv; *p; p++) {
+		g.maxproclen += strlen(*p) + 1;
 	}
 
-	for (i = 0; env[i]; i++) {
-		g.maxproclen += strlen(env[i]) + 1;
+	for (char **p = env; *p; p++) {
+		g.maxproclen += strlen(*p) + 1;
 	}
 
 	D_("Maximum length for our process name is %d\n", g.maxproclen);
@@ -129,8 +125,6 @@ void initng_config_global_new(int argc, char *argv[], char *env[])
 
 void initng_config_global_free(void)
 {
-	int i;
-
 	/* free all databases */
 	initng_active_db_free_all();	/* clean process_db */
 	initng_service_data_type_unregister_all();	/* clean option_db */
@@ -147,8 +141,8 @@ void initng_config_global_free(void)
 	free(g.dev_console);
 
 	/* free our copy of argv, and argc */
-	for (i = 0; i < g.Argc; i++) {
-		free(g.Argv[i]);
+	for (char **p = g.Argv; *p; p++) {
+		free(*p);
 	}
 	free(g.Argv);
 }

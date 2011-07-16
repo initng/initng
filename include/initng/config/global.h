@@ -68,7 +68,6 @@ typedef struct
 
 	/* Argument data */
 	char **Argv;
-	int Argc;
 	int maxproclen;
 	char *Argv0;
 
