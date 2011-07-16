@@ -267,10 +267,8 @@ static int send_and_handle(const char c, const char *l, const char *opt,
 /* THIS IS MAIN */
 int main(int argc, char *argv[])
 {
-	int i;
 	int instant = FALSE;
 	int cc = 1;
-	char *Argv = NULL;
 
 	assert(argv[0]);
 
@@ -286,52 +284,6 @@ int main(int argc, char *argv[])
 	 */
 	if (isatty(1))
 		ansi = TRUE;
-
-	/*
-	 * Skip path in Argv.
-	 * example argv[0] == "/sbin/ngc" then Argv == "ngc"
-	 * example argv[0] == "./ngstart" then Argv == "ngstart"
-	 */
-	{
-		i = 0;
-
-		/* skip to last char of "/sbin/ngc" */
-		while (argv[0][i])
-			i++;
-
-		/* then walk backwards, to the first '/' found */
-		while (i > 0 && argv[0][i] != '/') {
-			i--;
-		}
-
-		/* Here we have the program name */
-		Argv = &argv[0][i];
-
-		/* Make sure there is no stale '/' char in beginning */
-		if (Argv[0] == '/')
-			Argv++;
-
-		/*
-		 * Special case, libtool test adds lt-ngc to path
-		 * when running in make dir.
-		 * So translate "lt-ngc" to "ngc"
-		 */
-		if (Argv[0] == 'l' && Argv[1] == 't' && Argv[2] == '-')
-			Argv += 3;
-
-		/* Only for testing.
-		 * printf("Argv: %s argv[0]: %s\n", Argv, argv[0]);
-		 */
-	}
-
-	/* check if cmd-line contains "ngdc", if set debug */
-	if (strncmp(Argv, "ngd", 3) == 0) {
-		if (ansi)
-			print_out(C_FG_YELLOW "Warning. This is ngdc!" C_OFF
-				  "\n");
-
-		debug = TRUE;
-	}
 
 	if (debug == FALSE && getuid() != 0) {
 		if (ansi) {
