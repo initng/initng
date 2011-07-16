@@ -39,18 +39,16 @@
  */
 int initng_common_service_blacklisted(const char *name)
 {
-	int i;
-
 	assert(name);
 	assert(g.Argv);
 
-	/* walk through arguments looking for this dep to be blacklisted */
-	for (i = 1; (g.Argv)[i]; i++) {
-		/* if we got a match */
-		if ((g.Argv)[i][0] == '-') {
-			if (strcmp(name, (g.Argv)[i] + 1) == 0 ||
-			    initng_string_match(name, (g.Argv)[i] + 1))
-				return TRUE;
+	for (char **p = g.Argv; *p; p++) {
+		if (**p != '-')
+			continue;
+
+		if (strcmp(name, *p + 1) == 0
+		    || initng_string_match(name, *p + 1)) {
+			return TRUE;
 		}
 	}
 	return FALSE;
