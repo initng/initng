@@ -50,8 +50,6 @@
 
 char *socket_filename = (char *) SOCKET_4_FILENAME_REAL;
 
-int debug = FALSE;
-
 int header_printed = FALSE;
 int quiet = FALSE;
 int ansi = FALSE;
@@ -156,10 +154,8 @@ static int start_or_stop_command(reply * rep)
 	 */
 
 	/* open correct socket */
-	if (debug == TRUE)
-		c = ngeclient_connect(NGE_TEST);
-	else
-		c = ngeclient_connect(NGE_REAL);
+	/* FIXME: this should work with custom sockets path (for debugging) */
+	c = ngeclient_connect(NGE_REAL);
 
 	/* if open_socket fails, ngeclient_error is set */
 	if (ngeclient_error) {
@@ -285,19 +281,9 @@ int main(int argc, char *argv[])
 	if (isatty(1))
 		ansi = TRUE;
 
-	if (debug == FALSE && getuid() != 0) {
-		if (ansi) {
-			print_out(C_FG_YELLOW "You need root access to "
-				  "communicate with initng. Using ngdc mode."
-				  C_OFF "\n");
-		}
-		debug = TRUE;
-	}
-
-	if (debug) {
-		char *home = getenv("HOME");
-		socket_filename = initng_toolbox_calloc(1, strlen(home) + 10);
-		strcat(socket_filename, "/initng-4");
+	if (getuid() != 0 && ansi) {
+		print_out(C_FG_YELLOW "Warning: You need root access to "
+			  "communicate with initng. Using ngdc mode.\n" C_OFF);
 	}
 
 	/* make sure there are any arguments at all */
