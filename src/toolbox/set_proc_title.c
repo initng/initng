@@ -42,24 +42,15 @@ int initng_toolbox_set_proc_title(const char *fmt, ...)
 {
 	va_list ap;
 	int len;
-	char *buf;
-
-	buf = initng_toolbox_calloc(1, g.maxproclen + 1);
 
 	va_start(ap, fmt);
-	len = vsnprintf(buf, g.maxproclen, fmt, ap);
+	len = vsnprintf(g.Argv0, g.maxproclen, fmt, ap);
 	va_end(ap);
 
-	/* we can only set our name as big as the space available */
-	if (g.maxproclen > len) {
-		memset(g.Argv0, 0, g.maxproclen);	/* clear */
-		strcpy(g.Argv0, buf);	/* copy */
-		D_("g.Argv0: %s\n", g.Argv0);
-	} else {
-		len = 0;
-		D_("Cant reset own argv[0].\n");
+	if (len >= g.maxproclen) {
+		g.Argv0[g.maxproclen] = 0;
+		len = g.maxproclen - 1;
 	}
 
-	free(buf);
 	return len;
 }
