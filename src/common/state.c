@@ -29,9 +29,14 @@
 
 #include <initng.h>
 
-/*
- * Use this function to change the status of an service, this
- * function might refuse to change to that state, and if that
+/**
+ * Change the state of a service.
+ *
+ * @param service   Service.
+ * @param state     New state.
+ * @return          TRUE if succeeded.
+ *
+ * It might refuse to change to that state, and if that
  * it will return FALSE, please always check the return value
  * when calling this function.
  */

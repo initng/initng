@@ -29,11 +29,13 @@
 
 #include <initng.h>
 
-/*
- * this function walks through the g.Argv, if it founds service name,
- * with an starting -service, this function will return FALSE, and
- * the service wont be able to load, means that is it blacklisted.
- * return TRUE if service is okay to load.
+/**
+ * Determine if a service is blacklisted.
+ *
+ * @param name   Name of the service.
+ * @return       FALSE if blacklisted, otherwise true.
+ *
+ * Walks g.Argv searching for blacklisted services (-service).
  */
 int initng_common_service_blacklisted(const char *name)
 {
