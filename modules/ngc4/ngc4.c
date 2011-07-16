@@ -348,43 +348,6 @@ int main(int argc, char *argv[])
 		strcat(socket_filename, "/initng-4");
 	}
 
-
-	/* check that Argc string is not ngc, NGC, ngdc, NGDC */
-	if (strcmp(Argv, "ngc") != 0 && strcmp(Argv, "ngdc") != 0 &&
-	    strcmp(Argv, "ngc4") != 0 && strcmp(Argv, "ngdc4") != 0) {
-		/*printf("Not standard ngc or ngdc command.\n"); */
-		/* check if argv0 starts with "ng..." */
-		if (Argv[0] == 'n' && Argv[1] == 'g' && Argv[2]) {
-			/* if its ngstart, call send_and_handle("start"); */
-			if (Argv[2] == 'd' && Argv[3]) {
-				/* check if is a string or char */
-				if (Argv[4]) {
-					return (send_and_handle('\0', &Argv[3],
-								argv[1],
-								instant));
-				} else {
-					return (send_and_handle(Argv[3], NULL,
-								argv[1],
-								instant));
-				}
-			} else {
-				/* check if its a string or char */
-				if (Argv[3]) {
-					return (send_and_handle('\0', &Argv[2],
-								argv[1],
-								instant));
-				} else {
-					return (send_and_handle(Argv[2], NULL,
-								argv[1],
-								instant));
-				}
-			}
-		}
-
-		/* else call standard */
-		return (send_and_handle('\0', Argv, argv[1], instant));
-	}
-
 	/* make sure there are any arguments at all */
 	if (argc <= 1) {
 		send_and_handle('h', NULL, NULL, instant);
