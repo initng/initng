@@ -266,8 +266,6 @@ int main(int argc, char *argv[])
 	int instant = FALSE;
 	int cc = 1;
 
-	assert(argv[0]);
-
 	/*
 	 * Only on first input from initng, we will print a
 	 * initng header with version info, after then
@@ -281,13 +279,22 @@ int main(int argc, char *argv[])
 	if (isatty(1))
 		ansi = TRUE;
 
-	if (getuid() != 0 && ansi) {
+
+	/* -f specifies a custom socket path */
+	if (argc > 1 && argv[1][0] == '-' && argv[1][1] == 'f') {
+		if (argc < 3) {
+			print_out("ERROR: -f needs an argument.\n");
+			return 1;
+		}
+		socket_filename = argv[2];
+		cc += 2;
+	} else if (getuid() != 0 && ansi) {
 		print_out(C_FG_YELLOW "Warning: You need root access to "
-			  "communicate with initng. Using ngdc mode.\n" C_OFF);
+			  "communicate with initng.\n" C_OFF);
 	}
 
 	/* make sure there are any arguments at all */
-	if (argc <= 1) {
+	if (argc <= cc) {
 		send_and_handle('h', NULL, NULL, instant);
 		exit(0);
 	}
