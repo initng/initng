@@ -48,7 +48,7 @@ static int cmd_stop_unneeded(char *arg);
 s_command STOP_UNNEEDED = {
 	.id = 'y',
 	.long_id = "stop_unneeded",
-	.com_type = TRUE_OR_FALSE_COMMAND,
+	.com_type = INT_COMMAND,
 	.opt_visible = STANDARD_COMMAND,
 	.opt_type = NO_OPT,
 	.u = {(void *)&cmd_stop_unneeded},

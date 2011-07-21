@@ -32,7 +32,6 @@ typedef enum {
 	COMMAND_FAIL = 0,
 	PAYLOAD_COMMAND = 1,
 	INT_COMMAND = 3,
-	TRUE_OR_FALSE_COMMAND = 4,
 	STRING_COMMAND = 5,
 } e_com_type;
 

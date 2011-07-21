@@ -54,7 +54,7 @@ static int cmd_fast_reload(char *arg);
 s_command FAST_RELOAD = {
 	.id = 'c',
 	.long_id = "hot_reload",
-	.com_type = TRUE_OR_FALSE_COMMAND,
+	.com_type = INT_COMMAND,
 	.opt_visible = STANDARD_COMMAND,
 	.opt_type = NO_OPT,
 	.u = {(void *)&cmd_fast_reload},

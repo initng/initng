@@ -418,16 +418,6 @@ void resp_handler(ngcs_cli_conn * cconn, void *userdata, ngcs_data * ret)
 				      res->arg), ret->d.l);
 			break;
 
-		case NGCS_TYPE_BOOL:
-			maybe_grab_out(NULL);
-			maybe_printf("%s %s returned %s\n", res->cmd,
-				     (!res->arg ? "" :
-				      res->arg), (ret->d.i ? "TRUE" : "FALSE"));
-
-			if (!ret->d.i)
-				failed = 1;
-			break;
-
 		case NGCS_TYPE_ERROR:
 			grab_out(NULL);
 			printf(C_ERROR "%s %s failed: %s\n" C_OFF,

@@ -353,23 +353,6 @@ char *ngcclient_reply_to_string(reply * rep, int ansi)
 	case COMMAND_FAIL:
 		string = strdup("Command replied a failure.");
 		break;
-
-	case TRUE_OR_FALSE_COMMAND:
-		if (!rep->payload || rep->result.payload == 0) {
-			string = strdup("No payload.\n");
-			return (string);
-		}
-		{
-			int *p = rep->payload;
-
-			if (*p > 0) {
-				string = strdup("Command POSITIVE.");
-				break;
-			}
-
-			string = strdup("Command NEGATIVE.");
-			break;
-		}
 	}
 
 	/* free */

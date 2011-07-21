@@ -66,12 +66,6 @@
  */
 #define NGCS_TYPE_STRUCT 6
 
-/*! \brief Boolean var
- *
- * Like an integer, but zero is interpreted as true and non-zero as false
- */
-#define NGCS_TYPE_BOOL 7
-
 /*! \brief Error
  *
  * Error - a string, basically

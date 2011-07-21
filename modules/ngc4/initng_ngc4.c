@@ -249,7 +249,7 @@ static void handle_client(int fd)
 	/* ping check : */
 	if (header.c == 'X') {
 		result->c = 'Y';
-		result->t = TRUE_OR_FALSE_COMMAND;
+		result->t = INT_COMMAND;
 		result->s = S_TRUE;
 		result->payload = 0;
 		D_("Ping received, sending pong\n");
@@ -326,7 +326,6 @@ static void handle_client(int fd)
 	result->t = tmp_cmd->com_type;
 
 	switch (tmp_cmd->com_type) {
-	case TRUE_OR_FALSE_COMMAND:
 	case INT_COMMAND:
 		{
 			int ret = 0;

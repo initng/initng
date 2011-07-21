@@ -107,7 +107,6 @@ int ngcs_pack(ngcs_data * data, int cnt, char *buf)
 
 		switch (data[n].type) {
 		case NGCS_TYPE_INT:
-		case NGCS_TYPE_BOOL:
 			outcnt += 3 * sizeof(int);
 			if (buf) {
 				*(int *)buf = sizeof(int);
@@ -173,7 +172,6 @@ int ngcs_unpack_one(int type, int len, const char *data, ngcs_data * res)
 
 	switch (type) {
 	case NGCS_TYPE_INT:
-	case NGCS_TYPE_BOOL:
 		if (len != sizeof(int))
 			return 1;
 
@@ -275,7 +273,6 @@ void ngcs_free_unpack_one(ngcs_data * res)
 {
 	switch (res->type) {
 	case NGCS_TYPE_INT:
-	case NGCS_TYPE_BOOL:
 	case NGCS_TYPE_LONG:
 		break;
 

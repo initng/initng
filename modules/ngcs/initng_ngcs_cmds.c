@@ -618,8 +618,7 @@ static void ngcs_cmd_hot_reload(ngcs_request * req)
 	retval = initng_module_callers_active_db_dump();
 
 	if (retval == TRUE) {
-		ngcs_send_response(req, NGCS_TYPE_BOOL, sizeof(int),
-				   (char *)&i);
+		ngcs_send_response(req, NGCS_TYPE_INT, sizeof(int), &i);
 		D_("exec()ing initng\n");
 		new_argv[0] = (char *)"/sbin/initng";
 		new_argv[1] = (char *)"--hot_reload";

@@ -30,7 +30,6 @@ NGCS_TYPE_STRING = 2
 NGCS_TYPE_BLOB = 3
 NGCS_TYPE_LONG = 4
 NGCS_TYPE_STRUCT = 6
-NGCS_TYPE_BOOL = 7
 NGCS_TYPE_ERROR = 8
 
 SIZEOF_INT = struct.calcsize("@i")
@@ -401,11 +400,6 @@ def ngcs_pack(datum):
          return NgcsData(NGCS_TYPE_NONE,"");
     elif isinstance(datum, int):
         return NgcsData(NGCS_TYPE_INT,struct.pack("@i",datum));
-    elif isinstance(datum, bool):
-        if datum:
-            return NgcsData(NGCS_TYPE_BOOL,struct.pack("@i",1));
-        else:
-            return NgcsData(NGCS_TYPE_BOOL,struct.pack("@i",0));
     elif isinstance(datum, str):
         return NgcsData(NGCS_TYPE_STRING,datum);
     elif isinstance(datum, NgcsData):
@@ -426,8 +420,6 @@ def ngcs_unpack(data):
         return None
     elif data.typecode == NGCS_TYPE_INT:
         return struct.unpack("@i", data.data)[0]
-    elif data.typecode == NGCS_TYPE_BOOL:
-        return struct.unpack("@i", data.data)[0] != 0
     elif data.typecode == NGCS_TYPE_LONG:
         return struct.unpack("@l", data.data)[0]
     elif data.typecode == NGCS_TYPE_STRING:

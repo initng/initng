@@ -37,10 +37,9 @@ int initng_command_execute_arg(char cid, char *arg)
 	/* check so its a INT_COMMAND */
 	switch (cmd->com_type) {
 	case INT_COMMAND:
-	case TRUE_OR_FALSE_COMMAND:
 		break;
 	default:
-		W_("Command %c is not an INT_COMMAND or TRUE_OR_FALSE_COMMAND.\n", cid);
+		W_("Command %c is not an INT_COMMAND.\n", cid);
 		return FALSE;
 	}
 

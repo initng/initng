@@ -452,13 +452,11 @@ static void ngcs_cmd_compat(ngcs_request * req)
 	arg = req->argc > 1 ? req->argv[1].d.s : NULL;
 
 	switch (cmd->com_type) {
-	case TRUE_OR_FALSE_COMMAND:
 	case INT_COMMAND:
 		assert(cmd->u.int_command_call);
 
 		ret = cmd->u.int_command_call(arg);
-		ngcs_send_response(req, (cmd->com_type == INT_COMMAND ?
-					 NGCS_TYPE_INT : NGCS_TYPE_BOOL),
+		ngcs_send_response(req, NGCS_TYPE_INT,
 				   sizeof(int), (char *)&ret);
 		break;
 
