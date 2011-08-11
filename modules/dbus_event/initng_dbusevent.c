@@ -447,7 +447,6 @@ static void check_socket(s_event * event)
 
 static int connect_to_dbus(void)
 {
-	int ret;
 	DBusError err;
 
 	/* initialise the error value */
@@ -468,7 +467,7 @@ static int connect_to_dbus(void)
 					    toggled_dbus_watch, NULL, NULL);
 
 	/* register our name on the bus, and check for errors */
-	ret = dbus_bus_request_name(conn, SOURCE_REQUEST,
+	/* int ret = */ dbus_bus_request_name(conn, SOURCE_REQUEST,
 				    DBUS_NAME_FLAG_REPLACE_EXISTING, &err);
 
 	/* Make sure no error is set */
