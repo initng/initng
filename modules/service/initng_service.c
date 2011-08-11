@@ -802,13 +802,12 @@ static void handle_killed_start(active_db_h * service, process_h * process)
 	assert(service->current_state);
 	assert(service->current_state->name);
 	assert(process);
-	int rcode;
 
 	D_("handle_killed_start(%s): initial status: \"%s\".\n",
 	   service->name, service->current_state->name);
 
 	/* free this process what ever happends */
-	rcode = process->r_code;	/* save rcode */
+	int rcode = process->r_code;	/* save rcode */
 	initng_process_db_free(process);
 
 	/*
@@ -828,7 +827,7 @@ static void handle_killed_start(active_db_h * service, process_h * process)
 
 	/* check so it did not segfault */
 
-	if (WTERMSIG(process->r_code) == 11) {
+	if (WTERMSIG(rcode) == 11) {
 		F_("Service %s process start SEGFAULTED!\n", service->name);
 		initng_common_mark_service(service, &SERVICE_FAIL_START_SIGNAL);
 		return;
@@ -866,12 +865,11 @@ static void handle_killed_stop(active_db_h * service, process_h * process)
 	assert(service->current_state);
 	assert(service->current_state->name);
 	assert(process);
-	int rcode;
 
 	D_("(%s);\n", service->name);
 
 	/* Free the process what ever happens below */
-	rcode = process->r_code;
+	int rcode = process->r_code;
 	initng_process_db_free(process);
 
 	/*
@@ -887,7 +885,7 @@ static void handle_killed_stop(active_db_h * service, process_h * process)
 	}
 
 	/* check with SIGSEGV (11) */
-	if (WTERMSIG(process->r_code) == 11) {
+	if (WTERMSIG(rcode) == 11) {
 		F_(" service %s stop process SEGFAUTED!\n", service->name);
 
 		/* mark service stopped */
@@ -900,9 +898,9 @@ static void handle_killed_stop(active_db_h * service, process_h * process)
 	 * from the program, is bigger than 0, this commonly signalize
 	 * that something got wrong, print this as an error msg on screen
 	 */
-	if (WEXITSTATUS(process->r_code) > 0 && !is(&STOP_FAIL_OK, service)) {
+	if (WEXITSTATUS(rcode) > 0 && !is(&STOP_FAIL_OK, service)) {
 		F_(" stop %s, Returned with exit %i.\n", service->name,
-		   WEXITSTATUS(process->r_code));
+		   WEXITSTATUS(rcode));
 
 		/* mark service stopped */
 		initng_common_mark_service(service, &SERVICE_FAIL_STOP_RCODE);
