@@ -249,10 +249,6 @@ reply *ngcclient_send_command(const char *path, const char c, const char *l,
 
 	/* if there was a payload, download that too */
 	if (rep->result.payload > 0) {
-		ssize_t got = 0;
-
-		/*printf("There is a payload.\n"); */
-
 		/* i allocate 1 byte extra, to be sure a null on the end */
 		rep->payload = calloc(1, rep->result.payload + 1);
 		if (!rep->payload) {
@@ -264,7 +260,8 @@ reply *ngcclient_send_command(const char *path, const char c, const char *l,
 		/* sleep a bit, to make sure initng filled the buffer */
 		usleep(50000);
 
-		got = recv(sock, rep->payload, rep->result.payload, 0);
+		/* ssize_t got = */
+		recv(sock, rep->payload, rep->result.payload, 0);
 	}
 
 	/* close the socket */
