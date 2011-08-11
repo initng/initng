@@ -260,6 +260,54 @@ void module_unload(void)
  * ############################################################################
  */
 
+static inline active_db_h *runlevel_find_old(active_db_h *new_rl)
+{
+	active_db_h *current = NULL;
+
+	while_active_db(current) {
+		if (current->type == &TYPE_RUNLEVEL && current != new_rl)
+			return current;
+	}
+	return NULL;
+}
+
+static inline int runlevel_find_dep(active_db_h *rl, const char *dep)
+{
+	const char *dep_new;
+	s_data *itt_new = NULL;
+
+	while ((dep_new = get_next_string(&NEED, rl, &itt_new))) {
+		if (strcmp(dep_new, dep) == 0)
+			return TRUE;
+	}
+
+	return FALSE;
+}
+
+static inline void runlevel_stop_unneeded(active_db_h *old_rl, active_db_h *new_rl)
+{
+	const char *dep_old = NULL;
+	s_data *itt_old = NULL;
+
+	/* for every dep the old runlevel had */
+	while ((dep_old = get_next_string(&NEED, old_rl, &itt_old))) {
+		/* check if required by the new one */
+		int found = runlevel_find_dep(new_rl, dep_old);
+
+		/* and if not, stop it */
+		if (!found) {
+			active_db_h *to_stop =
+				initng_active_db_find_by_name(dep_old);
+			if (to_stop) {
+				W_("Stopping service %s, not "
+				   "in the '%s' runlevel\n",
+				   to_stop->name, new_rl->name);
+				initng_handler_stop_service(to_stop);
+			}
+		}
+	}
+}
+
 /*
  * Everything RUNLEVEL_START_MARKED are gonna do, is to set it RUNLEVEL_WAITING_FOR_START_DEP
  */
@@ -270,74 +318,17 @@ static void init_RUNLEVEL_START_MARKED(active_db_h * new_runlevel)
 
 	/* Make sure there will only exist 1 runlevel on the system */
 	if (new_runlevel->type == &TYPE_RUNLEVEL) {
-		active_db_h *current = NULL;
-		active_db_h *old_runlevel = NULL;
-
-		/* STEP 1, Go find old runlevel, shud be only one */
-		while_active_db(current) {
-			/* dont look for myself */
-			if (current == new_runlevel)
-				continue;
-
-			if (current->type == &TYPE_RUNLEVEL) {
-				old_runlevel = current;
-				break;
-			}
-		}
-
-		/* if an old runlevel was found */
+		active_db_h *old_runlevel = runlevel_find_old(new_runlevel);
 		if (old_runlevel) {
-			const char *dep_old = NULL;
-			s_data *itt_old = NULL;
-
-			/* STEP 2, Stop all old runlevel deps, that are not
-			 * deps of new runlevel */
-
-			/* for every dep the old runlevel have */
-			while ((dep_old = get_next_string(&NEED, old_runlevel,
-							  &itt_old))) {
-				const char *dep_new = NULL;
-				s_data *itt_new = NULL;
-				int found = 0;
-
-				while ((dep_new = get_next_string(&NEED,
-								  new_runlevel,
-								  &itt_new))) {
-					/* if it matches */
-					if (strcmp(dep_new, dep_old) == 0) {
-						found = 1;
-						break;
-					}
-				}
-
-				/* If the service found in old runlevel, does
-				 * not exsist i new one, stop it */
-
-				/*if (found == 0) {
-				   active_db_h *service_to_stop =
-				   initng_active_db_find_by_name(
-				   dep_old);
-
-				   if (service_to_stop) {
-				   W_("Stopping service %s, not "
-				   "in new service %s\n",
-				   service_to_stop->name,
-				   new_runlevel->name);
-				   initng_handler_stop_service(
-				   service_to_stop);
-				   }
-
-				   } */
-			}
-			/* check that it also exists in new runlevel */
-
-			/* STEP 3, Stop old runlevel */
+			/* Stop all old runlevel deps, that are not deps of the
+			   new runlevel */
+			runlevel_stop_unneeded(old_runlevel, new_runlevel);
+			/* Finally, stop the old runlevel */
 			initng_handler_stop_service(old_runlevel);
 		}
 
 		free(g.runlevel);
 
-		g.runlevel = NULL;
 		g.runlevel = initng_toolbox_strdup(new_runlevel->name);
 	}
 
