@@ -29,6 +29,7 @@
 #include <sys/klog.h>
 #include <sys/time.h>
 #include <sys/resource.h>
+#include <sys/mount.h>
 
 #include <initng.h>
 #include <initng-paths.h>
@@ -113,6 +114,13 @@ int main(int argc, char *argv[], char *env[])
 #endif
 
 	SULOGIN_ON_FAIL(chdir("/"), "can't chdir to /");
+
+	/* FIXME: linux-only code! */
+	SULOGIN_ON_FAIL(mount("none", "/run", "tmpfs", 0, ""),
+			"unable to mount /run");
+
+	SULOGIN_ON_FAIL(mkdir("/run/initng", 0700),
+			"can't make /run/initng");
 
 	/* set console loglevel */
 	klogctl(8, NULL, 1);
