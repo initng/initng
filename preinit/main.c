@@ -45,7 +45,7 @@
 #define ECHOPRT 0
 #endif
 
-static void setup_console(const char *console)
+static inline void setup_console(const char *console)
 {
 	int fd;
 	struct termios tty;
