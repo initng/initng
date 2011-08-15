@@ -93,6 +93,13 @@ static inline void setup_console(const char *console)
 }
 
 
+#define SULOGIN_ON_FAIL(x, errmsg) { \
+		while ((x) < 0) { \
+			perror(errmsg); \
+			initng_main_su_login(); \
+		} \
+	}
+
 /*
  * %%%%%%%%%%%%%%%%%%%%   main ()   %%%%%%%%%%%%%%%%%%%%
  */
@@ -105,11 +112,7 @@ int main(int argc, char *argv[], char *env[])
 	setup_selinux();
 #endif
 
-	/* change dir to / */
-	while (chdir("/") < 0) {
-		fprintf(stderr, "Can't chdir to /\n");
-		initng_main_su_login();
-	}
+	SULOGIN_ON_FAIL(chdir("/"), "can't chdir to /");
 
 	/* set console loglevel */
 	klogctl(8, NULL, 1);
