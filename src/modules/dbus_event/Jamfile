@@ -1,0 +1,10 @@
+SrcDir TOP src modules dbus_event ;
+PkgConfigHdrs DBUS ;
+
+LINKFLAGS on moddbus_event.so += -fPIC -rdynamic
+   -Wl,--whole-archive [ FDirName $(TOP) src main libinitng$(SUFLIB) ]
+   -Wl,--no-whole-archive -ldl
+   $(DBUS_LDFLAGS) ;
+
+SharedLibrary moddbus_event.so : dbus_nge.c initng_dbusevent.c ;
+InstallBin $(DESTDIR)$(moddir) : moddbus_event.so ;

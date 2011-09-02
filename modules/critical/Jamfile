@@ -1,3 +1,0 @@
-SrcDir TOP modules critical ;
-SharedLibrary modcritical.so : initng_critical.c active_db_print.c ;
-InstallBin $(DESTDIR)$(moddir) : modcritical.so ;

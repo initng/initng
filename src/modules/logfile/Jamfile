@@ -1,0 +1,3 @@
+SrcDir TOP src modules logfile ;
+SharedLibrary modlogfile.so : initng_logfile.c ;
+InstallBin $(DESTDIR)$(moddir) : modlogfile.so ;

@@ -1,0 +1,14 @@
+SrcDir TOP src preinit ;
+
+if $(WITH_SELINUX) = 1
+{
+    Main preinit : main.c selinux.c ;
+}
+else
+{
+    Main preinit : main.c ;
+}
+
+LinkLibraries preinit : libinitng$(SUFLIB) ;
+
+InstallBin $(DESTDIR)$(sbindir) : preinit ;

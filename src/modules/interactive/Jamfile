@@ -1,0 +1,3 @@
+SrcDir TOP src modules interactive ;
+SharedLibrary modinteractive.so : initng_interactive.c ;
+InstallBin $(DESTDIR)$(moddir) : modinteractive.so ;

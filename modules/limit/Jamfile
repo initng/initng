@@ -1,3 +1,0 @@
-SrcDir TOP modules limit ;
-SharedLibrary modlimit.so : initng_limit.c ;
-InstallBin $(DESTDIR)$(moddir) : modlimit.so ;

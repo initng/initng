@@ -1,0 +1,6 @@
+ScDir TOP src modules ngcs ;
+
+SharedLibrary libngcs_common.so.0.0.0 : ngcs_common.c ;
+SharedLibrary libngcs_client.so.0.0.0 : ngcs_client.c ngcs_marshal.c ;
+LINKFLAGS on libngcs_client.so.0.0.0 += -llibngcs_common ;
+

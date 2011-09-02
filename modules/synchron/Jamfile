@@ -1,3 +1,0 @@
-SrcDir TOP modules synchron ;
-SharedLibrary modsynchron.so : initng_synchron.c ;
-InstallBin $(DESTDIR)$(moddir) : modsynchron.so ;

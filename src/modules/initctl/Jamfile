@@ -1,0 +1,3 @@
+SrcDir TOP src modules initctl ;
+SharedLibrary modinitctl.so : initng_initctl.c ;
+InstallBin $(DESTDIR)$(moddir) : modinitctl.so ;

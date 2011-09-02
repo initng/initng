@@ -1,3 +1,0 @@
-SrcDir TOP modules debug_commands ;
-SharedLibrary moddebug_commands.so : initng_debug_commands.c print_service.c ;
-InstallBin $(DESTDIR)$(moddir) : moddebug_commands.so ;

@@ -1,0 +1,3 @@
+SrcDir TOP src modules pause ;
+SharedLibrary modpause.so : initng_pause.c ;
+InstallBin $(DESTDIR)$(moddir) : modpause.so ;

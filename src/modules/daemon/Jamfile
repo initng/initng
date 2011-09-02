@@ -1,0 +1,3 @@
+SrcDir TOP src modules daemon ;
+SharedLibrary moddaemon.so : initng_daemon.c ;
+InstallBin $(DESTDIR)$(moddir) : moddaemon.so ;

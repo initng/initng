@@ -1,0 +1,3 @@
+SrcDir TOP src modules lockfile ;
+SharedLibrary modlockfile.so : initng_lockfile.c ;
+InstallBin $(DESTDIR)$(moddir) : modlockfile.so ;

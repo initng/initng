@@ -1,0 +1,3 @@
+SrcDir TOP src modules conflict ;
+SharedLibrary modconflict.so : initng_conflict.c ;
+InstallBin $(DESTDIR)$(moddir) : modconflict.so ;

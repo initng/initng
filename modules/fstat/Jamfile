@@ -1,3 +1,0 @@
-SrcDir TOP modules fstat ;
-SharedLibrary modfstat.so : initng_fstat.c ;
-InstallBin $(DESTDIR)$(moddir) : modfstat.so ;

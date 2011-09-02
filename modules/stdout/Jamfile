@@ -1,3 +1,0 @@
-SrcDir TOP modules stdout ;
-SharedLibrary modstdout.so : initng_stdout.c ;
-InstallBin $(DESTDIR)$(moddir) : modstdout.so ;

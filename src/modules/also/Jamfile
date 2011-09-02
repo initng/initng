@@ -1,0 +1,3 @@
+SrcDir TOP src modules also ;
+SharedLibrary modalso.so : initng_also.c ;
+InstallBin $(DESTDIR)$(moddir) : modalso.so ;

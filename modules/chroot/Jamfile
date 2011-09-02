@@ -1,3 +1,0 @@
-SrcDir TOP modules chroot ;
-SharedLibrary modchroot.so : initng_chroot.c ;
-InstallBin $(DESTDIR)$(moddir) : modchroot.so ;

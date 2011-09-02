@@ -1,0 +1,3 @@
+SrcDir TOP src modules renice ;
+SharedLibrary modrenice.so : initng_renice.c ;
+InstallBin $(DESTDIR)$(moddir) : modrenice.so ;

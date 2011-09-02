@@ -1,3 +1,0 @@
-SrcDir TOP modules netdev ;
-SharedLibrary modnetdev.so : initng_netdev.c ;
-InstallBin $(DESTDIR)$(moddir) : modnetdev.so ;

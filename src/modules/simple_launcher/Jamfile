@@ -1,0 +1,3 @@
+SrcDir TOP src modules simple_launcher ;
+SharedLibrary modsimple_launcher.so : initng_simple_launcher.c ;
+InstallBin $(DESTDIR)$(moddir) : modsimple_launcher.so ;

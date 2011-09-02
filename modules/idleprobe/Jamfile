@@ -1,3 +1,0 @@
-SrcDir TOP modules idleprobe ;
-SharedLibrary modidleprobe.so : initng_idleprobe.c ;
-InstallBin $(DESTDIR)$(moddir) : modidleprobe.so ;

@@ -1,3 +1,0 @@
-SrcDir TOP modules cpout ;
-SharedLibrary modcpout.so : initng_cpout.c ;
-InstallBin $(DESTDIR)$(moddir) : modcpout.so ;

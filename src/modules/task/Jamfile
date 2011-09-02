@@ -1,0 +1,3 @@
+SrcDir TOP src modules task ;
+SharedLibrary modtask.so : initng_task.c ;
+InstallBin $(DESTDIR)$(moddir) : modtask.so ;

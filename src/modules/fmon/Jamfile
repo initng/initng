@@ -1,0 +1,3 @@
+SrcDir TOP src modules fmon ;
+SharedLibrary modfmon.so : initng_fmon.c ;
+InstallBin $(DESTDIR)$(moddir) : modfmon.so ;

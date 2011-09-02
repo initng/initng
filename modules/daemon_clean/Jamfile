@@ -1,3 +1,0 @@
-SrcDir TOP modules daemon_clean ;
-SharedLibrary moddaemon_clean.so : initng_daemon_clean.c ;
-InstallBin $(DESTDIR)$(moddir) : moddaemon_clean.so ;

@@ -1,0 +1,3 @@
+SrcDir TOP src modules syslog ;
+SharedLibrary modsyslog.so : initng_syslog.c ;
+InstallBin $(DESTDIR)$(moddir) : modsyslog.so ;

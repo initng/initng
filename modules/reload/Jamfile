@@ -1,3 +1,0 @@
-SrcDir TOP modules reload ;
-SharedLibrary modreload.so : initng_reload.c ;
-InstallBin $(DESTDIR)$(moddir) : modreload.so ;

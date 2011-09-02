@@ -1,0 +1,3 @@
+SrcDir TOP src modules service ;
+SharedLibrary modservice.so : initng_service.c ;
+InstallBin $(DESTDIR)$(moddir) : modservice.so ;

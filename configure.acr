@@ -49,9 +49,9 @@ PKGCONFIG DBUS_CFLAGS DBUS_LDFLAGS dbus-1
 
 (( directories ))
 SUBDIRS ./config.jam ./config.h ./initng.pc ;
-SUBDIRS ./modules/service_file/wrappers/default ;
-SUBDIRS ./modules/service_file/wrappers/gentoo ;
-SUBDIRS ./modules/service_file/wrappers/sh ;
+SUBDIRS ./src/modules/service_file/wrappers/default ;
+SUBDIRS ./src/modules/service_file/wrappers/gentoo ;
+SUBDIRS ./src/modules/service_file/wrappers/sh ;
 
 (( final report about build arguments ))
 REPORT INSTALL_AS_INIT WITH_COLORS WITH_POSIXLY_IFILES WITH_CHECK_RO WITH_SELINUX ;

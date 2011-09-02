@@ -1,3 +1,0 @@
-SrcDir TOP modules suid ;
-SharedLibrary modsuid.so : initng_suid.c ;
-InstallBin $(DESTDIR)$(moddir) : modsuid.so ;

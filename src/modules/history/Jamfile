@@ -1,0 +1,3 @@
+SrcDir TOP src modules history ;
+SharedLibrary modhistory.so : initng_history.c ;
+InstallBin $(DESTDIR)$(moddir) : modhistory.so ;
