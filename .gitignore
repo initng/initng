@@ -1,9 +1,10 @@
-config.h
-config.jam
 *.a
 *.o
 *.so
 *.so.*
-src/initng
+*.html
+*.pdf
+config.h
+config.jam
 configure
 initng.pc
