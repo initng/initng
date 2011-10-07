@@ -2,17 +2,17 @@ CFLAGS = @CFLAGS@ ;
 
 # Paths.
 prefix = @PREFIX@ ;
-bindir = /bin ;
-sbindir = /sbin ;
-libdir = /lib ;
-includedir = /usr/include/libinitng-@VERSION@ ;
+bindir = $(prefix)/bin ;
+sbindir = $(prefix)/sbin ;
+libdir = $(prefix)/lib ;
+includedir = $(prefix)/include/libinitng-@VERSION@ ;
 moddir = $(libdir)/initng ;
-datadir = /usr/share ;
+datadir = $(prefix)/share ;
 mandir = $(datadir)/man ;
 docdir = $(datadir)/doc ;
-sysconfdir = /etc ;
-localstatedir = /var ;
-pkgconfigdir = /usr/lib/pkgconfig ;
+sysconfdir = $(prefix)/etc ;
+localstatedir = $(prefix)/var ;
+pkgconfigdir = $(libdir)/pkgconfig ;
 
 # Features
 WITH_COLORS = @WITH_COLORS@ ;

@@ -36,7 +36,7 @@ if ! $(CONFIGURED)
 }
 
 # Destination directory for package creation.
-DESTDIR ?= ;
+DESTDIR ?= "" ;
 
 # Build defines. Don't add them as real parameters, just the define itself.
 # Jam figures out what compiler command line switch to use itself.
