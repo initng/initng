@@ -31,12 +31,11 @@
 /* function strips "test/go/th" to "th" */
 const char *initng_string_basename(const char *string)
 {
-	char *ret;
-
 	assert(string);
 
 	/* get the last '/' char in string */
-	if (!(ret = strrchr(string, '/')))
+	char *ret = strrchr(string, '/');
+	if (!ret)
 		return string;
 
 	/* skip to char after the last '/' */
@@ -46,12 +45,11 @@ const char *initng_string_basename(const char *string)
 /* function strips "test/go/th" to "test/go" */
 char *initng_string_dirname(const char *string)
 {
-	char *last_slash;
-
 	assert(string);
 
-	/* get the last_slash position */
-	if (!(last_slash = strrchr(string, '/')))
+	/* get the last slash position */
+	char *last_slash = strrchr(string, '/');
+	if (!last_slash)
 		return initng_toolbox_strdup(string);
 
 	/* ok return a copy of that string */
@@ -61,14 +59,11 @@ char *initng_string_dirname(const char *string)
 /* function strips "test/go/th" to "test/go" and then to "test" */
 int initng_string_strip_end(char **string)
 {
-
-	char *end;
 	assert(string);
 	assert(*string);
 
 	/* go to last '/' */
-	end = strrchr(*string, '/');
-
+	char *end = strrchr(*string, '/');
 	if (end) {
 		end[0] = '\0';
 		return TRUE;
