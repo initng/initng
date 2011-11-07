@@ -45,15 +45,17 @@
 
 #include "initng_service_file.h"
 
-int bp_send(bp_req * to_send);
+
+static int bp_send(bp_req * to_send);
 
 /* these are gonna be used for main() for every command */
-int bp_new_active(char *service, int argc, char **argv);
-int bp_abort(char *service, int argc, char **argv);
-int bp_done(char *service, int argc, char **argv);
-int bp_get_variable(char *service, int argc, char **argv);
-int bp_set_variable(char *service, int argc, char **argv);
-int bp_add_exec(char *service, int argc, char **argv);
+static int bp_new_active(char *service, int argc, char **argv);
+static int bp_abort(char *service, int argc, char **argv);
+static int bp_done(char *service, int argc, char **argv);
+static int bp_get_variable(char *service, int argc, char **argv);
+static int bp_set_variable(char *service, int argc, char **argv);
+static int bp_add_exec(char *service, int argc, char **argv);
+
 char *message;
 
 typedef struct {
@@ -179,7 +181,7 @@ int main(int argc, char **argv)
  * usage: iexec start           will run /etc/initng/service internal_start
  *        iexec start = dodo    will run /etc/initng/service internal_dodo
  */
-int bp_add_exec(char *service, int argc, char **argv)
+static int bp_add_exec(char *service, int argc, char **argv)
 {
 	/* the request to send */
 	bp_req to_send;
@@ -222,7 +224,7 @@ int bp_add_exec(char *service, int argc, char **argv)
 	return (bp_send(&to_send));
 }
 
-int bp_abort(char *service, int argc, char **argv)
+static int bp_abort(char *service, int argc, char **argv)
 {
 	/* the request to send */
 	bp_req to_send;
@@ -236,7 +238,7 @@ int bp_abort(char *service, int argc, char **argv)
 	return (bp_send(&to_send));
 }
 
-int bp_done(char *service, int argc, char **argv)
+static int bp_done(char *service, int argc, char **argv)
 {
 	/* the request to send */
 	bp_req to_send;
@@ -255,7 +257,7 @@ int bp_done(char *service, int argc, char **argv)
  *  iget exec test
  */
 
-int bp_get_variable(char *service, int argc, char **argv)
+static int bp_get_variable(char *service, int argc, char **argv)
 {
 	/* the request to send */
 	bp_req to_send;
@@ -293,7 +295,7 @@ int bp_get_variable(char *service, int argc, char **argv)
  *  4) iset exec test = "Coool"
  */
 
-int bp_set_variable(char *service, int argc, char **argv)
+static int bp_set_variable(char *service, int argc, char **argv)
 {
 	/* the request to send */
 	bp_req to_send;
@@ -357,7 +359,7 @@ int bp_set_variable(char *service, int argc, char **argv)
 	return FALSE;
 }
 
-int bp_new_active(char *service, int argc, char **argv)
+static int bp_new_active(char *service, int argc, char **argv)
 {
 	/* the request to send */
 	bp_req to_send;
@@ -380,7 +382,7 @@ int bp_new_active(char *service, int argc, char **argv)
 }
 
 /* Open, Send, Read, Close */
-int bp_send(bp_req * to_send)
+static int bp_send(bp_req * to_send)
 {
 	int sock = 3;		/* testing fd 3, that is the oficcial pipe to initng for this communication */
 	int len;
