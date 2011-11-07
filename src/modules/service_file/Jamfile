@@ -5,6 +5,7 @@ InstallBin $(DESTDIR)$(moddir) : modservice_file.so ;
 
 Main bp : bp.c ;
 InstallBin $(DESTDIR)$(libdir)/ibin : bp ;
+LinkLibraries bp : libinitng$(SUFLIB) ;
 
 InstallLink iabort : $(DESTDIR)$(libdir)/ibin : bp ;
 InstallLink idone : $(DESTDIR)$(libdir)/ibin : bp ;

@@ -138,21 +138,13 @@ int main(int argc, char **argv)
 {
 	int status;
 	char *service = NULL;
-	char **new_argv;
 	int new_argc;
 	int stop_checking = FALSE;
 
-	/* cut path or so from name */
-	char *argv0 = strrchr(argv[0], '/');
-
-	if (!argv0)
-		argv0 = argv[0];
-
-	if (argv0[0] == '/')
-		argv0++;
+	const char *argv0 = initng_string_basename(argv[0]);
 
 	/* allocate a new argv to use */
-	new_argv = calloc(argc + 1, sizeof(char *));
+	char **new_argv = calloc(argc + 1, sizeof(char *));
 
 	/* first is the full path to service file */
 	new_argv[0] = getenv("SFILE");
