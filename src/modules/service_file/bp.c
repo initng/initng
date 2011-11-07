@@ -58,6 +58,7 @@ static int bp_done(char *service, int argc, char **argv);
 static int bp_get_variable(char *service, int argc, char **argv);
 static int bp_set_variable(char *service, int argc, char **argv);
 static int bp_add_exec(char *service, int argc, char **argv);
+static int unknown_command(char *service, int argc, char **argv);
 
 char *message;
 
@@ -66,23 +67,79 @@ typedef struct {
 	int (*function) (char *service, int argc, char **argv);
 } command_entry;
 
-command_entry commands[] = {
-	{"iabort", &bp_abort},
-	{"iregister", &bp_new_active},
-	{"idone", &bp_done},
-	{"iget", &bp_get_variable},
-	{"iset", &bp_set_variable},
-	{"iexec", &bp_add_exec},
-	{NULL, NULL}
+enum command_map {
+	IUNKNOWN = 0,
+	IABORT,
+	IREGISTER,
+	IDONE,
+	IGET,
+	ISET,
+	IEXEC,
 };
+
+command_entry commands[] = {
+	[IUNKNOWN] = {NULL, &unknown_command},
+	[IABORT] = {"iabort", &bp_abort},
+	[IREGISTER] = {"iregister", &bp_new_active},
+	[IDONE] = {"idone", &bp_done},
+	[IGET] = {"iget", &bp_get_variable},
+	[ISET] = {"iset", &bp_set_variable},
+	[IEXEC] = {"iexec", &bp_add_exec},
+};
+
+static int unknown_command(char *service, int argc, char **argv)
+{
+	printf("Bad command \"");
+	for (int i = 0; argv[i]; i++)
+		printf(" %s", argv[i]);
+	printf("\"\nAvaible commands:\n");
+	for (int i = 0; commands[i].name; i++)
+		printf(" ./%s\n", commands[i].name);
+	exit(99);
+}
+
+static command_entry *map_cmd(const char *cmd)
+{
+	int r;
+
+	switch(cmd[1]) {
+	default:
+		goto unknown;
+	case 'a':
+		r = IABORT;
+		break;
+	case 'r':
+		r = IREGISTER;
+		break;
+	case 'd':
+		r = IDONE;
+		break;
+	case 'g':
+		r = IGET;
+		break;
+	case 's':
+		r = ISET;
+		break;
+	case 'e':
+		r = IEXEC;
+		break;
+	}
+
+	if (strcmp(commands[r].name, cmd) != 0) {
+	unknown:
+		r = IUNKNOWN;
+	}
+
+	return &commands[r];
+}
+
 
 int main(int argc, char **argv)
 {
-	int status = 99;
+	int status;
 	char *service = NULL;
 	char **new_argv;
 	int new_argc;
-	int i;
 	int stop_checking = FALSE;
 
 	/* cut path or so from name */
@@ -106,7 +163,7 @@ int main(int argc, char **argv)
 
 	/* copy all, but not options */
 	new_argc = 0;
-	for (i = 1; argv[i]; i++) {
+	for (int i = 1; argv[i]; i++) {
 		/* iset -s service test */
 		if (stop_checking == FALSE && argv[i][0] == '-') {
 			if (argv[i][1] == 's' && !argv[i][2] && argv[i + 1][0]) {
@@ -143,32 +200,12 @@ int main(int argc, char **argv)
 		printf("\n");
 	}
 
-	/* LIST THE DB OF COMMANDS AND EXECUTE THE RIGHT ONE */
-	{
-		for (i = 0; commands[i].name; i++) {
-			if (strcmp(argv0, commands[i].name) == 0)
-				status = (*commands[i].function) (service,
-								  new_argc,
-								  new_argv);
-			if (status != 99)
-				break;
-		}
-	}
-
-	/* if still 99, print usage */
-	if (status == 99) {
-		printf("Bad command \"");
-		for (i = 0; argv[i]; i++)
-			printf(" %s", argv[i]);
-		printf("\"\nAvaible commands:\n");
-		for (i = 0; commands[i].name; i++)
-			printf(" ./%s\n", commands[i].name);
-		exit(status);
-	}
+	command_entry *cmd = map_cmd(argv0);
+	status = (cmd->function)(service, new_argc, new_argv);
 
 	if (message) {
-		printf("%s (%s) :", commands[i].name, service);
-		for (i = 1; new_argv[i]; i++)
+		printf("%s (%s) :", cmd->name, service);
+		for (int i = 1; new_argv[i]; i++)
 			printf(" %s", new_argv[i]);
 
 		printf("  \"%s\"\n", message);
@@ -176,7 +213,7 @@ int main(int argc, char **argv)
 	}
 
 	/* invert result */
-	exit(status != TRUE);
+	exit(!status);
 }
 
 /*
