@@ -249,29 +249,29 @@ static void bp_handle_client(int fd)
 	switch (req.request) {
 	case NEW_ACTIVE:
 		bp_new_active(&rep, req.u.new_active.type,
-			      req.u.new_active.service,
+			      req.service,
 			      req.u.new_active.from_file);
 		break;
 
 	case SET_VARIABLE:
-		bp_set_variable(&rep, req.u.set_variable.service,
+		bp_set_variable(&rep, req.service,
 				req.u.set_variable.vartype,
 				req.u.set_variable.varname,
 				req.u.set_variable.value);
 		break;
 
 	case GET_VARIABLE:
-		bp_get_variable(&rep, req.u.get_variable.service,
+		bp_get_variable(&rep, req.service,
 				req.u.get_variable.vartype,
 				req.u.get_variable.varname);
 		break;
 
 	case DONE:
-		bp_done(&rep, req.u.done.service);
+		bp_done(&rep, req.service);
 		break;
 
 	case ABORT:
-		bp_abort(&rep, req.u.abort.service);
+		bp_abort(&rep, req.service);
 
 	default:
 		break;

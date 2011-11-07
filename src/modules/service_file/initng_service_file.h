@@ -39,17 +39,18 @@ typedef struct {
 	int version;			/* protocol version */
 	bp_req_type request;		/* Can be new service request, new
 					 * daemon request, set option .... */
+
+	char service[101];
+
 	union {
 		/* new active */
 		struct {
 			char type[41];		/* What service type this is */
-			char service[101];	/* New service name */
 			char from_file[101];	/* The source file added from */
 		} new_active;
 
 		/* set value */
 		struct {
-			char service[101];	/* Service to set option to */
 			char vartype[101];	/* The variable try to set */
 			char varname[101];	/* The local variable name */
 			char value[1025];	/* The option value trying to set */
@@ -57,20 +58,9 @@ typedef struct {
 
 		/* get value */
 		struct {
-			char service[101];	/* Service to get option from */
 			char vartype[101];	/* The variable try to get */
 			char varname[101];	/* The local varname */
 		} get_variable;
-
-		/* parsing done, now start it */
-		struct {
-			char service[101];	/* the service that is done parsing */
-		} done;
-
-		/* abort parsing, and clear service */
-		struct {
-			char service[101];	/* name of service to abort */
-		} abort;
 	} u;
 } bp_req;
 

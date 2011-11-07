@@ -49,23 +49,29 @@
 #define DEBUG_EXTRA 0
 #endif
 
-static int bp_send(bp_req * to_send);
-
-/* these are gonna be used for main() for every command */
-static int bp_new_active(char *service, int argc, char **argv);
-static int bp_abort(char *service, int argc, char **argv);
-static int bp_done(char *service, int argc, char **argv);
-static int bp_get_variable(char *service, int argc, char **argv);
-static int bp_set_variable(char *service, int argc, char **argv);
-static int bp_add_exec(char *service, int argc, char **argv);
-static int unknown_command(char *service, int argc, char **argv);
-
-char *message;
 
 typedef struct {
 	const char *name;
-	int (*function) (char *service, int argc, char **argv);
+	int (*function) (bp_req *to_send, int argc, char **argv);
+	bp_req_type req_type;
 } command_entry;
+
+
+static int call_command(command_entry *cmd, char *service, int argc,
+			char **argv);
+
+static int bp_send(bp_req * to_send);
+
+/* these are gonna be used for main() for every command */
+
+static int bp_trivial(bp_req *to_send, int argc, char **argv);
+static int bp_new_active(bp_req *to_send, int argc, char **argv);
+static int bp_get_variable(bp_req *to_send, int argc, char **argv);
+static int bp_set_variable(bp_req *to_send, int argc, char **argv);
+static int bp_add_exec(bp_req *to_send, int argc, char **argv);
+static int unknown_command(bp_req *to_send, int argc, char **argv);
+
+char *message;
 
 enum command_map {
 	IUNKNOWN = 0,
@@ -78,16 +84,16 @@ enum command_map {
 };
 
 command_entry commands[] = {
-	[IUNKNOWN] = {NULL, &unknown_command},
-	[IABORT] = {"iabort", &bp_abort},
-	[IREGISTER] = {"iregister", &bp_new_active},
-	[IDONE] = {"idone", &bp_done},
-	[IGET] = {"iget", &bp_get_variable},
-	[ISET] = {"iset", &bp_set_variable},
-	[IEXEC] = {"iexec", &bp_add_exec},
+	[IUNKNOWN]  = {NULL,        &unknown_command, 0},
+	[IABORT]    = {"iabort",    &bp_trivial,      ABORT},
+	[IREGISTER] = {"iregister", &bp_new_active,   NEW_ACTIVE},
+	[IDONE]     = {"idone",     &bp_trivial,      DONE},
+	[IGET]      = {"iget",      &bp_get_variable, GET_VARIABLE},
+	[ISET]      = {"iset",      &bp_set_variable, SET_VARIABLE},
+	[IEXEC]     = {"iexec",     &bp_add_exec,     SET_VARIABLE},
 };
 
-static int unknown_command(char *service, int argc, char **argv)
+static int unknown_command(bp_req *to_send, int argc, char **argv)
 {
 	printf("Bad command \"");
 	for (int i = 0; argv[i]; i++)
@@ -131,6 +137,20 @@ static command_entry *map_cmd(const char *cmd)
 	}
 
 	return &commands[r];
+}
+
+static int call_command(command_entry *cmd, char *service, int argc,
+			char **argv)
+{
+	bp_req to_send;
+
+	if (cmd->req_type) {
+		memset(&to_send, 0, sizeof(to_send));
+		to_send.request = cmd->req_type;
+		strncpy(to_send.service, service, 100);
+	}
+
+	return (cmd->function)(&to_send, argc, argv);
 }
 
 
@@ -193,7 +213,7 @@ int main(int argc, char **argv)
 	}
 
 	command_entry *cmd = map_cmd(argv0);
-	status = (cmd->function)(service, new_argc, new_argv);
+	status = call_command(cmd, service, new_argc, new_argv);
 
 	if (message) {
 		printf("%s (%s) :", cmd->name, service);
@@ -212,14 +232,8 @@ int main(int argc, char **argv)
  * usage: iexec start           will run /etc/initng/service internal_start
  *        iexec start = dodo    will run /etc/initng/service internal_dodo
  */
-static int bp_add_exec(char *service, int argc, char **argv)
+static int bp_add_exec(bp_req *to_send, int argc, char **argv)
 {
-	/* the request to send */
-	bp_req to_send;
-
-	memset(&to_send, 0, sizeof(bp_req));
-	to_send.request = SET_VARIABLE;
-
 	if (argc != 1 && (argc != 3 || argv[2][0] != '='))
 		return FALSE;
 
@@ -227,64 +241,36 @@ static int bp_add_exec(char *service, int argc, char **argv)
 
 	if (argc != 3 || argv[3][0] != '/') {
 		/* "/etc/initng/file" */
-		strncpy(to_send.u.set_variable.value, argv[0], left);
+		strncpy(to_send->u.set_variable.value, argv[0], left);
 		left -= strlen(argv[0]);
 
 		/* " internal_" */
-		strncat(to_send.u.set_variable.value, " internal_", left);
+		strncat(to_send->u.set_variable.value, " internal_", left);
 		left -= strlen(" internal_");
 	}
 
 	if (argc == 1) {
 		/* "start" */
-		strncat(to_send.u.set_variable.value, argv[1], left);
+		strncat(to_send->u.set_variable.value, argv[1], left);
 		left -= strlen(argv[1]);
 	} else {
 		/* "dodo" */
-		strncat(to_send.u.set_variable.value, argv[3], left);
+		strncat(to_send->u.set_variable.value, argv[3], left);
 		left -= strlen(argv[3]);
 	}
 
-	/* use service */
-	strncpy(to_send.u.get_variable.service, service, left);
-	left -= strlen(service);
-
 	/* the type is "exec" */
-	strcpy(to_send.u.set_variable.vartype, "exec");
-	left -= strlen("exec");
+	strncpy(to_send->u.set_variable.vartype, "exec", 100);
 
 	/* the varname is "start" */
-	strncpy(to_send.u.set_variable.varname, argv[1], left);
+	strncpy(to_send->u.set_variable.varname, argv[1], 100);
 
-	return (bp_send(&to_send));
+	return (bp_send(to_send));
 }
 
-static int bp_abort(char *service, int argc, char **argv)
+static int bp_trivial(bp_req *to_send, int argc, char **argv)
 {
-	/* the request to send */
-	bp_req to_send;
-
-	memset(&to_send, 0, sizeof(bp_req));
-
-	to_send.request = ABORT;
-
-	strncpy(to_send.u.abort.service, service, 100);
-
-	return (bp_send(&to_send));
-}
-
-static int bp_done(char *service, int argc, char **argv)
-{
-	/* the request to send */
-	bp_req to_send;
-
-	memset(&to_send, 0, sizeof(bp_req));
-
-	to_send.request = DONE;
-
-	strncpy(to_send.u.done.service, service, 100);
-
-	return (bp_send(&to_send));
+	return (bp_send(to_send));
 }
 
 /* This have 2 senarios, with 1 or 2 argc:
@@ -292,30 +278,20 @@ static int bp_done(char *service, int argc, char **argv)
  *  iget exec test
  */
 
-static int bp_get_variable(char *service, int argc, char **argv)
+static int bp_get_variable(bp_req *to_send, int argc, char **argv)
 {
-	/* the request to send */
-	bp_req to_send;
-
 	/* make sure its 1 or 2 args with this */
 	if (argc != 1 && argc != 2)
 		return FALSE;
 
-	memset(&to_send, 0, sizeof(bp_req));
-
-	to_send.request = GET_VARIABLE;
-
-	/* use service */
-	strncpy(to_send.u.get_variable.service, service, 100);
-
 	if (argc == 1) {
-		strncpy(to_send.u.get_variable.vartype, argv[1], 100);
+		strncpy(to_send->u.get_variable.vartype, argv[1], 100);
 	} else {
-		strncpy(to_send.u.get_variable.varname, argv[1], 100);
-		strncpy(to_send.u.get_variable.vartype, argv[2], 100);
+		strncpy(to_send->u.get_variable.varname, argv[1], 100);
+		strncpy(to_send->u.get_variable.vartype, argv[2], 100);
 	}
 
-	return (bp_send(&to_send));
+	return (bp_send(to_send));
 }
 
 /*
@@ -330,13 +306,8 @@ static int bp_get_variable(char *service, int argc, char **argv)
  *  4) iset exec test = "Coool"
  */
 
-static int bp_set_variable(char *service, int argc, char **argv)
+static int bp_set_variable(bp_req *to_send, int argc, char **argv)
 {
-	/* the request to send */
-	bp_req to_send;
-
-	memset(&to_send, 0, sizeof(bp_req));
-	to_send.request = SET_VARIABLE;
 	int i;
 	int ret = FALSE;
 
@@ -344,22 +315,19 @@ static int bp_set_variable(char *service, int argc, char **argv)
 	if (argc < 1)
 		return FALSE;
 
-	/* use service set in main() */
-	strncpy(to_send.u.set_variable.service, service, 100);
-
 	/* if not usage 3 or 4 */
 	if (argc < 3) {
 		/* handle valueless variable, type 1 */
 		if (argc == 1) {
-			strncpy(to_send.u.set_variable.vartype, argv[1], 100);
-			return (bp_send(&to_send));
+			strncpy(to_send->u.set_variable.vartype, argv[1], 100);
+			return (bp_send(to_send));
 		}
 
 		/* handle valueless variable, type 2 */
 		if (argc == 2) {
-			strncpy(to_send.u.set_variable.vartype, argv[1], 100);
-			strncpy(to_send.u.set_variable.varname, argv[2], 100);
-			return (bp_send(&to_send));
+			strncpy(to_send->u.set_variable.vartype, argv[1], 100);
+			strncpy(to_send->u.set_variable.varname, argv[2], 100);
+			return (bp_send(to_send));
 		}
 
 		/* then this is not valid */
@@ -368,11 +336,11 @@ static int bp_set_variable(char *service, int argc, char **argv)
 
 	/* if its a short set ( type 3 )  without vartype */
 	if (argc >= 3 && argv[2][0] == '=') {
-		strncpy(to_send.u.set_variable.vartype, argv[1], 100);
+		strncpy(to_send->u.set_variable.vartype, argv[1], 100);
 		/* argv[2] == '=' */
 		for (i = 3; argv[i]; i++) {
-			strncpy(to_send.u.set_variable.value, argv[i], 1024);
-			ret = bp_send(&to_send);
+			strncpy(to_send->u.set_variable.value, argv[i], 1024);
+			ret = bp_send(to_send);
 		}
 
 		return ret;
@@ -380,12 +348,12 @@ static int bp_set_variable(char *service, int argc, char **argv)
 
 	/* else type 4 */
 	if (argc >= 4 && argv[3][0] == '=') {
-		strncpy(to_send.u.set_variable.vartype, argv[1], 100);
-		strncpy(to_send.u.set_variable.varname, argv[2], 100);
+		strncpy(to_send->u.set_variable.vartype, argv[1], 100);
+		strncpy(to_send->u.set_variable.varname, argv[2], 100);
 		/* argv[3] == '=' */
 		for (i = 4; argv[i]; i++) {
-			strncpy(to_send.u.set_variable.value, argv[i], 1024);
-			ret = bp_send(&to_send);
+			strncpy(to_send->u.set_variable.value, argv[i], 1024);
+			ret = bp_send(to_send);
 		}
 
 		return ret;
@@ -394,26 +362,17 @@ static int bp_set_variable(char *service, int argc, char **argv)
 	return FALSE;
 }
 
-static int bp_new_active(char *service, int argc, char **argv)
+static int bp_new_active(bp_req *to_send, int argc, char **argv)
 {
-	/* the request to send */
-	bp_req to_send;
-
-	memset(&to_send, 0, sizeof(bp_req));
-	to_send.request = NEW_ACTIVE;
-
 	/* do a check */
 	if (argc != 1)
 		return FALSE;
 
-	/* use servicename from main() */
-	strncpy(to_send.u.new_active.service, service, 100);
-
 	/* set the type */
-	strncpy(to_send.u.new_active.type, argv[1], 40);
-	strncpy(to_send.u.new_active.from_file, argv[0], 100);
+	strncpy(to_send->u.new_active.type, argv[1], 40);
+	strncpy(to_send->u.new_active.from_file, argv[0], 100);
 
-	return (bp_send(&to_send));
+	return (bp_send(to_send));
 }
 
 /* Open, Send, Read, Close */
