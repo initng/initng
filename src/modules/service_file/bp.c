@@ -220,37 +220,41 @@ static int bp_add_exec(char *service, int argc, char **argv)
 	memset(&to_send, 0, sizeof(bp_req));
 	to_send.request = SET_VARIABLE;
 
-	if (argc == 1 || (argc == 3 && argv[2][0] == '=')) {
-		if (argc != 3 || argv[3][0] != '/') {
-			/* "/etc/initng/file" */
-			strncpy(to_send.u.set_variable.value, argv[0], 1024);
-
-			/* " internal_" */
-			strncat(to_send.u.set_variable.value, " internal_",
-				1024 - strlen(to_send.u.set_variable.value));
-		}
-
-		if (argc == 1) {
-			/* "start" */
-			strncat(to_send.u.set_variable.value, argv[1],
-				1024 - strlen(to_send.u.set_variable.value));
-		} else {
-			/* "dodo" */
-			strncat(to_send.u.set_variable.value, argv[3],
-				1024 - strlen(to_send.u.set_variable.value));
-		}
-	} else {
+	if (argc != 1 && (argc != 3 || argv[2][0] != '='))
 		return FALSE;
+
+	int left = 1024;
+
+	if (argc != 3 || argv[3][0] != '/') {
+		/* "/etc/initng/file" */
+		strncpy(to_send.u.set_variable.value, argv[0], left);
+		left -= strlen(argv[0]);
+
+		/* " internal_" */
+		strncat(to_send.u.set_variable.value, " internal_", left);
+		left -= strlen(" internal_");
+	}
+
+	if (argc == 1) {
+		/* "start" */
+		strncat(to_send.u.set_variable.value, argv[1], left);
+		left -= strlen(argv[1]);
+	} else {
+		/* "dodo" */
+		strncat(to_send.u.set_variable.value, argv[3], left);
+		left -= strlen(argv[3]);
 	}
 
 	/* use service */
-	strncpy(to_send.u.get_variable.service, service, 100);
+	strncpy(to_send.u.get_variable.service, service, left);
+	left -= strlen(service);
 
 	/* the type is "exec" */
 	strcpy(to_send.u.set_variable.vartype, "exec");
+	left -= strlen("exec");
 
 	/* the varname is "start" */
-	strncpy(to_send.u.set_variable.varname, argv[1], 100);
+	strncpy(to_send.u.set_variable.varname, argv[1], left);
 
 	return (bp_send(&to_send));
 }
