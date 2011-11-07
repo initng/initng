@@ -45,6 +45,9 @@
 
 #include "initng_service_file.h"
 
+#ifndef DEBUG_EXTRA
+#define DEBUG_EXTRA 0
+#endif
 
 static int bp_send(bp_req * to_send);
 
@@ -132,14 +135,13 @@ int main(int argc, char **argv)
 		printf("I dont know what service you want!\n");
 		exit(1);
 	}
-#ifdef DEBUG_EXTRA
-	{
+
+	if (DEBUG_EXTRA) {
 		printf(" **  %-12s ** ", service);
-		for (i = 0; argv[i]; i++)
+		for (int i = 0; argv[i]; i++)
 			printf("%s ", argv[i]);
 		printf("\n");
 	}
-#endif
 
 	/* LIST THE DB OF COMMANDS AND EXECUTE THE RIGHT ONE */
 	{
