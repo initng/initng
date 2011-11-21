@@ -184,7 +184,7 @@ int main(int argc, char **argv)
 				continue;
 			}
 
-			printf("unknown variable \"%s\"\n", argv[i]);
+			printf("%s: unknown variable\n", argv[i]);
 		}
 		/* stop searching for arguments behind the '=' char */
 		if (argv[i][0] == '=')
@@ -221,7 +221,6 @@ int main(int argc, char **argv)
 			printf(" %s", new_argv[i]);
 
 		printf("  \"%s\"\n", message);
-		free(message);
 	}
 
 	/* invert result */
