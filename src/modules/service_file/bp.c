@@ -284,12 +284,11 @@ static int bp_get_variable(bp_req *to_send, int argc, char **argv)
 	if (argc != 1 && argc != 2)
 		return FALSE;
 
-	if (argc == 1) {
-		strncpy(to_send->u.get_variable.vartype, argv[1], 100);
-	} else {
+	if (argc == 2) {
 		strncpy(to_send->u.get_variable.varname, argv[1], 100);
-		strncpy(to_send->u.get_variable.vartype, argv[2], 100);
+		argv++;
 	}
+	strncpy(to_send->u.get_variable.vartype, argv[1], 100);
 
 	return (bp_send(to_send));
 }
