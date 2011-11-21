@@ -366,9 +366,7 @@ static void bp_set_variable(bp_rep * rep, const char *service,
 	   varname, value);
 
 	if (!active) {
-		strcpy(rep->message, "Service \"");
-		strcat(rep->message, service);
-		strcat(rep->message, "\" not found.");
+		snprintf(rep->message, 1024, "%s: service not found", service);
 		rep->success = FALSE;
 		return;
 	}
@@ -381,9 +379,8 @@ static void bp_set_variable(bp_rep * rep, const char *service,
 	}
 
 	if (!(type = initng_service_data_type_find(vartype))) {
-		strcpy(rep->message, "Variable entry \"");
-		strcat(rep->message, vartype);
-		strcat(rep->message, "\" not found.");
+		snprintf(rep->message, 1024, "%s: variable entry not found",
+			 vartype);
 		rep->success = FALSE;
 		return;
 	}
@@ -465,10 +462,7 @@ static void bp_get_variable(bp_rep * rep, const char *service,
 
 	D_("bp_get_variable(%s, %s, %s)\n", service, vartype, varname);
 	if (!active) {
-		strcpy(rep->message, "Service \"");
-
-		strncat(rep->message, service, 500);
-		strcat(rep->message, "\" not found.");
+		snprintf(rep->message, 1024, "%s: service not found", service);
 		rep->success = FALSE;
 		return;
 	}
@@ -494,16 +488,24 @@ static void bp_get_variable(bp_rep * rep, const char *service,
 		{
 			s_data *itt = NULL;
 			const char *tmp = NULL;
+			char *p = rep->message;
 
-			while ((tmp = get_next_string_var(type, varname,
-							  active, &itt))) {
-				if (!rep->message[0]) {
-					strcpy(rep->message, tmp);
-					continue;
-				}
-				strcat(rep->message, " ");
-				strncat(rep->message, tmp, 1024);
-			}
+			int rem = BP_REP_MAXLEN;
+			int len = 0;
+
+			goto first_iter;
+			do {
+				*p++ = ' ';
+				rem--;
+
+			first_iter:
+				tmp = get_next_string_var(type, varname,
+							  active, &itt);
+				len = strlen(tmp);
+				if (len > rem)
+					len = rem;
+				memcpy(p, tmp, len);
+			} while (rem -= len);
 		}
 		break;
 
@@ -563,9 +565,8 @@ static void bp_done(bp_rep * rep, const char *service)
 		return;
 	}
 
-	strcpy(rep->message, "Service is not in PARSING state, cant start.");
+	strcpy(rep->message, "Service is not in PARSING state, can not start.");
 	rep->success = FALSE;
-	return;
 
 	/* This wont start it, it will be started by as a dependency for a
 	 * other module */

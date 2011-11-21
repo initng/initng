@@ -64,9 +64,12 @@ typedef struct {
 	} u;
 } bp_req;
 
+
+#define BP_REP_MAXLEN 1024
+
 typedef struct {
 	int success;				/* mainly TRUE or FALSE */
-	char message[1025];			/* used for transporting a string to the client */
+	char message[BP_REP_MAXLEN + 1];	/* used for transporting a string to the client */
 } bp_rep;
 
 #endif
