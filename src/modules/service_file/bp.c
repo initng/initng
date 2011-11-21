@@ -322,16 +322,14 @@ static int bp_set_variable(bp_req *to_send, int argc, char **argv)
 		return bp_send(to_send);
 	}
 
-
 	strncpy(to_send->u.set_variable.vartype, argv[1], 100);
 
-
-	int ret, i;
+	int i;
 
 	/* type 3: short set without varname */
 	if (argv[2][0] == '=') {
 		/* argv[2] == '=' */
-		i = 3
+		i = 3;
 	}
 	/* else type 4 */
 	else if (argc >= 4 && argv[3][0] == '=') {
@@ -343,12 +341,11 @@ static int bp_set_variable(bp_req *to_send, int argc, char **argv)
 
 	for (; argv[i]; i++) {
 		strncpy(to_send->u.set_variable.value, argv[i], 1024);
-		ret = bp_send(to_send);
-		if (!ret)
-			break;
+		if (!bp_send(to_send))
+			return FALSE;
 	}
 
-	return ret;
+	return TRUE;
 }
 
 static int bp_new_active(bp_req *to_send, int argc, char **argv)
