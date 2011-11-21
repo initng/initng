@@ -157,9 +157,7 @@ static int call_command(command_entry *cmd, char *service, int argc,
 int main(int argc, char **argv)
 {
 	int status;
-	char *service = NULL;
 	int new_argc;
-	int stop_checking = FALSE;
 
 	const char *argv0 = initng_string_basename(argv[0]);
 
@@ -173,36 +171,19 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	/* copy all, but not options */
-	new_argc = 0;
-	for (int i = 1; argv[i]; i++) {
-		/* iset -s service test */
-		if (stop_checking == FALSE && argv[i][0] == '-') {
-			if (argv[i][1] == 's' && !argv[i][2] && argv[i + 1][0]) {
-				service = argv[i + 1];
-				i++;
-				continue;
-			}
-
-			printf("%s: unknown variable\n", argv[i]);
-		}
-		/* stop searching for arguments behind the '=' char */
-		if (argv[i][0] == '=')
-			stop_checking = TRUE;
-
-		/* copy the entry */
-		new_argc++;
-		new_argv[new_argc] = argv[i];
-	}
-
-	/* if service was not found.. */
-	if (!service)
-		service = getenv("SERVICE");
+	/* get service */
+	char *service = getenv("SERVICE");
 
 	/* make sure */
 	if (!service) {
 		printf("I dont know what service you want!\n");
 		exit(1);
+	}
+
+	/* copy all entries */
+	new_argc = 0;
+	for (int i = 1; argv[i]; i++) {
+		new_argv[new_argc++] = argv[i];
 	}
 
 	if (DEBUG_EXTRA) {
