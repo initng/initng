@@ -299,7 +299,7 @@ static int bp_get_variable(bp_req *to_send, int argc, char **argv)
  *  1) iset forks
  *  With only 2 args and no '=', sets a variable without value.
  *  2) iset start forks
- *  With minimum 3 words and 2on a '='
+ *  With minimum 3 words and 2nd a '='
  *  3) iset test = "Coool"
  *  With minimum 4 words and 3rd a '='
  *  4) iset exec test = "Coool"
@@ -307,58 +307,48 @@ static int bp_get_variable(bp_req *to_send, int argc, char **argv)
 
 static int bp_set_variable(bp_req *to_send, int argc, char **argv)
 {
-	int i;
-	int ret = FALSE;
-
-	/* make sure have enought variables */
+	/* make sure have enough params */
 	if (argc < 1)
 		return FALSE;
 
-	/* if not usage 3 or 4 */
+	/* value-less variable */
 	if (argc < 3) {
-		/* handle valueless variable, type 1 */
-		if (argc == 1) {
-			strncpy(to_send->u.set_variable.vartype, argv[1], 100);
-			return (bp_send(to_send));
-		}
+		/* type 1: type-only */
+		strncpy(to_send->u.set_variable.vartype, argv[1], 100);
 
-		/* handle valueless variable, type 2 */
-		if (argc == 2) {
-			strncpy(to_send->u.set_variable.vartype, argv[1], 100);
+		/* type 2: type+name */
+		if (argc == 2)
 			strncpy(to_send->u.set_variable.varname, argv[2], 100);
-			return (bp_send(to_send));
-		}
-
-		/* then this is not valid */
-		return FALSE;
+		return bp_send(to_send);
 	}
 
-	/* if its a short set ( type 3 )  without vartype */
-	if (argc >= 3 && argv[2][0] == '=') {
-		strncpy(to_send->u.set_variable.vartype, argv[1], 100);
+
+	strncpy(to_send->u.set_variable.vartype, argv[1], 100);
+
+
+	int ret, i;
+
+	/* type 3: short set without varname */
+	if (argv[2][0] == '=') {
 		/* argv[2] == '=' */
-		for (i = 3; argv[i]; i++) {
-			strncpy(to_send->u.set_variable.value, argv[i], 1024);
-			ret = bp_send(to_send);
-		}
-
-		return ret;
+		i = 3
 	}
-
 	/* else type 4 */
-	if (argc >= 4 && argv[3][0] == '=') {
-		strncpy(to_send->u.set_variable.vartype, argv[1], 100);
+	else if (argc >= 4 && argv[3][0] == '=') {
 		strncpy(to_send->u.set_variable.varname, argv[2], 100);
 		/* argv[3] == '=' */
-		for (i = 4; argv[i]; i++) {
-			strncpy(to_send->u.set_variable.value, argv[i], 1024);
-			ret = bp_send(to_send);
-		}
+		i = 4;
+	} else
+		return FALSE;
 
-		return ret;
+	for (; argv[i]; i++) {
+		strncpy(to_send->u.set_variable.value, argv[i], 1024);
+		ret = bp_send(to_send);
+		if (!ret)
+			break;
 	}
 
-	return FALSE;
+	return ret;
 }
 
 static int bp_new_active(bp_req *to_send, int argc, char **argv)
