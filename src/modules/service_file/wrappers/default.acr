@@ -7,7 +7,7 @@ $1() {
 }
 "
 
-export PATH="@LIBDIR@/ibin:$PATH"
+export PATH="@IBINDIR@:$PATH"
 
 . "$SFILE"
 

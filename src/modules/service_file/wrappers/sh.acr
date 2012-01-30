@@ -1,5 +1,5 @@
 #!/bin/sh
-export PATH="@LIBDIR@/ibin:$PATH"
+export PATH="@IBINDIR@:$PATH"
 
 if [ "$1" = "setup" ]; then
 	iregister service || exit

@@ -47,6 +47,10 @@ IF WITH_SELINUX {
 PKGCONFIG DBUS_CFLAGS DBUS_LDFLAGS dbus-1
 
 
+(( custom defs. ))
+IBINDIR = $LIBDIR/initng/ibin ;
+MODDIR  = $LIBDIR/initng ;
+
 (( directories ))
 SUBDIRS ./config.jam ./config.h ./initng.pc ;
 SUBDIRS ./src/modules/service_file/wrappers/default ;

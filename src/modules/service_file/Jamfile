@@ -4,15 +4,15 @@ SharedLibrary modservice_file.so : initng_service_file.c ;
 InstallBin $(DESTDIR)$(moddir) : modservice_file.so ;
 
 Main bp : bp.c ;
-InstallBin $(DESTDIR)$(libdir)/ibin : bp ;
+InstallBin $(DESTDIR)$(ibindir) : bp ;
 LinkLibraries bp : libinitng$(SUFLIB) ;
 
-InstallLink iabort : $(DESTDIR)$(libdir)/ibin : bp ;
-InstallLink idone : $(DESTDIR)$(libdir)/ibin : bp ;
-InstallLink iexec : $(DESTDIR)$(libdir)/ibin : bp ;
-InstallLink iget : $(DESTDIR)$(libdir)/ibin : bp ;
-InstallLink iregister : $(DESTDIR)$(libdir)/ibin : bp ;
-InstallLink iset : $(DESTDIR)$(libdir)/ibin : bp ;
+InstallLink iabort : $(DESTDIR)$(ibindir) : bp ;
+InstallLink idone : $(DESTDIR)$(ibindir) : bp ;
+InstallLink iexec : $(DESTDIR)$(ibindir) : bp ;
+InstallLink iget : $(DESTDIR)$(ibindir) : bp ;
+InstallLink iregister : $(DESTDIR)$(ibindir) : bp ;
+InstallLink iset : $(DESTDIR)$(ibindir) : bp ;
 
 Main runiscript : runiscript.c ;
 LinkLibraries runiscript : libinitng$(SUFLIB) ;
