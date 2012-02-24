@@ -106,9 +106,6 @@ static inline void setup_console(const char *console)
  */
 int main(int argc, char *argv[], char *env[])
 {
-	char **new_argv;
-	const char *console = INITNG_CONSOLE;
-
 #ifdef SELINUX
 	setup_selinux();
 #endif
@@ -134,29 +131,20 @@ int main(int argc, char *argv[], char *env[])
 	/* Disable Ctrl + Alt + Delete */
 	reboot(RB_DISABLE_CAD);
 
-	{
-		int i;
+	const char *console = INITNG_CONSOLE;
 
- 		new_argv = initng_toolbox_calloc(argc + 2, sizeof (char *));
-
-		/* Copy argv into new_argv */
-		for (i = 1; i < argc; i++) {
-			new_argv[i] = argv[i];
-
-			/* look for "console" option, if it's there, set
-		 	* console to it, so we will open the desired console
-		 	*/
-			if (strncmp(argv[i], "console", 7) == 0 &&
-			    (argv[i][7] == ':' || argv[i][7] == '='))
-				console = &argv[i][8];
+	/* Look for "console" option, so we open the desired device. */
+	for (int i = argc; i > 0; i--) {
+		if (strncmp(argv[i], "console", 7) == 0
+		    && (argv[i][7] == ':' || argv[i][7] == '=')) {
+			console = &argv[i][8];
+			break;
 		}
-		new_argv[0] = (char *) INITNG_CORE_BIN;
 	}
 
 	setup_console(console);
 
-	new_argv[argc] = NULL;
-
-	execv(new_argv[0], new_argv);
+	argv[0] = (char *) INITNG_CORE_BIN;
+	execv(argv[0], argv);
 	return 1;
 }
