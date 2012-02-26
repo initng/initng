@@ -56,43 +56,6 @@ char *getpasswd(char *);
 void sushell(struct passwd *);
 void usage(void);
 
-#if 0
-/*
- *      Fix the tty modes and set reasonable defaults.
- *      (I'm not sure if this is needed under Linux, but..)
- */
-void fixtty(void)
-{
-	struct termios tty;
-
-	tcgetattr(0, &tty);
-
-	/*
-	 *      Set or adjust tty modes.
-	 */
-	tty.c_iflag &= ~(INLCR | IGNCR | IUCLC);
-	tty.c_iflag |= ICRNL;
-	tty.c_oflag &= ~(OCRNL | OLCUC | ONOCR | ONLRET | OFILL);
-	tty.c_oflag |= OPOST | ONLCR;
-	tty.c_cflag |= CLOCAL;
-	tty.c_lflag = ISIG | ICANON | ECHO | ECHOE | ECHOK | ECHOCTL | ECHOKE;
-
-	/*
-	 *      Set the most important characters */
-	*/tty.c_cc[VINTR] = 3;
-	tty.c_cc[VQUIT] = 28;
-	tty.c_cc[VERASE] = 127;
-	tty.c_cc[VKILL] = 24;
-	tty.c_cc[VEOF] = 4;
-	tty.c_cc[VTIME] = 0;
-	tty.c_cc[VMIN] = 1;
-	tty.c_cc[VSTART] = 17;
-	tty.c_cc[VSTOP] = 19;
-	tty.c_cc[VSUSP] = 26;
-
-	tcsetattr(0, TCSANOW, &tty);
-}
-#endif
 
 /*
  *      Called at timeout.
