@@ -34,9 +34,7 @@
 #include <initng.h>
 #include <initng-paths.h>
 
-#ifdef SELINUX
 #include "selinux.h"
-#endif
 
 #ifndef CBAUD // FIXME
 #define CBAUD   0
@@ -46,7 +44,8 @@
 #define ECHOPRT 0
 #endif
 
-static inline void setup_console(const char *console)
+static inline
+void setup_console(const char *console)
 {
 	int fd;
 	struct termios tty;
@@ -106,9 +105,7 @@ static inline void setup_console(const char *console)
  */
 int main(int argc, char *argv[], char *env[])
 {
-#ifdef SELINUX
 	setup_selinux();
-#endif
 
 	SULOGIN_ON_FAIL(chdir("/"), "can't chdir to /");
 

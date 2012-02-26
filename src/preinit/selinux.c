@@ -20,32 +20,50 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 
-#inlcude "selinux.h"
+#include <selinux/selinux.h>
+#include <selinux/context.h>
+#include <sepol/sepol.h>
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
+inline static
+bool is_enforced(void)
+{
+	int fd;
+	bool cond;
+
+	fd = open("/selinux/enforce", 0);
+
+	cond = (fd == -1);
+	if (!cond)
+		close(fd);
+
+	return cond;
+}
 
 
 void setup_selinux(void)
 {
-	/* we have nothing to do when selinux is disabled */
-	if(is_selinux_enabled() != 1) return;
+	if (!is_selinux_enabled() || !is_enforced())
+		return;
 
-	/* load selinux policy */
-	FILE *tmp_f;
+	if (!getenv("SELINUX_INIT"))
+		return;
 
-	tmp_f = fopen("/selinux/enforce", "r");
-	if (!tmp_f && !getenv("SELINUX_INIT")) {
-		int enforce = -1;
-		putenv("SELINUX_INIT=YES");
-		if (selinux_init_load_policy(&enforce) != 0 && enforce > 0) {
-			/* SELinux in enforcing mode but load_policy
-			 * failed. At this point, we probably can't
-			 * open /dev/console, so log() won't work
-			 */
-			fprintf(stderr, "Enforcing mode requested but"
-				" no policy loaded. Halting now.\n");
-			exit(1);
-		}
-	} else {
-		fclose(tmp_f);
-	}
+	int enforce = 0;
+
+	putenv("SELINUX_INIT=YES");
+	if (selinux_init_load_policy(&enforce) == 0 || !enforce)
+		return;
+
+	/* SELinux in enforcing mode but load_policy failed. At this point,
+	 * we probably can't open /dev/console, so log() won't work.
+	 */
+	fprintf(stderr, "SELinux enforcing mode requested but no policy "
+			"loaded. Halting now.\n");
+	exit(1);
 }

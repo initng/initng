@@ -20,12 +20,10 @@
 #ifndef __SELINUX_H
 #define __SELINUX_H
 
-#include <stdlib.h>
-#include <string.h>
-#include <selinux/selinux.h>
-#include <selinux/context.h>
-#include <sepol/sepol.h>
-
+#ifdef SELINUX
 void setup_selinux(void);
+#else
+inline static void setup_selinux(void) {}
+#endif
 
 #endif /* __SELINUX_H */
