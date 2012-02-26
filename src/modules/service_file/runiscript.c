@@ -31,11 +31,10 @@
 
 extern char **environ;
 
-const char *wrapper = "default";
 
 /* FIXME: Wee need to change the way we detect when to forward commands */
 /* These commands will be forwarded to /sbin/ngc if issued */
-const char *ngc_args[] = {
+const char * const ngc_args[] = {
 	"start",
 	"stop",
 	"restart",
@@ -48,17 +47,29 @@ const char *ngc_args[] = {
 /* this lists the commands the service can be executed with directly */
 static void print_usage(char *me)
 {
-	int i;
+	printf("Usage: %s {", me);
 
-	printf("Usage: %s", me);
-
-	for (i = 0; ngc_args[i]; i++)
-		printf(" <%s>", ngc_args[i]);
+	for (const char * const *p = ngc_args; *p; p++) {
+		printf("%s%c", *p ? *p : "", *p ? '|' : '}');
+	}
 
 	printf("\n");
 }
 
-/* here is main */
+/** Get the required wrapper based on the file name.
+ */
+inline static
+const char *get_wrapper(char *path)
+{
+
+	char *tmp = strrchr(initng_string_basename(path), '.');
+	if (tmp && tmp != path)
+		return ++tmp;
+	else
+		return "default";
+}
+
+
 int main(int argc, char *argv[])
 {
 	char path[1025];	/* the argv[0] is not always the full path,
@@ -79,17 +90,10 @@ int main(int argc, char *argv[])
 
 		printf("\n");
 		print_usage(argv[1]);
-		exit(1);
+		return 1;
 	}
 
-	{
-		char *tmp;
-
-		/* set the wrapper */
-		tmp = strrchr(initng_string_basename(argv[1]), '.');
-		if ((tmp && tmp != argv[1]))
-			wrapper = ++tmp;
-	}
+	const char *wrapper = get_wrapper(argv[1]);
 
 	if (argv[1][0] == '/') {
 		/* a full path, this is really good */
@@ -97,9 +101,9 @@ int main(int argc, char *argv[])
 	} else if (argv[1][0] == '.') {
 		/* replace starting '.' with full path to local cwd */
 		if (!getcwd(path, 1024)) {
-			printf("Cud not get path to pwd.\n");
+			printf("Could not get current working dir.\n");
 			print_usage(argv[1]);
-			exit(1);
+			return 1;
 		}
 		strncat(path, &argv[1][1], 1024 - strlen(path));
 	} else {
@@ -110,9 +114,9 @@ int main(int argc, char *argv[])
 
 	/* check that path is correct */
 	if (stat(path, &st) != 0 || !S_ISREG(st.st_mode)) {
-		printf("File \"%s\" doesn't exist.\n", path);
+		printf("%s: file does not exist\n", path);
 		print_usage(argv[1]);
-		exit(2);
+		return 2;
 	}
 
 	/* FIXME: Should we use $SERVICE to detect when to realay the command to ngc? */
@@ -125,30 +129,23 @@ int main(int argc, char *argv[])
 	}
 
 	/* check if command shud forward to a ngc command */
-	{
-		int i;
+	for (int i = 0; ngc_args[i]; i++) {
+		/* check if these are direct commands, then use ngc */
+		if (strcmp(argv[2], ngc_args[i]) == 0) {
+			/* set up an arg like "/sbin/ngc --start service" */
+			new_argv[0] = (char *)"/sbin/ngc";
+			/* put new_argv = "--start" */
+			new_argv[1] =
+				calloc(strlen(ngc_args[i] + 4), 1);
+			new_argv[1][0] = new_argv[1][1] = '-';
+			strcat(new_argv[1], ngc_args[i]);
+			/* put service name */
+			new_argv[2] = servname;
+			new_argv[3] = NULL;
 
-		for (i = 0; ngc_args[i]; i++) {
-			/* check if these are direct commands, then use ngc */
-			if (strcmp(argv[2], ngc_args[i]) == 0) {
-				/* set up an arg like "/sbin/ngc --start service" */
-				new_argv[0] = (char *)"/sbin/ngc";
-				/* put new_argv = "--start" */
-				new_argv[1] =
-				    calloc(strlen(ngc_args[i] + 4),
-					   sizeof(char));
-				new_argv[1][0] = '-';
-				new_argv[1][1] = '-';
-				strcat(new_argv[1], ngc_args[i]);
-				/* put service name */
-				new_argv[2] = servname;
-				new_argv[3] = NULL;
-
-				/* execute this call */
-				execve(new_argv[0], new_argv, environ);
-				printf("/sbin/ngc is missing or invalid.\n");
-				exit(30);
-			}
+			/* execute this call */
+			execve(new_argv[0], new_argv, environ);
+			goto exec_error;
 		}
 	}
 	/* end check */
@@ -166,7 +163,7 @@ int main(int argc, char *argv[])
 		printf("\n");
 		print_usage(argv[1]);
 
-		exit(3);
+		return 3;
 	}
 
 	/* set up new argv */
@@ -183,8 +180,9 @@ int main(int argc, char *argv[])
 	/* now call the wrapper */
 	execve(new_argv[0], new_argv, environ);
 
+exec_error:
 	/* Never get here */
-	printf("error executing %s.\n", new_argv[0]);
+	printf("%s: execve error\n", new_argv[0]);
 
-	exit(3);
+	return 3;
 }
