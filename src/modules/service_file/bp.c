@@ -109,8 +109,6 @@ static command_entry *map_cmd(const char *cmd)
 	int r;
 
 	switch(cmd[1]) {
-	default:
-		goto unknown;
 	case 'a':
 		r = IABORT;
 		break;
@@ -129,6 +127,8 @@ static command_entry *map_cmd(const char *cmd)
 	case 'e':
 		r = IEXEC;
 		break;
+	default:
+		goto unknown;
 	}
 
 	if (strcmp(commands[r].name, cmd) != 0) {
@@ -245,12 +245,12 @@ static int bp_add_exec(bp_req *to_send, int argc, char **argv)
 	/* the varname is "start" */
 	strncpy(to_send->u.set_variable.varname, argv[1], 100);
 
-	return (bp_send(to_send));
+	return bp_send(to_send);
 }
 
 static int bp_trivial(bp_req *to_send, int argc, char **argv)
 {
-	return (bp_send(to_send));
+	return bp_send(to_send);
 }
 
 /* This have 2 senarios, with 1 or 2 argc:
@@ -270,7 +270,7 @@ static int bp_get_variable(bp_req *to_send, int argc, char **argv)
 	}
 	strncpy(to_send->u.get_variable.vartype, argv[1], 100);
 
-	return (bp_send(to_send));
+	return bp_send(to_send);
 }
 
 /*
@@ -338,7 +338,7 @@ static int bp_new_active(bp_req *to_send, int argc, char **argv)
 	strncpy(to_send->u.new_active.type, argv[1], 40);
 	strncpy(to_send->u.new_active.from_file, argv[0], 100);
 
-	return (bp_send(to_send));
+	return bp_send(to_send);
 }
 
 /* Open, Send, Read, Close */
@@ -411,5 +411,5 @@ static int bp_send(bp_req * to_send)
 		message = strdup(rep.message);
 
 	/* return happily */
-	return (rep.success);
+	return rep.success;
 }
