@@ -30,7 +30,7 @@
 
 #include "local.h"
 
-volatile int signals_got[SIGNAL_STACK];
+int signals_got[SIGNAL_STACK];
 
 struct sigaction sa;
 
