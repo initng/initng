@@ -29,6 +29,8 @@
 #include <initng/static/all.h>
 #include <initng/event/all.h>
 
+#define SIGNAL_STACK 10
+
 /* what to do when last process stops */
 typedef enum
 {
@@ -85,6 +87,7 @@ typedef struct
 	char **new_init;
 	int no_circular;
 
+	int signals_got[SIGNAL_STACK];
 
 #ifdef DEBUG
 	/* g.verbose_this

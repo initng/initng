@@ -30,7 +30,6 @@
 
 #include "local.h"
 
-int signals_got[SIGNAL_STACK];
 
 struct sigaction sa;
 
@@ -38,12 +37,12 @@ static void set_signal(int sig)
 {
 	for (int i = 0; i < SIGNAL_STACK; i++) {
 		/* Check if this signal type is already on the list */
-		if (signals_got[i] == sig)
+		if (g.signals_got[i] == sig)
 			return;
 
 		/* else add this on a free spot */
-		if (signals_got[i] == -1) {
-			signals_got[i] = sig;
+		if (g.signals_got[i] == -1) {
+			g.signals_got[i] = sig;
 			return;
 		}
 	}
@@ -81,7 +80,7 @@ void initng_signal_enable(void)
 
 	/* clear signal */
 	for (int i = 0; i < SIGNAL_STACK; i++)
-		signals_got[i] = -1;
+		g.signals_got[i] = -1;
 
 	/* SA_NOCLDSTOP = Don't give initng signal if we kill the app with SIGSTOP */
 	/* SA_RESTART = call signal over again next time */

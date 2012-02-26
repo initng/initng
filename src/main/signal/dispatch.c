@@ -17,12 +17,30 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef INITNG_SIGNAL_H
-#define INITNG_SIGNAL_H
+#include <signal.h>
 
-void initng_signal_handle_sigchild(void);
-void initng_signal_enable(void);
-void initng_signal_disable(void);
-void initng_signal_dispatch(void);
+#include <initng.h>
 
-#endif /* INITNG_SIGNAL_H */
+void initng_signal_dispatch(void)
+{
+	for (int i = 0; i < SIGNAL_STACK; i++) {
+		if (g.signals_got[i] == -1)
+			continue;
+
+		initng_module_callers_signal(g.signals_got[i]);
+
+		switch (g.signals_got[i]) {
+		/* dead children */
+		case SIGCHLD:
+			initng_signal_handle_sigchild();
+			break;
+		case SIGALRM:
+			initng_handler_run_alarm();
+			break;
+		default:
+			break;
+		}
+		/* reset the signal slot */
+		g.signals_got[i] = -1;
+	}
+}

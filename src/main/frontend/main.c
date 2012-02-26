@@ -162,32 +162,7 @@ int main(int argc, char *argv[], char *env[])
 			initng_handler_run_alarm();
 
 		/* handle signals */
-		{
-			int i;
-
-			for (i = 0; i < SIGNAL_STACK; i++) {
-				if (signals_got[i] == -1)
-					continue;
-
-				initng_module_callers_signal(signals_got[i]);
-
-				switch (signals_got[i]) {
-					/* dead children */
-				case SIGCHLD:
-					initng_signal_handle_sigchild();
-					break;
-				case SIGALRM:
-					/*initng_module_callers_alarm(); */
-					initng_handler_run_alarm();
-					break;
-				default:
-					break;
-				}
-				/* reset the signal */
-				signals_got[i] = -1;
-			}
-
-		}
+		initng_signal_dispatch();
 
 		/* If there is modules to unload, handle this */
 		if (g.modules_to_unload == TRUE) {
