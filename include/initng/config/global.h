@@ -87,6 +87,7 @@ typedef struct
 	char **new_init;
 	int no_circular;
 
+	/* Signal stack, initialized by initng_signal_enable */
 	int signals_got[SIGNAL_STACK];
 
 #ifdef DEBUG

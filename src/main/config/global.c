@@ -28,8 +28,7 @@
 /* HERE IS THE GLOBAL DEFINED STRUCT, WE OFTEN RELATE TO */
 s_global g;
 
-/*
- * initng_config_global_new.
+/**
  * This function initziates the global data struct, with some standard values.
  * This must be set before libinitng can be used in any way
  */
@@ -38,10 +37,10 @@ void initng_config_global_new(int argc, char *argv[], char *env[])
 	assert(argv);
 	assert(env);
 
-	/* zero the complete s_global */
+	/* Zero the complete s_global */
 	memset(&g, 0, sizeof(s_global));
 
-	/* we want to keep a copy of the arguments passed to us, this will be
+	/* We want to keep a copy of the arguments passed to us, this will be
 	 * overwritten by set_title()
 	 */
 	g.Argv0 = argv[0];
@@ -53,8 +52,7 @@ void initng_config_global_new(int argc, char *argv[], char *env[])
 	}
 	g.Argv[argc] = NULL;
 
-	/*
-	 * We want to change our process name, because it looks nice in
+	/* We want to change our process name, because it looks nice in
 	 * "ps" output. But we can only use space that the kernel
 	 * allocated for us when we started. This is argv[] and env[]
 	 * together.
@@ -71,13 +69,12 @@ void initng_config_global_new(int argc, char *argv[], char *env[])
 
 	D_("Maximum length for our process name is %d\n", g.maxproclen);
 
-	/*
-	 * initialize global data storage
+	/* Initialize global data storage.
 	 */
 	DATA_HEAD_INIT(&g.data);
 
-	/*
-	 * initialize all databases, next and prev have to point to own struct
+	/* Initialize all databases.
+	 * next and prev have to point to own struct.
 	 */
 	initng_list_init(&g.active_db.list);
 	initng_list_init(&g.active_db.interrupt);
@@ -89,14 +86,15 @@ void initng_config_global_new(int argc, char *argv[], char *env[])
 	initng_list_init(&g.command_db.list);
 	initng_list_init(&g.stypes.list);
 
-	/*
-	 * default global variables - cleared by memset above
-	 * g.interrupt = FALSE;
-	 * g.sys_state = STATE_NULL;
-	 * g.runlevel = NULL;
-	 * g.dev_console = NULL;
-	 * g.modules_to_unload = FALSE;
-	 * g.hot_reload = FALSE;
+	/* Default global variables (cleared by memset above):
+	 * g.interrupt
+	 * g.sys_state
+	 * g.runlevel
+	 * g.dev_console
+	 * g.modules_to_unload
+	 * g.hot_reload
+	 * g.verbose
+	 * g.verbose_this[]
 	 */
 
 	/* Add defaults (static) to data_types */
@@ -107,20 +105,6 @@ void initng_config_global_new(int argc, char *argv[], char *env[])
 	initng_static_stypes_register_defaults();
 	/* Add static event types */
 	initng_register_static_event_types();
-
-	/* CLEARED by memset above
-	   #ifdef DEBUG
-	   g.verbose = 0;
-	   {
-	   int i;
-
-	   for (i = 0; i < MAX_VERBOSES; i++)
-	   g.verbose_this[i] = NULL;
-	   }
-	   #endif
-	 */
-
-	/* parse all options, set in argv */
 }
 
 void initng_config_global_free(void)
