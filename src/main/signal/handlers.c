@@ -34,7 +34,7 @@
 #define WCOREDUMP(a) 0
 #endif
 
-/*
+/**
  * If we got an child that died, this handler is called.
  */
 void initng_signal_handle_sigchild(void)
@@ -79,20 +79,16 @@ void initng_signal_handle_sigchild(void)
 		   WTERMSIG(status),
 		   WCOREDUMP(status), WIFSTOPPED(status), WSTOPSIG(status));
 
-		/*if(WTERMSIG(status))
-		   {
-		   printf("Service segfaulted!\n");
-		   } */
-
-		/*
-		 * call handle_killed_by_pid(), and will walk the active_db
+		/* call handle_killed_by_pid(), and will walk the active_db
 		 * setting the a_status of the service touched
 		 */
 		initng_kill_handler_killed_by_pid(killed, status);
 	}
 }
 
-/* called by signal SIGSEGV */
+/**
+ * Called by signal SIGSEGV.
+ */
 void sigsegv(int sig)
 {
 	(void)sig;
