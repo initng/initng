@@ -35,6 +35,15 @@
 #include <string.h>
 #include <assert.h>
 
+#ifdef GLOBAL_SOCKET
+#include <sys/un.h>
+
+static void bp_incoming(f_module_h *from, e_fdw what);
+static int bp_open_socket(void);
+static void bp_check_socket(s_event *event);
+static void bp_closesock(void);
+#endif
+
 
 #include "initng_service_file.h"
 
@@ -47,13 +56,6 @@ const struct initng_module initng_module = {
 	.init = &module_init,
 	.unload = &module_unload
 };
-
-#ifdef GLOBAL_SOCKET
-static void bp_incoming(f_module_h * from, e_fdw what);
-static int bp_open_socket(void);
-static void bp_check_socket(int signal);
-static void bp_closesock(void);
-#endif
 
 static int parse_new_service_file(s_event * event, char *file);
 
@@ -150,7 +152,7 @@ f_module_h bpf = {
 	.fds = -1
 };
 
-static int bpf_handler(s_event * event)
+static void bpf_handler(s_event * event)
 {
 	s_event_io_watcher_data *data;
 
@@ -199,8 +201,6 @@ static int bpf_handler(s_event * event)
 		}
 		break;
 	}
-
-	return TRUE;
 }
 
 #endif
@@ -703,18 +703,20 @@ static int bp_open_socket()
 #endif
 
 #ifdef GLOBAL_SOCKET
-/* this will check socket, and reopen on failure */
-static int bp_check_socket(s_event * event)
+/**
+ * This will check socket, and reopen on failure.
+ */
+static void bp_check_socket(s_event *event)
 {
 	int signal;
 	struct stat st;
 
 	assert(event->event_type == &EVENT_SIGNAL);
 
-	signal = event->data;
+	signal = *((int *)event->data);
 
 	if (signal != SIGHUP)
-		return TRUE;
+		return;
 
 	D_("Checking socket\n");
 
@@ -722,7 +724,6 @@ static int bp_check_socket(s_event * event)
 	if (bpf.fds <= 0) {
 		D_("bpf.fds not set, opening new socket.\n");
 		bp_open_socket();
-		return TRUE;
 	}
 
 	/* stat the socket, reopen on failure */
@@ -730,7 +731,6 @@ static int bp_check_socket(s_event * event)
 	if (stat(SOCKET_PATH, &st) < 0) {
 		W_("Stat failed! Opening new socket.\n");
 		bp_open_socket();
-		return TRUE;
 	}
 
 	/* compare socket file, with the one that we know, reopen on
@@ -740,11 +740,9 @@ static int bp_check_socket(s_event * event)
 	    || st.st_mtime != sock_stat.st_mtime) {
 		F_("Invalid socket found, reopening\n");
 		bp_open_socket();
-		return TRUE;
 	}
 
 	D_("Socket ok.\n");
-	return TRUE;
 }
 
 static void bp_closesock(void)
