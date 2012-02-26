@@ -36,18 +36,13 @@ struct sigaction sa;
 
 static void set_signal(int sig)
 {
-	int i;
-
-	/*printf("signal: %i\n", sig); */
-	for (i = 0; i < SIGNAL_STACK; i++) {
-		/* check if this signaltype is already
-		 * on the list of signals */
+	for (int i = 0; i < SIGNAL_STACK; i++) {
+		/* Check if this signal type is already on the list */
 		if (signals_got[i] == sig)
 			return;
 
 		/* else add this on a free spot */
 		if (signals_got[i] == -1) {
-			/*printf("signals_got[%i]=%i\n", i, sig); */
 			signals_got[i] = sig;
 			return;
 		}
@@ -55,14 +50,11 @@ static void set_signal(int sig)
 	F_("SIGNAL STACK FULL!\n");
 }
 
-/*
- * This is called in main() initialization, and will enable signals when it
- * happens.
+/**
+ * Enable signals, called from main() on initialization.
  */
 void initng_signal_enable(void)
 {
-	int i;
-
 	S_;
 
 	/* clear interrupt cache */
@@ -88,7 +80,7 @@ void initng_signal_enable(void)
 #endif
 
 	/* clear signal */
-	for (i = 0; i < SIGNAL_STACK; i++)
+	for (int i = 0; i < SIGNAL_STACK; i++)
 		signals_got[i] = -1;
 
 	/* SA_NOCLDSTOP = Don't give initng signal if we kill the app with SIGSTOP */
@@ -110,9 +102,9 @@ void initng_signal_enable(void)
 	sigaction(SIGPIPE, &sa, 0);	/* sigpipe, module actions */
 }
 
-/*
- * Disable signals, called when initng are exiting.
- * sometimes, we don't want to be disturbed with signals.
+/**
+ * Disable signals, called when initng is exiting.
+ * Sometimes we don't want to be disturbed.
  */
 void initng_signal_disable(void)
 {
@@ -133,7 +125,6 @@ void initng_signal_disable(void)
 	sigaction(SIGCHLD, &sa, 0);	/* Dead children */
 	sigaction(SIGINT, &sa, 0);	/* ctrl-alt-del */
 	sigaction(SIGWINCH, &sa, 0);	/* keyboard request */
-	sigaction(SIGALRM, &sa, 0);	/* alarm, something has to */
-	/* be checked */
+	sigaction(SIGALRM, &sa, 0);	/* alarm, something has to be checked */
 	sigaction(SIGHUP, &sa, 0);	/* sighup, module actions */
 }
