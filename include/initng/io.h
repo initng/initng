@@ -28,26 +28,21 @@
 char *initng_io_readwhole(const char *path);
 
 int initng_io_open(const char *path, int flags);
-int initng_io_close(int fd);
 
-typedef int fdwalk_cb(void *, int);
+inline static bool STILL_OPEN(int fd)
+{
+	return (fcntl(fd, F_GETFD) != -1);
+}
 
-int initng_io_fdwalk(fdwalk_cb *func);
-int initng_io_closefrom(int lowfd);
-
-void initng_io_fdtrack(int fd);
-void initng_io_fduntrack(int fd);
-
-
-#define STILL_OPEN(fd) (fcntl(fd, F_GETFD)>=0)
+inline static int initng_io_set_cloexec(int fd)
+{
+	return fcntl(fd, F_SETFD, fcntl(fd, F_GETFD, 0) | FD_CLOEXEC);
+}
 
 void initng_io_process_read_input(active_db_h * service, process_h * p,
 				  pipe_h * pipe);
-void initng_io_close_all(void);
 void initng_io_module_poll(int timeout);
 
 int initng_io_set_cloexec(int fd);
 
-
 #endif /* !defined(INITNG_IO_H) */
-
