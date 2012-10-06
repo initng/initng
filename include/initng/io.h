@@ -27,8 +27,6 @@
 
 char *initng_io_readwhole(const char *path);
 
-int initng_io_open(const char *path, int flags);
-
 inline static bool STILL_OPEN(int fd)
 {
 	return (fcntl(fd, F_GETFD) != -1);
