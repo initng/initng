@@ -47,7 +47,7 @@ void initng_active_db_clean_down(void)
 			initng_process_db_clear_freed(current);
 
 			/* count stopped services */
-			if (!IS_DOWN(current))
+			if (GET_STATE(current) != IS_DOWN)
 				continue;
 
 			initng_active_db_free(current);

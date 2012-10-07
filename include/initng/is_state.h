@@ -31,12 +31,7 @@ typedef enum {
 } e_is;
 
 #define IS_MARK(serv, state) (serv && serv->current_state && serv->current_state == state)
-#define IS_NEW(serv) (serv && serv->current_state && serv->current_state->is == IS_NEW)
-#define IS_UP(serv) (serv && serv->current_state && serv->current_state->is == IS_UP)
-#define IS_DOWN(serv) (!serv->current_state || (serv && serv->current_state && serv->current_state->is == IS_DOWN))
-#define IS_FAILED(serv) (serv && serv->current_state && serv->current_state->is == IS_FAILED)
-#define IS_STARTING(serv) (serv && serv->current_state && serv->current_state->is == IS_STARTING)
-#define IS_STOPPING(serv) (serv && serv->current_state && serv->current_state->is == IS_STOPPING)
-#define IS_WAITING(serv) (serv && serv->current_state && serv->current_state->is == IS_WAITING)
+
+#define GET_STATE(serv) (((serv) && (serv)->current_state) ? (serv)->current_state->is : IS_DOWN)
 
 #endif /* INITNG_IS_STATE_H */

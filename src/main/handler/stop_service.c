@@ -44,30 +44,31 @@ int initng_handler_stop_service(active_db_h * service_to_stop)
 		return FALSE;
 	}
 
+	switch (GET_STATE(service_to_stop)) {
 	/* check so it not failed */
-	if (IS_FAILED(service_to_stop)) {
+	case IS_FAILED:
 		D_("Service %s is set filed, and cant be stopped.\n",
 		   service_to_stop->name);
 		return TRUE;
-	}
 
 	/* IF service is stopping, do nothing. */
-	if (IS_STOPPING(service_to_stop)) {
+	case IS_STOPPING:
 		D_("service %s is stopping already!\n", service_to_stop->name);
 		return TRUE;
-	}
 
 	/* check if its currently already down */
-	if (IS_DOWN(service_to_stop)) {
+	case IS_DOWN:
 		D_("Service %s is down already.\n", service_to_stop->name);
 		return TRUE;
-	}
 
 	/* must be up or starting, to stop */
-	if (!(IS_UP(service_to_stop) || IS_STARTING(service_to_stop))) {
+	case IS_UP:
+	case IS_STARTING:
+		break;
+
+	default:
 		W_("Service %s is not up but %s, and cant be stopped.\n",
 		   service_to_stop->name, service_to_stop->current_state->name);
-
 		return FALSE;
 	}
 

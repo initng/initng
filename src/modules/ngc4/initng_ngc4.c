@@ -904,7 +904,7 @@ static void cmd_start(char *arg, s_payload * payload)
 		       sizeof(struct timeval));
 		strncpy(row->name, serv->name, 100);
 
-		if (IS_UP(serv)) {
+		if (GET_STATE(serv) == IS_UP) {
 			/* set status == ALREADY_RUNNING */
 			strcpy(row->state, "ALREADY_RUNNING");
 		} else {

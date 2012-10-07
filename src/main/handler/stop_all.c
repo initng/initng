@@ -40,12 +40,12 @@ int initng_handler_stop_all(void)
 
 	while_active_db_safe(ser, q) {
 		/* don't stop a stopping service */
-		if (IS_STOPPING(ser))
+		switch (GET_STATE(ser)) {
+		case IS_STOPPING:
+		case IS_DOWN:
+		case IS_FAILED:
 			continue;
-		if (IS_DOWN(ser))
-			continue;
-		if (IS_FAILED(ser))
-			continue;
+		}
 
 		/* stop services */
 		initng_handler_stop_service(ser);

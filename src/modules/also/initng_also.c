@@ -50,7 +50,6 @@ s_entry ALSO_STOP = {
 static void service_state(s_event * event)
 {
 	active_db_h *service;
-	const char *tmp = NULL;
 	active_db_h *current = NULL;
 
 	assert(event->event_type == &EVENT_IS_CHANGE);
@@ -60,20 +59,21 @@ static void service_state(s_event * event)
 	assert(service);
 	assert(service->name);
 
-	/* if service is loading, start all in ALSO_START */
-	if (IS_STARTING(service)) {
-		tmp = NULL;
-		s_data *itt = NULL;
+	const char *tmp = NULL;
+	s_data *itt = NULL;
 
+	switch (GET_STATE(service)) {
+	/* if service is loading, start all in ALSO_START */
+	case IS_STARTING:
 		while ((tmp = get_next_string(&ALSO_START, service, &itt))) {
 			current = initng_active_db_find_by_name(tmp);
 			if (current) {
 				if (!initng_handler_start_service(current)) {
 					F_("Failed to also_start %s.\n", tmp);
-					continue;
+				} else {
+					D_("Service also_start %s already "
+					   "running.\n", tmp);
 				}
-				D_("Service also_start %s already running.\n",
-				   tmp);
 				continue;
 			}
 
@@ -81,19 +81,13 @@ static void service_state(s_event * event)
 				F_("%s also_start %s could not start!\n",
 				   service->name, tmp);
 				initng_handler_stop_service(service);
-				return;
+				break;
 			}
 		}
-
-		return;
-	}
+		break;
 
 	/* if this service is stopping, stop all in ALSO_STOP */
-	if (IS_STOPPING(service)) {
-		/* Handle ALSO_STOP */
-		tmp = NULL;
-		s_data *itt = NULL;
-
+	case IS_STOPPING:
 		while ((tmp = get_next_string(&ALSO_STOP, service, &itt))) {
 			current = initng_active_db_find_by_name(tmp);
 			if (current) {
@@ -107,6 +101,7 @@ static void service_state(s_event * event)
 				}
 			}
 		}
+		break;
 	}
 }
 

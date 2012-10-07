@@ -88,38 +88,37 @@ int initng_depend_start_dep_met(active_db_h * service, int verbose)
 			}
 		}
 
+		switch (GET_STATE(dep)) {
 		/* if service dep on is starting, wait a bit */
-		if (IS_STARTING(dep)) {
+		case IS_STARTING:
 			if (verbose) {
 				F_("Could not start service %s because it "
 				   "depends on service %s that is still "
 				   "starting.\n", service->name, dep->name);
 			}
 			return FALSE;
-		}
 
 		/* if service failed, return that */
-		if (IS_FAILED(dep)) {
+		case IS_FAILED:
 			if (verbose) {
 				F_("Could not start service %s because it "
 				   "depends on service %s that is failed.\n",
 				   service->name, dep->name);
 			}
 			return FAIL;
-		}
 
 		/* if its this fresh, we dont do anything */
-		if (IS_NEW(dep))
+		case IS_NEW:
 			return FALSE;
 
 		/* if its marked down, and not starting, start it */
-		if (IS_DOWN(dep)) {
+		case IS_DOWN:
 			initng_handler_start_service(dep);
 			return FALSE;
-		}
 
 		/* if its not starting or up, return FAIL */
-		if (!IS_UP(dep)) {
+		case IS_UP: break;
+		default:
 			F_("Could not start service %s because it depends on "
 			   "service %s has state %s\n", service->name,
 			   dep->name, dep->current_state->name);

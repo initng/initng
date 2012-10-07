@@ -63,21 +63,22 @@ void handle(active_db_h * service)
 		if (initng_common_state_unlock(service))
 			return;
 
-		/* This checks if all services on a runlevel is up, then set
-		 * STATE_UP */
-		if (IS_UP(service))
-			check_sys_state_up();
-
+		switch (GET_STATE(service)) {
 		/* this will make all services, that depend of this,
 		 * DEP_FAILED_TO_START */
-		if (IS_FAILED(service)) {
+		case IS_FAILED:
 			dep_failed_to_start(service);
+			/* fall thru */
+
+		/* This checks if all services on a runlevel is up, then set
+		 * STATE_UP */
+		case IS_UP:
 			check_sys_state_up();
-		}
+			break;
 
 		/* if this service is marked restarting, please restart it if
 		 * its set to STOPPED */
-		if (IS_DOWN(service)) {
+		case IS_DOWN:
 			if (is(&RESTARTING, service))
 				initng_handler_restart_restarting();
 		}

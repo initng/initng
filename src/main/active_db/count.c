@@ -49,8 +49,11 @@ int initng_active_db_count(a_state_h * state_to_count)
 			assert(current->name);
 
 			/* don't count failed and stopped */
-			if (IS_FAILED(current) || IS_DOWN(current))
+			switch (GET_STATE(current)) {
+			case IS_FAILED:
+			case IS_DOWN:
 				continue;
+			}
 
 			counter++;
 		}

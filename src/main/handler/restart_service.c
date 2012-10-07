@@ -41,7 +41,7 @@ int initng_handler_restart_service(active_db_h * service_to_restart)
 	if (!service_to_restart->type)
 		return FALSE;
 
-	if (!IS_UP(service_to_restart)) {
+	if (GET_STATE(service_to_restart) != IS_UP) {
 		D_("Can only restart a running service %s. "
 		   "(now_state : %s)\n", service_to_restart->name,
 		   service_to_restart->current_state->name);

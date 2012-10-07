@@ -222,9 +222,12 @@ static char *cmd_log(char *arg)
 		} else {
 
 			/* only print important state changes */
-			if (current->action->is == IS_UP ||
-			    current->action->is == IS_DOWN ||
-			    current->action->is == IS_FAILED) {
+			switch (current->action->is) {
+			default:
+				break;
+			case IS_UP:
+			case IS_DOWN:
+			case IS_FAILED:
 				/* if there has gone some seconds sence last
 				 * change, print that */
 				if (current->duration > 0) {
@@ -238,6 +241,7 @@ static char *cmd_log(char *arg)
 						"s | %s\n", name,
 						current->action->name);
 				}
+				break;
 			}
 		}
 

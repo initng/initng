@@ -323,7 +323,7 @@ static int cmd_free_service(char *arg)
 	} else {
 		/* zap all that is marked FAIL */
 		while_active_db_safe(apt, safe) {
-			if (IS_FAILED(apt)) {
+			if (GET_STATE(apt) == IS_FAILED) {
 				initng_active_db_free(apt);
 				ret = TRUE;
 			}

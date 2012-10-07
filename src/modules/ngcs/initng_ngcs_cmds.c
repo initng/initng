@@ -388,7 +388,7 @@ static void ngcs_cmd_start(ngcs_request * req)
 		ngcs_send_response(req, NGCS_TYPE_INT, sizeof(int), (char *)&i);
 
 		ngcs_watch_initial(watch);
-		if (!IS_UP(serv))
+		if (GET_STATE(serv) != IS_UP)
 			initng_handler_start_service(serv);
 
 		return;

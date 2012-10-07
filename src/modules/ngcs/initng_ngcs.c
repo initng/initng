@@ -707,7 +707,7 @@ void service_status(s_event * event)
 	service = event->data;
 
 	/* only try open, when a service got up */
-	if (IS_UP(service))
+	if (GET_STATE(service) == IS_UP)
 		check_socket();
 }
 

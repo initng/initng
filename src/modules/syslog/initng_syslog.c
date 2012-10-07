@@ -155,35 +155,33 @@ static void syslog_print_status_change(s_event * event)
 
 	assert(service->name);
 
-	if (IS_UP(service)) {
+
+	switch (GET_STATE(service)) {
+	case IS_UP:
 		check_syslog();
 		initng_log(LOG_NOTICE, NULL, "Service %s is up.\n",
 			   service->name);
-		return;
-	}
+		break;
 
-	if (IS_DOWN(service)) {
+	case IS_DOWN:
 		initng_log(LOG_NOTICE, NULL, "Service %s has been stopped.\n",
 			   service->name);
-		return;
-	}
+		break;
 
-	if (IS_FAILED(service)) {
+	case IS_FAILED:
 		initng_log(LOG_NOTICE, NULL, "Service %s FAILED.\n",
 			   service->name);
-		return;
-	}
+		break;
 
-	if (IS_STOPPING(service)) {
+	case IS_STOPPING:
 		initng_log(LOG_NOTICE, NULL, "Service %s is stopping.\n",
 			   service->name);
-		return;
-	}
+		break;
 
-	if (IS_STARTING(service)) {
+	case IS_STARTING:
 		initng_log(LOG_NOTICE, NULL, "Service %s is starting.\n",
 			   service->name);
-		return;
+		break;
 	}
 }
 

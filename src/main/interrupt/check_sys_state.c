@@ -42,7 +42,7 @@ void check_sys_state_up(void)
 	/* check actives, if any has one of these status, system cant be set
 	 * to STATE_UP */
 	while_active_db(current) {
-		if (IS_STARTING(current))
+		if (GET_STATE(current) == IS_STARTING)
 			return;
 	}
 

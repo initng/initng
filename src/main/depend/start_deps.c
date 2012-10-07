@@ -63,7 +63,7 @@ int initng_depend_start_deps(active_db_h * service)
 			   "already loaded!\n", current->t.s, dep->name,
 			   dep->current_state->name);
 			/* start the service if its down */
-			if (IS_DOWN(dep)) {
+			if (GET_STATE(dep) == IS_DOWN) {
 				D_("Service %s is down, starting.\n",
 				   dep->name);
 				initng_handler_start_service(dep);

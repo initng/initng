@@ -57,12 +57,13 @@ int initng_depend_stop_dep_met(active_db_h * service, int verbose)
 		if (initng_depend(currentA, service) == FALSE)
 			continue;
 
+		switch (GET_STATE(currentA)) {
 		/* if its done, this is perfect */
-		if (IS_DOWN(currentA))
+		case IS_DOWN:
 			continue;
 
 		/* If the dep is failed, continue */
-		if (IS_FAILED(currentA))
+		case IS_FAILED:
 			continue;
 
 		/* BIG TODO.
@@ -73,10 +74,12 @@ int initng_depend_stop_dep_met(active_db_h * service, int verbose)
 		 * Asuming that STARTING services WAITING_FOR_START_DEP are
 		 * down for now.
 		 */
-		if (IS_STARTING(currentA) &&
-		    strstr(currentA->current_state->name,
-			   "WAITING_FOR_START_DEP"))
-			continue;
+		case IS_STARTING:
+			if (strstr(currentA->current_state->name,
+				   "WAITING_FOR_START_DEP"))
+				continue;
+			break;
+		}
 
 #ifdef DEBUG
 		/* else RETURN */
@@ -87,11 +90,6 @@ int initng_depend_stop_dep_met(active_db_h * service, int verbose)
 			D_("still waiting for service %s state %s\n",
 			   currentA->name, currentA->current_state->name);
 #endif
-
-		/* if its still marked as UP and not stopping, tell the
-		 * service AGAIN nice to stop */
-		/*if (IS_UP(currentA))
-		   initng_handler_stop_service(currentA); */
 
 		/* no, the dependency are not met YET */
 		service->depend_cache--;

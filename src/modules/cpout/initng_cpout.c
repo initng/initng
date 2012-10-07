@@ -197,15 +197,12 @@ static void print_output(s_event * event)
 	if (quiet_when_up && g.sys_state == STATE_UP)
 		return;
 
-	if (IS_DOWN(service)) {
+	switch (GET_STATE(service)) {
+	case IS_DOWN:
 		opt_service_stop_p(service, "stopped");
 		return;
-	}
 
-	if (IS_STARTING(service)) {
-		/* if we print this on boot, we clutter up the screen too much */
-		/* if (g.sys_state == STATE_STARTING)
-		   return (TRUE); */
+	case IS_STARTING:
 		clear_lastserv();
 		if (color) {
 			cprintf(CP "\t[" C_GREEN "starting" C_OFF "]\n",
@@ -213,11 +210,9 @@ static void print_output(s_event * event)
 		} else {
 			cprintf(P "\t[starting]\n", service->name);
 		}
-		fflush(output);
-		return;
-	}
+		break;
 
-	if (IS_UP(service)) {
+	case IS_UP: {
 		int t;
 		process_h *process =
 		    initng_process_db_get_by_name("daemon", service);
@@ -249,16 +244,11 @@ static void print_output(s_event * event)
 					service->name, process->pid);
 			}
 		}
-
-		fflush(output);
-		return;
 	}
+		break;
 
-	if (IS_STOPPING(service)) {
-		/*
-		 * don't prompt that we are stopping a service, if system is shutting down, i
-		 * do think that the user is aware about this.
-		 */
+	case IS_STOPPING:
+		/* Avoid being too verbose when shutting down the system */
 		if (g.sys_state == STATE_STOPPING)
 			return;
 
@@ -269,13 +259,10 @@ static void print_output(s_event * event)
 		} else {
 			cprintf(P "\t[stopping]\n", service->name);
 		}
-
-		fflush(output);
-		return;
-	}
+		break;
 
 	/* Print all states, that is a failure state */
-	if (IS_FAILED(service)) {
+	case IS_FAILED:
 		clear_lastserv();
 		if (color) {
 			cprintf(CP "\t[" C_RED "%s" C_OFF "]\n",
@@ -284,6 +271,7 @@ static void print_output(s_event * event)
 			cprintf(P "\t[%s]\n", service->name,
 				service->current_state->name);
 		}
+		break;
 	}
 
 	fflush(output);
@@ -371,7 +359,7 @@ static void print_system_state(s_event * event)
 
 				/* walk thru all services */
 				while_active_db(cur) {
-					if (IS_FAILED(cur)) {
+					if (GET_STATE(cur) == IS_FAILED) {
 						if (f == 0) {
 							cprintf
 							    (" Failing services:");

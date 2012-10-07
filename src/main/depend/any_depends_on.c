@@ -39,8 +39,10 @@ int initng_depend_any_depends_on(active_db_h * service)
 		if (current == service)
 			continue;
 
-		if (IS_UP(current) || IS_STARTING(current) ||
-		    IS_STOPPING(current)) {
+		switch (GET_STATE(current)) {
+		case IS_UP:
+		case IS_STARTING:
+		case IS_STOPPING:
 			/* if current depends on service */
 			if (initng_depend_deep(current, service) == TRUE) {
 				D_("Service %s depends on %s\n", current->name,

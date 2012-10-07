@@ -57,35 +57,38 @@ int initng_handler_start_service(active_db_h * service_to_start)
 		return FALSE;
 	}
 
+
+	switch (GET_STATE(service_to_start)) {
 	/* it might already be starting */
-	if (IS_STARTING(service_to_start) || IS_WAITING(service_to_start)) {
+	case IS_STARTING:
+        case IS_WAITING:
 		D_("service %s is starting already.\n", service_to_start->name);
 		return TRUE;
-	}
 
 	/* if it failed */
-	if (IS_FAILED(service_to_start)) {
+	case  IS_FAILED:
 		D_("Service %s failed and must be reset before it can be "
 		   "started again!\n", service_to_start->name);
 		return FALSE;
-	}
 
 	/* it might already be up */
-	if (IS_UP(service_to_start)) {
+	case IS_UP:
 		D_("service %s is already up!\n", service_to_start->name);
 		return TRUE;
-	}
 
 	/* if new, and not got a stopped state yet, its no idea to bug this
 	 * process */
-	if (IS_NEW(service_to_start)) {
+	case IS_NEW:
 		D_("service %s is so fresh so we cant start it.\n",
 		   service_to_start->name);
 		return TRUE;
-	}
 
 	/* it must be down or stopping to start it */
-	if (!(IS_DOWN(service_to_start) || IS_STOPPING(service_to_start))) {
+	case IS_STOPPING:
+	case IS_DOWN:
+		break;
+
+	default:
 		W_("Can't set a service with status %s, to start\n",
 		   service_to_start->current_state->name);
 		return FALSE;

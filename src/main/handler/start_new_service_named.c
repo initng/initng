@@ -42,7 +42,7 @@ active_db_h *initng_handler_start_new_service_named(const char *service)
 	/* Try to find it */
 	to_load = initng_active_db_find_by_name(service);
 	if (to_load) {
-		if (!IS_DOWN(to_load)) {
+		if (GET_STATE(to_load) != IS_DOWN) {
 			D_("Service %s exits already, and is not stopped!\n",
 			   to_load->name);
 			return to_load;

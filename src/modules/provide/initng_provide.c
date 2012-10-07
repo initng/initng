@@ -112,7 +112,7 @@ static int virtual_service_set_up(const char *name)
 
 	vserv = initng_active_db_find_by_name(name);
 	if (vserv) {
-		if (IS_STARTING(vserv)) {
+		if (GET_STATE(vserv) == IS_STARTING) {
 			initng_common_mark_service(vserv, &PROVIDE_UP);
 			return TRUE;
 		}
@@ -135,8 +135,13 @@ static int add_virtual_service(const char *name)
 		}
 
 		/* put the service as UP */
-		if (!IS_UP(vserv) || !IS_STARTING(vserv))
+		switch (GET_STATE(vserv)) {
+		case IS_UP:
+		case IS_STARTING:
+			break;
+		default:
 			initng_common_mark_service(vserv, &SOON_PROVIDED);
+		}
 
 		/* increase the counter */
 		set_int(&PCOUNT, vserv, get_int(&PCOUNT, vserv) + 1);
@@ -189,7 +194,7 @@ static void remove_virtual_service(const char *name)
 	}
 
 	/* Look for PCOUNTS */
-	if (IS_UP(vserv)) {
+	if (GET_STATE(vserv) == IS_UP) {
 		i = get_int(&PCOUNT, vserv) - 1;
 		set_int(&PCOUNT, vserv, i);
 	}
@@ -219,29 +224,34 @@ static void service_state(s_event * event)
 	assert(service->name);
 
 	/* if service is starting */
-	if (IS_STARTING(service)) {
+	switch (GET_STATE(service)) {
+	case IS_STARTING:
 		/* never when system is stopping */
 		if (g.sys_state == STATE_STOPPING)
-			return;
+			break;
 
 		/* get the provide strings */
 		while ((tmp = get_next_string(&PROVIDE, service, &itt))) {
 			/* add that provide */
 			if (!add_virtual_service(tmp))
-				return;
+			        break;
 		}
-	} else if (IS_UP(service)) {
+		break;
+
+	case IS_UP:
 		/* never when system is stopping */
 		if (g.sys_state == STATE_STOPPING)
-			return;
+			break;
 
 		/* get the provide strings */
 		while ((tmp = get_next_string(&PROVIDE, service, &itt))) {
 			/* add that provide */
 			if (!virtual_service_set_up(tmp))
-				return;
+				break;
 		}
-	} else {
+		break;
+
+	default:
 		/* get the provide strings */
 		while ((tmp = get_next_string(&PROVIDE, service, &itt))) {
 			/* remove that provide */

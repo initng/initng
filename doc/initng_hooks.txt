@@ -20,7 +20,7 @@ Major state change watch
     Function call   : int (*status_change) (active_db_h * service);
     Description     : This is like g.ASTATUS_CHANGE but only triggers on rought
                       changes, like Stopped -> Starting or Startig -> UP,
-		      meens the IS_UP(), IS_DONW(), IS_STARTING() .. changes.
+		      i.e. IS_UP, IS_DOWN and IS_STARTING changes.
     Return value    : (bool) All status_change calls must return true, or next hook
                       in line wont be called.
     Caller location : initng_common.c initng_common_mark_service(service, state);

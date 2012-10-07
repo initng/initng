@@ -56,7 +56,7 @@ static void check_critical(s_event * event)
 
 	assert(service->name);
 
-	if (!IS_FAILED(service))
+	if (GET_STATE(service) != IS_FAILED)
 		return;
 
 	if (!is(&CRITICAL, service))

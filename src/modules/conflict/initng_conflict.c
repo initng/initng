@@ -67,7 +67,7 @@ static void check_conflict(s_event * event)
 	assert(service->name);
 
 	/* Do this check when this service is put in a STARTING state */
-	if (!IS_STARTING(service))
+	if (GET_STATE(service) != IS_STARTING)
 		return;
 
 	/* make sure the conflict entry is set */
@@ -82,7 +82,9 @@ static void check_conflict(s_event * event)
 		if (!s)
 			continue;
 
-		if (IS_UP(s) || IS_STARTING(s)) {
+		switch (GET_STATE(s)) {
+		case IS_UP:
+		case IS_STARTING:
 			initng_common_mark_service(service, &CONFLICTING);
 			F_("Service \"%s\" is conflicting with service "
 			   "\"%s\"!\n", service->name, s->name);

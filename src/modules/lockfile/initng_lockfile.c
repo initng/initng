@@ -69,16 +69,18 @@ static void status_change(s_event * event)
 
 		D_("lockfile path [%s]\n", lockfile);
 		/* service states from initng_is.h */
-		if (IS_UP(service)) {
-			int fd;
-
+		switch (GET_STATE(service)) {
+		case IS_UP:
 			D_("service got up\n");
-			fd = creat(lockfile, 0640);
+			int fd = creat(lockfile, 0640);
 			if (fd != -1)
 				close(fd);
-		} else if (IS_DOWN(service)) {
+			break;
+
+		case IS_DOWN:
 			D_("service went down\n");
 			unlink(lockfile);
+			break;
 		}
 	}
 }

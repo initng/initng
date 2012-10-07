@@ -36,7 +36,7 @@ void initng_handler_restart_restarting(void)
 
 	/* make sure there is no more restarting running or stopping */
 	while_active_db(current) {
-		if (IS_STOPPING(current)) {
+		if (GET_STATE(current) == IS_STOPPING) {
 			if (is(&RESTARTING, current))
 				return;
 		}
@@ -46,7 +46,7 @@ void initng_handler_restart_restarting(void)
 	/* now restart all RESTARTING services, that are STOPPED */
 	current = NULL;
 	while_active_db(current) {
-		if (IS_DOWN(current)) {
+		if (GET_STATE(current) == IS_DOWN) {
 			if (is(&RESTARTING, current)) {
 				/* remove the restarting flag */
 				initng_data_remove(&RESTARTING, current);

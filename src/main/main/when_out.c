@@ -39,7 +39,7 @@ void initng_main_when_out(void)
 	active_db_h *current = NULL;
 
 	while_active_db(current) {
-		if (IS_FAILED(current)) {
+		if (GET_STATE(current) == IS_FAILED) {
 			failing++;
 			printf("\n [%i] service \"%s\" marked \"%s\"\n",
 			       failing, current->name,

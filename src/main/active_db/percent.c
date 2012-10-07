@@ -40,21 +40,26 @@ int initng_active_db_percent_started(void)
 {
 	active_db_h *current = NULL;
 	int starting = 0, up = 0, other = 0;
-	int ret = 0;
 
 	while_active_db(current) {
 		assert(current->name);
 		assert(current->current_state);
 
-		if (IS_STARTING(current))
+		switch (GET_STATE(current)) {
+		case IS_STARTING:
 			starting++;
-		else if (IS_UP(current))
+			break;
+		case IS_UP:
 			up++;
-		else
+			break;
+		default:
 			other++;
+			break;
+		}
 	}
 	D_("up: %i  starting: %i  other: %i\n", up, starting, other);
 
+	int ret = 0;
 	/* if no one is starting */
 	if (starting <= 0)
 		ret = 100;
@@ -77,22 +82,27 @@ int initng_active_db_percent_stopped(void)
 {
 	active_db_h *current = NULL;
 	int stopping = 0, down = 0, other = 0;
-	int ret = 0;
 
 	while_active_db(current) {
 		assert(current->name);
 		assert(current->current_state);
 
-		if (IS_DOWN(current))
+		switch (GET_STATE(current)) {
+		case IS_DOWN:
 			down++;
-		else if (IS_STOPPING(current))
+			break;
+		case IS_STOPPING:
 			stopping++;
-		else
+			break;
+		default:
 			other++;
+			break;
+		}
 	}
 
 	D_("down: %i  stopping: %i  other: %i\n", down, stopping, other);
 
+	int ret = 0;
 	/* if no one stopping */
 	if (stopping <= 0)
 		ret = 100;

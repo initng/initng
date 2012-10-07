@@ -89,7 +89,7 @@ static void check_last(s_event * event)
 			continue;
 		}
 
-		if (IS_STARTING(current)) {
+		if (GET_STATE(current) == IS_STARTING) {
 			D_("Service %s is also starting, and %s should be "
 			   "started last\n", current->name, service->name);
 			event->status = FAILED;
