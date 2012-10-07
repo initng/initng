@@ -20,6 +20,8 @@
 #ifndef INITNG_IO_H
 #define INITNG_IO_H
 
+#include <stdbool.h>
+#include <stdint.h>
 #include <unistd.h>
 #include <fcntl.h>
 
@@ -40,7 +42,5 @@ inline static int initng_io_set_cloexec(int fd)
 void initng_io_process_read_input(active_db_h * service, process_h * p,
 				  pipe_h * pipe);
 void initng_io_module_poll(int timeout);
-
-int initng_io_set_cloexec(int fd);
 
 #endif /* !defined(INITNG_IO_H) */
