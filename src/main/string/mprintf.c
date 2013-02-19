@@ -58,8 +58,13 @@ int initng_string_mprintf(char **p, const char *format, ...)
 	 * Also have a check that it succeds.
 	 */
 	/*printf("Changing size to %i\n", len + add_len); */
-	if (!(*p = realloc(*p, ((len + add_len) * sizeof(char)))))
-		return -1;
+	{
+		char *tmp = realloc(*p, sizeof(char [len + add_len]));
+		if (!tmp)
+			return -1;
+
+		*p = tmp;
+	}
 
 	/* Ok, have a try until vsnprintf succeds */
 	while (1) {
@@ -78,13 +83,14 @@ int initng_string_mprintf(char **p, const char *format, ...)
 			/* Ok return happily */
 			return done;
 		}
-		/*printf("BAD: done : %i, len: %i\n", done, add_len); */
 
 		/* try increase it a bit. */
-		add_len = (done < 0 ? add_len * 2 : done + 1);
-		/*printf("Changing size to %i\n", len + add_len); */
-		if (!(*p = realloc(*p, len + add_len)))
+		add_len = (done < 0 ? add_len >> 1 : done + 1);
+
+		char *tmp = realloc(*p, len + add_len);
+		if (!tmp)
 			return -1;
+		*p = tmp;
 
 	}
 
