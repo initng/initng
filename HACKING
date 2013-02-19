@@ -170,9 +170,9 @@ starts in column 1.
 /**
  * This function does nothing meaningful.
  */
-void initng_foo (int i)
+void initng_foo(int i)
 {
-	int *output = initng_malloc (sizeof (int));
+	int *output = initng_malloc(sizeof (int));
 	*output = i;
 
 	if (i < 5 && i > 100
@@ -192,17 +192,19 @@ the same reason, each statement belongs on a separate line.
 
 [source,c]
 ----
-if(foo) {
+if (foo) {
 	++foo;
 	bar;
 }
 ----
 
-The braces the follow function calls and statements like +if+, +while+, and so
-on, do not have spaces around them. Similarly avoid unnecessary spaces after
-sigils (e.g., +&+ and +*+ for pointers). Most binary, however, operators with
-the exception of +.+ and +->+ want a space, though; also place one space
-character after a comma and before a curly brace:
+The braces that follow function calls do not have spaces around them, but
+the ones around statements like +if+ and +while+ do.
+
+Similarly avoid unnecessary spaces after sigils (e.g., +&+ and +*+ for
+pointers). However, most binary operators, with the exception of +.+ and +->+,
+need a space; also place one space character after a comma and before a curly
+brace:
 
 [source,c]
 ----
@@ -231,7 +233,7 @@ Whenever the return value of a function signifies success or failure, use only
 context. If a more complex status indication is needed, resort to a
 +errno+-style way and use the following convection:
 
-* x < 0 means error, with x beeing the error code,
+* x < 0 means error, with -x being the error code,
 * x == 0 indicates success (don't confuse with the return code!), and
 * x > 0 adds a status to the success.
 
