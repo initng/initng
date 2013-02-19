@@ -187,7 +187,7 @@ void initng_foo (int i)
 }
 ----
 
-Add curly braces to single line blocks to avoid accidentially mistakes. For
+Add curly braces to single line blocks to avoid mistakes. For
 the same reason, each statement belongs on a separate line.
 
 [source,c]
