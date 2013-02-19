@@ -51,11 +51,11 @@ def mkmarshaler(name, members,sname=None):
 #else
             *(int*)buf = NGCS_TYPE_BLOB;
 #endif
-            *(int*)(buf+sizeof(int)) = @n@;
-            memcpy(buf+2*sizeof(int),s->@m[1]@,@n@);
-            buf += 2*sizeof(int)+@n@;
+            *(int*)(buf + sizeof(int)) = @n@;
+            memcpy(buf + sizeof(int [2]), s->@m[1]@,@n@);
+            buf += sizeof(int [2]) + @n@;
         }
-        len += 2*sizeof(int)+@n@;
+        len += sizeof(int [2]) + @n@;
     }
     else
     {
@@ -63,28 +63,26 @@ def mkmarshaler(name, members,sname=None):
         {
             *(int*)buf = NGCS_TYPE_NULL;
             *(int*)(buf+sizeof(int)) = 0;
-            buf += 2*sizeof(int);
+            buf += sizeof(int [2]);
         }
-        len += 2*sizeof(int);
+        len += sizeof(int [2]);
     }
 #elif m[0] == "int" and len(m) == 2
-    if(buf)
-    {
+    if (buf) {
         *(int*)buf = NGCS_TYPE_INT;
         *(int*)(buf+sizeof(int)) = sizeof(int);
-        *(int*)(buf+2*sizeof(int)) = s->@m[1]@;
-        buf += 3*sizeof(int);
+        *(int*)(buf+sizeof(int [2])) = s->@m[1]@;
+        buf += sizeof(int [3]);
     }
-    len += 3*sizeof(int);
+    len += sizeof(int [3]);
 #elif m[0] == "long" and len(m) == 2
-    if(buf)
-    {
+    if (buf) {
         *(int*)buf = NGCS_TYPE_LONG;
-        *(int*)(buf+sizeof(int)) = sizeof(long);
-        *(long*)(buf+2*sizeof(int)) = s->@m[1]@;
-        buf += 2*sizeof(int)+sizeof(long);
+        *(int*)(buf + sizeof(int)) = sizeof(long);
+        *(long*)(buf + sizeof(int [2])) = s->@m[1]@;
+        buf += sizeof(int [2]) + sizeof(long);
     }
-    len += 2*sizeof(int)+sizeof(long);
+    len += sizeof(int [2]) + sizeof(long);
 #elif m[0] in ("int","long")
 #exec  raise Exception, "Bad structure specifier"
 #elif m[0] in ("ignore","ignore*")
@@ -102,27 +100,27 @@ def mkmarshaler(name, members,sname=None):
 #endif
     @sp@if(buf) *(int*)buf = NGCS_TYPE_STRUCT;
 #if isptr
-    @sp@n = ngcs_marshal_@typename@(s->@m[1]@, (buf?buf+2*sizeof(int):NULL));
+    @sp@n = ngcs_marshal_@typename@(s->@m[1]@, (buf ? buf + sizeof(int [2]) : NULL));
 #else
-    @sp@n = ngcs_marshal_@typename@(&s->@m[1]@, (buf?buf+2*sizeof(int):NULL));
+    @sp@n = ngcs_marshal_@typename@(&s->@m[1]@, (buf ? buf + sizeof(int [2]) : NULL));
 #endif
     @sp@if(n < 0) return n;
     @sp@if(buf)
     @sp@{
-    @sp@    *(int*)(buf+sizeof(int)) = n;
-    @sp@    buf += 2*sizeof(int) + n;
+    @sp@    *(int*)(buf + sizeof(int)) = n;
+    @sp@    buf += sizeof(int [2]) + n;
     @sp@}
-    @sp@len += 2*sizeof(int) + n;
+    @sp@len += sizeof(int [2]) + n;
 #if isptr
     }
     else if(buf)
     {
         *(int*)buf = NGCS_TYPE_NULL;
         *(int*)(buf+sizeof(int)) = 0;
-        buf += 2*sizeof(int);
-        len += 2*sizeof(int);
+        buf += sizeof(int [2]);
+        len += sizeof(int [2]);
     }
-    else len += 2*sizeof(int);
+    else len += sizeof(int [2]);
 #endif
 #endif
 """, l)

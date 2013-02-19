@@ -67,7 +67,7 @@ char **initng_string_split_delim(const char *string, const char *delim,
 	memcpy(dest, string, len);
 
 	/* allocate the inital array */
-	array = initng_toolbox_calloc(1, CHUNK * sizeof(char *));
+	array = initng_toolbox_calloc(1, sizeof(char * [CHUNK]));
 	array_size = CHUNK;
 
 	array[i++] = strtok_r(dest, delim, &saveptr);
@@ -78,28 +78,27 @@ char **initng_string_split_delim(const char *string, const char *delim,
 		 * chunk */
 		if (i >= array_size) {
 			array_size += CHUNK;
-			array = initng_toolbox_realloc(array, array_size *
-							      sizeof(char *));
+			array = initng_toolbox_realloc(array,
+						       sizeof(char * [array_size]));
 		}
 	}
 
 	array[i] = NULL;
 
 	/* reallocate the string to append the array */
-	tmp = initng_toolbox_realloc(dest, len + (i + 1) * sizeof(char *));
+	tmp = initng_toolbox_realloc(dest, len + sizeof(char * [1 + i]));
 	if (tmp != dest) {
-		size_t j;
 		/* if we got a different address, just rebase the pointers */
 		/* make sure to skip the last entry (the NULL), otherwise it
 		 * would be set to something being neither a NULL nor a valid
 		 * pointer */
-		for (j = 0; j < i; j++) {
+		for (size_t j = 0; j < i; j++) {
 			array[j] += tmp - dest;
 		}
 		dest = tmp;
 	}
 
-	memcpy(dest+len, array, ++i * sizeof(char *));	/* copy the array at
+	memcpy(dest+len, array, sizeof(char * [++i]));	/* copy the array at
 							 * the end of the
 							 * string */
 	free(array);

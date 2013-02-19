@@ -49,7 +49,7 @@ int ngcs_sendmsg(int sock, int chan, int type, int len, const char *data)
 	head[1] = type;
 	head[2] = len;
 
-	if (ngcs_sendall(sock, head, 3 * sizeof(int)))
+	if (ngcs_sendall(sock, head, sizeof(int [3])))
 		return 1;
 
 	if (len <= 0)
@@ -71,7 +71,7 @@ int ngcs_recvmsg(int sock, int *chan, int *type, int *len, char **data)
 	assert(len);
 	assert(data);
 
-	if (ngcs_recvall(sock, head, 3 * sizeof(int)))
+	if (ngcs_recvall(sock, head, sizeof(int [3])))
 		return 1;
 
 	*chan = head[0];
@@ -107,7 +107,7 @@ int ngcs_pack(ngcs_data * data, int cnt, char *buf)
 
 		switch (data[n].type) {
 		case NGCS_TYPE_INT:
-			outcnt += 3 * sizeof(int);
+			outcnt += sizeof(int [3]);
 			if (buf) {
 				*(int *)buf = sizeof(int);
 				buf += sizeof(int);
@@ -117,7 +117,7 @@ int ngcs_pack(ngcs_data * data, int cnt, char *buf)
 			break;
 
 		case NGCS_TYPE_LONG:
-			outcnt += 2 * sizeof(int) + sizeof(long);
+			outcnt += sizeof(int [2]) + sizeof(long);
 			if (buf) {
 				*(int *)buf = sizeof(long);
 				buf += sizeof(int);
@@ -131,7 +131,7 @@ int ngcs_pack(ngcs_data * data, int cnt, char *buf)
 			if (data[n].len < 0)
 				data[n].len = strlen(data[n].d.s);
 
-			outcnt += 2 * sizeof(int) + data[n].len;
+			outcnt += sizeof(int [2]) + data[n].len;
 			if (buf) {
 				*(int *)buf = data[n].len;
 				buf += sizeof(int);
@@ -145,7 +145,7 @@ int ngcs_pack(ngcs_data * data, int cnt, char *buf)
 			if (data[n].len < 0)
 				return 1;
 
-			outcnt += 2 * sizeof(int) + data[n].len;
+			outcnt += sizeof(int [2]) + data[n].len;
 			if (buf) {
 				*(int *)buf = data[n].len;
 				buf += sizeof(int);
@@ -215,28 +215,28 @@ int ngcs_unpack(const char *data, int len, ngcs_data ** res)
 	int l = len;
 	int cnt = 0;
 	int rtype, rlen;
-	while (l >= (signed)(2 * sizeof(int))) {
+	while (l >= (signed)(sizeof(int [2]))) {
 		int head[2];
 
-		memcpy(head, d, 2 * sizeof(int));
+		memcpy(head, d, sizeof(int [2]));
 		if (head[1] < 0)
 			return -1;
 
-		d += 2 * sizeof(int) + head[1];
-		l -= 2 * sizeof(int) + head[1];
+		d += sizeof(int [2]) + head[1];
+		l -= sizeof(int [2]) + head[1];
 		cnt++;
 	}
 
 	d = data;
 	l = len;
 
-	*res = malloc(cnt * sizeof(ngcs_data));
+	*res = malloc(sizeof(ngcs_data [cnt]));
 	cnt = 0;
 
-	while (l >= (signed)(2 * sizeof(int))) {
+	while (l >= (signed)(sizeof(int [2]))) {
 		int head[2];
 
-		memcpy(head, d, 2 * sizeof(int));
+		memcpy(head, d, sizeof(int [2]));
 		rtype = head[0];
 		rlen = head[1];
 
@@ -246,8 +246,8 @@ int ngcs_unpack(const char *data, int len, ngcs_data ** res)
 			return -1;
 		}
 
-		d += 2 * sizeof(int);
-		l -= 2 * sizeof(int);
+		d += sizeof(int [2]);
+		l -= sizeof(int [2]);
 
 		if (l < rlen) {
 			free(*res);
@@ -346,7 +346,7 @@ ngcs_conn *ngcs_conn_from_fd(int fd, void *userdata,
 static int ngcs_conn_send(ngcs_conn * conn, int chan, int type, int len,
 			  const char *data)
 {
-	int total_len = 3 * sizeof(int) + (len < 0 ? 0 : len);
+	int total_len = sizeof(int [3]) + (len < 0 ? 0 : len);
 	int head[3];
 
 	if (len > 0)
@@ -372,10 +372,10 @@ static int ngcs_conn_send(ngcs_conn * conn, int chan, int type, int len,
 	}
 
 	/* Copy message to write buffer */
-	memcpy(conn->wrbuf + conn->towrite, head, 3 * sizeof(int));
+	memcpy(conn->wrbuf + conn->towrite, head, sizeof(int [3]));
 
 	if (len > 0)
-		memcpy(conn->wrbuf + conn->towrite + 3 * sizeof(int), data,
+		memcpy(conn->wrbuf + conn->towrite + sizeof(int [3]), data,
 		       len);
 
 	conn->towrite += total_len;

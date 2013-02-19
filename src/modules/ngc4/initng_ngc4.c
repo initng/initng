@@ -731,10 +731,10 @@ static void cmd_help(char *arg, s_payload * payload)
 
 	(void)arg;
 	payload->p = (help_row *) initng_toolbox_calloc(101, sizeof(help_row));
-	memset(payload->p, 0, sizeof(help_row) * 100);
+	memset(payload->p, 0, sizeof(help_row [100]));
 
 	initng_list_foreach_rev(current, &local_commands_db.list, list) {
-		help_row *row = payload->p + (i * sizeof(help_row));
+		help_row *row = payload->p + sizeof(help_row [i]);
 
 		if (current->opt_visible != STANDARD_COMMAND)
 			continue;
@@ -768,7 +768,7 @@ static void cmd_help(char *arg, s_payload * payload)
 
 	current = NULL;
 	while_command_db(current) {
-		help_row *row = payload->p + (i * sizeof(help_row));
+		help_row *row = payload->p + sizeof(help_row [i]);
 
 		if (current->opt_visible != STANDARD_COMMAND)
 			continue;
@@ -800,7 +800,7 @@ static void cmd_help(char *arg, s_payload * payload)
 	}
 
 	/* set up the payload info */
-	payload->s = i * sizeof(help_row);
+	payload->s = sizeof(help_row [i]);
 }
 
 static void cmd_help_all(char *arg, s_payload * payload)
@@ -812,10 +812,10 @@ static void cmd_help_all(char *arg, s_payload * payload)
 
 	/* allocate space for payload, static malloc for now */
 	payload->p = (help_row *) initng_toolbox_calloc(101, sizeof(help_row));
-	memset(payload->p, 0, sizeof(help_row) * 100);
+	memset(payload->p, 0, sizeof(help_row [100]));
 
 	initng_list_foreach_rev(current, &local_commands_db.list, list) {
-		help_row *row = payload->p + (i * sizeof(help_row));
+		help_row *row = payload->p + sizeof(help_row [i]);
 
 		if (current->opt_visible != STANDARD_COMMAND &&
 		    current->opt_visible != ADVANCHED_COMMAND)
@@ -842,7 +842,7 @@ static void cmd_help_all(char *arg, s_payload * payload)
 
 	current = NULL;
 	while_command_db(current) {
-		help_row *row = payload->p + (i * sizeof(help_row));
+		help_row *row = payload->p + sizeof(help_row [i]);
 
 		if (current->opt_visible != STANDARD_COMMAND
 		    && current->opt_visible != ADVANCHED_COMMAND)
@@ -875,7 +875,7 @@ static void cmd_help_all(char *arg, s_payload * payload)
 	}
 
 	/* set up the payload info */
-	payload->s = i * sizeof(help_row);
+	payload->s = sizeof(help_row [i]);
 }
 
 static void cmd_start(char *arg, s_payload * payload)
@@ -1035,7 +1035,7 @@ static void cmd_options(char *arg, s_payload * payload)
 	    (option_row *) initng_toolbox_calloc(101, sizeof(option_row));
 
 	while_service_data_types(current) {
-		option_row *row = payload->p + (i * sizeof(option_row));
+		option_row *row = payload->p + sizeof(option_row [i]);
 
 		if (!current->name)
 			continue;
@@ -1068,7 +1068,7 @@ static void cmd_options(char *arg, s_payload * payload)
 	}
 
 	/* Last, put s, to indicat that there is data */
-	payload->s = i * sizeof(option_row);
+	payload->s = sizeof(option_row [i]);
 }
 
 static void cmd_states(char *arg, s_payload * payload)
@@ -1100,7 +1100,7 @@ static void cmd_states(char *arg, s_payload * payload)
 		}
 
 		/* get on a entry */
-		state_row *row = payload->p + (i * sizeof(state_row));
+		state_row *row = payload->p + sizeof(state_row [i]);
 
 		/* set the datatype */
 		row->dt = STATE_ROW;
@@ -1128,7 +1128,7 @@ static void cmd_states(char *arg, s_payload * payload)
 	}
 
 	/* tell how mutch data there is in this payload */
-	payload->s = i * sizeof(state_row);
+	payload->s = sizeof(state_row [i]);
 }
 
 static void cmd_services(char *arg, s_payload * payload)
@@ -1193,7 +1193,7 @@ static void cmd_services(char *arg, s_payload * payload)
 			continue;
 
 		/* Put the row marker on next free place in the allocated area */
-		row = payload->p + (i * sizeof(active_row));
+		row = payload->p + sizeof(active_row [i]);
 
 		row->dt = ACTIVE_ROW;
 
@@ -1221,7 +1221,7 @@ static void cmd_services(char *arg, s_payload * payload)
 			break;
 	}
 
-	payload->s = i * sizeof(active_row);
+	payload->s = sizeof(active_row [i]);
 }
 
 static void cmd_all_services(char *arg, s_payload * payload)
@@ -1240,7 +1240,7 @@ static void cmd_all_services(char *arg, s_payload * payload)
 
 		/* Put the row marker on next free place in the allocated
 		 * area */
-		row = payload->p + (i * sizeof(active_row));
+		row = payload->p + sizeof(active_row [i]);
 
 		row->dt = ACTIVE_ROW;
 
@@ -1268,7 +1268,7 @@ static void cmd_all_services(char *arg, s_payload * payload)
 			break;
 	}
 
-	payload->s = i * sizeof(active_row);
+	payload->s = sizeof(active_row [i]);
 }
 
 /*

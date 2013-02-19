@@ -83,7 +83,7 @@ static int usplash(const char *format, ...)
 	 * Also have a check that it succeds.
 	 */
 	/*printf("Changing size to %i\n", add_len); */
-	p = malloc(add_len * sizeof(char));
+	p = malloc(sizeof(char [add_len]));
 	if (!p)
 		return (FALSE);
 
@@ -118,7 +118,7 @@ static int usplash(const char *format, ...)
 		/* try increase it a bit. */
 		add_len = (done < 0 ? add_len * 2 : done + 1);
 		/*printf("Changing size to %i\n", add_len); */
-		if (!(p = realloc(p, ((add_len) * sizeof(char)))))
+		if (!(p = realloc(p, sizeof(char [add_len]))))
 			return (-1);
 
 	}

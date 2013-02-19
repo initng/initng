@@ -53,7 +53,7 @@ static void cmd_history(char *arg, s_payload * payload)
 	payload->p = initng_toolbox_calloc(HISTORY + 1, sizeof(active_row));
 
 	while_history_db_prev(current) {
-		active_row *row = payload->p + (i * sizeof(active_row));
+		active_row *row = payload->p + sizeof(active_row [i]);
 
 		row->dt = ACTIVE_ROW;
 
@@ -104,7 +104,7 @@ static void cmd_history(char *arg, s_payload * payload)
 		i++;
 	}
 
-	payload->s = i * sizeof(active_row);
+	payload->s = sizeof(active_row [i]);
 }
 
 s_command HISTORYS = {

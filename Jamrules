@@ -43,7 +43,7 @@ DESTDIR ?= "" ;
 DEFINES += HAVE_CONFIG_H _XOPEN_SOURCE=600 DEBUG ;
 
 # Global C build and linker flags aside from CFLAGS passed to configure:
-CCFLAGS += -std=c99 -Wall -O2 -fPIC ;
+CCFLAGS += -std=c99 -Wall -O3 -fPIC ;
 CCFLAGS += -Werror -Wmissing-prototypes -Wmissing-declarations
     -Wstrict-prototypes -Wimplicit -Wredundant-decls -Wnested-externs
     -Wwrite-strings -Wsign-compare -Winline -Wswitch -Wreturn-type
