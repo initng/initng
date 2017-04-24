@@ -43,6 +43,8 @@ int initng_main_ready_to_quit(void)
 		case IS_FAILED:
 		case IS_DOWN:
 			continue;
+		default:
+			break;
 		}
 
 		/*

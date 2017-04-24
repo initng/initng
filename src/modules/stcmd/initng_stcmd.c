@@ -291,6 +291,8 @@ static int cmd_get_pid_of(char *arg)
 
 	/* browse all processes */
 	while_processes(process, apt) {
+		if (process->pst != P_ACTIVE)
+			continue;
 		/* return the first process found */
 		return process->pid;
 	}
@@ -344,15 +346,18 @@ static int cmd_restart(char *arg)
 
 	apt = initng_active_db_find_by_name(arg);
 	if (!apt) {
-		return FALSE;
-		F_("Service \"%s\" not found.\n", arg);
+		return ((initng_handler_start_new_service_named(arg) != NULL) ? TRUE: FALSE);
 	}
 
 	D_("removing service data for %s, to make sure .ii file is "
 	   "reloaded!\n", arg);
 
 	D_("Restarting service %s\n", apt->name);
-	return (initng_handler_restart_service(apt));
+
+	if (GET_STATE(apt) == IS_UP) {
+		return initng_handler_restart_service(apt);
+	}
+	return (initng_handler_start_service(apt));
 }
 
 static char *cmd_print_uptime(char *arg)
@@ -416,19 +421,14 @@ static char *cmd_print_modules(char *arg)
 	(void)arg;
 
 	string_len = sprintf(string, "modules: \n");
-
 	while_module_db(mod) {
-		int namelen;
-		char *append_at;
-
-		namelen = strlen(mod->name);
-		append_at = string + string_len;
+		int namelen = strlen(mod->name);
 		/* Increase buffer for adding */
-		string_len += 6 + strlen(mod->path)
-				+ namelen < 30 ? 30 : namelen;
-
-		string = initng_toolbox_realloc(string, string_len);
-		sprintf(append_at, "  * %-30s %s\n", mod->name, mod->path);
+		int required_len = 6 + 1 + strlen(mod->path)
+				+ ((namelen < 30) ? 30 : namelen);
+		string = initng_toolbox_realloc(string, string_len + required_len);
+		char *append_at = string + string_len;
+		string_len += sprintf(append_at, "  * %-30s %s\n", mod->name, mod->path);
 	}
 
 	return string;

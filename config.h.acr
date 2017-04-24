@@ -4,9 +4,9 @@
 #define RUNLEVEL_DEFAULT    "runlevel/default"
 #define RUNLEVEL_FAKE       "runlevel/fake-default"
 #define ETCDIR              "@SYSCONFDIR@"
-#define VARDIR              "@LOCALSTATEDIR@"
+#define VARDIR              "/run/initng"
 #define INITNG_ROOT         "@SYSCONFDIR@/initng"
 #define INITNG_MODULE_DIR   "@LIBDIR@/initng"
 #define INITNG_CORE_BIN     "@SBINDIR@/initng"
 
-#define CTLDIR		    "/run/initng"
+#define CTLDIR              "/run/initng"

@@ -17,6 +17,9 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+#define _DEFAULT_SOURCE
+
+#include <stdlib.h>
 #include <termios.h>
 #include <unistd.h>
 #include <sys/reboot.h>
@@ -37,13 +40,23 @@
 
 #include "selinux.h"
 
-#ifndef CBAUD // FIXME
-#define CBAUD   0
-#define CBAUDEX 0
-#define ECHOCTL 0
-#define ECHOKE  0
-#define ECHOPRT 0
-#endif
+static inline
+void sanitize_stdio(void)
+{
+	int fd = open("/dev/null", O_RDWR);
+	if (fd < 0)	{
+		F_("Failed to sanitize stdio.\r\n");
+		initng_main_su_login();
+	}
+
+	// Make sure fd 0, 1 and 2 won't be used by future open.
+	while (fd < 2)
+		fd = dup(fd);
+
+	// Close /dev/null if necessary.
+	if (fd > 2)
+		close(fd);
+}
 
 static inline
 void setup_console(const char *console)
@@ -54,8 +67,11 @@ void setup_console(const char *console)
 	fd = open(console, O_RDWR | O_NOCTTY);
 
 	/* Try to open the console, but don't control it */
-	if (fd > 0)
-		fd = 0;
+	if (fd < 0)	{
+		W_("Failed to open the console.\r\n");
+		sanitize_stdio();
+		return;
+	}
 
 	/* Accept signals from 'kbd' */
 	/* Like Ctrl + Alt + Delete signal? */
@@ -90,6 +106,11 @@ void setup_console(const char *console)
 	 */
 	tcsetattr(fd, TCSANOW, &tty);
 	tcflush(fd, TCIOFLUSH);
+
+	dup2(fd, STDIN_FILENO);
+	dup2(fd, STDOUT_FILENO);
+	dup2(fd, STDERR_FILENO);
+
 	close(fd);
 }
 
@@ -108,14 +129,7 @@ int main(int argc, char *argv[], char *env[])
 {
 	setup_selinux();
 
-	SULOGIN_ON_FAIL(chdir("/"), "can't chdir to /");
-
-	/* FIXME: linux-only code! */
-	SULOGIN_ON_FAIL(mount("none", "/run", "tmpfs", 0, ""),
-			"unable to mount /run");
-
-	SULOGIN_ON_FAIL(mkdir("/run/initng", 0700),
-			"can't make /run/initng");
+	SULOGIN_ON_FAIL(chdir("/"), "cannot chdir to /");
 
 	/* set console loglevel */
 	klogctl(8, NULL, 1);
@@ -133,8 +147,10 @@ int main(int argc, char *argv[], char *env[])
 
 	/* Look for "console" option, so we open the desired device. */
 	for (int i = argc; i > 0; i--) {
-		if (strncmp(argv[i], "console", 7) == 0
-		    && (argv[i][7] == ':' || argv[i][7] == '=')) {
+		if ((argv[i] != NULL)
+			&& (strlen(argv[i]) > 8)
+			&& (strncmp(argv[i], "console", 7) == 0)
+			&& (argv[i][7] == ':' || argv[i][7] == '=')) {
 			console = &argv[i][8];
 			break;
 		}
@@ -142,7 +158,17 @@ int main(int argc, char *argv[], char *env[])
 
 	setup_console(console);
 
+	struct stat file_stat;
+	const char* preinitscript = INITNG_ROOT"/preinitscript";
+
+	if (stat(preinitscript, &file_stat) == 0) {
+		SULOGIN_ON_FAIL(system(preinitscript), "preinitscript error");
+	}
+
+	SULOGIN_ON_FAIL(mkdir(CTLDIR, 0700), "cannot create CTLDIR");
+
 	argv[0] = (char *) INITNG_CORE_BIN;
-	execv(argv[0], argv);
+	execve(argv[0], argv, env);
+
 	return 1;
 }

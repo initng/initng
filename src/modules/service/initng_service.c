@@ -63,6 +63,8 @@ static void init_SERVICE_START_RUN(active_db_h * service);
 static void timeout_SERVICE_STOP_RUN(active_db_h * service);
 static void init_SERVICE_STOP_RUN(active_db_h * service);
 
+static void check_SERVICE_UP(active_db_h * service);
+
 /*
  * ############################################################################
  * #                        PROCESS TYPE FUNCTION DEFINES                     #
@@ -202,7 +204,7 @@ a_state_h SERVICE_WAITING_FOR_START_DEP = {
 	.is = IS_STARTING,
 	.interrupt = &handle_SERVICE_WAITING_FOR_START_DEP,
 	.init = NULL,
-	.alarm = NULL
+	.alarm = &handle_SERVICE_WAITING_FOR_START_DEP
 };
 
 /*
@@ -349,6 +351,15 @@ a_state_h SERVICE_STOP_DEPS_FAILED = {
 	.alarm = NULL
 };
 
+a_state_h SERVICE_WAITING_FOR_UP_CHECK = {
+	.name = "SERVICE_WAITING_FOR_UP_CHECK",
+	.description = "Waiting for the service reporting up. ",
+	.is = IS_STARTING,
+	.interrupt = &check_SERVICE_UP,
+	.init = NULL,
+	.alarm = &check_SERVICE_UP
+};
+
 a_state_h SERVICE_FAIL_STOP_NONEXIST = {
 	.name = "SERVICE_FAIL_STOP_NONEXIST",
 	.description = "The stop code did not exist.",
@@ -467,6 +478,7 @@ int module_init(void)
 	initng_active_state_register(&SERVICE_STOP_RUN);
 	initng_active_state_register(&SERVICE_START_DEPS_FAILED);
 	initng_active_state_register(&SERVICE_STOP_DEPS_FAILED);
+	initng_active_state_register(&SERVICE_WAITING_FOR_UP_CHECK);
 
 	/* FAIL states, may got while starting */
 	initng_active_state_register(&SERVICE_FAIL_START_LAUNCH);
@@ -509,6 +521,7 @@ void module_unload(void)
 	initng_active_state_unregister(&SERVICE_STOP_RUN);
 	initng_active_state_unregister(&SERVICE_START_DEPS_FAILED);
 	initng_active_state_unregister(&SERVICE_STOP_DEPS_FAILED);
+	initng_active_state_unregister(&SERVICE_WAITING_FOR_UP_CHECK);
 
 	/* fail states may got while starting */
 	initng_active_state_unregister(&SERVICE_FAIL_START_LAUNCH);
@@ -781,6 +794,25 @@ static void timeout_SERVICE_STOP_RUN(active_db_h * service)
 	initng_common_mark_service(service, &SERVICE_STOP_FAILED_TIMEOUT);
 }
 
+static void check_SERVICE_UP(active_db_h * service)
+{
+	switch (initng_depend_up_check(service)) {
+	case FALSE:
+		/* NOT UP YET! return and hope that this handler will be called*/
+		break;
+
+	case FAIL:
+		/* FAIL! */
+		initng_common_mark_service(service, &SERVICE_UP_CHECK_FAILED);
+		break;
+
+	default:
+		/* OK! now service is DONE! */
+		initng_common_mark_service(service, &SERVICE_DONE);
+		break;
+	}
+}
+
 /*
  * ############################################################################
  * #                         KILL HANDLER FUNCTIONS                            #
@@ -845,16 +877,7 @@ static void handle_killed_start(active_db_h * service, process_h * process)
 		return;
 	}
 
-	/* TODO, create state WAITING_FOR_UP_CHECK */
-
-	/* make the final up check */
-	if (initng_depend_up_check(service) == FAIL) {
-		initng_common_mark_service(service, &SERVICE_UP_CHECK_FAILED);
-		return;
-	}
-
-	/* OK! now service is DONE! */
-	initng_common_mark_service(service, &SERVICE_DONE);
+	initng_common_mark_service(service, &SERVICE_WAITING_FOR_UP_CHECK);
 }
 
 /* to do when a stop action dies */

@@ -119,14 +119,15 @@ int main(int argc, char *argv[])
 		return 2;
 	}
 
-	/* FIXME: Should we use $SERVICE to detect when to realay the command to ngc? */
-	/*        We should never set this by ourselves... */
-	servname = getenv("SERVICE");
-	if (!servname) {
-		servname = (char *)initng_string_basename(path);
-		setenv("SERVICE", servname, 1);
-		setenv("NAME", servname, 1);
+	servname = (char *)strstr(path, INITNG_ROOT);
+	if (servname != NULL && strlen(servname) > (strlen(INITNG_ROOT) + 1)) {
+		servname += (strlen(INITNG_ROOT) + 1);
+	} else {
+		servname = getenv("SERVICE");
 	}
+	if (servname != NULL)
+		setenv("SERVICE", servname, 1);
+	setenv("NAME", initng_string_basename(path), 1);
 
 	/* check if command shud forward to a ngc command */
 	for (int i = 0; ngc_args[i]; i++) {

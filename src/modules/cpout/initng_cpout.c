@@ -272,6 +272,9 @@ static void print_output(s_event * event)
 				service->current_state->name);
 		}
 		break;
+
+	default:
+		break;
 	}
 
 	fflush(output);

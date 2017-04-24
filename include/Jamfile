@@ -5,3 +5,8 @@ SubInclude TOP include initng ;
 
 # Install
 InstallFile $(DESTDIR)$(includedir) : initng.h ;
+
+# Install string.h and signal.h header files from this directory because from the
+# subdirectory there are problems with same target names
+InstallSubdirFile $(DESTDIR)$(includedir) : initng : string.h ;
+InstallSubdirFile $(DESTDIR)$(includedir) : initng : signal.h ;

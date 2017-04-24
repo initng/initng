@@ -37,6 +37,22 @@ const struct initng_module initng_module = {
 	.unload = &module_unload
 };
 
+/*
+ * ############################################################################
+ * #                            CONSTANT DEFINES                              #
+ * ############################################################################
+ */
+
+/*
+ * timeout waiting for a file to be created
+ */
+#define FILE_AGRESSIVE_PROBE_TIMEOUT 240
+
+/*
+ * ############################################################################
+ * #                       FSTAT VARIABLES                                   #
+ * ############################################################################
+ */
 
 s_entry WAIT_FOR_FILE = {
 	.name = "wait_for_file",
@@ -47,7 +63,7 @@ s_entry WAIT_FOR_FILE = {
 
 s_entry REQUIRE_FILE = {
 	.name = "require_file",
-	.description = "If this file dont exist, this service will FAIL "
+	.description = "If this file do not exist, this service will FAIL "
 	    "directly.",
 	.type = STRINGS,
 	.ot = NULL,
@@ -63,11 +79,17 @@ s_entry WAIT_FOR_FILE_AFTER = {
 
 s_entry REQUIRE_FILE_AFTER = {
 	.name = "require_file_after",
-	.description = "If this file dont exist after, the service will be "
+	.description = "If this file do not exist after, the service will be "
 	    "marked FAIL.",
 	.type = STRINGS,
 	.ot = NULL,
 };
+
+/*
+ * ############################################################################
+ * #                       FSTAT STATE  STRUCTS                               #
+ * ############################################################################
+ */
 
 a_state_h REQUIRE_FILE_FAILED = {
 	.name = "REQUIRE_FILE_FAILED",
@@ -90,6 +112,12 @@ a_state_h REQUIRE_FILE_AFTER_FAILED = {
 };
 
 /*
+ * ############################################################################
+ * #                         STYPE HANDLERS FUNCTIONS                         #
+ * ############################################################################
+ */
+
+/*
  * Do this check before START_DEP_MET can be set.
  */
 static void check_files_to_exist(s_event * event)
@@ -110,12 +138,18 @@ static void check_files_to_exist(s_event * event)
 		if (stat(file, &file_stat) != 0) {
 			D_("File %s needed by %s doesn't exist.\n", file,
 			   service->name);
-			/* set the alarm, make sure initng will search files,
-			 * in one second */
-			initng_global_set_sleep(1);
 
-			/* don't change status of service to START_DEP_MET */
+			/* don't change status of service to START_READY */
 			event->status = FAILED;
+
+			/* check if timeout have elapsed */
+			if (g.now.tv_sec > service->time_current_state.tv_sec + FILE_AGRESSIVE_PROBE_TIMEOUT) {
+				initng_handler_set_alarm(service, g.now.tv_sec - service->time_current_state.tv_sec);
+				return;
+			}
+
+			/* set the alarm, make sure initng will search files,in 1 second */
+			initng_handler_set_alarm(service, 1);
 			return;
 		}
 	}
@@ -155,12 +189,18 @@ static void check_files_to_exist_after(s_event * event)
 		if (stat(file, &file_stat) != 0) {
 			D_("File %s needed by %s doesn't exist.\n", file,
 			   service->name);
-			/* set the alarm, make sure initng will search files,
-			 * in one second */
-			initng_global_set_sleep(1);
 
 			/* don't change status of service to START_READY */
 			event->status = FAILED;
+
+			/* check if timeout have elapsed */
+			if (g.now.tv_sec > service->time_current_state.tv_sec + FILE_AGRESSIVE_PROBE_TIMEOUT) {
+				initng_handler_set_alarm(service, g.now.tv_sec - service->time_current_state.tv_sec);
+				return;
+			}
+
+			/* set the alarm, make sure initng will search files,in 1 second */
+			initng_handler_set_alarm(service, 1);
 			return;
 		}
 	}
@@ -188,6 +228,7 @@ int module_init(void)
 
 	initng_event_hook_register(&EVENT_START_DEP_MET, &check_files_to_exist);
 	initng_event_hook_register(&EVENT_UP_MET, &check_files_to_exist_after);
+
 	return TRUE;
 }
 

@@ -565,7 +565,7 @@ static void bp_done(bp_rep * rep, const char *service)
 		return;
 	}
 
-	strcpy(rep->message, "Service is not in PARSING state, can not start.");
+	strcpy(rep->message, "Service is not in PARSING state, cannot start.");
 	rep->success = FALSE;
 
 	/* This wont start it, it will be started by as a dependency for a
@@ -846,7 +846,7 @@ static int parse_new_service_file(s_event * event, char *file)
 		return FALSE;
 
 	if (!(fstat.st_mode & S_IXUSR)) {
-		F_("File \"%s\" can not be executed!\n", file);
+		F_("File \"%s\" cannot be executed!\n", file);
 		return FALSE;
 	}
 

@@ -50,7 +50,6 @@
 
 char *socket_filename = (char *) SOCKET_4_FILENAME_REAL;
 
-int header_printed = FALSE;
 int quiet = FALSE;
 int ansi = FALSE;
 
@@ -64,32 +63,38 @@ int ansi = FALSE;
 #ifdef HAVE_NGE
 active_row *service_starting_stopping = NULL;
 
-static int service_change(char *service, e_is is, char *state)
+static int service_change(char command, char *service, e_is is, char *state)
 {
 	if (strcmp(service_starting_stopping->name, service) != 0) {
-		/*printf("Dont wanna listen on \"%s\"\n", service); */
+		/* print_out("Dont wanna listen on request=\"%s\" saved=\"%s\" \n", service, service_starting_stopping->name); */
 		return 1;
 	}
 
 	switch (is) {
 	case IS_UP:
-		printf("\nService \"%s\" is started!\n", service);
+		print_out("\nService \"%s\" is started!\n", service);
 		/* Close the event socket, and ngclient_exec() should return */
-		return 0;
+		if (command == 'u' || command == 'r') {
+			return 0;
+		}
+		break;
 
 	case IS_DOWN:
-		printf("\nService \"%s\" have stopped!\n", service);
+		print_out("\nService \"%s\" have stopped!\n", service);
 		/* Close the event socket, and ngclient_exec() should return */
-		return 0;
+		if (command == 'd') {
+			return 0;
+		}
+		break;
 
 	case IS_FAILED:
-		printf("\nService \"%s\" have failed!\n", service);
+		print_out("\nService \"%s\" have failed!\n", service);
 		/* Close the event socket, and ngclient_exec() should
 		 * return */
 		return 0;
 	default:
-		printf("\nService \"%s\" is now in state: %s\n", service,
-		       state);
+		/* print_out("\nService \"%s\" is now in state: %s\n", service, state); */
+		break;
 	}
 
 	return 1;
@@ -103,7 +108,7 @@ static void service_output(char *service, char *process, char *output)
 	fprintf(stdout, "%s", output);
 }
 
-static int start_or_stop_command(reply * rep)
+static int start_or_stop_command(reply * rep, const char* opt)
 {
 	nge_connection *c = NULL;
 	nge_event *e;
@@ -113,6 +118,13 @@ static int start_or_stop_command(reply * rep)
 
 	/* check what state they are in */
 	switch (service_starting_stopping->is) {
+	case IS_NEW:
+		if (strlen(service_starting_stopping->name) == 0 && opt != NULL){
+			strncpy(service_starting_stopping->name, opt, 100);
+		}
+		print_out("Parsing service \"%s\", hang on..\n",
+			  service_starting_stopping->name);
+		break;
 	case IS_STARTING:
 		print_out("Starting service \"%s\", hang on..\n",
 			  service_starting_stopping->name);
@@ -124,16 +136,16 @@ static int start_or_stop_command(reply * rep)
 		break;
 
 	case IS_DOWN:
-		printf("Service %s is down.\n\n\n",
+		print_out("Service %s is down.\n\n\n",
 		       service_starting_stopping->name);
 		return FALSE;
 
 	case IS_UP:
-		printf("Service %s is up.\n", service_starting_stopping->name);
+		print_out("Service %s is up.\n", service_starting_stopping->name);
 		return FALSE;
 
 	case IS_FAILED:
-		printf("Service \"%s\" previously failed (%s),\nit "
+		print_out("Service \"%s\" previously failed (%s),\nit "
 		       "needs to be zaped \"ngc -z %s\", so initng "
 		       "will forget the failing state before you are "
 		       "able to retry start it.\n",
@@ -173,7 +185,8 @@ static int start_or_stop_command(reply * rep)
 		switch (e->state_type) {
 		case SERVICE_STATE_CHANGE:
 		case INITIAL_SERVICE_STATE_CHANGE:
-			go = service_change(e->payload.service_state_change.
+			go = service_change(rep->result.c,
+					    e->payload.service_state_change.
 					    service,
 					    e->payload.service_state_change.is,
 					    e->payload.service_state_change.
@@ -210,8 +223,6 @@ static int send_and_handle(const char c, const char *l, const char *opt,
 	char *string = NULL;
 	reply *rep = NULL;
 
-	/*printf("send_and_handle(%c, %s, %s);\n", c, l, opt); */
-
 	rep = ngcclient_send_command(socket_filename, c, l, opt);
 
 	if (ngcclient_error) {
@@ -224,27 +235,14 @@ static int send_and_handle(const char c, const char *l, const char *opt,
 		return FALSE;
 	}
 
-	/* print header if not printed before. */
-	/* TODO, put initng version from rep here */
-	if (header_printed == FALSE && quiet == FALSE) {
-		/* print banner - only on terminal */
-		if (ansi) {
-			print_out(C_FG_LIGHT_BLUE " init" C_FG_LIGHT_RED "NGC"
-				  C_FG_LIGHT_BLUE "ontrol (" C_FG_MAGENTA "%s"
-				  C_FG_LIGHT_BLUE " )" C_OFF C_FG_LIGHT_RED
-				  " by Jimmy Wennlund " C_OFF C_FG_NEON_GREEN
-				  "http://www.initng.org/" C_OFF "\n", VERSION);
-		}
-		header_printed = TRUE;
-	}
 #ifdef HAVE_NGE
 	if (instant == FALSE && quiet == FALSE) {
 		/*
 		 * there are special commands, where we wanna
-		 * initziate nge, and follow the service.
+		 * initiate nge, and follow the service.
 		 */
-		if (rep->result.c == 'u' || rep->result.c == 'd') {
-			return (start_or_stop_command(rep));
+		if (rep->result.c == 'u' || rep->result.c == 'd' || rep->result.c == 'r') {
+			return (start_or_stop_command(rep, opt));
 		}
 	}
 #endif
@@ -252,7 +250,7 @@ static int send_and_handle(const char c, const char *l, const char *opt,
 	/* only print when not quiet */
 	if (quiet == FALSE) {
 		string = ngcclient_reply_to_string(rep, ansi);
-		print_out("\n\n%s\n", string);
+		print_out("%s\n", string);
 		free(string);
 	}
 
@@ -265,13 +263,6 @@ int main(int argc, char *argv[])
 {
 	int instant = FALSE;
 	int cc = 1;
-
-	/*
-	 * Only on first input from initng, we will print a
-	 * initng header with version info, after then
-	 * header_printed is true, and probits this.
-	 */
-	header_printed = FALSE;
 
 	/*
 	 * If output to a terminal, turn on ansi colors.
@@ -348,6 +339,6 @@ int main(int argc, char *argv[])
 			cc++;
 	}
 
-	print_out("\n\n");
+	print_out("\n");
 	exit(0);
 }

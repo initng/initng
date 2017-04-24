@@ -53,6 +53,8 @@ int initng_active_db_count(a_state_h * state_to_count)
 			case IS_FAILED:
 			case IS_DOWN:
 				continue;
+			default:
+				break;
 			}
 
 			counter++;

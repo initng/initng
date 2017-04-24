@@ -76,6 +76,9 @@ active_db_h *initng_active_db_find_by_pid(pid_t pid)
 	while_active_db(currentA) {
 		currentP = NULL;
 		while_processes(currentP, currentA) {
+			if (currentP->pst != P_ACTIVE)
+				continue;
+
 			if (currentP->pid == pid)
 				return currentA;
 		}

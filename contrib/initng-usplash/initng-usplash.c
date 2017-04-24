@@ -289,7 +289,7 @@ int main(int argc, char *argv[])
 
 	/* open correct socket */
 	while (!c) {
-		/* reset error every time, or you get an can not connect to socket */
+		/* reset error every time, or you get an cannot connect to socket */
 		ngeclient_error = NULL;
 		c = ngeclient_connect(NGE_REAL);
 		usleep(100);

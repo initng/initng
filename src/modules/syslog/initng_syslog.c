@@ -29,6 +29,7 @@
 #include <assert.h>
 #include <stdarg.h>
 #include <syslog.h>
+#include <signal.h>
 
 #include "initng_syslog.h"
 
@@ -44,6 +45,7 @@ const struct initng_module initng_module = {
 
 static void syslog_print_system_state(s_event * event);
 static void syslog_print_status_change(s_event * event);
+static void syslog_print_status_killed(s_event * event);
 static void check_syslog(void);
 static void initng_log(int prio, const char *owner, const char *format, ...);
 static void free_buffert(void);
@@ -143,6 +145,25 @@ static void initng_log(int prio, const char *owner, const char *format, ...)
 	va_end(ap);
 }
 
+static void syslog_print_status_killed(s_event * event)
+{
+	s_event_handle_killed_data * data;
+	assert(event->event_type == &EVENT_HANDLE_KILLED);
+	assert(event->data);
+	data = event->data;
+	if (strcmp(data->process->pt->name, "daemon") != 0)
+		return;
+	if (WIFSIGNALED(data->process->r_code))
+	{
+		int sig = WTERMSIG(data->process->r_code);
+		if (sig != SIGTERM)
+		{
+			initng_log(LOG_ALERT, NULL, "%s %s has been killed by signal %d !!!",
+			    data->process->pt->name, data->service->name, sig);
+		}
+	}
+}
+
 /* add values to syslog database */
 static void syslog_print_status_change(s_event * event)
 {
@@ -181,6 +202,8 @@ static void syslog_print_status_change(s_event * event)
 	case IS_STARTING:
 		initng_log(LOG_NOTICE, NULL, "Service %s is starting.\n",
 			   service->name);
+		break;
+	default:
 		break;
 	}
 }
@@ -341,6 +364,7 @@ int module_init(void)
 				   &syslog_print_system_state);
 	initng_event_hook_register(&EVENT_BUFFER_WATCHER, &syslog_fetch_output);
 	initng_event_hook_register(&EVENT_ERROR_MESSAGE, &syslog_print_error);
+	initng_event_hook_register(&EVENT_HANDLE_KILLED, &syslog_print_status_killed);
 
 	return TRUE;
 }
@@ -354,6 +378,7 @@ void module_unload(void)
 	initng_event_hook_unregister(&EVENT_BUFFER_WATCHER,
 				     &syslog_fetch_output);
 	initng_event_hook_unregister(&EVENT_ERROR_MESSAGE, &syslog_print_error);
+	initng_event_hook_unregister(&EVENT_HANDLE_KILLED, &syslog_print_status_killed);
 	free_buffert();
 	closelog();
 }

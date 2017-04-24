@@ -8,6 +8,9 @@ ARG_ENABLE WITH_POSIXLY_IFILES posix-ifiles Force posixly correct iFiles ;
 ARG_ENABLE WITH_CHECK_RO check-ro Explicitly check for the root fs to be mounted read-only ;
 ARG_ENABLE WITH_SELINUX selinux Enable use of SELinux ;
 ARG_ENABLE INSTALL_AS_INIT install-as-init Install initng as complete replacement for SysVInit ;
+ARG_ENABLE WITH_NGE nge Do not use ngc module with nge module ;
+ARG_DISABLE WITH_INITCTL initctl Do not use initctl module ;
+ARG_DISABLE WITH_DBUS_EVENT dbus Do not use dbus event module ;
 
 (( needed programs ))
 CHECK_PROGRAM! JAM jam
@@ -58,5 +61,5 @@ SUBDIRS ./src/modules/service_file/wrappers/gentoo ;
 SUBDIRS ./src/modules/service_file/wrappers/sh ;
 
 (( final report about build arguments ))
-REPORT INSTALL_AS_INIT WITH_COLORS WITH_POSIXLY_IFILES WITH_CHECK_RO WITH_SELINUX ;
+REPORT INSTALL_AS_INIT WITH_COLORS WITH_POSIXLY_IFILES WITH_CHECK_RO WITH_SELINUX WITH_NGE WITH_INITCTL WITH_DBUS_EVENT ;
 
