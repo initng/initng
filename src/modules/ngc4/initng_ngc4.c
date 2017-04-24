@@ -338,7 +338,7 @@ static void handle_client(int fd)
 			    ((char *)header_data);
 
 			/* Write a header respond */
-			result->s = (ret == TRUE) ? S_TRUE : S_FALSE;
+			result->s = (ret > 0) ? S_TRUE : S_FALSE;
 			result->payload = sizeof(int);
 
 			/* send the result */
