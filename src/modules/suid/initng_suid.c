@@ -116,7 +116,7 @@ static void do_suid(s_event * event)
 
 	if (gid) {
 		D_("Change to gid %i", gid);
-		if (!setgid(gid)) {
+		if (setgid(gid)) {
 			F_("Cannot change to gid %i", gid);
 		}
 	}
@@ -126,7 +126,7 @@ static void do_suid(s_event * event)
 
 	if (uid) {
 		D_("Change to uid %i", uid);
-		if (!setuid(uid)) {
+		if (setuid(uid)) {
 			F_("Cannot change to uid %i", uid);
 		}
 
