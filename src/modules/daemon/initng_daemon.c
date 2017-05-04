@@ -325,7 +325,7 @@ a_state_h DAEMON_WAITING_FOR_START_DEP = {
 	.is = IS_STARTING,
 	.interrupt = &handle_DAEMON_WAITING_FOR_START_DEP,
 	.init = NULL,
-	.alarm = &handle_DAEMON_WAITING_FOR_START_DEP
+	.alarm = NULL
 };
 
 /*
@@ -349,7 +349,7 @@ a_state_h DAEMON_START_DEPS_MET = {
 	.is = IS_STARTING,
 	.interrupt = NULL,
 	.init = &init_DAEMON_START_DEPS_MET,
-	.alarm = &init_DAEMON_START_DEPS_MET
+	.alarm = NULL
 };
 
 /*
@@ -500,7 +500,7 @@ a_state_h DAEMON_WAITING_FOR_UP_CHECK = {
 	.is = IS_STARTING,
 	.interrupt = &check_DAEMON_UP,
 	.init = NULL,
-	.alarm = &check_DAEMON_UP
+	.alarm = NULL
 };
 
 a_state_h DAEMON_FAIL_START_NONEXIST = {

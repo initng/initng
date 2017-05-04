@@ -204,7 +204,7 @@ a_state_h SERVICE_WAITING_FOR_START_DEP = {
 	.is = IS_STARTING,
 	.interrupt = &handle_SERVICE_WAITING_FOR_START_DEP,
 	.init = NULL,
-	.alarm = &handle_SERVICE_WAITING_FOR_START_DEP
+	.alarm = NULL
 };
 
 /*
@@ -357,7 +357,7 @@ a_state_h SERVICE_WAITING_FOR_UP_CHECK = {
 	.is = IS_STARTING,
 	.interrupt = &check_SERVICE_UP,
 	.init = NULL,
-	.alarm = &check_SERVICE_UP
+	.alarm = NULL
 };
 
 a_state_h SERVICE_FAIL_STOP_NONEXIST = {

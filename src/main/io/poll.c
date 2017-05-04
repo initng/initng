@@ -55,6 +55,7 @@ void initng_io_module_poll(int timeout)
 	struct timeval tv;
 	int retval;
 	int added = 0;
+	int nfds = -1;
 	active_db_h *currentA, *qA;
 	process_h *currentP, *qP;
 	pipe_h *current_pipe;
@@ -109,7 +110,9 @@ void initng_io_module_poll(int timeout)
 						current_pipe->pipe[0] = -1;
 						continue;
 					}
-
+					if (current_pipe->pipe[0] > nfds) {
+						nfds = current_pipe->pipe[0];
+					}
 					FD_SET(current_pipe->pipe[0], &readset);
 					added++;
 				}
@@ -124,7 +127,9 @@ void initng_io_module_poll(int timeout)
 						current_pipe->pipe[1] = -1;
 						continue;
 					}
-
+					if (current_pipe->pipe[1] > nfds) {
+						nfds = current_pipe->pipe[1];
+					}
 					FD_SET(current_pipe->pipe[1], &readset);
 					added++;
 				}
@@ -139,7 +144,9 @@ void initng_io_module_poll(int timeout)
 						current_pipe->pipe[1] = -1;
 						continue;
 					}
-
+					if (current_pipe->pipe[1] > nfds) {
+						nfds = current_pipe->pipe[1];
+					}
 					FD_SET(current_pipe->pipe[1],
 					       &writeset);
 					added++;
@@ -161,7 +168,7 @@ void initng_io_module_poll(int timeout)
 	D_("%i file descriptors added.\n", added);
 
 	/* make the select */
-	retval = select(256, &readset, &writeset, &errset, &tv);
+	retval = select(nfds + 1, &readset, &writeset, &errset, &tv);
 
 	/* error - Truly a interrupt */
 	if (retval < 0) {
