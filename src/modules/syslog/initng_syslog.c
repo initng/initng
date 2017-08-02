@@ -125,19 +125,18 @@ static void initng_log(int prio, const char *owner, const char *format, ...)
 		log_ent *tmp = (log_ent *) initng_toolbox_calloc(1,
 							 sizeof(log_ent));
 
-		if (!tmp)
-			return;
+		if (tmp) {
+			tmp->prio = prio;
+			vsnprintf(b, 200, format, ap);
+			tmp->buffert = initng_toolbox_strdup(b);
 
-		tmp->prio = prio;
-		vsnprintf(b, 200, format, ap);
-		tmp->buffert = initng_toolbox_strdup(b);
+			if (owner)
+				tmp->owner = initng_toolbox_strdup(owner);
+			else
+				tmp->owner = NULL;
 
-		if (owner)
-			tmp->owner = initng_toolbox_strdup(owner);
-		else
-			tmp->owner = NULL;
-
-		initng_list_add(&tmp->list, &log_list.list);
+			initng_list_add(&tmp->list, &log_list.list);
+		}
 	}
 
 	va_end(ap);
