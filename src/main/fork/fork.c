@@ -105,7 +105,7 @@ inline static void pipes_setup_local_side(process_h *process)
 		int i;
 
 		/* for every target */
-		for (i = 0; pipe->targets[i] > 0 && i < MAX_TARGETS; i++) {
+		for (i = 0; i < MAX_TARGETS && pipe->targets[i] > 0; i++) {
 			/* close any conflicting one */
 			close(pipe->targets[i]);
 
