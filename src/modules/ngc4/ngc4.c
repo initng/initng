@@ -61,48 +61,43 @@ int ansi = FALSE;
 #define TMP_UNQUIET if(quiet == 3) quiet = FALSE;
 
 #ifdef HAVE_NGE
-active_row *service_starting_stopping = NULL;
+
+char servicename[2048] = {0};
 
 static int service_change(char command, char *service, e_is is, char *state)
 {
-	if (strcmp(service_starting_stopping->name, service) != 0) {
-		/* print_out("Dont wanna listen on request=\"%s\" saved=\"%s\" \n", service, service_starting_stopping->name); */
-		return 1;
-	}
-
 	switch (is) {
 	case IS_UP:
-		print_out("\nService \"%s\" is started!\n", service);
 		/* Close the event socket, and ngclient_exec() should return */
-		if (command == 'u' || command == 'r') {
+		if ((strcmp(servicename, service) == 0) && (command == 'u' || command == 'r')) {
+			print_out("\nService \"%s\" is started!\n", service);
 			return 0;
 		}
 		break;
 
 	case IS_DOWN:
-		print_out("\nService \"%s\" have stopped!\n", service);
 		/* Close the event socket, and ngclient_exec() should return */
-		if (command == 'd') {
+		if (strcmp(servicename, service) == 0 && command == 'd') {
+			print_out("\nService \"%s\" have stopped!\n", service);
 			return 0;
 		}
 		break;
 
 	case IS_FAILED:
-		print_out("\nService \"%s\" have failed!\n", service);
-		/* Close the event socket, and ngclient_exec() should
-		 * return */
-		return 0;
+		/* Close the event socket, and ngclient_exec() should return */
+		if(strcmp(servicename, service) == 0) {
+			print_out("\nService \"%s\" have failed!\n", service);
+			return 0;
+		}
 	default:
-		/* print_out("\nService \"%s\" is now in state: %s\n", service, state); */
 		break;
 	}
-
 	return 1;
 }
 
 static void service_output(char *service, char *process, char *output)
 {
-	if (strcmp(service_starting_stopping->name, service) != 0)
+	if (strcmp(servicename, service) != 0)
 		return;
 
 	fprintf(stdout, "%s", output);
@@ -114,49 +109,43 @@ static int start_or_stop_command(reply * rep, const char* opt)
 	nge_event *e;
 	int go = 1;
 
-	service_starting_stopping = rep->payload;
+	active_row *payload = rep->payload;
+
+	/* set servicename of interest*/
+	if (strlen(servicename) == 0 && opt != NULL) {
+		strncpy(servicename, opt, sizeof(servicename) - 1);
+	}
 
 	/* check what state they are in */
-	switch (service_starting_stopping->is) {
+	switch (payload->is) {
 	case IS_NEW:
-		if (strlen(service_starting_stopping->name) == 0 && opt != NULL){
-			strncpy(service_starting_stopping->name, opt, 100);
-		}
-		print_out("Parsing service \"%s\", hang on..\n",
-			  service_starting_stopping->name);
+		print_out("Parsing service \"%s\", hang on..\n", payload->name);
 		break;
 	case IS_STARTING:
-		print_out("Starting service \"%s\", hang on..\n",
-			  service_starting_stopping->name);
+		print_out("Starting service \"%s\", hang on..\n", payload->name);
 		break;
-
 	case IS_STOPPING:
-		print_out("Stopping service \"%s\", hang on..\n\n\n",
-			  service_starting_stopping->name);
+		print_out("Stopping service \"%s\", hang on..\n", payload->name);
 		break;
-
 	case IS_DOWN:
-		print_out("Service %s is down.\n\n\n",
-		       service_starting_stopping->name);
+		print_out("Service %s is down.\n", payload->name);
 		return FALSE;
-
 	case IS_UP:
-		print_out("Service %s is up.\n", service_starting_stopping->name);
+		print_out("Service %s is up.\n", payload->name);
 		return FALSE;
-
 	case IS_FAILED:
-		print_out("Service \"%s\" previously failed (%s),\nit "
+		print_out("Service \"%s\" previously failed (%s).\n\nIt "
 		       "needs to be zaped \"ngc -z %s\", so initng "
 		       "will forget the failing state before you are "
-		       "able to retry start it.\n",
-		       service_starting_stopping->name,
-		       service_starting_stopping->state,
-		       service_starting_stopping->name);
+		       "able to retry starting it.\n",
+			   payload->name,
+			   payload->state,
+			   payload->name);
 		return FALSE;
 
 	default:
 		print_out("Service has state: %s\n",
-			  service_starting_stopping->state);
+				payload->state);
 		return FALSE;
 	}
 

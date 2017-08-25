@@ -304,14 +304,14 @@ static void bp_new_active(bp_rep * rep, const char *type,
 
 	/* check for duplet, not parsing */
 	if (new_active && new_active->current_state != &PARSING_FOR_START) {
-		strcpy(rep->message, "Duplet found.");
+	    strcpy(rep->message, "Duplet found.");
 		rep->success = FALSE;
 		return;
 	}
 
 	/* if not found, create new service */
 	if (!new_active) {
-		/* create new service */
+	    /* create new service */
 		new_active = initng_active_db_new(service);
 		if (!new_active)
 			return;
@@ -785,9 +785,6 @@ static void create_new_active(s_event * event)
 
 	name = event->data;
 
-	/* printf("create_new_active(%s);\n", name); */
-	/* printf("service \"%s\" ", name); */
-
 	/* "this" and "any" aren't allowed service names */
 	{
 		const char *bname = initng_string_basename(name);
@@ -795,7 +792,7 @@ static void create_new_active(s_event * event)
 			return;
 	}
 
-	file = malloc(sizeof(INITNG_ROOT) + sizeof("/this") + strlen(name) + 2);
+	file = malloc(sizeof(INITNG_ROOT) + 1 + strlen(name) + sizeof("/this") + 1);
 
 	/*
 	 * scheme: "daemon/samba/smbd"
@@ -806,17 +803,19 @@ static void create_new_active(s_event * event)
 
 	strcpy(file, INITNG_ROOT "/");
 	strcat(file, name);
-
-	if (!(found = parse_new_service_file(event, file))) {
+	/* try 1*/
+	found = parse_new_service_file(event, file);
+	if (!found) {
+		/* prepare try 3 by going to the latest '/' */
 		r = strrchr(file, '/');
-
-		/* Add "this" and see if there is better luck */
+		/* add "this" and see if there is better luck */
 		strcat(file, "/this");
-		if (!(found = parse_new_service_file(event, file)) && r) {
+		/* try 2 */
+		found = parse_new_service_file(event, file);
+		if (!found && r) {
 			r[0] = '\0';
-
-			/* Add "any" */
-			strcat(file, "/any");
+			/* remove last segment and add "any" */
+			strcat(r, "/any");
 			found = parse_new_service_file(event, file);
 		}
 	}

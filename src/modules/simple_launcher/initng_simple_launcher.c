@@ -328,7 +328,7 @@ static int simple_run(active_db_h * service, process_h * process)
 	argv = NULL;
 
 	/* return result */
-	if (result == FAIL)
+	if (result == FALSE)
 		return FALSE;
 
 	return result;

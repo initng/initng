@@ -24,17 +24,17 @@
 #include <initng.h>
 
 typedef enum {
-	PING				= 0,
-	SERVICE_STATE_CHANGE		= 1,
-	SYSTEM_STATE_CHANGE		= 2,
-	ERR_MSG				= 3,
-	CONNECT				= 4,
-	DISCONNECT			= 5,
-	INITIAL_SERVICE_STATE_CHANGE	= 6,
-	INITIAL_SYSTEM_STATE_CHANGE	= 7,
-	INITIAL_STATE_FINISHED		= 8,
-	SERVICE_OUTPUT			= 9,
-	PROCESS_KILLED			= 10,
+	PING                           = 0,
+	SERVICE_STATE_CHANGE           = 1,
+	SYSTEM_STATE_CHANGE            = 2,
+	ERR_MSG                        = 3,
+	CONNECT                        = 4,
+	DISCONNECT                     = 5,
+	INITIAL_SERVICE_STATE_CHANGE   = 6,
+	INITIAL_SYSTEM_STATE_CHANGE    = 7,
+	INITIAL_STATE_FINISHED         = 8,
+	SERVICE_OUTPUT                 = 9,
+	PROCESS_KILLED                 = 10,
 } e_state_type;
 
 typedef struct {
