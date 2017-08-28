@@ -119,7 +119,7 @@ static int start_or_stop_command(reply * rep, const char* opt)
 	/* check what state they are in */
 	switch (payload->is) {
 	case IS_NEW:
-		print_out("Parsing service \"%s\", hang on..\n", payload->name);
+		print_out("Parsing service \"%s\", hang on..\n", servicename);
 		break;
 	case IS_STARTING:
 		print_out("Starting service \"%s\", hang on..\n", payload->name);

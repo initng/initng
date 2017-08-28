@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	if (servname != NULL) {
+	if (getenv("NAME") == NULL && servname != NULL) {
 		setenv("NAME", initng_string_basename(servname), 1);
 	}
 
@@ -171,7 +171,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* set up new argv */
-	new_argv[0] = malloc(sizeof(WRAPPER_PATH) + strlen(wrapper) + 1);
+	new_argv[0] = malloc(sizeof(WRAPPER_PATH) + strlen(wrapper) /*+ 1 is added by the sizeof*/);
 	strcpy(new_argv[0], WRAPPER_PATH);
 	strcat(new_argv[0], wrapper);
 	new_argv[1] = &argv[2][9];
