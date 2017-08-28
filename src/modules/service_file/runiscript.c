@@ -123,7 +123,8 @@ int main(int argc, char *argv[])
 	servname = getenv("SERVICE");
 	if (servname == NULL) {
 		servname = (char *)strstr(path, INITNG_ROOT);
-		if (servname != NULL) {
+		if (servname != NULL && strlen(servname) > (strlen(INITNG_ROOT) + 1)) {
+			servname += (strlen(INITNG_ROOT) + 1);
 			setenv("SERVICE", servname, 1);
 		}
 	}
