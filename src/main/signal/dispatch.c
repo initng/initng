@@ -27,9 +27,13 @@ void initng_signal_dispatch(void)
 		if (g.signals_got[i] == -1)
 			continue;
 
-		initng_module_callers_signal(g.signals_got[i]);
+		/* reset the signal slot */
+		int sig = g.signals_got[i];
+		g.signals_got[i] = -1;
 
-		switch (g.signals_got[i]) {
+		initng_module_callers_signal(sig);
+
+		switch (sig) {
 		/* dead children */
 		case SIGCHLD:
 			initng_signal_handle_sigchild();
@@ -40,7 +44,5 @@ void initng_signal_dispatch(void)
 		default:
 			break;
 		}
-		/* reset the signal slot */
-		g.signals_got[i] = -1;
 	}
 }
