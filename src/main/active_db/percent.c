@@ -46,6 +46,7 @@ int initng_active_db_percent_started(void)
 		assert(current->current_state);
 
 		switch (GET_STATE(current)) {
+		case IS_NEW:
 		case IS_STARTING:
 			starting++;
 			break;
