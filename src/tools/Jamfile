@@ -1,12 +1,12 @@
 SrcDir TOP src tools ;
 
-#Main itype : itype.c ;
-#LinkLibraries itype : libinitng$(SUFLIB) ;
+Main itype : itype.c ;
+LinkLibraries itype : libinitng$(SUFLIB) ;
 
 Main killalli5 : killalli5.c ;
 LinkLibraries killalli5 : libinitng$(SUFLIB) ;
 
-InstallBin $(DESTDIR)$(sbindir) : initng-segfault killalli5 ;
+InstallBin $(DESTDIR)$(sbindir) : initng-segfault itype killalli5 ;
 InstallFile $(DESTDIR)$(sysconfdir)/initng : killall5-ignore ;
 
 
