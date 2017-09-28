@@ -183,7 +183,7 @@ int main(int argc, char **argv)
 	/* copy all entries */
 	new_argc = 0;
 	for (int i = 1; argv[i]; i++) {
-		new_argv[new_argc++] = argv[i];
+		new_argv[++new_argc] = argv[i];
 	}
 
 	if (DEBUG_EXTRA) {
