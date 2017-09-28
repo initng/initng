@@ -76,7 +76,7 @@ char **initng_env_new(active_db_h * s)
 
 	/* add all static defined above in initng_environ */
 	for (nr = 0; initng_environ[nr]; nr++) {
-		env[nr] = (char *)initng_environ[nr];
+		env[nr] = initng_toolbox_strdup(initng_environ[nr]);
 	}
 
 	/* Set INITNG_PID, so we can send signals to initng */
@@ -140,7 +140,7 @@ char **initng_env_new(active_db_h * s)
 						 &itt))) {
 				if (value && (nr + 1) < allocate) {
 					env[nr] = (char *)
-						initng_toolbox_calloc(1, (1 +
+						initng_toolbox_calloc(1, (2 +
 							strlen(itt->vn) +
 							strlen(value)));
 					strcpy(env[nr], itt->vn);
