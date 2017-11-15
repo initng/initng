@@ -863,6 +863,7 @@ static void init_DAEMON_STOP_DEPS_MET(active_db_h * service)
 	/* find the daemon, and check so it still exits */
 	if (!(process = initng_process_db_get(&T_DAEMON, service))) {
 		F_("Could not find process to kill!\n");
+		initng_common_mark_service(service, &DAEMON_STOPPED);
 		return;
 	}
 
