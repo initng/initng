@@ -103,7 +103,7 @@ static void service_output(char *service, char *process, char *output)
 	fprintf(stdout, "%s", output);
 }
 
-static int start_or_stop_command(reply * rep, const char* opt)
+static int start_or_stop_command(reply * rep, const char* opt, int timeout)
 {
 	nge_connection *c = NULL;
 	nge_event *e;
@@ -170,7 +170,21 @@ static int start_or_stop_command(reply * rep, const char* opt)
 	}
 
 	/* do for every event that comes in */
-	while (go == 1 && (e = get_next_event(c, 20000))) {
+	while (go == 1) {
+
+		/* handle timeout */
+		if (timeout == 0) {
+			e = get_next_event(c, 20 * 1000); /* 20 seconds */
+			if (!e) {
+				continue;
+			}
+		} else {
+			e = get_next_event(c, timeout * 1000);
+			if (!e) {
+				break;
+			}
+		}
+
 		switch (e->state_type) {
 		case SERVICE_STATE_CHANGE:
 		case INITIAL_SERVICE_STATE_CHANGE:
@@ -192,7 +206,7 @@ static int start_or_stop_command(reply * rep, const char* opt)
 			break;
 		}
 
-		/* This will free all strings got */
+		/* this will free all strings got */
 		ngeclient_event_free(e);
 	}
 
@@ -202,12 +216,12 @@ static int start_or_stop_command(reply * rep, const char* opt)
 	}
 
 	ngeclient_close(c);
-	return TRUE;
+	return (go == 0); /* return TRUE if initNG has returned a proper status */
 }
 #endif
 
 static int send_and_handle(const char c, const char *l, const char *opt,
-			   int instant)
+			   int timeout)
 {
 	char *string = NULL;
 	reply *rep = NULL;
@@ -225,13 +239,13 @@ static int send_and_handle(const char c, const char *l, const char *opt,
 	}
 
 #ifdef HAVE_NGE
-	if (instant == FALSE && quiet == FALSE) {
+	if (timeout >= 0 && quiet == FALSE) {
 		/*
 		 * there are special commands, where we wanna
 		 * initiate nge, and follow the service.
 		 */
 		if (rep->result.c == 'u' || rep->result.c == 'd' || rep->result.c == 'r') {
-			return (start_or_stop_command(rep, opt));
+			return (start_or_stop_command(rep, opt, timeout));
 		}
 	}
 #endif
@@ -250,7 +264,7 @@ static int send_and_handle(const char c, const char *l, const char *opt,
 /* THIS IS MAIN */
 int main(int argc, char *argv[])
 {
-	int instant = FALSE;
+	int timeout = 0; /* unlimited, no timeout */
 	int cc = 1;
 
 	/*
@@ -275,7 +289,7 @@ int main(int argc, char *argv[])
 
 	/* make sure there are any arguments at all */
 	if (argc <= cc) {
-		send_and_handle('h', NULL, NULL, instant);
+		send_and_handle('h', NULL, NULL, timeout);
 		exit(0);
 	}
 
@@ -285,13 +299,13 @@ int main(int argc, char *argv[])
 
 		/* every fresh start needs a '-' char */
 		if (argv[cc][0] != '-') {
-			send_and_handle('h', NULL, NULL, instant);
+			send_and_handle('h', NULL, NULL, timeout);
 			exit(1);
 		}
 
 		/* check that there is a char after the '-' */
 		if (!argv[cc][1]) {
-			send_and_handle('h', NULL, NULL, instant);
+			send_and_handle('h', NULL, NULL, timeout);
 			exit(1);
 		}
 
@@ -302,9 +316,17 @@ int main(int argc, char *argv[])
 
 		/* if it is an --option */
 		if (argv[cc][1] == '-') {
-			/* handle local --instant */
+			/* handle local --timeout */
 			if (strcmp(&argv[cc][2], "instant") == 0) {
-				instant = TRUE;
+				cc++;
+				timeout = -1; /* do not wait */
+				continue;
+			}
+
+			/* handle local --timeout */
+			if (strcmp(&argv[cc][2], "timeout") == 0) {
+				cc++;
+				timeout = atoi(argv[cc]); /* wait for timeout */
 				cc++;
 				continue;
 			}
@@ -316,10 +338,10 @@ int main(int argc, char *argv[])
 				continue;
 			}
 
-			if (!send_and_handle('\0', &argv[cc][2], opt, instant))
+			if (!send_and_handle('\0', &argv[cc][2], opt, timeout))
 				exit(1);
 		} else {
-			if (!send_and_handle(argv[cc][1], NULL, opt, instant))
+			if (!send_and_handle(argv[cc][1], NULL, opt, timeout))
 				exit(1);
 		}
 
