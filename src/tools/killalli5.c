@@ -195,7 +195,7 @@ static int readproc(void)
 	PROC *p, *n;
 	struct dirent *d;
 	struct stat st;
-	char path[256];
+	char path[512];
 	char buf[256];
 	char *s, *q;
 	unsigned long startcode, endcode;
