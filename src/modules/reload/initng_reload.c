@@ -643,8 +643,8 @@ static int write_file(const char *filename)
 
 			/* maximum data entries that can be saved */
 			if (i == MAX_ENTRYS_FOR_SERVICE) {
-				F_("Maximum 20 data entries / service can't "
-				   "be saved!\n");
+				F_("Maximum %d data entries '%s' service can't "
+				   "be saved!\n", MAX_ENTRYS_FOR_SERVICE, entry.name);
 				success = FALSE;
 				break;
 			}
