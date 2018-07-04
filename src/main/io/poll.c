@@ -25,6 +25,7 @@
 #include <errno.h>
 #include <string.h>
 #include <fcntl.h>		/* fcntl() */
+#include <signal.h>
 
 #include <sys/select.h>
 
@@ -52,7 +53,7 @@ void initng_io_module_poll(int timeout)
 {
 	/* Variables */
 	fd_set readset, writeset, errset;
-	struct timeval tv;
+	struct timespec tv;
 	int retval;
 	int added = 0;
 	int nfds = -1;
@@ -68,7 +69,7 @@ void initng_io_module_poll(int timeout)
 
 	/* Set timeval struct, to our timeout */
 	tv.tv_sec = timeout;
-	tv.tv_usec = 0;
+	tv.tv_nsec = 0;
 
 	/*
 	 * STEP 1:  Scan for fds to add
@@ -159,24 +160,47 @@ void initng_io_module_poll(int timeout)
 	 * STEP 2: Do the select-poll, if any fds where added
 	 */
 
-	/* check if there are any set */
-	if (added <= 0) {
-		D_("No file descriptors set.\n");
-		sleep(timeout);
+	/* prepare signal mask  */
+	sigset_t mask;
+	sigemptyset(&mask);
+	sigaddset(&mask, SIGCHLD);
+	sigaddset(&mask, SIGINT);
+	sigaddset(&mask, SIGALRM);
+	sigaddset(&mask, SIGWINCH);
+	sigaddset(&mask, SIGHUP);
+	sigaddset(&mask, SIGPIPE);
+
+	/* block signals */
+	sigprocmask(SIG_BLOCK, &mask, NULL);
+
+	/* check signal set */
+	if (is_signal_set() == TRUE) {
+		/* unblock signals */
+		sigprocmask(SIG_UNBLOCK, &mask, NULL);
 		return;
 	}
-	D_("%i file descriptors added.\n", added);
 
-	/* make the select */
-	retval = select(nfds + 1, &readset, &writeset, &errset, &tv);
+	/* pselect allowing to receive signals */
+	sigset_t empty_mask;
+	sigemptyset(&empty_mask);
+	if (added <= 0) {
+		D_("No file descriptors set.\n");
+		retval = pselect(0, NULL, NULL, NULL, &tv, &empty_mask);
+	} else {
+		D_("%i file descriptors added.\n", added);
+		retval = pselect(nfds + 1, &readset, &writeset, &errset, &tv, &empty_mask);
+	}
 
-	/* error - Truly a interrupt */
+	/* unblock signals */
+	sigprocmask(SIG_UNBLOCK, &mask, NULL);
+
+	/* error - truly a interrupt */
 	if (retval < 0) {
 		D_("Select returned %i\n", retval);
 		return;
 	}
 
-	/* none was found */
+	/* timeout */
 	if (retval == 0) {
 		D_("There was no data found on any added fd.\n");
 		return;
