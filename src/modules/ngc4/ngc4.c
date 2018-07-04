@@ -170,13 +170,20 @@ static int start_or_stop_command(reply * rep, const char* opt, int timeout)
 	}
 
 	/* do for every event that comes in */
+	int retry = 10;
 	while (go == 1) {
 
 		/* handle timeout */
 		if (timeout == 0) {
 			e = get_next_event(c, 20 * 1000); /* 20 seconds */
-			if (!e) {
+			if (!e && retry > 0) {
+				retry--;
+				sleep(1);
 				continue;
+			}
+			else if (!e && retry <= 0)
+			{
+				break;
 			}
 		} else {
 			e = get_next_event(c, timeout * 1000);
