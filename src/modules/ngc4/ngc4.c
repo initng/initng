@@ -77,7 +77,7 @@ static int service_change(char command, char *service, e_is is, char *state)
 
 	case IS_DOWN:
 		/* Close the event socket, and ngclient_exec() should return */
-		if (strcmp(servicename, service) == 0 && (command == 'd' || command == 'u' || command == 'r')) {
+		if (strcmp(servicename, service) == 0 && (command == 'd' || command == 'u')) {
 			print_out("\nService \"%s\" have stopped!\n", service);
 			return 0;
 		}
