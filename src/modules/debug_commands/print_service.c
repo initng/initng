@@ -216,7 +216,7 @@ static void active_db_print_u(active_db_h * s, char **string)
 		initng_string_mprintf(string, "\"\n");
 	}
 
-	gettimeofday(&now, NULL);
+	initng_gettime_monotonic(&now);
 
 	initng_string_mprintf(string, "\tTIMES:\n\t last_rought: %ims\n"
 		"\t last_state: %ims\n\t current_state: %ims\n",
