@@ -58,7 +58,7 @@ int main(int argc, char *argv[], char *env[])
 	S_;
 
 	/* get the time */
-	gettimeofday(&last, NULL);
+	initng_gettime_monotonic(&last);
 
 	/* Initialize global variables */
 	initng_config_global_new(argc, argv, env);
@@ -128,7 +128,7 @@ int main(int argc, char *argv[], char *env[])
 
 		/* Update current time, save this in global so we don't need
 		 * to call time() that often. */
-		gettimeofday(&g.now, NULL);
+		initng_gettime_monotonic(&g.now);
 
 		/*
 		 * If it has gone more then 1h since last

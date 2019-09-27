@@ -475,7 +475,7 @@ char *ngc_active_db(reply * rep, int ansi)
 
 	assert(rep);
 
-	gettimeofday(&now, NULL);
+	initng_gettime_monotonic(&now);
 
 	/* print head */
 	if (ansi) {

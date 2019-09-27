@@ -211,7 +211,7 @@ void active_db_print(active_db_h * s)
 		printf("\"\n#");
 	}
 
-	gettimeofday(&now, NULL);
+	initng_gettime_monotonic(&now);
 
 	printf("\t TIMES:\n#\t last_rought: %ims\n#\t last_state: %ims\n#"
 	       "\t current_state: %ims\n#",

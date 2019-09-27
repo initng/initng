@@ -378,7 +378,7 @@ static char *cmd_print_uptime(char *arg)
 		return string;
 	}
 
-	gettimeofday(&now, NULL);
+	initng_gettime_monotonic(&now);
 
 	{
 		string = initng_toolbox_calloc(50, 1);

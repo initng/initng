@@ -432,7 +432,7 @@ static void fetch_output(s_event * event)
 	/* set data in struct */
 	tmp_e->service = data->service;
 	tmp_e->name = NULL;
-	gettimeofday(&tmp_e->time, NULL);
+	initng_gettime_monotonic(&tmp_e->time);
 	tmp_e->data = initng_toolbox_strdup(data->buffer_pos);
 	tmp_e->action = NULL;
 

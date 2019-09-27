@@ -61,7 +61,7 @@ active_db_h *initng_active_db_new(const char *name)
 	DATA_HEAD_INIT_REQUEST(&new_active->data, NULL, NULL);
 
 	/* get the time, and copy that time to all time entries */
-	gettimeofday(&new_active->time_current_state, NULL);
+	initng_gettime_monotonic(&new_active->time_current_state);
 	memcpy(&new_active->time_last_state, &new_active->time_current_state,
 	       sizeof(struct timeval));
 	memcpy(&new_active->last_rought_time, &new_active->time_current_state,
