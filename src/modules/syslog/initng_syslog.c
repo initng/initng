@@ -56,6 +56,16 @@ log_ent log_list;
 
 extern void vsyslog(int, const char*, va_list); // FIXME : this isn't standard
 
+/*
+ * Forward output to syslog.
+ */
+s_entry FORWARD_TO_SYSLOG = {
+    .name = "forward_to_syslog",
+    .description = "Forward output to syslog",
+    .type = SET,
+    .ot = NULL,
+};
+
 
 static void check_syslog(void)
 {
@@ -278,6 +288,9 @@ static void syslog_fetch_output(s_event * event)
 	assert(data->service);
 	assert(data->service->name);
 
+	if (!is(&FORWARD_TO_SYSLOG, data->service))
+	    return;
+
 	/* print every line, ending with a '\n' as an own syslog */
 	while (data->buffer_pos[pos]) {
 		i = 0;
@@ -352,6 +365,8 @@ int module_init(void)
 {
 	D_("Initializing syslog module\n");
 
+	initng_service_data_type_register(&FORWARD_TO_SYSLOG);
+
 	initng_list_init(&log_list.list);
 	check_syslog();
 
@@ -371,7 +386,9 @@ int module_init(void)
 
 void module_unload(void)
 {
-	initng_event_hook_unregister(&EVENT_IS_CHANGE,
+    initng_service_data_type_unregister(&FORWARD_TO_SYSLOG);
+
+    initng_event_hook_unregister(&EVENT_IS_CHANGE,
 				     &syslog_print_status_change);
 	initng_event_hook_unregister(&EVENT_SYSTEM_CHANGE,
 				     &syslog_print_system_state);
