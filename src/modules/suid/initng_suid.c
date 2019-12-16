@@ -17,7 +17,7 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#define _BSD_SOURCE	/* initgroups() */
+#define _DEFAULT_SOURCE	/* initgroups() */
 
 #include <initng.h>
 
@@ -116,7 +116,9 @@ static void do_suid(s_event * event)
 
 	if (gid) {
 		D_("Change to gid %i", gid);
-		setgid(gid);
+		if (setgid(gid)) {
+			F_("Cannot change to gid %i", gid);
+		}
 	}
 
 	if (passwd)
@@ -124,7 +126,9 @@ static void do_suid(s_event * event)
 
 	if (uid) {
 		D_("Change to uid %i", uid);
-		setuid(uid);
+		if (setuid(uid)) {
+			F_("Cannot change to uid %i", uid);
+		}
 
 		/* Set UID-related env variables */
 		adjust_env(data->service, "USER", passwd->pw_name);

@@ -89,6 +89,8 @@ static void check_conflict(s_event * event)
 			F_("Service \"%s\" is conflicting with service "
 			   "\"%s\"!\n", service->name, s->name);
 			return;
+		default:
+			break;
 		}
 	}
 }

@@ -17,23 +17,18 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef INITNG_TOOLBOX_H
-#define INITNG_TOOLBOX_H
+#include <time.h>
 
-#include <sys/time.h>
+#include <initng.h>
 
-#include <initng/misc.h>
+/* Get monotonic time. */
+int initng_gettime_monotonic(struct timeval *tval)
+{
+	struct timespec tspec = { 0 };
+	int status = clock_gettime(CLOCK_MONOTONIC, &tspec);
 
-void *initng_toolbox_calloc(size_t nmemb, size_t size);
+	tval->tv_sec = tspec.tv_sec;
+	tval->tv_usec = tspec.tv_nsec/1000;
 
-void *initng_toolbox_realloc(void *ptr, size_t size);
-
-char *initng_toolbox_strdup(const char *s);
-
-char *initng_toolbox_strndup(const char *s, size_t n);
-
-int initng_toolbox_set_proc_title(const char *fmt, ...);
-
-#define MS_DIFF(A, B) (int)((int)(((A).tv_sec * 1000) + ((A).tv_usec / 1000)) - (int)(((B).tv_sec * 1000) + ((B).tv_usec / 1000)))
-int initng_gettime_monotonic(struct timeval *tv);
-#endif /* INITNG_TOOLBOX_H */
+	return status;
+}

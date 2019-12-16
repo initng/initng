@@ -45,6 +45,8 @@ int initng_handler_stop_all(void)
 		case IS_DOWN:
 		case IS_FAILED:
 			continue;
+		default:
+			break;
 		}
 
 		/* stop services */

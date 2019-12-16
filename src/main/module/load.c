@@ -19,6 +19,7 @@
 
 /* FIXME : avoid guessing the module name, just rely on module_open. */
 
+#define _DEFAULT_SOURCE /* scandir */
 
 #include <stdlib.h>
 #include <sys/stat.h>
@@ -29,8 +30,7 @@
 #include <fnmatch.h>
 #include <errno.h>
 
-#include <sys/types.h>	/* {open,read}dir */
-#include <dirent.h>	/* {open,read}dir */
+#include <dirent.h>	/* scandir */
 #include <limits.h>	/* NAME_MAX */
 
 #include <initng.h>
@@ -283,20 +283,30 @@ int initng_module_load_all(const char *path)
 	/* memory for full path */
 	modpath = initng_toolbox_calloc(strlen(path) + NAME_MAX + 2, 1);
 
-	/* open module dir */
-	DIR *pdir = opendir(path);
-	if (!pdir) {
-		F_("Unable to open module directory %s.\n", path);
+	/* get every entry */
+	struct dirent *file, **namelist;
+	int i, n;
+
+	/* load modules using alphasort to make the order deterministic,
+	 * then the loading order is used as the module hooks execution order,
+	 * so using alphabetical order ensures suid module hooks will be executed
+	 * quite after other hooks.
+	 * (it's easier to drop priviledge after setting most of other target options). */
+	n = scandir(path, &namelist, NULL, alphasort);
+	if (n == -1) {
+		int err_tmp = errno;
+		F_("Unable to scan module directory %s, errno: %s.", path, err_tmp);
 		return FALSE;
 	}
 
-	/* get every entry */
-	struct dirent *file;
-	while ((file = readdir(pdir))) {
+	for (i=0; i<n; i++) {
+		file = namelist[i];
 		/* skip files without the "mod" prefix */
 		if (file->d_name[0] != 'm' || file->d_name[1] != 'o'
-		    || file->d_name[2] != 'd')
+		    || file->d_name[2] != 'd') {
+			free(file);
 			continue;
+		}
 
 		/* remove suffix and prefix */
 		module = initng_toolbox_strndup(file->d_name + 3,
@@ -305,6 +315,7 @@ int initng_module_load_all(const char *path)
 		/* check if the module is blacklisted */
 		if (initng_common_service_blacklisted(module)) {
 			F_("Module %s blacklisted.\n", module);
+			free(file);
 			free(module);
 			module = NULL;
 			continue;
@@ -313,7 +324,7 @@ int initng_module_load_all(const char *path)
 		strcpy(modpath, path);
 		strcat(modpath, "/");
 		strcat(modpath, file->d_name);
-
+		free(file);
 
 		current = initng_module_open(modpath, module);
 		free(module);
@@ -330,8 +341,8 @@ int initng_module_load_all(const char *path)
 		success = TRUE;
 	}	
 
-	closedir(pdir);
 	free(modpath);
+	free(namelist);
 
 	/* load the entries on our TODO list */
 	while_module_db_safe(current, safe) {

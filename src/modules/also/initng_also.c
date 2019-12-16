@@ -102,6 +102,9 @@ static void service_state(s_event * event)
 			}
 		}
 		break;
+
+	default:
+		break;
 	}
 }
 

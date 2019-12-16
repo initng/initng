@@ -129,6 +129,8 @@ static void timeout_DAEMON_KILL(active_db_h * daemon);
 static void init_DAEMON_TERM(active_db_h * daemon);
 static void timeout_DAEMON_TERM(active_db_h * daemon);
 
+static void check_DAEMON_UP(active_db_h * service);
+
 /*
  * ############################################################################
  * #                        PROCESS TYPE FUNCTION DEFINES                     #
@@ -318,7 +320,7 @@ a_state_h DAEMON_RUNNING = {
  */
 a_state_h DAEMON_WAITING_FOR_START_DEP = {
 	.name = "DAEMON_WAITING_FOR_START_DEP",
-	.description = "Waiting for depdencencies before starting this "
+	.description = "Waiting for dependencies before starting this "
 	    "daemon",
 	.is = IS_STARTING,
 	.interrupt = &handle_DAEMON_WAITING_FOR_START_DEP,
@@ -343,7 +345,7 @@ a_state_h DAEMON_WAITING_FOR_STOP_DEP = {
  */
 a_state_h DAEMON_START_DEPS_MET = {
 	.name = "DAEMON_START_DEPS_MET",
-	.description = "The depdencencies for starting this daemon are met.",
+	.description = "The dependencies for starting this daemon are met.",
 	.is = IS_STARTING,
 	.interrupt = NULL,
 	.init = &init_DAEMON_START_DEPS_MET,
@@ -492,6 +494,15 @@ a_state_h DAEMON_FAIL_START_TIMEOUT_PIDFILE = {
 	.alarm = NULL
 };
 
+a_state_h DAEMON_WAITING_FOR_UP_CHECK = {
+	.name = "DAEMON_WAITING_FOR_UP_CHECK",
+	.description = "Waiting for the daemon reporting up. ",
+	.is = IS_STARTING,
+	.interrupt = &check_DAEMON_UP,
+	.init = NULL,
+	.alarm = NULL
+};
+
 a_state_h DAEMON_FAIL_START_NONEXIST = {
 	.name = "DAEMON_FAIL_START_NONEXIST",
 	.description = "Could not launch the daemon, the executable was not "
@@ -626,6 +637,7 @@ int module_init(void)
 	initng_active_state_register(&DAEMON_FAIL_START_LAUNCH);
 	initng_active_state_register(&DAEMON_FAIL_START_NONEXIST);
 	initng_active_state_register(&DAEMON_FAIL_START_TIMEOUT_PIDFILE);
+	initng_active_state_register(&DAEMON_WAITING_FOR_UP_CHECK);
 
 	initng_active_state_register(&DAEMON_FAIL_STOPPING);
 	initng_active_state_register(&DAEMON_WAIT_RESP_TOUT);
@@ -662,6 +674,7 @@ void module_unload(void)
 	initng_active_state_unregister(&DAEMON_WAIT_RESP_TOUT);
 	initng_active_state_unregister(&DAEMON_UP_CHECK_FAILED);
 	initng_active_state_unregister(&DAEMON_RESPAWN_RATE_EXCEEDED);
+	initng_active_state_unregister(&DAEMON_WAITING_FOR_UP_CHECK);
 
 	/* Delete all added variables */
 	initng_service_data_type_unregister(&PIDFILE);
@@ -840,14 +853,7 @@ static void init_DAEMON_START_DEPS_MET(active_db_h * daemon)
 
 	D_("FORKS not set, setting to DAEMON_RUNNING directly.\n");
 
-	/* check with up_check */
-	if (initng_depend_up_check(daemon) == FAIL) {
-		initng_common_mark_service(daemon, &DAEMON_UP_CHECK_FAILED);
-		return;
-	}
-
-	/* We just set it to up, as soon as it is started */
-	initng_common_mark_service(daemon, &DAEMON_RUNNING);
+	initng_common_mark_service(daemon, &DAEMON_WAITING_FOR_UP_CHECK);
 }
 
 static void init_DAEMON_STOP_DEPS_MET(active_db_h * service)
@@ -857,6 +863,7 @@ static void init_DAEMON_STOP_DEPS_MET(active_db_h * service)
 	/* find the daemon, and check so it still exits */
 	if (!(process = initng_process_db_get(&T_DAEMON, service))) {
 		F_("Could not find process to kill!\n");
+		initng_common_mark_service(service, &DAEMON_STOPPED);
 		return;
 	}
 
@@ -1017,6 +1024,25 @@ static void timeout_DAEMON_KILL(active_db_h * daemon)
 
 	/* Dont be afraid to kill again */
 	initng_handler_set_alarm(daemon, DEFAULT_KILL_TIMEOUT);
+}
+
+static void check_DAEMON_UP(active_db_h * daemon)
+{
+	switch (initng_depend_up_check(daemon)) {
+	case FALSE:
+		/* NOT UP YET! return and hope that this handler will be called*/
+		break;
+
+	case FAIL:
+		/* FAIL! */
+		initng_common_mark_service(daemon, &DAEMON_UP_CHECK_FAILED);
+		break;
+
+	default:
+		/* OK! now daemon is RUNNING! */
+		initng_common_mark_service(daemon, &DAEMON_RUNNING);
+		break;
+	}
 }
 
 /*
@@ -1462,14 +1488,7 @@ static int try_get_pid(active_db_h * s)
 		if (is(&FORKS, s))
 			p->pid = pid;
 
-		/* check with up_check */
-		if (initng_depend_up_check(s) == FAIL) {
-			initng_common_mark_service(s, &DAEMON_UP_CHECK_FAILED);
-			return FALSE;
-		}
-
-		/* set the new state */
-		initng_common_mark_service(s, &DAEMON_RUNNING);
+		initng_common_mark_service(s, &DAEMON_WAITING_FOR_UP_CHECK);
 
 		/* return HAPPILY */
 		return TRUE;

@@ -123,7 +123,7 @@ int initng_common_state_unlock(active_db_h * service)
 	/* reset alarm, set state and time */
 	service->alarm = 0;
 	service->current_state = service->next_state;
-	gettimeofday(&service->time_current_state, NULL);
+	initng_gettime_monotonic(&service->time_current_state);
 
 	/* Set INTERRUPT, the interrupt is set only when a service
 	 * changes state, and all state handlers will be called

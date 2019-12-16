@@ -98,6 +98,7 @@ int main(int argc, char *argv[])
 	if (argv[1][0] == '/') {
 		/* a full path, this is really good */
 		strncpy(path, argv[1], 1024);
+		path[1024] = 0;
 	} else if (argv[1][0] == '.') {
 		/* replace starting '.' with full path to local cwd */
 		if (!getcwd(path, 1024)) {
@@ -119,13 +120,17 @@ int main(int argc, char *argv[])
 		return 2;
 	}
 
-	/* FIXME: Should we use $SERVICE to detect when to realay the command to ngc? */
-	/*        We should never set this by ourselves... */
 	servname = getenv("SERVICE");
-	if (!servname) {
-		servname = (char *)initng_string_basename(path);
-		setenv("SERVICE", servname, 1);
-		setenv("NAME", servname, 1);
+	if (servname == NULL) {
+		servname = (char *)strstr(path, INITNG_ROOT);
+		if (servname != NULL && strlen(servname) > (strlen(INITNG_ROOT) + 1)) {
+			servname += (strlen(INITNG_ROOT) + 1);
+			setenv("SERVICE", servname, 1);
+		}
+	}
+
+	if (getenv("NAME") == NULL && servname != NULL) {
+		setenv("NAME", initng_string_basename(servname), 1);
 	}
 
 	/* check if command shud forward to a ngc command */
@@ -135,8 +140,7 @@ int main(int argc, char *argv[])
 			/* set up an arg like "/sbin/ngc --start service" */
 			new_argv[0] = (char *)"/sbin/ngc";
 			/* put new_argv = "--start" */
-			new_argv[1] =
-				calloc(strlen(ngc_args[i] + 4), 1);
+			new_argv[1] = calloc(strlen(ngc_args[i] + 4), 1);
 			new_argv[1][0] = new_argv[1][1] = '-';
 			strcat(new_argv[1], ngc_args[i]);
 			/* put service name */
@@ -167,7 +171,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* set up new argv */
-	new_argv[0] = malloc(sizeof(WRAPPER_PATH) + strlen(wrapper));
+	new_argv[0] = malloc(sizeof(WRAPPER_PATH) + strlen(wrapper) /*+ 1 is added by the sizeof*/);
 	strcpy(new_argv[0], WRAPPER_PATH);
 	strcat(new_argv[0], wrapper);
 	new_argv[1] = &argv[2][9];

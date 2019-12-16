@@ -24,5 +24,6 @@ void initng_signal_handle_sigchild(void);
 void initng_signal_enable(void);
 void initng_signal_disable(void);
 void initng_signal_dispatch(void);
+int is_signal_set(void);
 
 #endif /* INITNG_SIGNAL_H */

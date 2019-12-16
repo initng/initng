@@ -14,6 +14,10 @@ SharedLibrary modngc4.so : initng_ngc4.c ;
 InstallBin $(DESTDIR)$(moddir) : modngc4.so ;
 
 Main ngc : ngc4.c ;
+if $(WITH_NGE) = 1
+{
+    NEEDLIBS on ngc += libngeclient.so.0.0.0 ;
+}
 NEEDLIBS on ngc += libngcclient.so.0.0.0 ;
 LINKFLAGS on ngc +=
 	-Wl,--whole-archive [ FDirName $(TOP) src main libinitng$(SUFLIB) ]

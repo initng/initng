@@ -81,6 +81,9 @@ void handle(active_db_h * service)
 		case IS_DOWN:
 			if (is(&RESTARTING, service))
 				initng_handler_restart_restarting();
+
+		default:
+			break;
 		}
 		/* this will make all services, that depend of this to stop,
 		 * DEP_FAILED_TO_STOP */

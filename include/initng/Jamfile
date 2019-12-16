@@ -24,8 +24,6 @@ InstallFile $(DESTDIR)$(includedir)/initng : misc.h
 	io.h
 	module_callers.h
 	process_db.h
-	signal.h
-	string.h
 	data.h
 	toolbox.h
 	msg.h ;

@@ -36,7 +36,7 @@ int initng_depend_stop_deps(active_db_h * service)
 			continue;
 
 		/* if current depends on the one we are stopping */
-		if (initng_depend_deep(current, service) == TRUE)
+		if (initng_depend(current, service) == TRUE)
 			initng_handler_stop_service(current);
 	}
 

@@ -112,6 +112,7 @@ reply *ngcclient_send_command(const char *path, const char c, const char *l,
 	read_header header;
 	reply *rep;
 	int sock = -1;
+	int trials = 0;
 
 	/* clear structure just in case */
 	memset(&header, 0, sizeof(read_header));
@@ -134,7 +135,16 @@ reply *ngcclient_send_command(const char *path, const char c, const char *l,
 	/*print_out("Sending: %c, %s, %s\n", c, l ,o); */
 
 	/* open the socket two way to initng */
-	sock = ngcclient_open_socket(path);
+	for (;;) {
+		/* open the two way socket to initng */
+		sock = ngcclient_open_socket (path);
+		if (sock || ++trials > 1)
+			break;
+		/* Send SIGHUP signal to initng to recreate CTLDIR */
+		kill (1, SIGHUP);
+		usleep (50000);
+	}
+
 	if (sock < 1) {
 		/*
 		 * Set in ngcclient_open_socket()
@@ -178,7 +188,7 @@ reply *ngcclient_send_command(const char *path, const char c, const char *l,
 		rep->payload = (char *)strdup("On ngc -c, initng reloads "
 					      "itself. By that it closes "
 					      "the connection to ngc and so "
-					      "can not return if this "
+					      "cannot return if this "
 					      "command succeds or not.");
 		rep->result.payload = strlen(rep->payload);
 		return rep;
@@ -465,7 +475,7 @@ char *ngc_active_db(reply * rep, int ansi)
 
 	assert(rep);
 
-	gettimeofday(&now, NULL);
+	initng_gettime_monotonic(&now);
 
 	/* print head */
 	if (ansi) {

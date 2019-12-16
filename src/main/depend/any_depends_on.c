@@ -49,6 +49,8 @@ int initng_depend_any_depends_on(active_db_h * service)
 				   service->name);
 				return TRUE;
 			}
+		default:
+			break;
 		}
 	}
 

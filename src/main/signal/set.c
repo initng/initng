@@ -37,8 +37,9 @@ static void set_signal(int sig)
 {
 	for (int i = 0; i < SIGNAL_STACK; i++) {
 		/* Check if this signal type is already on the list */
-		if (g.signals_got[i] == sig)
+		if (g.signals_got[i] == sig) {
 			return;
+		}
 
 		/* else add this on a free spot */
 		if (g.signals_got[i] == -1) {
@@ -47,6 +48,18 @@ static void set_signal(int sig)
 		}
 	}
 	F_("SIGNAL STACK FULL!\n");
+}
+
+/**
+ * Check if has signal set.
+ */
+int is_signal_set(void)
+{
+	for (int i = 0; i < SIGNAL_STACK; i++) {
+		if (g.signals_got[i] != -1)
+			return TRUE;
+	}
+	return FALSE;
 }
 
 /**

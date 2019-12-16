@@ -17,11 +17,10 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#define _BSD_SOURCE
+#define _DEFAULT_SOURCE
 
-/* the standard intotify headers */
-#include "inotify.h"
-#include "inotify-syscalls.h"
+#include <sys/inotify.h>
+#include <unistd.h>
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -79,6 +79,9 @@ int initng_depend_stop_dep_met(active_db_h * service, int verbose)
 				   "WAITING_FOR_START_DEP"))
 				continue;
 			break;
+
+		default:
+			break;
 		}
 
 #ifdef DEBUG
@@ -106,7 +109,7 @@ int initng_depend_stop_dep_met(active_db_h * service, int verbose)
 		initng_event_send(&event);
 		if (event.status == FAILED) {
 			if (verbose) {
-				F_("Service %s can not be started because a "
+				F_("Service %s cannot be started because a "
 				   "module (START_DEP_MET) says so.\n",
 				   service->name);
 			}

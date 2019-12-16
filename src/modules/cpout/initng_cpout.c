@@ -272,6 +272,9 @@ static void print_output(s_event * event)
 				service->current_state->name);
 		}
 		break;
+
+	default:
+		break;
 	}
 
 	fflush(output);
@@ -344,7 +347,7 @@ static void print_system_state(s_event * event)
 				return;
 			}
 
-			gettimeofday(&now, NULL);
+			initng_gettime_monotonic(&now);
 
 			clear_lastserv();
 			cprintf("\n\n\trunlevel \"%s\" up in, %ims.\n\n",

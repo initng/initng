@@ -81,6 +81,9 @@ static void status_change(s_event * event)
 			D_("service went down\n");
 			unlink(lockfile);
 			break;
+
+		default:
+			break;
 		}
 	}
 }
